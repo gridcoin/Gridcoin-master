@@ -1,25 +1,22 @@
-Litecoin integration/staging tree
+Gridcoin integration/staging tree
 ================================
 
-http://www.litecoin.org
+http://www.gridcoin.us
 
 Copyright (c) 2009-2013 Bitcoin Developers
 Copyright (c) 2011-2013 Litecoin Developers
+Copyright (c) 2013      Gridcoin Developers
 
-What is Litecoin?
+
+What is Gridcoin?
 ----------------
 
-Litecoin is a lite version of Bitcoin using scrypt as a proof-of-work algorithm.
- - 2.5 minute block targets
- - subsidy halves in 840k blocks (~4 years)
- - ~84 million total coins
+Gridcoin:
+Algorithm: scrypt
+Re-target: 3.5 days - with 2.5 min block targets
+Block reward: 5-150, 5 if you mine with a miner like cgminer without Boinc running on the machine, 6-150 if you mine with boinc running, you receive a calculated subsidy based on boinc utilization.
+Total coins: 84 million (like litecoin)
 
-The rest is the same as Bitcoin.
- - 50 coins per block
- - 2016 blocks to retarget difficulty
-
-For more information, as well as an immediately useable, binary version of
-the Litecoin client sofware, see http://www.litecoin.org.
 
 License
 -------
@@ -70,5 +67,8 @@ Unit tests for the GUI code are in `src/qt/test/`. To compile and run them:
 
     qmake BITCOIN_QT_TEST=1 -o Makefile.test bitcoin-qt.pro
     make -f Makefile.test
-    ./litecoin-qt_test
+    ./gridcoin
+    
+    
+    
 
