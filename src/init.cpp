@@ -17,10 +17,13 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <openssl/crypto.h>
-#include <QAxObject>
-#include <ActiveQt/qaxbase.h>
-#include <ActiveQt/qaxobject.h>
-#include "global_objects.hpp"
+
+
+//   #include <QAxObject>
+//#include <ActiveQt/qaxbase.h>
+//#include <ActiveQt/qaxobject.h>
+// #include "global_objects.hpp"
+
 
 #include "global_objects_noui.hpp"
 
@@ -34,7 +37,8 @@ using namespace boost;
 CWallet* pwalletMain;
 CClientUIInterface uiInterface;
 
-QAxObject *globalcom;
+//QAxObject *globalcom;
+
 
 
 
@@ -521,10 +525,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     // ********************************************************* Step 2: parameter interactions
 
-	//ToDO: instantiate in one place
-	if (globalcom==NULL) {
-		globalcom = new QAxObject("boinc.Utilization");
-	}
+	// 10-13-2013: Gridcoin: Removed createnew() globalcom reference for headless version
 
 
     fTestNet = GetBoolArg("-testnet");

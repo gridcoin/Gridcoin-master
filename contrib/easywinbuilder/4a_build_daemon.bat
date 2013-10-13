@@ -1,7 +1,9 @@
+@set COINNAME=gridcoin
 @call set_vars.bat
 @bash patch_files.sh
-@echo Building Bitcoin daemon...
+@echo Building Gridcoin daemon...
 @rem todo: rewrite this with ^ line wrapping
+
 @set PARAMS=BOOST_SUFFIX=%BOOSTSUFFIX%
 @set PARAMS=%PARAMS% INCLUDEPATHS="
 @rem set PARAMS=%PARAMS%-I'../src'
@@ -9,6 +11,7 @@
 @set PARAMS=%PARAMS% -I'../%EWBLIBS%/%OPENSSL%/include'
 @set PARAMS=%PARAMS% -I'../%EWBLIBS%/%BERKELEYDB%/build_unix'
 @set PARAMS=%PARAMS% -I'../%EWBLIBS%/%MINIUPNPC%'
+@set PARAMS=%PARAMS% -I'../%QTPATH%/'
 @set PARAMS=%PARAMS%"
 @set PARAMS=%PARAMS% LIBPATHS="
 @set PARAMS=%PARAMS%-L'../src/leveldb'
@@ -16,6 +19,7 @@
 @set PARAMS=%PARAMS% -L'../%EWBLIBS%/%OPENSSL%'
 @set PARAMS=%PARAMS% -L'../%EWBLIBS%/%BERKELEYDB%/build_unix'
 @set PARAMS=%PARAMS% -L'../%EWBLIBS%/%MINIUPNPC%'
+@set PARAMS=%PARAMS% -L'../%QTPATH%/'
 @set PARAMS=%PARAMS%"
 @set PARAMS=%PARAMS% ADDITIONALCCFLAGS="%ADDITIONALCCFLAGS%"
 @set PARAMS=%PARAMS:\=/%

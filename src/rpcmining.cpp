@@ -8,7 +8,7 @@
 #include "init.h"
 #include "bitcoinrpc.h"
 
-#include "..\global_objects_noui.hpp"
+#include "global_objects_noui.hpp"
 using namespace json_spirit;
 using namespace std;
 
@@ -132,6 +132,7 @@ Value getworkex(const Array& params, bool fHelp)
 
             // Create new block
             pblocktemplate = CreateNewBlock(reservekey);
+			
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
             vNewBlockTemplate.push_back(pblocktemplate);
@@ -402,6 +403,8 @@ Value getblocktemplate(const Array& params, bool fHelp)
             pblocktemplate = NULL;
         }
         pblocktemplate = CreateNewBlock(*pMiningKey);
+		
+					
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 

@@ -15,6 +15,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <ctime>
 
 #include "global_objects_noui.hpp"
 
@@ -43,8 +44,12 @@ map<uint256, CBlockIndex*> mapBlockIndex;
 //////////////////////////////////////////////////////////
 //Gridcoin Genesis Block
 //////////////////////////////////////////////////////////
-uint256 hashGenesisBlock("0xc61585d69d144aa5da326c773e0b4ba303475b281028d9f05fc93ca8c9d0c33f");
+double MEGAHASH_VIOLATION_THRESHHOLD = 90;
+double MEGAHASH_VIOLATION_COUNT = 0;
+double MEGAHASH_VIOLATION_COUNT_THRESHHOLD = 4;
+double nMegaHashProtection = 0;
 
+uint256 hashGenesisBlock("0xc61585d69d144aa5da326c773e0b4ba303475b281028d9f05fc93ca8c9d0c33f");
 
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // Gridcoin: starting difficulty is 1 / 2^12
 CBlockIndex* pindexGenesisBlock = NULL;
@@ -66,6 +71,7 @@ unsigned int nCoinCacheSize = 5000;
 int nBoincUtilization = 0;
 int nPrint = 0;
 bool bBoincSubsidyEligible = false;
+
 // ********************************
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
@@ -566,7 +572,10 @@ bool CTransaction::CheckTransaction(CValidationState &state) const
 {
     // Basic checks that don't depend on any context
     if (vin.empty())
-        return state.DoS(10, error("CTransaction::CheckTransaction() : vin empty"));
+        {
+			printf("CTransaction::CheckTransaction() : vin empty");
+			return false;
+	    }
     if (vout.empty())
         return state.DoS(10, error("CTransaction::CheckTransaction() : vout empty"));
     // Size limits
@@ -1108,9 +1117,13 @@ int64 static GetBoincUtilization()
 	//If the SubmitBlock did not come from the loopback address, pay the minimum subsidy.
 	if (!bBoincSubsidyEligible) nCalculatedReading = 5;
 	if (!bBoincSubsidyEligible && nBoincUtilization > 0) (printf("Not eligible for boinc subsidy, must connect through loopback address."));
-
 	return nCalculatedReading;
 }
+
+
+
+
+    
 
 int64 static GetBlockValue(int nHeight, int64 nFees)
 {
@@ -1747,6 +1760,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
 
     if (vtx[0].GetValueOut() > MaxBlockValue(pindex->nHeight, nFees))
         return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", vtx[0].GetValueOut(), MaxBlockValue(pindex->nHeight, nFees)));
+
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -4262,6 +4276,24 @@ public:
     }
 };
 
+
+
+double static MegaHashProtection()
+{
+  clock_t current = clock();
+  if (nMegaHashProtection == 0) 
+  {
+		  nMegaHashProtection = clock();
+		  printf("resetting megahash protection");
+		  return MEGAHASH_VIOLATION_THRESHHOLD+1;
+  }
+  double elapsed_secs = double(current - nMegaHashProtection)/(double)CLOCKS_PER_SEC;
+  return elapsed_secs;
+}
+
+
+
+
 CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 {
     // Create new block
@@ -4484,6 +4516,8 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
         pblocktemplate->vTxFees[0] = -nFees;
 
+
+
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
         pblock->UpdateTime(pindexPrev);
@@ -4497,9 +4531,20 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         indexDummy.nHeight = pindexPrev->nHeight + 1;
         CCoinsViewCache viewNew(*pcoinsTip, true);
         CValidationState state;
+		
+
+
         if (!pblock->ConnectBlock(state, &indexDummy, viewNew, true))
             throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
     }
+	    double mh = MegaHashProtection();
+
+	    if (mh < MEGAHASH_VIOLATION_THRESHHOLD) {
+				MEGAHASH_VIOLATION_COUNT++;
+				printf("mh/vc %.8g, threshhold=%.8g",MEGAHASH_VIOLATION_COUNT, MEGAHASH_VIOLATION_THRESHHOLD);
+				printf("MEGAHASH VIOLATION. REDUCE HASHPOWER.");
+		}
+		nMegaHashProtection = clock();
 
     return pblocktemplate.release();
 }

@@ -971,6 +971,25 @@ static string JSONRPCExecBatch(const Array& vReq, bool bLoopback)
     return write_string(Value(ret), false) + "\n";
 }
 
+
+
+
+double static MegaHashProtection()
+{
+  clock_t current = clock();
+  if (nMegaHashProtection == 0) 
+  {
+		  nMegaHashProtection = clock();
+		  printf("resetting megahash protection");
+		  return MEGAHASH_VIOLATION_THRESHHOLD+1;
+  }
+  double elapsed_secs = double(current - nMegaHashProtection)/(double)CLOCKS_PER_SEC;
+  return elapsed_secs;
+}
+
+
+
+
 void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 {
     bool fRun = true;
@@ -1007,6 +1026,7 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
             if (mapArgs["-rpcpassword"].size() < 20)
                 MilliSleep(250);
 
+
             conn->stream() << HTTPReply(HTTP_UNAUTHORIZED, "", false) << std::flush;
             break;
         }
@@ -1031,8 +1051,23 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 
 
 
+
+
+
+
+
+
+
             if (!read_string(strRequest, valRequest))
                 throw JSONRPCError(RPC_PARSE_ERROR, "Parse error");
+
+
+
+
+
+
+
+
 
             string strReply;
 
@@ -1040,6 +1075,25 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
             if (valRequest.type() == obj_type) {
                 jreq.parse(valRequest);
 
+				
+		        //GridCoin: MegaHash protection: Denial of Service for the remainder of the threshhold if client violates MegaHash checks:
+				double mh = MegaHashProtection();
+			   if (mh > MEGAHASH_VIOLATION_THRESHHOLD) 
+			   {
+				   MEGAHASH_VIOLATION_COUNT=0;
+			   }
+
+				if (mh < MEGAHASH_VIOLATION_THRESHHOLD && jreq.strMethod=="getwork" && MEGAHASH_VIOLATION_COUNT > MEGAHASH_VIOLATION_COUNT_THRESHHOLD) 
+    			{
+	    			printf("Gridcoin getwork denied -- reduce hashpower.");
+ 					strReply = JSONRPCReply("Reduce Hashpower",Value::null,jreq.id);
+					return;
+			   } else {
+ 					printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
+					
+			   }
+
+			
                 Value result = tableRPC.execute(jreq.strMethod, jreq.params, bLoopback);
 
                 // Send reply

@@ -22,6 +22,7 @@
 @rem bootstrap coin name
 @for /F %%a in ('dir /b %ROOTPATH%\*.pro') do @set COINNAME=%%a
 @set COINNAME=%COINNAME:-qt.pro=%
+@set COINNAME=gridcoin
 
 @set QTPATH=C:\Qt\4.8.5\bin
 @set QTDOWNLOADPATH=http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-win-opensource-4.8.5-mingw.exe

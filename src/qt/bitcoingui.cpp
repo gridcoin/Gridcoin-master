@@ -64,6 +64,9 @@
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 int nTick = 0;
 
+
+QAxObject *globalcom;
+
 	
 BitcoinGUI::BitcoinGUI(QWidget *parent) :
     QMainWindow(parent),
@@ -872,7 +875,8 @@ void BitcoinGUI::timerfire()
 {
 	
 	if (globalcom==NULL) {
-		//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and issue the command: lodctr /r (to rebuild the performance counters in the registry)
+		//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
+		//issue the command: lodctr /r (to rebuild the performance counters in the registry)
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
     
@@ -889,7 +893,6 @@ void BitcoinGUI::timerfire()
 	}
 	nBoincUtilization = utilization;
 
-	//std::string str19 = tit	.toLocal8Bit().constData();
 
 }
 

@@ -50,13 +50,6 @@ Q_DECLARE_METATYPE(bool*)
 static BitcoinGUI *guiref;
 static SplashScreen *splashref;
 
-//QAxObject *globalcom;
-
-
-
-
-
-
 
 
 
@@ -127,15 +120,10 @@ static std::string Translate(const char* psz)
 static std::string LogChupe(const char* psz)
 {
 	
-    // QString resultset = false;
- 	 //QMetaObject::invokeMethod(guiref, "GetResult", GUIUtil::blockingGUIThreadConnection(),                               Q_ARG(QString, "motherteet"),                               Q_ARG(QString*, &resultset));
+    //QMetaObject::invokeMethod(guiref, "GetResult", GUIUtil::blockingGUIThreadConnection(),                               Q_ARG(QString, "motherteet"),                               Q_ARG(QString*, &resultset));
  	QString test = "empty";
 	printf("init message: test");
-	
-	
-	  
 	return "";
-
 
 }
 
