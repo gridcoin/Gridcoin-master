@@ -50,7 +50,7 @@ map<uint256, CBlockIndex*> mapBlockIndex;
 //Gridcoin Genesis Block
 //////////////////////////////////////////////////////////
 
-uint256 hashGenesisBlock("0xbdb5665d045a3295cb66b2ed14a2f495a5d4dd315eb4f119a69ab314a7fede7b");
+uint256 hashGenesisBlock("0x2e463ddc588a5900589c75234510c536ce58ec94dafd07157c4be0b3bb9f1f0a");
 
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // Gridcoin: starting difficulty is 1 / 2^12
 CBlockIndex* pindexGenesisBlock = NULL;
@@ -2792,7 +2792,7 @@ bool LoadBlockIndex()
         pchMessageStart[1] = 0xc1;
         pchMessageStart[2] = 0xb7;
         pchMessageStart[3] = 0xdc;
-        hashGenesisBlock = uint256("0xbbfbfd2e834fb202588cf82fe53cb14f050f9d1bcbaf7a5487b51e98cc2a66e3");
+        hashGenesisBlock = uint256("0x54092bb05f1b178132def2331c1eadd707667293059e77a6464cae9bf45ea1c5");
 		//bbfbfd2e834fb202588cf82fe53cb14f050f9d1bcbaf7a5487b51e98cc2a66e3
 
     }
@@ -2822,7 +2822,7 @@ bool InitBlockIndex() {
       
 
         //   const char* pszTimestamp = "Prince Louis & Catherine Middleton, parents of Prince George Louis, 7/22/13.";
-	    const char* pszTimestamp = "Deal to end government shutdown and extend debt ceiling to be approved by Congress tonight - 10/16/2013.";
+	    const char* pszTimestamp = "Deal to avert government shutdown approved 10/16/2013.";
 	 
 		
         CTransaction txNew;
@@ -2839,12 +2839,12 @@ bool InitBlockIndex() {
         block.nVersion = 1;
         block.nTime    = 1381926777;
         block.nBits    = 0x1e0ffff0;
-        block.nNonce   = 1685794;
+        block.nNonce   = 2448149;
 
         if (fTestNet)
         {
             block.nTime    = 1381926777;
-            block.nNonce   = 1070403103;
+            block.nNonce   = 1310944;
 	    }
 
         //// debug print
@@ -2853,19 +2853,19 @@ bool InitBlockIndex() {
         printf("%s\n", hash.ToString().c_str());
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
-		//Gridcoin merkleroot:
-		//10-16-2013
-		assert(block.hashMerkleRoot==uint256("0xd11ad33711fa6aa85159184ce0aec01aab38f984bba276c340eaed9d98645fc6"));
+		//Gridcoin merkleroot: 	//10-16-2013
+		assert(block.hashMerkleRoot==uint256("0xda43abf15a2fcd57ceae9ea0b4e0d872981e2c0b72244466650ce6010a14efb8"));
 
 
         block.print();
 		//TODO: ADD THIS ASSERTION 10-16-2013
-	//	assert(hash == hashGenesisBlock);
+		assert(hash == hashGenesisBlock);
+
 
 
     	printf("starting new code");
 	    // If genesis block hash does not match, then generate new genesis hash.
-        if (block.GetHash() != hashGenesisBlock)  //&& 1==0
+        if (block.GetHash() != hashGenesisBlock && 1==0 )  //&& 1==0
         {
             printf("Searching for genesis block...\n");
             // This will figure out a valid hash and Nonce if you're
@@ -2896,7 +2896,9 @@ bool InitBlockIndex() {
         }
 
         block.print();
+
         assert(block.GetHash() == hashGenesisBlock);
+//        assert(block.CheckBlock());
 		printf("End of expirimentation");
 
         // Start new block file
