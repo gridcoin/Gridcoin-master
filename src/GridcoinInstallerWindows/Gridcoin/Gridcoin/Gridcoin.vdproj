@@ -45,13 +45,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5DD60A87413E45B5B453C28D3836FCF0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_618451BF91AE6DE2B046B7C0D4B651EE"
+        "MsmKey" = "8:_55840F380777F92E6DAFD9A664BB8CC6"
         "OwnerKey" = "8:_1674C8A576BE40179992A5DDDE404B81"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -64,6 +58,12 @@
         "Entry"
         {
         "MsmKey" = "8:_7341DF29D792461FA9173D9198F390D6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7F1D063891DF450488C1E56DB0802981"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -329,27 +329,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5DD60A87413E45B5B453C28D3836FCF0"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\release\\gridcoin-qt.exe"
-            "TargetName" = "8:gridcoin-qt.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_618451BF91AE6DE2B046B7C0D4B651EE"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55840F380777F92E6DAFD9A664BB8CC6"
             {
             "SourcePath" = "8:boinc.tlb"
             "TargetName" = "8:boinc.tlb"
@@ -393,6 +373,26 @@
             {
             "SourcePath" = "8:..\\..\\..\\..\\release\\mingwm10.dll"
             "TargetName" = "8:mingwm10.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7F1D063891DF450488C1E56DB0802981"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\release\\gridcoin-qt.exe"
+            "TargetName" = "8:gridcoin-qt.exe"
             "Tag" = "8:"
             "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
             "Condition" = "8:"
@@ -646,16 +646,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Gridcoin"
-        "ProductCode" = "8:{3A38DC30-51BA-4511-B1E4-CF5D2A8215A1}"
-        "PackageCode" = "8:{489B4955-B748-48FB-AE67-368A1F8E377E}"
+        "ProductName" = "8:Gridcoin 2.0"
+        "ProductCode" = "8:{DED69622-92E1-4F92-B00B-E92F3A52E976}"
+        "PackageCode" = "8:{43F282D4-B43E-40A5-B5A2-EBC5C7D62ACA}"
         "UpgradeCode" = "8:{8857BDA0-D8C4-44CD-BE99-094240AC64DB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.7"
+        "ProductVersion" = "8:1.4.7"
         "Manufacturer" = "8:Gridcoin"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -776,7 +776,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_5DD60A87413E45B5B453C28D3836FCF0"
+            "Target" = "8:_7F1D063891DF450488C1E56DB0802981"
             "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
             "WorkingFolder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
             "Icon" = "8:_DA7CCF15F927478098AAFC5D400FD588"
@@ -790,7 +790,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_5DD60A87413E45B5B453C28D3836FCF0"
+            "Target" = "8:_7F1D063891DF450488C1E56DB0802981"
             "Folder" = "8:_459FE8815A7D45FB9F04152262ADA3AF"
             "WorkingFolder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
             "Icon" = "8:_DA7CCF15F927478098AAFC5D400FD588"
@@ -1197,7 +1197,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_1674C8A576BE40179992A5DDDE404B81"
             {
-            "SourcePath" = "8:..\\..\\..\\boinc\\boinc\\obj\\Debug\\boinc.dll"
+            "SourcePath" = "8:..\\..\\..\\boinc\\boinc\\obj\\Release\\boinc.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
