@@ -195,6 +195,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0,Profile=Client"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4 Client Profile (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
     }
@@ -634,15 +647,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Gridcoin"
-        "ProductCode" = "8:{5C6801C2-86F1-4163-B42A-813C9830D9D0}"
-        "PackageCode" = "8:{A7DE6F24-C3A6-4094-BA4D-171DC670EB87}"
+        "ProductCode" = "8:{3A38DC30-51BA-4511-B1E4-CF5D2A8215A1}"
+        "PackageCode" = "8:{489B4955-B748-48FB-AE67-368A1F8E377E}"
         "UpgradeCode" = "8:{8857BDA0-D8C4-44CD-BE99-094240AC64DB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.5"
+        "ProductVersion" = "8:1.0.7"
         "Manufacturer" = "8:Gridcoin"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

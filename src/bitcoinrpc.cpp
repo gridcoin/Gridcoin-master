@@ -44,7 +44,7 @@ static boost::thread_group* rpc_worker_group = NULL;
 
 static inline unsigned short GetDefaultRPCPort()
 {
-    return GetBoolArg("-testnet", false) ? 19777 : 9777;
+    return GetBoolArg("-testnet", false) ? 19778 : 9778;
 }
 
 Object JSONRPCError(int code, const string& message)
@@ -754,7 +754,9 @@ static void RPCAcceptHandler(boost::shared_ptr< basic_socket_acceptor<Protocol, 
     else {
 		//printf("Accepting connection from %s",tcp_conn->peer.address().ToString().c_str());
 		bool bLoopback = ClientIsUsingLoopback(tcp_conn->peer.address());
-		if (bLoopback) { printf("Client is using loopback address."); }
+		if (bLoopback) { 
+		    //	printf("Client is using loopback address."); 
+		}
 
         ServiceConnection(conn,bLoopback);
         conn->close();
@@ -1042,20 +1044,14 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 			bBoincSubsidyEligible = bLoopback;
 			if (bBoincSubsidyEligible) 
 			{
-				printf("Eligible.");
+			    //	printf("Eligible.");
 			}
 			else
 			{
-				printf("not eligible.");
+			   //	printf("not eligible.");
 			}
 
-
-
-
-
-
-
-
+			
 
 
             if (!read_string(strRequest, valRequest))
@@ -1086,10 +1082,13 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 				if (mh < MEGAHASH_VIOLATION_THRESHHOLD && jreq.strMethod=="getwork" && MEGAHASH_VIOLATION_COUNT > MEGAHASH_VIOLATION_COUNT_THRESHHOLD) 
     			{
 	    			printf("Gridcoin getwork denied -- reduce hashpower.");
+					printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
+					
  					strReply = JSONRPCReply("Reduce Hashpower",Value::null,jreq.id);
 					return;
 			   } else {
- 					printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
+ 					
+				   //printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
 					
 			   }
 

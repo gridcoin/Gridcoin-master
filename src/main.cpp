@@ -29,7 +29,12 @@ using namespace boost;
 
 
 CClientUIInterface uiDog;
+//
+// 10-16-2013: Implemented MegaHash violation protection
+//
 
+double MEGAHASH_VIOLATION_COUNT = 0;
+double MEGAHASH_VIOLATION_COUNT_THRESHHOLD = 6;
 
 CCriticalSection cs_setpwalletRegistered;
 set<CWallet*> setpwalletRegistered;
@@ -44,12 +49,8 @@ map<uint256, CBlockIndex*> mapBlockIndex;
 //////////////////////////////////////////////////////////
 //Gridcoin Genesis Block
 //////////////////////////////////////////////////////////
-double MEGAHASH_VIOLATION_THRESHHOLD = 90;
-double MEGAHASH_VIOLATION_COUNT = 0;
-double MEGAHASH_VIOLATION_COUNT_THRESHHOLD = 4;
-double nMegaHashProtection = 0;
 
-uint256 hashGenesisBlock("0xc61585d69d144aa5da326c773e0b4ba303475b281028d9f05fc93ca8c9d0c33f");
+uint256 hashGenesisBlock("0xbdb5665d045a3295cb66b2ed14a2f495a5d4dd315eb4f119a69ab314a7fede7b");
 
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // Gridcoin: starting difficulty is 1 / 2^12
 CBlockIndex* pindexGenesisBlock = NULL;
@@ -99,14 +100,15 @@ int64 nHPSTimerStart = 0;
 int64 nTransactionFee = 0;
 int64 nMinimumInputValue = DUST_HARD_LIMIT;
 
-
 //////////////////////////////////////////////////////////////////////////////
 //
-// dispatching functions
+// Gridcoin dispatching functions
 //
-
 // These functions dispatch to one or all registered wallets
-
+/////////////////////////////////////////////////////////////////////////////
+double MEGAHASH_VIOLATION_THRESHHOLD = 30; //Do Not Tamper with this value or you will break the program
+double nMegaHashProtection = 0;
+/////////////////////////////////////////////////////////////////////////////
 
 void RegisterWallet(CWallet* pwalletIn)
 {
@@ -1135,8 +1137,8 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
 }
 
 
-static const int64 nTargetTimespan = 3.5 * 24 * 60 * 60; // Gridcoin: 3.5 days
-static const int64 nTargetSpacing = 2.5 * 60; // Gridcoin: 2.5 minutes
+static const int64 nTargetTimespan = 30 * 60; // Gridcoin: 30 minute difficulty retarget - (Litecoin: 3.5 days)
+static const int64 nTargetSpacing = 2.5 * 60; // Gridcoin: 2.5 minutes blocks
 static const int64 nInterval = nTargetTimespan / nTargetSpacing;
 
 //
@@ -2784,12 +2786,14 @@ void UnloadBlockIndex()
 bool LoadBlockIndex()
 {
     if (fTestNet)
-    {
+    { 
+		//TESTNET GENESIS
         pchMessageStart[0] = 0xfc;
         pchMessageStart[1] = 0xc1;
         pchMessageStart[2] = 0xb7;
         pchMessageStart[3] = 0xdc;
-        hashGenesisBlock = uint256("0x481b2227a77bc655fb8116e689d5bbd59f36578a64e601ed310455c4d8429099");
+        hashGenesisBlock = uint256("0xbbfbfd2e834fb202588cf82fe53cb14f050f9d1bcbaf7a5487b51e98cc2a66e3");
+		//bbfbfd2e834fb202588cf82fe53cb14f050f9d1bcbaf7a5487b51e98cc2a66e3
 
     }
 
@@ -2817,10 +2821,10 @@ bool InitBlockIndex() {
     if (!fReindex) {
       
 
-        const char* pszTimestamp = "Prince Louis & Catherine Middleton, parents of Prince George Louis, 7/22/13.";
+        //   const char* pszTimestamp = "Prince Louis & Catherine Middleton, parents of Prince George Louis, 7/22/13.";
+	    const char* pszTimestamp = "Deal to end government shutdown and extend debt ceiling to be approved by Congress tonight - 10/16/2013.";
 	 
-		//Chalupa
-
+		
         CTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
@@ -2833,14 +2837,14 @@ bool InitBlockIndex() {
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1380734114;
+        block.nTime    = 1381926777;
         block.nBits    = 0x1e0ffff0;
-        block.nNonce   = 1063610;
+        block.nNonce   = 1685794;
 
         if (fTestNet)
         {
-            block.nTime    = 1380775463;
-            block.nNonce   = 1068754672;
+            block.nTime    = 1381926777;
+            block.nNonce   = 1070403103;
 	    }
 
         //// debug print
@@ -2850,17 +2854,18 @@ bool InitBlockIndex() {
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
 		//Gridcoin merkleroot:
-        assert(block.hashMerkleRoot==uint256("0x87ca80a9424ee98d88b64ffc488735905939ce250400a09a0895ddb3e4d7cc87"));
+		//10-16-2013
+		assert(block.hashMerkleRoot==uint256("0xd11ad33711fa6aa85159184ce0aec01aab38f984bba276c340eaed9d98645fc6"));
 
 
         block.print();
-
-		assert(hash == hashGenesisBlock);
+		//TODO: ADD THIS ASSERTION 10-16-2013
+	//	assert(hash == hashGenesisBlock);
 
 
     	printf("starting new code");
 	    // If genesis block hash does not match, then generate new genesis hash.
-        if (block.GetHash() != hashGenesisBlock && 1==0)
+        if (block.GetHash() != hashGenesisBlock)  //&& 1==0
         {
             printf("Searching for genesis block...\n");
             // This will figure out a valid hash and Nonce if you're
@@ -2874,7 +2879,7 @@ bool InitBlockIndex() {
                 scrypt_1024_1_1_256_sp(BEGIN(block.nVersion), BEGIN(thash), scratchpad);
                 if (thash <= hashTarget)
                     break;
-                if ((block.nNonce & 0xFaFaF) == 0)
+                if ((block.nNonce & 0xFFF) == 0)
                 {
                     printf("nonce %08X: hash = %s (target = %s)\n", block.nNonce, thash.ToString().c_str(), hashTarget.ToString().c_str());
                 }

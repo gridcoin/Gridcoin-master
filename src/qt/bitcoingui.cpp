@@ -614,7 +614,7 @@ void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
         progressBar->setValue(clientModel->getVerificationProgress() * 1000000000.0 + 0.5);
         progressBar->setVisible(true);
 
-        tooltip = tr("Catching up...") + QString("<br>") + tooltip;
+        tooltip = tr("Synchronizing Block Chain with other Gridcoin clients...") + QString("<br>") + tooltip;
         labelBlocksIcon->setMovie(syncIconMovie);
         if(count != prevBlocks)
             syncIconMovie->jumpToNextFrame();

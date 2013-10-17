@@ -40,7 +40,7 @@ Public Class Utilization
     End Sub
     Public ReadOnly Property Version As Double
         Get
-            Return 2
+            Return 3
         End Get
     End Property
     Public ReadOnly Property BoincAuthenticity As Double
