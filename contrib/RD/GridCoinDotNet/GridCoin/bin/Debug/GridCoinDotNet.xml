@@ -1,0 +1,204 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+GridCoinDotNet
+</name>
+</assembly>
+<members>
+<member name="P:GridCoinDotNet.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:GridCoinDotNet.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:GridCoinDotNet.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Base58.ToByteArray(System.String)">
+	<summary>
+ Converts a base-58 string to a byte array, returning null if it wasn't valid.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.#ctor(System.Byte[])">
+	<summary>
+ Constructor that takes a byte array of 33 or 65 bytes representing a public key.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.validatePoint">
+	<summary>
+ Returns true if the point coordinates satisfy the elliptic curve equation.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.ComputePublicKey">
+	<summary>
+ Virtual method to compute public key on demand when doing so is expensive.
+ Not used if we are handed a public key through the constructor, but this is used
+ if a descendant class (e.g. KeyPair) has a private key and the only way to know
+ the public key is to compute it.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.PublicKey.PublicKeyBytes">
+	<summary>
+ Returns the public key bytes.  This will return 65 bytes for an uncompressed public key
+ or 33 bytes for a compressed public key.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.ComputeHash160">
+	<summary>
+ Computes the Hash160 of the public key upon demand.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.PublicKey.PublicKeyHex">
+	<summary>
+ Hexadecimal representation of public key.  Each byte is 2 hex digits, uppercase,
+ delimited with spaces.
+ </summary>
+</member><member name="T:GridCoinDotNet.Casascius.Bitcoin.PublicKey">
+	<summary>
+ Bitcoin address extended to include knowledge of public key.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.CreateRandom(System.String)">
+	<summary>
+ Create a new random MiniKey.
+ Entropy is taken from .NET's SecureRandom, the system clock,
+ and any optionally provided salt.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.PrivateKey">
+	<summary>
+ Returns the private key in the most preferred display format for the type.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.IsValidMiniKey(System.String)">
+	<summary>
+ Returns 1 if candidate is a valid Mini Private Key per rules described in
+ Bitcoin Wiki article "Mini private key format".
+ Zero or negative indicates not a valid Mini Private Key.
+ -1 means well formed but fails typo check.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(System.Byte[])">
+	<summary>
+ Constructs a Bitcoin address from a 20 byte array representing a Hash160.
+ If 21 bytes are provided, the extra byte denotes address type.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(System.Byte[],System.Byte)">
+	<summary>
+ Constructs a Bitcoin address from a 20 byte array representing a Hash160,
+ and also denoting a specific address type.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(GridCoinDotNet.Casascius.Bitcoin.AddressBase,System.Byte)">
+	<summary>
+ Allows calculation of address with a different AddressType
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(System.String)">
+	<summary>
+ Constructs an Address from an address string
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.AddressBase.AddressType">
+	<summary>
+ Returns the address type.  For example, 0=Bitcoin
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.ComputeHash160">
+	<summary>
+ Overridden in descendant classes allowing Hash160 to be computed on an as-needed
+ basis (since it's CPU-costly if it comes from a private key)
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.AddressBase.Hash160">
+	<summary>
+ Returns a copy of the 20-byte Hash160 of the Bitcoin address
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.AddressBase.AddressBase58">
+	<summary>
+ Get the Bitcoin address in Base58 format as it would be seen by the user.
+ </summary>
+</member><member name="T:GridCoinDotNet.Casascius.Bitcoin.AddressBase">
+	<summary>
+ Represents a single Bitcoin address, assumes knowledge only of a Hash160.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.Base58Trim(System.String)">
+	<summary>
+ Trims whitespace from within and outside string.
+ Whitespace is anything non-alphanumeric that may have been inserted into a string.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.Base58CheckToByteArray(System.String)">
+	<summary>
+ Converts a base-58 string to a byte array, checking the checksum, and
+ returning null if it wasn't valid.  Appending "?" to the end of the string skips
+ the checksum calculation, but still strips the four checksum bytes from the
+ result.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.HexStringToBytes(System.String,System.Boolean)">
+	<summary>
+ Converts a hex string to bytes.  Hex chars can optionally be space-delimited, otherwise,
+ any two contiguous hex chars are considered to be a byte.  If testingForValidHex==true,
+ then if any invalid characters are found, the function returns null instead of bytes.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.CloneByteArray(System.Byte[])">
+	<summary>
+ Extension for cloning a byte array
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.CloneByteArray(System.Byte[],System.Int32,System.Int32)">
+	<summary>
+ Extension for cloning a portion of a byte array
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.CreateFromString(System.String)">
+	<summary>
+ Creates a new key pair using the SHA256 hash of a given string as the private key.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.Create(System.String,System.Boolean,System.Byte)">
+	<summary>
+ Creates a new random key pair, using a user-provided string to add entropy to the
+ SecureRandom generator provided by the .NET Framework.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.#ctor(Org.BouncyCastle.Math.BigInteger,System.Boolean,System.Byte)">
+	<summary>
+ Generates a KeyPair using a BigInteger as a private key.
+ BigInteger is checked for appropriate range.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.#ctor(System.Byte[],System.Boolean,System.Byte)">
+	<summary>
+ Create a Bitcoin address from a 32-byte private key
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.#ctor(System.String,System.Boolean,System.Byte)">
+	<summary>
+ Create a Bitcoin address from a key represented in a string.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.constructWithKey(System.String,System.Boolean)">
+	<summary>
+ Constructs the object with string key, returning any intended exception as a string.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.validateRange">
+	<summary>
+ Returns error message in a string if private key is not within the valid range (2 ... N-1)
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.IsValidPrivateKey(System.String)">
+	<summary>
+ Returns true if a given string can be turned into a private key.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.KeyPair.PrivateKeyBytes">
+	<summary>
+ Provides access to the private key.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.ComputePublicKey">
+	<summary>
+ Computes the public key from the private key.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.KeyPair.PrivateKeyHex">
+	<summary>
+ Returns the private key as a string of hexadecimal digits.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.KeyPair.PrivateKey">
+	<summary>
+ Returns the private key in the most preferred display format for the type.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.KeyPair.PrivateKeyBase58">
+	<summary>
+ Getter: Returns the private key, either unencrypted if no password was set, or encrypted
+ if a password is set or if we do not have it unencrypted.
+ Setter: Accepts a private key in wallet import format.  If the private key is encrypted, the
+ correct Passphrase must have been set, or else an ApplicationException will be thrown.
+ </summary>
+</member><member name="T:GridCoinDotNet.Casascius.Bitcoin.KeyPair">
+	<summary>
+ A KeyPair represents a Bitcoin address and its known private key.
+ </summary>
+</member>
+</members>
+</doc>

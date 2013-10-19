@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{82B20619-3469-4DB6-8D18-628B64842499}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BitCoinSharp</RootNamespace>
+    <AssemblyName>BitCoinSharp</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\bin\Release\BitCoinSharp.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\lib\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AbstractPeerEventListener.cs" />
+    <Compile Include="Address.cs" />
+    <Compile Include="AddressFormatException.cs" />
+    <Compile Include="AddressMessage.cs" />
+    <Compile Include="Base58.cs" />
+    <Compile Include="BitcoinSerializer.cs" />
+    <Compile Include="Block.cs" />
+    <Compile Include="BlockChain.cs" />
+    <Compile Include="Collections\Generic\AbstractCollection.cs" />
+    <Compile Include="Collections\Generic\AbstractEnumerator.cs" />
+    <Compile Include="Collections\Generic\AbstractQueue.cs" />
+    <Compile Include="Collections\Generic\IQueue.cs" />
+    <Compile Include="Collections\Generic\OrderedDictionary.cs" />
+    <Compile Include="Common\UnixTime.cs" />
+    <Compile Include="Discovery\DnsDiscovery.cs" />
+    <Compile Include="Discovery\IPeerDiscovery.cs" />
+    <Compile Include="Discovery\IrcDiscovery.cs" />
+    <Compile Include="Discovery\PeerDiscoveryException.cs" />
+    <Compile Include="Discovery\SeedPeers.cs" />
+    <Compile Include="DownloadListener.cs" />
+    <Compile Include="DumpedPrivateKey.cs" />
+    <Compile Include="EcKey.cs" />
+    <Compile Include="GetBlocksMessage.cs" />
+    <Compile Include="GetDataMessage.cs" />
+    <Compile Include="IO\ByteBuffer.cs" />
+    <Compile Include="IO\StreamExtensions.cs" />
+    <Compile Include="IPeerEventListener.cs" />
+    <Compile Include="InventoryItem.cs" />
+    <Compile Include="InventoryMessage.cs" />
+    <Compile Include="ListMessage.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="NetworkConnection.cs" />
+    <Compile Include="NetworkParameters.cs" />
+    <Compile Include="Peer.cs" />
+    <Compile Include="PeerAddress.cs" />
+    <Compile Include="PeerException.cs" />
+    <Compile Include="PeerGroup.cs" />
+    <Compile Include="Ping.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProtocolException.cs" />
+    <Compile Include="Script.cs" />
+    <Compile Include="ScriptException.cs" />
+    <Compile Include="Sha256Hash.cs" />
+    <Compile Include="StoredBlock.cs" />
+    <Compile Include="Store\BlockStoreException.cs" />
+    <Compile Include="Store\BoundedOverheadBlockStore.cs" />
+    <Compile Include="Store\DiskBlockStore.cs" />
+    <Compile Include="Store\IBlockStore.cs" />
+    <Compile Include="Store\MemoryBlockStore.cs" />
+    <Compile Include="Threading\AtomicTypes\AtomicInteger.cs" />
+    <Compile Include="Threading\AtomicTypes\IAtomic.cs" />
+    <Compile Include="Threading\Callable.cs" />
+    <Compile Include="Threading\Collections\Generic\AbstractBlockingQueue.cs" />
+    <Compile Include="Threading\Collections\Generic\EnumerableToArrayBuffer.cs" />
+    <Compile Include="Threading\Collections\Generic\IBlockingQueue.cs" />
+    <Compile Include="Threading\Collections\Generic\LinkedBlockingQueue.cs" />
+    <Compile Include="Threading\Collections\Generic\QueueBrokenException.cs" />
+    <Compile Include="Threading\Collections\Generic\SynchronousQueue.cs" />
+    <Compile Include="Threading\ContextCopyingRunnable.cs" />
+    <Compile Include="Threading\CountDownLatch.cs" />
+    <Compile Include="Threading\Execution\AbstractExecutorService.cs" />
+    <Compile Include="Threading\Execution\CancellationException.cs" />
+    <Compile Include="Threading\Execution\ExecutionException.cs" />
+    <Compile Include="Threading\Execution\ExecutorCompletionService.cs" />
+    <Compile Include="Threading\Execution\Executors.cs" />
+    <Compile Include="Threading\Execution\ICompletionService.cs" />
+    <Compile Include="Threading\Execution\IExecutorService.cs" />
+    <Compile Include="Threading\Execution\IRecommendParallelism.cs" />
+    <Compile Include="Threading\Execution\IRejectedExecutionHandler.cs" />
+    <Compile Include="Threading\Execution\RejectedExecutionException.cs" />
+    <Compile Include="Threading\Execution\ThreadPoolExecutor.cs" />
+    <Compile Include="Threading\Future\FutureTask.cs" />
+    <Compile Include="Threading\Future\IFuture.cs" />
+    <Compile Include="Threading\Future\IRunnableFuture.cs" />
+    <Compile Include="Threading\Helpers\FIFOWaitQueue.cs" />
+    <Compile Include="Threading\Helpers\IQueuedSync.cs" />
+    <Compile Include="Threading\Helpers\IWaitQueue.cs" />
+    <Compile Include="Threading\Helpers\WaitNode.cs" />
+    <Compile Include="Threading\ICallable.cs" />
+    <Compile Include="Threading\ICancellable.cs" />
+    <Compile Include="Threading\IContextCarrier.cs" />
+    <Compile Include="Threading\IContextCarrierFactory.cs" />
+    <Compile Include="Threading\IContextCopyingTask.cs" />
+    <Compile Include="Threading\IExecutor.cs" />
+    <Compile Include="Threading\IRunnable.cs" />
+    <Compile Include="Threading\IThreadFactory.cs" />
+    <Compile Include="Threading\Locks\ConditionVariable.cs" />
+    <Compile Include="Threading\Locks\FIFOConditionVariable.cs" />
+    <Compile Include="Threading\Locks\ICondition.cs" />
+    <Compile Include="Threading\Locks\ILock.cs" />
+    <Compile Include="Threading\Locks\ReentrantLock.cs" />
+    <Compile Include="Threading\Runnable.cs" />
+    <Compile Include="Threading\SynchronizedHashSet.cs" />
+    <Compile Include="Threading\SystemExtensions.cs" />
+    <Compile Include="Threading\Utility\SerializationUtilities.cs" />
+    <Compile Include="Threading\Utility\WaitTime.cs" />
+    <Compile Include="Threading\Void.cs" />
+    <Compile Include="Transaction.cs" />
+    <Compile Include="TransactionInput.cs" />
+    <Compile Include="TransactionOutPoint.cs" />
+    <Compile Include="TransactionOutput.cs" />
+    <Compile Include="UnknownMessage.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="VarInt.cs" />
+    <Compile Include="VerificationException.cs" />
+    <Compile Include="VersionAck.cs" />
+    <Compile Include="VersionMessage.cs" />
+    <Compile Include="VersionedChecksummedBytes.cs" />
+    <Compile Include="Wallet.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

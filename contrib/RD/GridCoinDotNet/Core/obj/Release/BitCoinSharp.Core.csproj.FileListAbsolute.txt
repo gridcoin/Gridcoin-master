@@ -1,0 +1,6 @@
+C:\GridCoin\bin\Release\BitCoinSharp.xml
+C:\GridCoin\bin\Release\BitCoinSharp.dll
+C:\GridCoin\bin\Release\BitCoinSharp.pdb
+C:\GridCoin\gridcoin\Core\obj\Release\BitCoinSharp.Core.csprojResolveAssemblyReference.cache
+C:\GridCoin\gridcoin\Core\obj\Release\BitCoinSharp.dll
+C:\GridCoin\gridcoin\Core\obj\Release\BitCoinSharp.pdb
