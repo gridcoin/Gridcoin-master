@@ -3,15 +3,19 @@ TARGET = gridcoin-qt
 macx:TARGET = "Gridcoin-Qt"
 VERSION = 0.7.7.1
 INCLUDEPATH += src src/json src/qt
-QT += core gui network
-QT += qaxcontainer
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui network
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets axcontainer
+} else {
+    QT += qaxcontainer
+    CONFIG += qaxcontainer
+}
+
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
-
-CONFIG += qaxcontainer
 
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
@@ -121,7 +125,7 @@ genleveldb.depends = FORCE
 PRE_TARGETDEPS += $$PWD/src/leveldb/libleveldb.a
 QMAKE_EXTRA_TARGETS += genleveldb
 # Gross ugly hack that depends on qmake internals, unfortunately there is no other way to do it.
-QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) clean
+QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) clean -y
 
 # regenerate src/build.h
 !win32|contains(USE_BUILD_INFO, 1) {
