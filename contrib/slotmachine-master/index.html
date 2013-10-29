@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>jquery slot machine</title>
+        <link rel="stylesheet" href="css/reset.css">
+        <link rel="stylesheet" href="css/slot.css">
+        <script src="js/jquery-1.8.1.min.js"></script>
+        <!--<script src="https://raw.github.com/pixelass/html5slider/master/html5slider.js"></script>-->
+        <script src="js/jquery.slots.js"></script>
+    </head>
+
+    <body>
+        <br />
+        <label class="view-label">rotation:</label>
+        <input id="rotation" type="range" max="180" min="-180"
+        value="-30" step="1" />
+        <br />
+        <label class="view-label">perspective:</label>
+        <input id="perspective" type="range" max="2000" min="500"
+        value="700" step="100" />
+        <br />
+        <div id="page">
+            <div id="slot" class="slot-wrapper">
+                <section class="top-box">
+                    <div id="display">
+                        <div id="credits">0</div>
+                        <div id="win">0</div>
+                    </div>
+                    <div class="side top"></div>
+                    <div class="side bottom"></div>
+                    <div class="side left"></div>
+                    <div class="side right"></div>
+                    <div class="side front glas"></div>
+                    <div class="side back"></div>
+                    <div class="wheels">
+                        <section class="wheel" id="wheel-1">
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                        </section>
+                        <section class="wheel" id="wheel-2">
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                        </section>
+                        <section class="wheel" id="wheel-3">
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                            <div class="part"></div>
+                        </section>
+                    </div>
+                </section>
+                <section class="bottom-box">
+                    <div class="side top"></div>
+                    <div class="side bottom"></div>
+                    <div class="side left"></div>
+                    <div class="side right"></div>
+                    <div class="side front">
+                        <div class="fix"></div>
+                        <div id="play">
+                            <div class="side top"></div>
+                            <div class="side bottom"></div>
+                            <div class="side left"></div>
+                            <div class="side right"></div>
+                            <div class="side front">spin</div>
+                        </div>
+                    </div>
+                    <div class="side back"></div>
+                </section>
+                <section class="side"></section>
+            </div>
+        </div>
+    </body>
+
+</html>

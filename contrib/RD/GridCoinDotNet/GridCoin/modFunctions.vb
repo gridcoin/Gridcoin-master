@@ -8,7 +8,7 @@ Module modFunctions
     Public sql As String
 
 
-    Public mConnections As New Dictionary(Of Integer, frmGridWorker)
+    ' Public mConnections As New Dictionary(Of Integer, frmGridWorker)
  
     Public mConnectionCount As Long
     Public mData As data
@@ -42,7 +42,7 @@ Module modFunctions
     Public Sub MonitorProcessorUtilization()
         Do While 1 = 1
 
-            System.Threading.Thread.Sleep(1000)
+            System.Threading.Thread.Sleep(62000)
             Dim zOut As Long
             ReturnBoincCPUUsage()
 
@@ -86,8 +86,8 @@ Module modFunctions
 
         Dim masterProcess As Process()
         masterProcess = Process.GetProcessesByName("BOINC")
-        If masterProcess.Length = 0 Then Exit Function
-
+        If masterProcess.Length = 0 Then GoTo Calculate
+        
         Dim p As Process
         Dim localAll As Process() = Process.GetProcesses()
         Dim sOut As String
@@ -156,6 +156,9 @@ Module modFunctions
             End If
 
         Next
+
+calculate:
+      
         Dim usage_percent As Double = 0
 
 
@@ -241,11 +244,11 @@ Module modFunctions
 
     Public Function Broadcast()
         For x = 1 To mConnectionCount
-            If Not mConnections(x) Is Nothing Then
-                mConnections(x).SendMessage(frmGridWorker.MessageCodes.TEXT, "Hello")
+            '    If Not mConnections(x) Is Nothing Then
+            '    mConnections(x).SendMessage(frmGridWorker.MessageCodes.TEXT, "Hello")
 
 
-            End If
+            '  End If
         Next
 
     End Function

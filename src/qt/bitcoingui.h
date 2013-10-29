@@ -101,6 +101,7 @@ private:
     QAction *verifyMessageAction;
     QAction *aboutAction;
 	QAction *miningAction;
+	QAction *emailAction;
 
     QAction *receiveCoinsAction;
     QAction *optionsAction;
@@ -199,6 +200,9 @@ private slots:
 
 	/**show Mining Console */
 	void miningClicked();
+	/** Show the E-Mail Center */
+
+	void emailClicked();
 
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */

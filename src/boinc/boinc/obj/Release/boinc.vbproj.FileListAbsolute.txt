@@ -7,3 +7,6 @@ C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.vbproj.GenerateResource.Cac
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.dll
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.xml
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.pdb
+C:\Gridcoin-master\src\boinc\boinc\bin\Release\OpenPop.dll
+C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmMail.resources
+C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmNewEmail.resources

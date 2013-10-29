@@ -36,8 +36,8 @@ Public Class p2p
     End Sub
 
     Private Sub StartChatForm(ByVal client As Object)
-        Application.Run(New frmGridWorker(CType(client, TcpClient))) ' Start a New ChatForm with the TcpClient Connection
-        Threads.Remove(Thread.CurrentThread) ' We don't get here until the ChatForm is closed
+        '  Application.Run(New frmGridWorker(CType(client, TcpClient))) ' Start a New ChatForm with the TcpClient Connection
+        ' Threads.Remove(Thread.CurrentThread) ' We don't get here until the ChatForm is closed
     End Sub
 
     Private Sub Tray_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles Tray.Click

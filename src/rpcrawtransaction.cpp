@@ -166,6 +166,10 @@ Value getrawtransaction(const Array& params, bool fHelp)
     return result;
 }
 
+
+
+
+
 Value listunspent(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 3)
@@ -251,6 +255,77 @@ Value listunspent(const Array& params, bool fHelp)
 
     return results;
 }
+
+
+
+
+
+
+
+
+Value listminers(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() > 3)
+        throw runtime_error(
+            "listminers [minconf=1] [maxconf=9999999]  [\"address\",...]\n"
+            "Returns array of pool mining transactions\n"
+            "{}");
+
+    RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
+
+    int nMinDepth = 1;
+    if (params.size() > 0)
+        nMinDepth = params[0].get_int();
+
+    int nMaxDepth = 9999999;
+    if (params.size() > 1)
+        nMaxDepth = params[1].get_int();
+
+   // set<CBitcoinAddress> setAddress;
+    Array results;
+    
+    CBlock block;
+     
+   // unsigned int nFound = 0;
+	//Iterate through the chain in reverse
+	// CBlockLocator locator;
+      
+//	 CBlockIndex* pHighBlock = locator.GetBlockIndex();
+	//
+ //    nMaxDepth = pHighBlock->nHeight;
+  nMaxDepth = nBestHeight;
+
+ 	printf("nmaxdepth= %"PRI64d"  before bounds\n", nMaxDepth);
+
+    CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
+	block.ReadFromDisk(pLastBlock);
+	int64 LastBlockTime = pLastBlock->GetBlockTime();
+
+	
+    for (int i = nMaxDepth; i > 0; i--)
+    {
+		 CBlockIndex* pblockindex = FindBlockByHeight(i);
+         //CBlockIndex* pblockindex = mapBlockIndex[hash];
+		 block.ReadFromDisk(pblockindex);
+		 //    return pblockindex->phashBlock->GetHex();
+		 //	    block.ReadFromDisk(i);
+	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
+    
+		Object entry;
+		entry.push_back(Pair("Block",i));
+		entry.push_back(Pair("boincHash", block.hashBoinc));
+		entry.push_back(Pair("TimeSpan",nActualTimespan));
+    	results.push_back(entry);
+    }
+
+	  //Gridcoin - 10-27-2013 - Show the boinc authenticity:
+	    
+    return results;
+}
+
+
+
+
 
 Value createrawtransaction(const Array& params, bool fHelp)
 {

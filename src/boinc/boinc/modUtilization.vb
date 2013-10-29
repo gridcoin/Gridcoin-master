@@ -154,7 +154,7 @@ CalculateUsage:
         If usage_percent > 0.75 Then usage_percent = 0.75
         If usage_percent < 0 Then usage_percent = 0
         'no credit for memory if processor is idle
-        If lThreadCount < 3 Then usage_percent = 0
+        If lThreadCount < 1 Then usage_percent = 0
         If usage_percent = 0 Then memory_usage = 0
         usage_percent = usage_percent + memory_usage
         usage_percent = usage_percent * 100 'Convert to a 3 digit percent

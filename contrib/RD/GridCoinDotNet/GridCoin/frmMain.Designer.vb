@@ -46,12 +46,12 @@ Partial Class frmGridCoin
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.DebugWindowToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Button1 = New System.Windows.Forms.Button()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Label1 = New System.Windows.Forms.Label()
         Me.lblCPU = New System.Windows.Forms.Label()
-        Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
+        Me.contextMenuMessages = New System.Windows.Forms.ContextMenu()
+        Me.saveFile = New System.Windows.Forms.SaveFileDialog()
         Me.TabControl1.SuspendLayout()
         Me.tabOverview.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
@@ -90,7 +90,7 @@ Partial Class frmGridCoin
         Me.GroupBox2.Controls.Add(Me.lvRecent)
         Me.GroupBox2.Location = New System.Drawing.Point(408, 30)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(438, 265)
+        Me.GroupBox2.Size = New System.Drawing.Size(350, 265)
         Me.GroupBox2.TabIndex = 6
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Recent Transactions"
@@ -99,7 +99,7 @@ Partial Class frmGridCoin
         '
         Me.lvRecent.Location = New System.Drawing.Point(15, 31)
         Me.lvRecent.Name = "lvRecent"
-        Me.lvRecent.Size = New System.Drawing.Size(408, 211)
+        Me.lvRecent.Size = New System.Drawing.Size(308, 211)
         Me.lvRecent.TabIndex = 0
         Me.lvRecent.UseCompatibleStateImageBehavior = False
         '
@@ -234,72 +234,63 @@ Partial Class frmGridCoin
         '
         Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.BackupWalletToolStripMenuItem, Me.ExitToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
-        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(35, 20)
+        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "File"
         '
         'BackupWalletToolStripMenuItem
         '
         Me.BackupWalletToolStripMenuItem.Name = "BackupWalletToolStripMenuItem"
-        Me.BackupWalletToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.BackupWalletToolStripMenuItem.Size = New System.Drawing.Size(149, 22)
         Me.BackupWalletToolStripMenuItem.Text = "Backup Wallet"
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(141, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(149, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'SettingsToolStripMenuItem
         '
         Me.SettingsToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.EncryptWalletToolStripMenuItem, Me.OptionsToolStripMenuItem})
         Me.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem"
-        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(58, 20)
+        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(61, 20)
         Me.SettingsToolStripMenuItem.Text = "Settings"
         '
         'EncryptWalletToolStripMenuItem
         '
         Me.EncryptWalletToolStripMenuItem.Name = "EncryptWalletToolStripMenuItem"
-        Me.EncryptWalletToolStripMenuItem.Size = New System.Drawing.Size(144, 22)
+        Me.EncryptWalletToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
         Me.EncryptWalletToolStripMenuItem.Text = "Encrypt Wallet"
         '
         'OptionsToolStripMenuItem
         '
         Me.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem"
-        Me.OptionsToolStripMenuItem.Size = New System.Drawing.Size(144, 22)
+        Me.OptionsToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
         Me.OptionsToolStripMenuItem.Text = "Options"
         '
         'HelpToolStripMenuItem
         '
         Me.HelpToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.DebugWindowToolStripMenuItem, Me.AboutToolStripMenuItem})
         Me.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem"
-        Me.HelpToolStripMenuItem.Size = New System.Drawing.Size(40, 20)
+        Me.HelpToolStripMenuItem.Size = New System.Drawing.Size(44, 20)
         Me.HelpToolStripMenuItem.Text = "Help"
         '
         'DebugWindowToolStripMenuItem
         '
         Me.DebugWindowToolStripMenuItem.Name = "DebugWindowToolStripMenuItem"
-        Me.DebugWindowToolStripMenuItem.Size = New System.Drawing.Size(146, 22)
+        Me.DebugWindowToolStripMenuItem.Size = New System.Drawing.Size(156, 22)
         Me.DebugWindowToolStripMenuItem.Text = "Debug Window"
         '
         'AboutToolStripMenuItem
         '
         Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(156, 22)
         Me.AboutToolStripMenuItem.Text = "About"
-        '
-        'Button1
-        '
-        Me.Button1.Location = New System.Drawing.Point(162, 415)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(72, 25)
-        Me.Button1.TabIndex = 2
-        Me.Button1.Text = "Button1"
-        Me.Button1.UseVisualStyleBackColor = True
         '
         'Timer1
         '
         Me.Timer1.Enabled = True
-        Me.Timer1.Interval = 2577
+        Me.Timer1.Interval = 37777
         '
         'Label1
         '
@@ -319,34 +310,27 @@ Partial Class frmGridCoin
         Me.lblCPU.TabIndex = 5
         Me.lblCPU.Text = "100%"
         '
-        'Button2
-        '
-        Me.Button2.Location = New System.Drawing.Point(262, 420)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(56, 20)
-        Me.Button2.TabIndex = 6
-        Me.Button2.Text = "Button2"
-        Me.Button2.UseVisualStyleBackColor = True
-        '
         'Button3
         '
         Me.Button3.Location = New System.Drawing.Point(505, 420)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(105, 19)
         Me.Button3.TabIndex = 7
-        Me.Button3.Text = "Button3"
+        Me.Button3.Text = "Email"
         Me.Button3.UseVisualStyleBackColor = True
+        '
+        'saveFile
+        '
+        Me.saveFile.Title = "Save Attachment"
         '
         'frmGridCoin
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(940, 449)
+        Me.ClientSize = New System.Drawing.Size(940, 709)
         Me.Controls.Add(Me.Button3)
-        Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.lblCPU)
         Me.Controls.Add(Me.Label1)
-        Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.TabControl1)
         Me.Controls.Add(Me.MenuStrip1)
         Me.MainMenuStrip = Me.MenuStrip1
@@ -390,11 +374,11 @@ Partial Class frmGridCoin
     Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
     Friend WithEvents lvRecent As System.Windows.Forms.ListView
-    Friend WithEvents Button1 As System.Windows.Forms.Button
     Friend WithEvents Timer1 As System.Windows.Forms.Timer
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents lblCPU As System.Windows.Forms.Label
-    Friend WithEvents Button2 As System.Windows.Forms.Button
     Friend WithEvents Button3 As System.Windows.Forms.Button
+    Private WithEvents contextMenuMessages As System.Windows.Forms.ContextMenu
+    Private WithEvents saveFile As System.Windows.Forms.SaveFileDialog
 
 End Class
