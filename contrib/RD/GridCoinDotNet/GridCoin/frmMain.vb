@@ -65,8 +65,6 @@ Public Class frmGridCoin
         mData = New data
 
         mData.AddIP("127.0.0.1", "me")
-        mData.AddIP("127.0.0.3", "me")
-        mData.AddIP("127.0.0.1", "me")
 
         'Application.Run(mP2p)
         'Application.Run(mP2p.MainForm)
@@ -76,15 +74,28 @@ Public Class frmGridCoin
 
     Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button3.Click
 
-        Broadcast()
+
+        frmMail.Show()
+        frmMail.RetrievePop3Emails()
+
 
     End Sub
 
-    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+
+    'Boinc
+    'Elevated command prompt
+    'Cd to gridcoin directory
+    'RegAsm.exe boinc.dll
+    'regtlibv12.exe boinc.tlb.
+    '//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
+    'issue the command:
+    'lodctr /r 
+
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
 
     End Sub
 
-    Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
+    Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
 
     End Sub
 

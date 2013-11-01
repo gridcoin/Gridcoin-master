@@ -52,7 +52,9 @@ C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\GridCoinDotNet.p
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\GridCoinDotNet.xml
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\BouncyCastle.Crypto.dll
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbprojResolveAssemblyReference.cache
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmGridWorker.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmGridCoin.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.Resources.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbproj.GenerateResource.Cache
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\OpenPop.dll
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmMail.resources
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmNewEmail.resources

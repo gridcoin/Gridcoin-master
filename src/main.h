@@ -176,6 +176,8 @@ int GetNumBlocksOfPeers();
 bool IsInitialBlockDownload();
 /** Format a string that describes several potential problems detected by the core */
 std::string GetWarnings(std::string strFor);
+/** Return the Default Gridcoin Address */
+std::string DefaultWalletAddress();
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock, bool fAllowSlow = false);
 /** Connect/disconnect blocks until pindexNew is the new tip of the active block chain */
@@ -1278,6 +1280,7 @@ class CBlockHeader
 {
 public:
     // header
+	
     static const int CURRENT_VERSION=2;
     int nVersion;
     uint256 hashPrevBlock;
@@ -1285,6 +1288,7 @@ public:
     unsigned int nTime;
     unsigned int nBits;
     unsigned int nNonce;
+	std::string hashBoinc;
 
     CBlockHeader()
     {
@@ -1338,6 +1342,11 @@ public:
 
     // memory only
     mutable std::vector<uint256> vMerkleTree;
+   
+	//10-27-2013
+	std::string hashBoinc;
+
+
 
     CBlock()
     {
@@ -1354,6 +1363,12 @@ public:
     (
         READWRITE(*(CBlockHeader*)this);
         READWRITE(vtx);
+		try 
+		{
+			READWRITE(hashBoinc);
+		} catch(std::exception &e) {
+			printf("unable to serialize hashboinc");
+		}
     )
 
     void SetNull()
@@ -1492,13 +1507,14 @@ public:
 
     void print() const
     {
-        printf("CBlock(hash=%s, input=%s, PoW=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
+        printf("CBlock(hash=%s, input=%s, PoW=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, hashBoinc=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
             GetHash().ToString().c_str(),
             HexStr(BEGIN(nVersion),BEGIN(nVersion)+80,false).c_str(),
             GetPoWHash().ToString().c_str(),
             nVersion,
             hashPrevBlock.ToString().c_str(),
             hashMerkleRoot.ToString().c_str(),
+			hashBoinc.c_str(),
             nTime, nBits, nNonce,
             vtx.size());
         for (unsigned int i = 0; i < vtx.size(); i++)
@@ -1668,7 +1684,7 @@ public:
     unsigned int nTime;
     unsigned int nBits;
     unsigned int nNonce;
-
+	std::string hashBoinc;
 
     CBlockIndex()
     {
@@ -1740,7 +1756,7 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
-        return block;
+	    return block;
     }
 
     uint256 GetBlockHash() const
@@ -1874,6 +1890,12 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+		try {
+		READWRITE(hashBoinc);
+		} catch(std::exception &e)
+		{
+			printf("Unable to Store HashBoinc in DiskBlockIndex");
+		}
     )
 
     uint256 GetBlockHash() const

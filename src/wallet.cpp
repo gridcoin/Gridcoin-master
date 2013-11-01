@@ -985,6 +985,44 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed) const
     }
 }
 
+
+
+
+
+
+
+// populate vCoins with vector of spendable COutputs
+void CWallet::RetrievePoolMiningCoins(vector<COutput>& vCoins) const
+{
+    vCoins.clear();
+
+    {
+        LOCK(cs_wallet);
+        for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+        {
+            const CWalletTx* pcoin = &(*it).second;
+
+            if (!pcoin->IsCoinBase())
+                continue;
+
+            for (unsigned int i = 0; i < pcoin->vout.size(); i++) 
+			{
+
+                if (!IsLockedCoin((*it).first, i) && pcoin->vout[i].nValue >= nMinimumInputValue)
+
+                    vCoins.push_back(COutput(pcoin, i, pcoin->GetDepthInMainChain()));
+
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
 static void ApproximateBestSubset(vector<pair<int64, pair<const CWalletTx*,unsigned int> > >vValue, int64 nTotalLower, int64 nTargetValue,
                                   vector<char>& vfBest, int64& nBest, int iterations = 1000)
 {

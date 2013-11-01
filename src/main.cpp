@@ -16,7 +16,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <ctime>
-
+#include <boost/lexical_cast.hpp>
 #include "global_objects_noui.hpp"
 
 
@@ -3706,7 +3706,7 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
     {
-		//Gridcoin: Verify the block was created by a BOINC miner
+		//Gridcoin: Network block received -- add to chain
 	    CBlock block;
         vRecv >> block;
         printf("received block %s\n", block.GetHash().ToString().c_str());
@@ -4522,6 +4522,20 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 		// Reward the miner based on Boinc utilization:
         pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
         pblocktemplate->vTxFees[0] = -nFees;
+		//Gridcoin: 10-27-2013: Construct the authenticity packet
+		//std::string boinc_authenticity = "";
+		//std::stringstream boinc_authenticity;
+		std::string boinc_authenticity = "";
+
+
+		boinc_authenticity = "MD5," + boost::lexical_cast<std::string>(nBoincUtilization) + ",CARD_VERSION,POOL_MINING," + DefaultWalletAddress();
+
+		//		boinc_authenticity = "MD5," << nBoincUtilization << ",CARD_VERSION,";
+
+		pblock->hashBoinc = boinc_authenticity;
+
+
+
 
 
 
@@ -4555,6 +4569,50 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 
     return pblocktemplate.release();
 }
+
+
+
+
+
+
+
+
+
+std::string DefaultWalletAddress() 
+{
+
+
+    //CBitcoinAddress address(params[0].get_str());
+ 
+    string strAccount;
+    //map<CTxDestination, string>::iterator mi = pwalletMain->mapAddressBook.find(address.Get());
+	//strAccount = pwalletMain->mapAddressBook[0].address.Get();
+	//strAccount = pwalletMain->mapAddressBook.begin().address.Get();
+	int i = 0;
+
+	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
+    {
+        const CTxDestination& address = item.first;
+        const string& strName = item.second;
+		return CBitcoinAddress(address).ToString();
+    }
+   // if (mi != pwalletMain->mapAddressBook.end() && !(*mi).second.empty())
+   //     strAccount = (*mi).second;
+    return "";
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
@@ -4629,7 +4687,6 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
     if (hash > hashTarget)
         return false;
 
-    //// debug print
     printf("GridCoin RPCMiner:\n");
     printf("proof-of-work found  \n  hash: %s  \ntarget: %s\n", hash.GetHex().c_str(), hashTarget.GetHex().c_str());
     pblock->print();

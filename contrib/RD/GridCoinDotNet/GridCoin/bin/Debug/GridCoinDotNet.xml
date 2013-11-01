@@ -23,6 +23,37 @@ GridCoinDotNet
 	<summary>
  Converts a base-58 string to a byte array, returning null if it wasn't valid.
  </summary>
+</member><member name="T:GridCoinDotNet.Gridcoin.TreeNodeBuilder">
+	<summary>
+ Builds up a <see cref="T:System.Windows.Forms.TreeNode"/> with the same hierarchy as
+ a <see cref="T:OpenPop.Mime.Message"/>.
+ 
+ The root <see cref="T:System.Windows.Forms.TreeNode"/> has the subject as text and has one one child.
+ The root has no Tag attribute set.
+ 
+ The children of the root has the MediaType of the <see cref="!:MessagePart"/> as text and the
+ MessagePart's children as <see cref="T:System.Windows.Forms.TreeNode"/> children.
+ Each <see cref="!:MessagePart"/>
+		<see cref="T:System.Windows.Forms.TreeNode"/> has a Tag property set to that <see cref="!:MessagePart"/>
+	</summary>
+</member><member name="M:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1.VisitMessage(OpenPop.Mime.Message)">
+	<summary>
+ Call this when you want to apply this traverser on a <see cref="T:OpenPop.Mime.Message"/>.
+ </summary>
+	<param name="message">The <see cref="T:OpenPop.Mime.Message"/> which you want to traverse. Must not be <see langword="null"/>.</param>
+	<returns>An answer</returns>
+</member><member name="M:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1.VisitMessagePart(OpenPop.Mime.MessagePart)">
+	<summary>
+ Call this when you want to apply this traverser on a <see cref="!:MessagePart"/>.
+ </summary>
+	<param name="messagePart">The <see cref="!:MessagePart"/> which you want to traverse. Must not be <see langword="null"/>.</param>
+	<returns>An answer</returns>
+</member><member name="T:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1">
+	<summary>
+ This interface describes a MessageTraverser which is able to traverse a Message hierarchy structure
+ and deliver some answer.
+ </summary>
+	<typeparam name="TAnswer">This is the type of the answer you want to have delivered.</typeparam>
 </member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.#ctor(System.Byte[])">
 	<summary>
  Constructor that takes a byte array of 33 or 65 bytes representing a public key.

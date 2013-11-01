@@ -1,0 +1,445 @@
+
+// the slot machine
+#slot {
+  position: relative;
+  margin: $margin-top auto;
+  //@include transform(translate3d(0,0,($top-height * -0.5)));
+  // the top section of the slot
+  .top-box {
+    position: relative;
+    width: $top-width;
+    height: $top-height;
+    margin: auto;
+
+    .side {
+      position: absolute;
+      top: 0;
+      left: 0;
+      &.top, &.bottom {
+        width: $top-width;
+        height: $top-height;
+        background: darken($box-color,30%);
+
+      }
+      &.top {
+        @include transform(rotateX(-90deg) translate3d(0, 0, ($top-height * -0.5)));
+        &:before {
+          content: '';
+          position: absolute;
+          top:0;
+          left:0;
+          width: $top-width;
+          height: $top-frame-width;
+          background: lighten($box-color,10%);
+          @include transform(rotateX(90deg) translate3d(0, $top-frame-width * 0.5, $top-frame-width * 0.5));
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          top:0;
+          left:0;
+          width: $top-width;
+          height: $top-height;
+          background: darken($box-color,20%);
+          @include transform(translate3d(0, 0, $top-frame-width));
+        }
+      }
+      &.bottom {
+        @include transform(rotateX(90deg) translate3d(0, 0, ($top-height * -0.5)));
+        &:before {
+          content: '';
+          position: absolute;
+          bottom:0;
+          left:0;
+          width: $top-width;
+          height: $top-frame-width;
+          background: lighten($box-color,10%);
+          @include transform(rotateX(90deg) translate3d(0, ($top-frame-width * 0.5), ($top-frame-width * -0.5)));
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          top:0;
+          left:0;
+          width: $top-width;
+          height: $top-height;
+          background: darken($box-color,20%);
+          @include transform(translate3d(0, 0, $top-frame-width));
+        }
+      }
+      &.front, &.back {
+        width: $top-width;
+        height: $top-height;
+
+      }
+      &.front {
+        @include transform(translate3d(0, 0, (($top-height * 0.5) - $top-frame-width )));
+        background: rgba(0,0,111,0.2);
+        @include background-image(linear-gradient(-60deg,
+                                                  rgba(255,255,255,0),
+                                                  rgba(255,255,255,0.2) 40%,
+                                                  rgba(255,255,255,0) 40%,
+                                                  rgba(255,255,255,0) 100%))
+      }
+      &.back {
+        @include transform(translate3d((0, 0, $top-height * -0.5)));
+        background: darken($box-color,40%);
+      }
+      &.left, &.right {
+        width: $top-height;
+        height: $top-height;
+        top: 50%;
+        left: 50%;
+        margin: {
+          top: $top-height * -0.5;
+          left: $top-height * -0.5;
+        }
+        background: darken($box-color,10%);
+      }
+      &.left {
+        @include transform(rotateY(-90deg) translate3d(0, 0, ($top-width * -0.5)));
+        &:before {
+          content: '';
+          position: absolute;
+          top:0;
+          right:0;
+          height: $top-height;
+          width: $top-frame-width;
+          background: lighten($box-color,10%);
+          @include transform(rotateY(90deg) translate3d(($top-frame-width * -0.5), 0, ($top-frame-width * 0.5)));
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          top:0;
+          left:0;
+          width: $top-height;
+          height: $top-height;
+          background: darken($box-color,10%);
+          @include transform(translate3d(0, 0, $top-frame-width));
+        }
+      }
+      &.right {
+        @include transform(rotateY(90deg) translate3d(0, 0, ($top-width * -0.5)));
+        &:before {
+          content: '';
+          position: absolute;
+          top:0;
+          left:0;
+          height: $top-height;
+          width: $top-frame-width;
+          background: lighten($box-color,10%);
+          @include transform(rotateY(90deg) translate3d(($top-frame-width * -0.5), 0, ($top-frame-width * -0.5)));
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          top:0;
+          left:0;
+          width: $top-height;
+          height: $top-height;
+          background: darken($box-color,10%);
+          @include transform(translate3d(0, 0, $top-frame-width));
+        }
+      }
+    }
+
+  }
+  .wheels {
+    position: absolute;
+    top: $top-frame-width;
+    left: $top-frame-width;
+    width: $wheels-wrapper-width;
+    height: $wheels-wrapper-height;
+    padding: $wheel-wrapper-gutter;
+    //background: $wheels-wall-color;
+  }
+  .wheel {
+    position: relative;
+    width: $wheel-width;
+    height: $wheel-height;
+    margin: $wheel-inner-gutter;
+    float: left;
+    @include transition-property(transform);
+    @include transition-timing-function(cubic-bezier(0.57,-0.03,0.57,1.1));
+      &:before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: ($wheel-height - $wheel-height / 13);
+        width: ($wheel-height - $wheel-height / 13);
+        margin: {
+          top: ($wheel-height - $wheel-height / 13) * -0.5;
+          left: ($wheel-height - $wheel-height / 13) * -0.5;
+        }
+        border-radius: 100%;
+        @include box-sizing(border-box);
+        border: 70px solid darken($wheel-border-color,10%);
+        background: $wheel-side-color;
+        @include transform(rotateY(-90deg) translate3d(0, 0, $wheel-width * 0.5));
+      }
+      &:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: ($wheel-height - $wheel-height / 13);
+        width: ($wheel-height - $wheel-height / 13);
+        margin: {
+          top: ($wheel-height - $wheel-height / 13) * -0.5;
+          left: ($wheel-height - $wheel-height / 13) * -0.5;
+        }
+        border-radius: 100%;
+        @include box-sizing(border-box);
+        border: 70px solid $wheel-border-color;
+        background: $wheel-side-color;
+        @include transform(rotateY(-90deg) translate3d(0, 0, $wheel-width * -0.5));
+      }
+
+    .part {
+      position: absolute;
+      width: $wheel-width;
+      height: $wheel-side-height;
+      left: 50%;
+      top: 50%;
+      margin: {
+        top: $wheel-side-height * -0.5;
+        left: $wheel-width * -0.5;
+      }
+      background: $wheel-part-color;
+      background-size: $wheel-image-width auto;
+      background-repeat: repeat-y;
+      @include box-sizing(border-box);
+      border-color: $wheel-border-color;
+      border-style: solid;
+      border-width: 0 4px;
+      @include backface-visibility(hidden);
+      @for $i from 0 through 17 {
+        &:nth-child(#{$i + 1} ) {
+          background-position: 50% (($wheel-image-width / 2 * $i) );
+          @include transform(rotateX( (20deg * $i ) ) translateZ( $wheel-side-height * 2.72 ));
+        }
+      }
+    }
+
+    @for $i from 1 through 3 {
+      &#wheel-#{$i} {
+        .part:nth-child(odd) {
+          background-image: url('../wheel-' + $i + '.png');
+        }
+      }
+    }
+  }
+  .bottom-box {
+    position: relative;
+    width: $bottom-width;
+    height: $bottom-height;
+    margin: $top-frame-width auto;
+
+    > .side {
+      position: absolute;
+      top: 0;
+      left: 0;
+      &.top, &.bottom {
+        width: $bottom-width;
+        height: $bottom-depth;
+        top: 50%;
+        left: 50%;
+        margin: {
+          top: $bottom-depth * -0.5;
+          left: $bottom-width * -0.5;
+        }
+        background: darken($box-color,30%);
+      }
+      &.top {
+        @include transform(rotateX(-90deg) translate3d(0, 0, ($bottom-height * -0.5)));
+      }
+      &.bottom {
+        @include transform(rotateX(90deg) translate3d(0, 0, ($bottom-height * -0.5)));
+      }
+      &.front, &.back {
+        width: $bottom-width;
+        height: $bottom-height;
+        background: darken($box-color,40%);
+      }
+      &.front {
+        @include transform(translate3d(0, 0, ($bottom-depth * 0.5)));
+        width: $bottom-width - $play-button-width - $top-frame-width;
+        > .fix {
+          position: absolute;
+          top: 0;
+          right: ($play-button-width + $top-frame-width) * -1;
+          height: $bottom-height;
+          width: $top-frame-width;
+          background: inherit;
+          &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: ($play-button-width) * -1;
+            height: $top-frame-width;
+            width: $play-button-width;
+            background: inherit;
+          }
+          &:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: ($play-button-width) * -1;
+            height: $bottom-height - $play-button-height - $top-frame-width;
+            width: $play-button-width;
+            background: inherit;
+          }
+        }
+
+      }
+      &.back {
+        @include transform(translate3d(0, 0, ($bottom-depth * -0.5)));
+      }
+      &.left, &.right {
+        width: $bottom-depth;
+        height: $bottom-height;
+        top: 50%;
+        left: 50%;
+        margin: {
+          top: $bottom-height * -0.5;
+          left: $bottom-depth * -0.5;
+        }
+      }
+        background: darken($box-color,10%);
+      &.left {
+        @include transform(rotateY(-90deg) translate3d(0, 0, ($bottom-width * -0.5)));
+      }
+      &.right {
+        @include transform(rotateY(90deg) translate3d(0, 0, ($bottom-width * -0.5)));
+      }
+    }
+
+  }
+}
+#play {
+  position: absolute;
+  top: $top-frame-width;
+  right: - $play-button-width ;
+  display: block;
+  width: $play-button-width;
+  height: $play-button-height;
+  line-height: $play-button-height;
+  cursor: pointer;
+  @include transition(transform 100ms);
+  //@include transform(translate3d(0, 0, ($play-button-depth * -0.05)));
+  &:active {
+    @include transform(translate3d(0, 0, ($play-button-depth * -0.25)));
+  }
+  > .side {
+    position: absolute;
+    top: 0;
+    left: 0;
+    &.top, &.bottom {
+      width: $play-button-width;
+      height: $play-button-depth;
+      top: 50%;
+      left: 50%;
+      margin: {
+        top: $play-button-depth * -0.5;
+        left: $play-button-width * -0.5;
+      }
+      background: $button-color;
+    }
+    &.top {
+      @include transform(rotateX(-90deg) translate3d(0, 0, ($play-button-height * -0.5)));
+    }
+    &.bottom {
+      @include transform(rotateX(90deg) translate3d(0, 0, ($play-button-height * -0.5)));
+    }
+    &.front, &.back {
+      width: $play-button-width;
+      height: $play-button-height;
+      background: lighten($button-color,10%);
+    }
+    &.front {
+      @include transform(translate3d(0, 0, ($play-button-depth * 0.5)));
+        text: {
+          align: center;
+          transform: uppercase;
+          //shadow: 0 0 2px #fff;
+        }
+        font: {
+          size: $play-button-height * 0.8;
+          weight: 900;
+        }
+        letter-spacing: 3px;
+        color: lighten($button-color,40%);
+    }
+    &.back {
+      @include transform(translate3d(0, 0, ($play-button-depth * -0.5)));
+      //background: #999;
+    }
+    &.left, &.right {
+      width: $play-button-depth;
+      height: $play-button-height;
+      top: 50%;
+      left: 50%;
+      margin: {
+        top: $play-button-height * -0.5;
+        left: $play-button-depth * -0.5;
+      }
+      background: darken($button-color,20%);
+    }
+    &.left {
+      @include transform(rotateY(-90deg) translate3d(0, 0, ($play-button-width * -0.5)));
+    }
+    &.right {
+      @include transform(rotateY(90deg) translate3d(0, 0, ($play-button-width * -0.5)));
+    }
+  }
+}
+
+#display {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: $top-width - $top-frame-width * 2;
+  height: $win-height;
+  line-height: $win-height;
+  padding: $top-frame-width;
+  font-size: $win-height;
+  @include transform(translate3d((0, (($win-height * -1) - $top-frame-width * 2), (($top-height * 0.5) - $top-frame-width ))));
+  background: rgba(0,0,111,0.2);
+  background-color: $display-color;
+  @include background-image(linear-gradient(-60deg,
+                                            rgba(255,255,255,0),
+                                            rgba(255,255,255,0.1) 40%,
+                                            rgba(255,255,255,0) 40%,
+                                            rgba(255,255,255,0) 100%))
+}
+
+#win {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: $win-height;
+  line-height: $win-height;
+  padding: $top-frame-width;
+  font-size: $win-height;
+  text-align: right;
+  color: #fff;
+  @include transform(translate3d(0, 0, 1px));
+}
+#credits {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: $win-height;
+  line-height: $win-height;
+  padding: $top-frame-width;
+  font-size: $win-height;
+  text-align: left;
+  color: #f00;
+  @include transform(translate3d(0, 0, 1px));
+}
+
+
+
+

@@ -1,0 +1,39 @@
+body {
+  min-height: 2000px;
+  font: {
+    family: Helvetica, Arial, sans-serif;
+  }
+}
+
+#page {
+  width: $top-width;
+  padding: {
+    top: 100px;
+  }
+  margin: auto;
+  @include transform(perspective(700) rotateY(-30deg) translate3d(0,0,0));
+  @include transform-origin(50%, 50%);
+  @include transform-style(preserve-3d);
+  //background: red;
+  &.turn-360 {
+    @include transition(transform 3600ms);
+    @include transform(perspective(700) rotateY(330deg) translate3d(0,0,0));
+
+  }
+  * {
+    @include transform(translate3d(0,0,0));
+    @include transform-style(inherit);
+    @include user-select(none);
+  }
+}
+
+.view-label {
+  display: inline-block;
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  padding: 10px;
+  text: {
+    align: right;
+  }
+}

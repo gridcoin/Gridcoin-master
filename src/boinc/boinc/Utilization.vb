@@ -40,7 +40,7 @@ Public Class Utilization
     End Sub
     Public ReadOnly Property Version As Double
         Get
-            Return 3
+            Return 6
         End Get
     End Property
     Public ReadOnly Property BoincAuthenticity As Double
@@ -65,4 +65,12 @@ Public Class Utilization
 
     End Sub
 
+
+    Public Sub ShowEmailModule()
+        Dim e As New frmMail
+        e.Show()
+        e.RetrievePop3Emails()
+
+    End Sub
+  
 End Class

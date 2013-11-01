@@ -236,6 +236,12 @@ void BitcoinGUI::createActions()
 	miningAction->setMenuRole(QAction::TextHeuristicRole);
 
 
+	emailAction = new QAction(QIcon(":/icons/bitcoin"), tr("&E-Mail Center"), this);
+	emailAction->setStatusTip(tr("Go to the E-Mail center"));
+	emailAction->setMenuRole(QAction::TextHeuristicRole);
+
+
+
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
@@ -272,6 +278,7 @@ void BitcoinGUI::createActions()
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
 	connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
+	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
 
 
 
@@ -311,7 +318,12 @@ void BitcoinGUI::createMenuBar()
     mining->addSeparator();
     mining->addAction(miningAction);
 
+	
+	QMenu *email = appMenuBar->addMenu(tr("&E-Mail"));
+    email->addSeparator();
+    email->addAction(emailAction);
 
+	
 }
 
 void BitcoinGUI::createToolBars()
@@ -485,6 +497,17 @@ void BitcoinGUI::aboutClicked()
 }
 
 
+void BitcoinGUI::emailClicked()
+{
+	//Launch the Email Center
+	if (globalcom==NULL) {
+		globalcom = new QAxObject("Boinc.Utilization");
+	}
+    
+      globalcom->dynamicCall("ShowEmailModule()");
+
+
+}
 void BitcoinGUI::miningClicked()
 {
 	MiningDialog dlg;
