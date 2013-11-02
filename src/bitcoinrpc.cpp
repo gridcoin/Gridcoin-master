@@ -47,6 +47,12 @@ static inline unsigned short GetDefaultRPCPort()
     return GetBoolArg("-testnet", false) ? 19778 : 9778;
 }
 
+
+
+
+
+
+
 Object JSONRPCError(int code, const string& message)
 {
     Object error;
@@ -254,6 +260,7 @@ static const CRPCCommand vRPCCommands[] =
     { "importprivkey",          &importprivkey,          false,     false },
     { "listunspent",            &listunspent,            false,     false },
 	{ "listminers",             &listminers,             false,     false },
+	{ "getpoolminingmode",      &getpoolminingmode,      false,     false }, 
     { "getrawtransaction",      &getrawtransaction,      false,     false },
     { "createrawtransaction",   &createrawtransaction,   false,     false },
     { "decoderawtransaction",   &decoderawtransaction,   false,     false },
@@ -993,6 +1000,16 @@ double static MegaHashProtection()
 
 
 
+static inline bool GetPoolMiningMode()
+{
+    if (mapArgs["-poolmining"] == "true") 
+	{
+		return true;
+	} 
+	return false;
+}
+
+
 void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 {
     bool fRun = true;
@@ -1052,17 +1069,12 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 			   //	printf("not eligible.");
 			}
 
+			//10-29-2013 GridCoin: Implement Pool Mining
+			bPoolMiningMode = GetPoolMiningMode();
 			
-
 
             if (!read_string(strRequest, valRequest))
                 throw JSONRPCError(RPC_PARSE_ERROR, "Parse error");
-
-
-
-
-
-
 
 
 
@@ -1282,6 +1294,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "listunspent"            && n > 2) ConvertTo<Array>(params[2]);
 	if (strMethod == "listminers"             && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "listminers"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
+	if (strMethod == "getpoolminingmode"      && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "getrawtransaction"      && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "createrawtransaction"   && n > 0) ConvertTo<Array>(params[0]);
     if (strMethod == "createrawtransaction"   && n > 1) ConvertTo<Object>(params[1]);

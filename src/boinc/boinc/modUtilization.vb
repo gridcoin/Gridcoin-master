@@ -1,6 +1,11 @@
 ﻿Imports System.Runtime.InteropServices
 Imports System.Threading
 Imports System.IO
+Imports System.Collections.Generic
+Imports System.Data
+Imports System.Text
+Imports System.Object
+Imports System.Security.Cryptography
 
 
 Module modUtilization
@@ -183,18 +188,55 @@ CalculateUsage:
 
         End Try
     End Function
-    Public Function VerifyBoincAuthenticity(ByVal sPath As String) As Long
+    Public Function GetMd5(ByVal sFN As String) As String
+        Try
+
+        Dim md5 As Object
+        md5 = System.Security.Cryptography.MD5.Create()
+        Dim fs As Stream
+        fs = File.OpenRead(sFN)
+        md5 = md5.ComputeHash(fs)
+        fs.Close()
+        Dim sOut As String
+        sOut = ByteArrayToHexString(md5)
+            Return sOut
+        Catch ex As Exception
+            Return "MD5Error"
+        End Try
+
+    End Function
+
+    Public Function ByteArrayToHexString(ByVal ba As Byte()) As String
+        Dim hex As StringBuilder
+        hex = New StringBuilder(ba.Length * 2)
+        For Each b As Byte In ba
+            hex.AppendFormat("{0:x2}", b)
+        Next
+        Return hex.ToString()
+    End Function
+
+    Public Function BoincMD5() As String
+        Dim sPath As String = GetBoincFolder()
+        Dim sMD5 As String
+        Dim sFilePath As String = sPath & "boinc.exe"
+        sMD5 = GetMd5(sFilePath)
+        Return sMD5
+    End Function
+    Public Function VerifyBoincAuthenticity() As Long
         '1.  Retrieve the Boinc MD5 Hash
         '2.  Verify the boinc.exe contains the Berkeley source libraries
         '3.  Verify the exe is an official release
         '4.  Verify the size of the exe is above the threshhold
-        sPath = "C:\Program Files\BOINC\boinc.exe"
+        Try
+
+        Dim sFolder As String = GetBoincFolder()
+        Dim sPath As String = sFolder & "boinc.exe"
         Dim s As String = File.ReadAllText(sPath)
         Dim info As New FileInfo(sPath)
         Dim sz As Long = info.Length
-        'Verify windows & linux size, greater than 1.14 mb 
+            'Verify windows & linux size, greater than .758528 mb (758,528)
 
-        If sz < 1140000 Then Return -1 'Invalid executable
+            If sz < (758528 / 2) Then Return -1 'Invalid executable
 
         If InStr(1, s, "http://boinc.berkeley.edu") = 0 Then
             Return -2 'failed authenticity check for libraries
@@ -210,7 +252,24 @@ CalculateUsage:
         sz = info.Length
         If sz < 30000 Then Return -4 'Failed to find Boinc Tray EXE
         Return 1 'Success
+        Catch ex As Exception
+            Return -10 'Error
+        End Try
 
     End Function
+
+    Public Function GetBoincFolder() As String
+        Dim sTemp As String
+        sTemp = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
+        sTemp = Trim(Replace(sTemp, "(x86)", ""))
+        sTemp = sTemp + "\Boinc\"
+
+
+        If Not System.IO.Directory.Exists(sTemp) Then
+            sTemp = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + "\Boinc\"
+        End If
+        Return sTemp
+    End Function
+
 
 End Module
