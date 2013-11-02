@@ -16,8 +16,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <ctime>
+
 #include <boost/lexical_cast.hpp>
 #include "global_objects_noui.hpp"
+#include "bitcoinrpc.h"
+//#include "rpcrawtransaction.cpp"
 
 
 using namespace std;
@@ -71,7 +74,14 @@ unsigned int nCoinCacheSize = 5000;
 // Gridcoin status    *************
 int nBoincUtilization = 0;
 int nPrint = 0;
+std::string sBoincMD5 = "";
+std::string sBoincBA = "";
+std::string sRegVer = "";
+
+bool bPoolMiningMode = false;
 bool bBoincSubsidyEligible = false;
+
+
 
 // ********************************
 
@@ -1106,7 +1116,9 @@ int64 static MaxBlockValue(int nHeight, int64 nFees)
     int64 nSubsidy = 150 * COIN;
     // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
     nSubsidy >>= (nHeight / 840000); // Gridcoin: 840k blocks in ~4 years
-    return nSubsidy + nFees;
+	//10-30-2013 (Allowing for inflation feature)
+	int64 totalfees = nFees * 3;
+    return nSubsidy + totalfees;
 }
 
 int64 static GetBoincUtilization()
@@ -1119,6 +1131,9 @@ int64 static GetBoincUtilization()
 	//If the SubmitBlock did not come from the loopback address, pay the minimum subsidy.
 	if (!bBoincSubsidyEligible) nCalculatedReading = 5;
 	if (!bBoincSubsidyEligible && nBoincUtilization > 0) (printf("Not eligible for boinc subsidy, must connect through loopback address."));
+	//No need to do this anymore now that we have added the direct mining payment system:
+	//if (bPoolMiningMode && pwalletMain->IsLocked()) {	printf("Please unlock your wallet when pool mining, otherwise you will receive the minimum subsidy.");		nCalculatedReading = 5;	}
+	
 	return nCalculatedReading;
 }
 
@@ -1133,7 +1148,8 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
     int64 nSubsidy = GetBoincUtilization() * COIN;
     // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
     nSubsidy >>= (nHeight / 840000); // Gridcoin: 840k blocks in ~4 years
-    return nSubsidy + nFees;
+	//Gridcoin : Total block pays 5-150 + 2*Fees
+    return nSubsidy + (nFees*2);
 }
 
 
@@ -2177,9 +2193,10 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
     // First transaction must be coinbase, the rest must not be
     if (vtx.empty() || !vtx[0].IsCoinBase())
         return state.DoS(100, error("CheckBlock() : first tx is not coinbase"));
-    for (unsigned int i = 1; i < vtx.size(); i++)
-        if (vtx[i].IsCoinBase())
-            return state.DoS(100, error("CheckBlock() : more than one coinbase"));
+
+	//Gridcoin Pool Mining:
+	 for (unsigned int i = 1; i < vtx.size(); i++)  if (vtx[i].IsCoinBase())       return state.DoS(100, error("CheckBlock() : more than one coinbase"));
+	
 
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, vtx)
@@ -2831,6 +2848,7 @@ bool InitBlockIndex() {
         txNew.vin[0].scriptSig = CScript() <<  486604799 << CBigNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         txNew.vout[0].nValue = 50 * COIN;
         txNew.vout[0].scriptPubKey = CScript() << ParseHex("040184777fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aa777470216fe1b51850b4acf21b179c45070ac7b03a9") << OP_CHECKSIG;
+
 	
         CBlock block;
         block.vtx.push_back(txNew);
@@ -4298,32 +4316,188 @@ double static MegaHashProtection()
   return elapsed_secs;
 }
 
+std::string GRCDefaultPubKeyHex(CReserveKey& reservekey)
+{
+	//bitcoin public key hex from script pub key -> str
+	CPubKey pubkey;
+    if (!reservekey.GetReservedKey(pubkey)) return NULL;
+	string pubkeystep1 = HexStr(pubkey.begin(),pubkey.end());
+	return pubkeystep1;
+	//txNew.vout[2].scriptPubKey = CScript() << ParseHex("037ded09cb54f523f083c5e5154aeba18558d9f87ca5f48a2198fabfc95d42ae95") << OP_CHECKSIG;
+
+}
+
+std::string DefaultWalletAddress() 
+{
+	//Gridcoin - Find the default public GRC address (not used anymore)
+    string strAccount;
+	int i = 0;
+	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
+    {
+    	 const CBitcoinAddress& address = item.first;
+		 const std::string& strName = item.second;
+		 bool fMine = IsMine(*pwalletMain, address.Get());
+		 if (fMine) return CBitcoinAddress(address).ToString();
+    }
+    //Cant Find
+	return "?";
+}
+
+
+
+
+
+
+std::string BoincAuthenticity() 
+{
+
+		std::string boinc_authenticity = "";
+		std::string pool_mode = "SOLO_MINING";
+		if (bPoolMiningMode) pool_mode = "POOL_MINING";
+		//Gridcoin - record Boinc Authenticity information:
+		boinc_authenticity = sBoincMD5 +"," + sBoincBA + "," + boost::lexical_cast<std::string>(nBoincUtilization);
+		boinc_authenticity = boinc_authenticity + ",CARD_VERSION," + pool_mode + "," + DefaultWalletAddress() + "," + sRegVer;
+		//hexpubkey reserved for future use
+        return boinc_authenticity;
+
+}
+
+
+
+	
+
+
+
+CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
+{
+		
+	// Create coinbase tx
+    CTransaction txNew;
+    txNew.vin.resize(1);
+	txNew.vout.resize(1);
+	txNew.vin[0].prevout.SetNull();
+    
+	if (!bPoolMiningMode) {
+		txNew.vout.resize(1);
+		return txNew;
+	}
+
+	
+   std::map<std::string, MiningEntry> minerpayments;
+   minerpayments = CalculatePoolMining();
+
+    minerstobepaid = 0;
+	for(map<string,MiningEntry>::iterator ii2=minerpayments.begin(); ii2!=minerpayments.end(); ++ii2) 
+	{
+			MiningEntry ae2 = minerpayments[(*ii2).first];
+            if (ae2.strAccount.length() > 5) 
+			{
+				minerstobepaid++;
+				txNew.vout.resize(minerstobepaid);
+			}
+    }
+
+	
+   int inum = 0;
+   double rbpps = minerpayments["totals"].rbpps;
+   double total_payments = 0;
+	
+   printf("Grand Total Utilization %d, Avg Boinc %d",minerpayments["totals"].totalutilization, minerpayments["totals"].avgboinc);
+   printf("Grand Total Block Payout %d, rbpps %d",minerpayments["totals"].payout,rbpps);
+
+   	for(map<string,MiningEntry>::iterator ii=minerpayments.begin(); ii!=minerpayments.end(); ++ii) 
+	{
+
+			MiningEntry ae = minerpayments[(*ii).first];
+            if (ae.strAccount.length() > 5) {
+				int64 compensation = ae.shares*rbpps;
+			 	printf("Payment # %d, Comment %s",inum,ae.strComment.c_str());
+				//printf("Shares %d, Account %s", RoundToString(ae.shares,2).c_str(),ae.strAccount.c_str());
+				//printf("Payments %d, compensation: %d",ae.payments,RoundToString(compensation,6).c_str());
+				total_payments = total_payments + compensation;
+				// Parse Gridcoin miner address
+				CScript sftp;
+				CBitcoinAddress address(ae.strAccount);
+				sftp.SetDestination(address.Get());
+				txNew.vout[inum].scriptPubKey = sftp;
+				txNew.vout[inum].nValue = AmountFromValue(compensation);
+			    inum++;
+		}
+
+   }
+	
+
+	   //printf("Grand Total Payments %d",RoundToString(total_payments,6).c_str());
+
+	   //If we are in pool mining mode, resize the transaction to the amount of recipients
+	  
+		if (minerstobepaid==0) {
+			    txNew.vin.resize(1);
+				txNew.vout.resize(1);
+				txNew.vin[0].prevout.SetNull();
+				txNew.vout[0].nValue=AmountFromValue(5);
+				return txNew;
+   		}
+
+        return txNew;
+
+}
+
+
+
+
+
+
+
 
 
 
 CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 {
-    // Create new block
-    auto_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
-    if(!pblocktemplate.get())
-        return NULL;
-    CBlock *pblock = &pblocktemplate->block; // pointer for convenience
 
-    // Create coinbase tx
+
+	printf("Calling create new gridcoin block...");
+
+    // Gridcoin - Create new Coinbase block (11-1-2013)
+    auto_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
+    if(!pblocktemplate.get())  return NULL;
+    CBlock *pblock = &pblocktemplate->block; // pointer for convenience
+	
+	// Create coinbase tx
+	
+	/*
     CTransaction txNew;
     txNew.vin.resize(1);
+    txNew.vout.resize(2);
     txNew.vin[0].prevout.SetNull();
-    txNew.vout.resize(1);
-    CPubKey pubkey;
-    if (!reservekey.GetReservedKey(pubkey))
-        return NULL;
-    txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
+    txNew.vin[1].prevout.SetNull();
+    */
+    double minerspaid = 0;
+	CTransaction txNew;
 
-    // Add our coinbase tx as first transaction
+	try 
+	{
+		txNew = CreatePoolMiningTransactions(minerspaid);
+	} 
+	catch(std::runtime_error &e)
+	{
+		minerspaid=0;
+		txNew.vin.resize(1);
+		txNew.vout.resize(1);
+		txNew.vin[0].prevout.SetNull();
+		txNew.vout[0].nValue=AmountFromValue(5);
+	}
+
+	CPubKey pubkey;
+    if (!reservekey.GetReservedKey(pubkey))       return NULL;
+    if (minerspaid==0) txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
+	
+	//GRIDCOIN - POOL_MING - 10-31-2013 
+    //Add our coinbase tx as first transaction
     pblock->vtx.push_back(txNew);
     pblocktemplate->vTxFees.push_back(-1); // updated at end
     pblocktemplate->vTxSigOps.push_back(-1); // updated at end
-
+		
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", MAX_BLOCK_SIZE_GEN/4);
     // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
@@ -4520,24 +4694,27 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         nLastBlockSize = nBlockSize;
         printf("CreateNewBlock(): total size %"PRI64u"\n", nBlockSize);
 		// Reward the miner based on Boinc utilization:
-        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
-        pblocktemplate->vTxFees[0] = -nFees;
-		//Gridcoin: 10-27-2013: Construct the authenticity packet
-		//std::string boinc_authenticity = "";
-		//std::stringstream boinc_authenticity;
-		std::string boinc_authenticity = "";
+		//************************************************ GRIDCOIN POOL MINING **********************************************
+
+		if (!bPoolMiningMode || minerspaid==0) {
+			pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
+		    pblocktemplate->vTxFees[0] = -nFees;
+
+		} else 
+		{
+			//Add the fees to the block finder in pool mining mode
+			int64 oldvalue = pblock->vtx[0].vout[0].nValue;
+			oldvalue = oldvalue + (nFees*2);
+			pblocktemplate->vTxFees[0]=-nFees;
+			pblock->vtx[0].vout[0].nValue = oldvalue;
+			double test = pblock->vtx[0].vout[0].nValue;
+			printf("PAYMENT AMOUNT %.8g",test);
+		}
 
 
-		boinc_authenticity = "MD5," + boost::lexical_cast<std::string>(nBoincUtilization) + ",CARD_VERSION,POOL_MINING," + DefaultWalletAddress();
-
-		//		boinc_authenticity = "MD5," << nBoincUtilization << ",CARD_VERSION,";
-
-		pblock->hashBoinc = boinc_authenticity;
-
-
-
-
-
+		//Gridcoin: 10-30-2013: Construct the authenticity packet
+		std::string boinc_authenticity = BoincAuthenticity();
+	    pblock->hashBoinc = boinc_authenticity;
 
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
@@ -4554,59 +4731,28 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         CValidationState state;
 		
 
-
         if (!pblock->ConnectBlock(state, &indexDummy, viewNew, true))
             throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
+
+
     }
+	 
 	    double mh = MegaHashProtection();
 
 	    if (mh < MEGAHASH_VIOLATION_THRESHHOLD) {
 				MEGAHASH_VIOLATION_COUNT++;
 				printf("mh/vc %.8g, threshhold=%.8g",MEGAHASH_VIOLATION_COUNT, MEGAHASH_VIOLATION_THRESHHOLD);
 				printf("MEGAHASH VIOLATION. REDUCE HASHPOWER.");
+				if (fTestNet) MEGAHASH_VIOLATION_COUNT--;
+
+        
 		}
 		nMegaHashProtection = clock();
 
-    return pblocktemplate.release();
+	
+
+		return pblocktemplate.release();
 }
-
-
-
-
-
-
-
-
-
-std::string DefaultWalletAddress() 
-{
-
-
-    //CBitcoinAddress address(params[0].get_str());
- 
-    string strAccount;
-    //map<CTxDestination, string>::iterator mi = pwalletMain->mapAddressBook.find(address.Get());
-	//strAccount = pwalletMain->mapAddressBook[0].address.Get();
-	//strAccount = pwalletMain->mapAddressBook.begin().address.Get();
-	int i = 0;
-
-	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
-    {
-        const CTxDestination& address = item.first;
-        const string& strName = item.second;
-		return CBitcoinAddress(address).ToString();
-    }
-   // if (mi != pwalletMain->mapAddressBook.end() && !(*mi).second.empty())
-   //     strAccount = (*mi).second;
-    return "";
-
-}
-
-
-
-
-
-
 
 
 

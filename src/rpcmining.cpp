@@ -180,6 +180,7 @@ Value getworkex(const Array& params, bool fHelp)
         }
 
         result.push_back(Pair("merkle", merkle_arr));
+		printf("Created new block Gridcoin with getworkex");
 
         return result;
     }
@@ -215,8 +216,16 @@ Value getworkex(const Array& params, bool fHelp)
             CDataStream(coinbase, SER_NETWORK, PROTOCOL_VERSION) >> pblock->vtx[0];
 
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
+		printf("Who realized the ethereal nature here?");
+		bool status = CheckWork(pblock, *pwalletMain, reservekey);
+		if (status) {
+				if (bPoolMiningMode) {
+				//Pay the pool miners:
+				}
 
-        return CheckWork(pblock, *pwalletMain, reservekey);
+		}
+
+		return status;
     }
 }
 
@@ -305,6 +314,8 @@ Value getwork(const Array& params, bool fHelp)
         result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
         result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); // deprecated
         result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
+		printf("created new gridcoin block in getwork");
+
         return result;
     }
     else
@@ -328,8 +339,23 @@ Value getwork(const Array& params, bool fHelp)
         pblock->nNonce = pdata->nNonce;
         pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
+		printf("created new gridcoin block in getwork with update");
+		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
+		if (status) {
+			//10-30-2013
+				if (bPoolMiningMode) {
+				//Pay the pool miners:
+				Array params;
+				params.push_back("");
+				params.push_back("");
+				//11-1-2013
+				//Value v = listminers(params,false);
+				}
 
-        return CheckWork(pblock, *pwalletMain, *pMiningKey);
+		}
+
+		return status;
+
     }
 }
 
@@ -385,6 +411,9 @@ Value getblocktemplate(const Array& params, bool fHelp)
     static CBlockIndex* pindexPrev;
     static int64 nStart;
     static CBlockTemplate* pblocktemplate;
+	printf("getblocktemplatecalled");
+
+
     if (pindexPrev != pindexBest ||
         (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 5))
     {

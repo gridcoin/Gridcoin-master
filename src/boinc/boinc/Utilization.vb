@@ -40,12 +40,23 @@ Public Class Utilization
     End Sub
     Public ReadOnly Property Version As Double
         Get
-            Return 6
+            Return 8
         End Get
     End Property
+    Public ReadOnly Property BoincMD5 As String
+        Get
+            Return modUtilization.BoincMD5()
+        End Get
+    End Property
+    Public ReadOnly Property BoincAuthenticityString As String
+        Get
+            Return Trim(modUtilization.VerifyBoincAuthenticity.ToString())
+        End Get
+    End Property
+
     Public ReadOnly Property BoincAuthenticity As Double
         Get
-            Return modUtilization.VerifyBoincAuthenticity("")
+            Return modUtilization.VerifyBoincAuthenticity()
         End Get
 
     End Property

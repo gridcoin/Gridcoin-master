@@ -404,7 +404,6 @@ dontaddit:
     End Function
     Public Function GetMd5(ByVal sFN As String) As String
         Dim md5 As Object
-
         md5 = System.Security.Cryptography.MD5.Create()
         Dim fs As Stream
         fs = File.OpenRead(sFN)
@@ -412,14 +411,7 @@ dontaddit:
         fs.Close()
         Dim sOut As String
         sOut = ByteArrayToHexString(md5)
-
-        'sOut = System.Text.Encoding.Unicode.GetString(md5)
-
-
         Return sOut
-
-
-
     End Function
 
     Public Function ByteArrayToHexString(ByVal ba As Byte()) As String

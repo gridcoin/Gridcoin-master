@@ -32,6 +32,8 @@
 #include "wallet.h"
 #include "init.h"
 
+#include <boost/lexical_cast.hpp>
+
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
 #endif
@@ -903,12 +905,39 @@ void BitcoinGUI::timerfire()
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
     
+	//Gridcoin - 10-29-2013 - Gather the Boinc Utilization Per Thread 
 	int utilization = 0;
 	utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
 	int thread_count = 0;
 	thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
+
 	//	int running_time = 0;
 	//	running_time = globalcom->dynamicCall("Elapsed()").toInt();
+	// Gridcoin - Gather the MD5 hash of the Boinc program:
+	QVariant md5_1 = globalcom->dynamicCall("BoincMD5()");
+	QString md5 = md5_1.toString();
+	sBoincMD5 = md5.toUtf8().constData();
+
+	int iRegVer = 0;
+	iRegVer = globalcom->dynamicCall("Version()").toInt();
+	sRegVer = boost::lexical_cast<std::string>(iRegVer);
+	
+	//Gather the authenticity level:
+	//1.  Retrieve the Boinc MD5 Hash
+	//2.  Verify the boinc.exe contains the Berkeley source libraries
+	//3.  Verify the exe is an official release
+	//4.  Verify the size of the exe is above the threshhold
+
+	QVariant ba_1 = globalcom->dynamicCall("BoincAuthenticityString()");
+	QString ba = ba_1.toString();
+	sBoincBA = ba.toUtf8().constData();
+	// -1 = Invalid Executable
+	// -2 = Failed Authenticity Check
+	// -3 = Failed library check
+	// -4 = Failed to Find boinc tray
+	// -10= Error during enumeration
+	//  1 = Success
+
 	nTick++;
 	if (nTick > 10) {
 		printf("Boinc Utilization: %d, Thread Count: %d",utilization, thread_count);

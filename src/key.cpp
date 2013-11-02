@@ -176,6 +176,8 @@ public:
         return false;
     }
 
+
+
     void GetPubKey(CPubKey &pubkey, bool fCompressed) {
         EC_KEY_set_conv_form(pkey, fCompressed ? POINT_CONVERSION_COMPRESSED : POINT_CONVERSION_UNCOMPRESSED);
         int nSize = i2o_ECPublicKey(pkey, NULL);

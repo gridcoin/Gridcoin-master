@@ -12,6 +12,9 @@
 #include "main.h"
 #include "net.h"
 #include "wallet.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace boost;
@@ -259,68 +262,257 @@ Value listunspent(const Array& params, bool fHelp)
 
 
 
+static inline bool GetPoolMiningMode()
+{
+    if (mapArgs["-poolmining"] == "true") 
+	{
+		return true;
+	} 
+	return false;
+}
+
+
+
+
+Value getpoolminingmode(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() > 3)
+        throw runtime_error("getpoolminingmode\r\n         Returns true or false.  Set poolmining=true in gridcoin.conf\n");
+		Object entry;
+		bool pm = GetPoolMiningMode();
+		Array results;
+     	entry.push_back(Pair("PoolMiningMode=", pm));
+		results.push_back(entry);
+		return results;
+}
+
+
+
+
+std::string Compensate(string grc_address, double dAmount, string commentfrom, string commentto)
+{
+
+	try {
+			CBitcoinAddress address(grc_address);
+			if (!address.IsValid()) return "Invalid Gridcoin address";
+			CWalletTx wtx;
+			wtx.mapValue["comment"] = commentfrom;
+			wtx.mapValue["to"]      = commentto;
+			if (pwalletMain->IsLocked()) return "Wallet Locked";
+  		    int64 nAmount = AmountFromValue(dAmount);
+			string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+			if (strError != "") return strError;
+			string transaction_id = wtx.GetHash().GetHex().c_str();
+			if (transaction_id.length() > 5) {
+				return "SUCCESS";
+			}
+			return "FAIL";
+	}
+			catch (std::exception &e) {
+  
+		return "FAIL2";
+	}
+}
+
+
+std::string RoundToString(double d, int place)
+{
+	//boost::lexical_cast<string>(iBU)
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(place) << d ;
+    return ss.str() ;
+}
+
+
+
+
+
+std::map<std::string, MiningEntry> CalculatePoolMining()
+{
+
+	int nMaxDepth = nBestHeight;
+    CBlock block;
+	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
+	block.ReadFromDisk(pLastBlock);
+	int64 LastBlockTime = pLastBlock->GetBlockTime();
+	printf("LastBlockTime %d",LastBlockTime);
+
+	//Gridcoin - 10-30-2013  Calculate the lookback period
+	//      ---------------------- Difficulty Calculation For Lookback Period: ------------------------------------
+	////    Difficulty = (24) *60 mins * 60 secs * 2
+    //////  400Kh/s @ 1 difficulty = 8 blocks per day (lookbackperiod = 2 days)
+
+	double diff = GetDifficulty(pLastBlock);
+	if (diff < .05) diff = .05;
+	double lookback = diff * 24 * 60 * 60 * 2;
+	double total_utilization = 0;
+	double total_rows = 0;
+    double avg_boinc = 0;
+    string wallet = "";
+	
+    //  -1 showing for miner2 ba packet
+    //	boinc_authenticity_packet = BoincMD5,sBoincBALevel,UtilizationLevel,CARD_VERSION,POOL_MINING_MODE,WalletAddress();
+	//  Compensate Miners -----------------------------------------
+
+    std::map<std::string, MiningEntry> minerpayments;
+    //11-1-2013
+    minerpayments.clear();
+
+	double compensated_rows = 0;
+	string last_wallet = "";
+	double total_payment = 0;
+	double iBU = 0;
+	double compensation = 0;
+	printf("Reaching payout to miners.");
+	double total_shares = 0;
+
+	MiningEntry ae;
+    //Iterate through the chain in reverse
+							
+    for (int i = nMaxDepth; i > 0; i--)
+    {
+     	CBlockIndex* pblockindex = FindBlockByHeight(i);
+		block.ReadFromDisk(pblockindex);
+	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
+        if (block.hashBoinc.length() > 10 && block.hashBoinc.length() < 300) {
+				vector<std::string> vecBoinc;
+		        std::string brh = block.hashBoinc;
+				boost::split(vecBoinc,brh,boost::is_any_of(","));
+				if (vecBoinc.size() > 4) {
+					string pool_mode = vecBoinc[4];
+					if (pool_mode=="SOLO_MINING" || pool_mode=="POOL_MINING") {
+						     	if (nActualTimespan < lookback) {
+								if (pool_mode == "POOL_MINING") {
+										string md5 = vecBoinc[0];
+										string BA = vecBoinc[1];
+										string bu = vecBoinc[2];
+										string wallet = vecBoinc[5];
+									    iBU = boost::lexical_cast<double>(bu);
+										//11-1-2013  At this point in time we are using GRC public addresses, check for size between 20-40
+
+										if (iBU > 0 && wallet.length() > 20 && wallet.length() < 44) {
+														
+											MiningEntry meNew;
+											compensated_rows++;
+											string blocktime =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pblockindex->GetBlockTime()).c_str();
+											meNew = minerpayments[wallet];
+											if (meNew.paid != true) {
+												meNew.paid=true;
+												meNew.payments=0;
+												minerpayments.insert(map<string,MiningEntry>::value_type(wallet,meNew));
+											} 
+											
+											meNew.strAccount = wallet;
+											meNew.shares = meNew.shares + iBU;
+											meNew.payments++;
+											//string narr = "GRCMiningPmt_Shares=" + RoundToString(total_shares,2) + "_" + RoundToString(rbpps,7) + "RBPPS[Total:GRC" + RoundToString(payout,4) + "],Payment=" + RoundToString(total_payment,4);
+											string long_narr = "Shares:" + RoundToString(meNew.shares,2) +",Block:" + RoundToString(i,0) + ",TimeSpan:" + RoundToString(nActualTimespan,0);
+											meNew.strComment = long_narr;
+											minerpayments[wallet]=meNew;
+											total_utilization = total_utilization + iBU;
+											total_rows++;
+											printf("PoolMining: %s ",long_narr.c_str());
+											total_shares = total_shares + iBU;
+					
+										}
+
+								}
+							}
+					  }
+				}
+		}
+	}
+	
+		//Figure out avg boinc utilization
+    	double rbpps = 0;
+	    double payout = 0;
+		if (total_rows > 0) {
+			avg_boinc = total_utilization/total_rows;
+			payout = avg_boinc * 1.5;
+			if (payout > 150) payout = 150;
+			if (payout < 5) payout=5;
+			if (total_utilization < .01) total_utilization=.01;
+			rbpps = payout/total_utilization;
+		 }
+
+		//End of Payments
+		//Persist the rbpps, payout, total_utilization, total_rows:
+		MiningEntry me;
+
+		//			if (minerpayments[wallet] == NULL) minerpayments[wallet] = 
+    	me.rbpps = rbpps;
+		me.payout = payout;
+		me.totalutilization = total_utilization;
+		me.totalrows= total_rows;
+		me.avgboinc = avg_boinc;
+		me.lookback = lookback;
+		minerpayments.insert(map<string,MiningEntry>::value_type("totals",me));
+		
+		return minerpayments;
+							
+    
+}
 
 
 
 
 Value listminers(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() > 3)
+
+	printf("Creating miner payout report...");
+		if (fHelp || params.size() > 3)
         throw runtime_error(
             "listminers [minconf=1] [maxconf=9999999]  [\"address\",...]\n"
             "Returns array of pool mining transactions\n"
             "{}");
 
-    RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
+	RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
 
-    int nMinDepth = 1;
-    if (params.size() > 0)
-        nMinDepth = params[0].get_int();
+	Array results;
 
-    int nMaxDepth = 9999999;
-    if (params.size() > 1)
-        nMaxDepth = params[1].get_int();
+    std::map<std::string, MiningEntry> minerpayments;
+  
 
-   // set<CBitcoinAddress> setAddress;
-    Array results;
-    
-    CBlock block;
-     
-   // unsigned int nFound = 0;
-	//Iterate through the chain in reverse
-	// CBlockLocator locator;
-      
-//	 CBlockIndex* pHighBlock = locator.GetBlockIndex();
-	//
- //    nMaxDepth = pHighBlock->nHeight;
-  nMaxDepth = nBestHeight;
+    minerpayments = CalculatePoolMining();
+    int inum = 0;
+   
+    double rbpps = minerpayments["totals"].rbpps;
+    double total_payments = 0;
+	Object entry;
+	entry.push_back(Pair("Grand Total Utilization",minerpayments["totals"].totalutilization));
+	entry.push_back(Pair("Average Boinc", minerpayments["totals"].avgboinc));
+	entry.push_back(Pair("Grand Total Block Payout",minerpayments["totals"].payout));
+	entry.push_back(Pair("Grand Total RBPPS",rbpps));
+	entry.push_back(Pair("Lookback Period",minerpayments["totals"].lookback));
 
- 	printf("nmaxdepth= %"PRI64d"  before bounds\n", nMaxDepth);
+	results.push_back(entry);
 
-    CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
-	block.ReadFromDisk(pLastBlock);
-	int64 LastBlockTime = pLastBlock->GetBlockTime();
+	for(map<string,MiningEntry>::iterator ii=minerpayments.begin(); ii!=minerpayments.end(); ++ii) 
+	{
 
-	
-    for (int i = nMaxDepth; i > 0; i--)
-    {
-		 CBlockIndex* pblockindex = FindBlockByHeight(i);
-         //CBlockIndex* pblockindex = mapBlockIndex[hash];
-		 block.ReadFromDisk(pblockindex);
-		 //    return pblockindex->phashBlock->GetHex();
-		 //	    block.ReadFromDisk(i);
-	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
-    
-		Object entry;
-		entry.push_back(Pair("Block",i));
-		entry.push_back(Pair("boincHash", block.hashBoinc));
-		entry.push_back(Pair("TimeSpan",nActualTimespan));
-    	results.push_back(entry);
+			MiningEntry ae = minerpayments[(*ii).first];
+
+	        if (ae.strAccount.length() > 5) 
+			{
+				double compensation = ae.shares*rbpps;
+	     		Object e;
+				inum++;
+				e.push_back(Pair("Payment #",inum));
+				e.push_back(Pair("Payment Comment",ae.strComment));
+				e.push_back(Pair("Shares", RoundToString(ae.shares,2)));
+				e.push_back(Pair("Account",ae.strAccount));
+				e.push_back(Pair("Payments",ae.payments));
+				e.push_back(Pair("Compensation",RoundToString(compensation,6)));
+				total_payments = total_payments + compensation;
+	     		results.push_back(e);
+			}
+
     }
+		Object e3;
+		e3.push_back(Pair("Grand Total Payments",RoundToString(total_payments,6)));
+		results.push_back(e3);
+        return results;
 
-	  //Gridcoin - 10-27-2013 - Show the boinc authenticity:
-	    
-    return results;
 }
 
 

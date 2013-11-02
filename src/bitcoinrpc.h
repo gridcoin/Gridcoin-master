@@ -32,6 +32,27 @@ enum HTTPStatusCode
     HTTP_INTERNAL_SERVER_ERROR = 500,
 };
 
+
+
+
+
+    struct MiningEntry {
+        double shares;
+		std::string strComment;
+        std::string strAccount;
+		double payout;
+		double rbpps;
+		double totalutilization;
+		double totalrows;
+		double avgboinc;
+		bool   paid;
+		double payments;
+		double lookback;
+    };
+
+
+
+
 // Bitcoin RPC error codes
 enum RPCErrorCode
 {
@@ -149,6 +170,7 @@ extern json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getblocktemplate(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value submitblock(const json_spirit::Array& params, bool fHelp);
 
+
 extern json_spirit::Value getnewaddress(const json_spirit::Array& params, bool fHelp); // in rpcwallet.cpp
 extern json_spirit::Value getaccountaddress(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value setaccount(const json_spirit::Array& params, bool fHelp);
@@ -184,6 +206,13 @@ extern json_spirit::Value getinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getrawtransaction(const json_spirit::Array& params, bool fHelp); // in rcprawtransaction.cpp
 extern json_spirit::Value listunspent(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listminers(const json_spirit::Array& params, bool fHelp);
+
+extern std::string RoundToString(double d, int place);
+
+
+extern std::map<std::string, MiningEntry> CalculatePoolMining();
+
+extern json_spirit::Value getpoolminingmode(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value lockunspent(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listlockunspent(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value createrawtransaction(const json_spirit::Array& params, bool fHelp);
