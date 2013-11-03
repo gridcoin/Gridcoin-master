@@ -1,2 +1,5 @@
 !.gitignore
+build/*
 bitcoin-qt.pro.user
+Makefile*
+object_script.gridcoin-qt.*
