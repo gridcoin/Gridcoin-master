@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>674</width>
-    <height>360</height>
+    <width>907</width>
+    <height>369</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -99,6 +99,13 @@ Copyright &amp;copy; 2013-YYYY The Gridcoin developers</string>
        </property>
        <property name="textInteractionFlags">
         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelUtilization">
+       <property name="text">
+        <string>Boinc utilization</string>
        </property>
       </widget>
      </item>

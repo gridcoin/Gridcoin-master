@@ -46,9 +46,6 @@ class BitcoinGUI : public QMainWindow
 public:
     static const QString DEFAULT_WALLET;
 	
-	QString toqstring(int o);
-
-
     explicit BitcoinGUI(QWidget *parent = 0);
     ~BitcoinGUI();
 
@@ -118,6 +115,7 @@ private:
     RPCConsole *rpcConsole;
 
     QMovie *syncIconMovie;
+
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
 
@@ -135,11 +133,6 @@ private:
     void saveWindowGeometry();
     /** Restore window size and position */
     void restoreWindowGeometry();
-
-	
-	
-
-
 
 public slots:
     /** Set number of connections shown in the UI */
@@ -198,10 +191,9 @@ private slots:
     /** Show about dialog */
     void aboutClicked();
 
-	/**show Mining Console */
+    /** Show Mining Console */
 	void miningClicked();
-	/** Show the E-Mail Center */
-
+    /** Show the E-Mail Center */
 	void emailClicked();
 
 #ifndef Q_OS_MAC
@@ -217,9 +209,7 @@ private slots:
     /** called by a timer to check if fRequestShutdown has been set **/
     void detectShutdown();
 
-
 	void timerfire();
-
 };
 
 #endif // BITCOINGUI_H

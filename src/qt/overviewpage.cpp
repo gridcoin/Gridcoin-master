@@ -12,11 +12,10 @@
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
-#include <QAxObject>
+
 #include "uint256.h"
 #include "base58.h"
-#include "../global_objects.hpp"
-#include "../global_objects_noui.hpp"
+#include "global_objects_noui.hpp"
 
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3
@@ -24,10 +23,6 @@
 class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
-
-	QAxObject *globalcom;
-
-
 
 public:
     TxViewDelegate(): QAbstractItemDelegate(), unit(BitcoinUnits::BTC)

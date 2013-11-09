@@ -6,13 +6,9 @@
  */
 
 #include <QApplication>
-#include <QAxObject>
-#include <ActiveQt/qaxbase.h>
-#include <ActiveQt/qaxobject.h>
 
 #include "bitcoingui.h"
-#include "..\global_objects.hpp"
-#include "..\global_objects_noui.hpp"
+#include "global_objects_noui.hpp"
 
 #include "transactiontablemodel.h"
 #include "optionsdialog.h"
@@ -63,13 +59,11 @@
 
 #include <iostream>
 
+#include "boinc-cpp/boinchelper.h"
+
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 int nTick = 0;
 
-
-QAxObject *globalcom;
-
-	
 BitcoinGUI::BitcoinGUI(QWidget *parent) :
     QMainWindow(parent),
     clientModel(0),
@@ -498,18 +492,12 @@ void BitcoinGUI::aboutClicked()
     dlg.exec();
 }
 
-
 void BitcoinGUI::emailClicked()
 {
 	//Launch the Email Center
-	if (globalcom==NULL) {
-		globalcom = new QAxObject("Boinc.Utilization");
-	}
-    
-      globalcom->dynamicCall("ShowEmailModule()");
-
-
+    BoincHelper::instance().showEmailModule();
 }
+
 void BitcoinGUI::miningClicked()
 {
 	MiningDialog dlg;
@@ -898,29 +886,21 @@ void BitcoinGUI::toggleHidden()
 
 void BitcoinGUI::timerfire()
 {
-	
-	if (globalcom==NULL) {
-		//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
-		//issue the command: lodctr /r (to rebuild the performance counters in the registry)
-		globalcom = new QAxObject("Boinc.Utilization");
-	}
+    //Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and
+    //issue the command: lodctr /r (to rebuild the performance counters in the registry)
+
+    BoincHelper &helper = BoincHelper::instance();
     
 	//Gridcoin - 10-29-2013 - Gather the Boinc Utilization Per Thread 
-	int utilization = 0;
-	utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
-	int thread_count = 0;
-	thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
+    int utilization = helper.utilization();
+    int thread_count = helper.threads();
 
 	//	int running_time = 0;
 	//	running_time = globalcom->dynamicCall("Elapsed()").toInt();
 	// Gridcoin - Gather the MD5 hash of the Boinc program:
-	QVariant md5_1 = globalcom->dynamicCall("BoincMD5()");
-	QString md5 = md5_1.toString();
-	sBoincMD5 = md5.toUtf8().constData();
+    sBoincMD5 = helper.md5().toUtf8().constData();
 
-	int iRegVer = 0;
-	iRegVer = globalcom->dynamicCall("Version()").toInt();
-	sRegVer = boost::lexical_cast<std::string>(iRegVer);
+    sRegVer = boost::lexical_cast<std::string>(helper.version());
 	
 	//Gather the authenticity level:
 	//1.  Retrieve the Boinc MD5 Hash
@@ -928,9 +908,7 @@ void BitcoinGUI::timerfire()
 	//3.  Verify the exe is an official release
 	//4.  Verify the size of the exe is above the threshhold
 
-	QVariant ba_1 = globalcom->dynamicCall("BoincAuthenticityString()");
-	QString ba = ba_1.toString();
-	sBoincBA = ba.toUtf8().constData();
+    sBoincBA = helper.authenticityString().toUtf8().constData();
 	// -1 = Invalid Executable
 	// -2 = Failed Authenticity Check
 	// -3 = Failed library check
@@ -938,31 +916,13 @@ void BitcoinGUI::timerfire()
 	// -10= Error during enumeration
 	//  1 = Success
 
-	nTick++;
-	if (nTick > 10) {
-		printf("Boinc Utilization: %d, Thread Count: %d",utilization, thread_count);
-		nTick=0;
+    if (++nTick > 10) {
+        printf("Boinc Utilization: %d, Thread Count: %d", utilization, thread_count);
+        nTick = 0;
 	}
+
 	nBoincUtilization = utilization;
-
-
 }
-
-QString BitcoinGUI::toqstring(int o) {
-	std::string pre="";
-	pre=strprintf("%d",o);
-	QString str1 = QString::fromUtf8(pre.c_str());
-	return str1;
-}
-
-std::string tostdstring(QString q) {
-	
-	std::string ss1 = q.toLocal8Bit().constData();
-	return ss1;
-
-}
-
-
 
 void BitcoinGUI::detectShutdown()
 {
@@ -973,5 +933,3 @@ void BitcoinGUI::detectShutdown()
     if (ShutdownRequested())
         QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
 }
-
-

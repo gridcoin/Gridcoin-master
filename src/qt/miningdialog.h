@@ -3,13 +3,12 @@
 
 #include <QDialog>
 
-
 namespace Ui {
     class MiningDialog;
 }
 class ClientModel;
 
-/** "About" dialog box */
+/** "Mining" dialog box */
 class MiningDialog : public QDialog
 {
     Q_OBJECT
@@ -28,9 +27,6 @@ private slots:
 	void registerClicked();
 	void exitClicked();
 	void unregisterClicked();
-    void regsvr(QString program, QString sFilename, QString sArgument);
-
-
 };
 
 #endif // MININGDIALOG_H

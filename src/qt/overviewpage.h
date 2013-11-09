@@ -2,8 +2,6 @@
 #define OVERVIEWPAGE_H
 
 #include <QWidget>
-#include <QAxObject>
-
 
 namespace Ui {
     class OverviewPage;

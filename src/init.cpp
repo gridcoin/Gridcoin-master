@@ -19,10 +19,11 @@
 #include <openssl/crypto.h>
 
 
-//   #include <QAxObject>
-//#include <ActiveQt/qaxbase.h>
-//#include <ActiveQt/qaxobject.h>
-// #include "global_objects.hpp"
+
+
+
+
+
 
 
 #include "global_objects_noui.hpp"
@@ -37,7 +38,6 @@ using namespace boost;
 CWallet* pwalletMain;
 CClientUIInterface uiInterface;
 
-//QAxObject *globalcom;
 
 
 
@@ -911,7 +911,7 @@ bool AppInit2(boost::thread_group& threadGroup)
                 // If the loaded chain has a wrong genesis, bail out immediately
                 // (we're likely using a testnet datadir, or the other way around).
 
-				if (1==1) {
+                if (1==1) {
 					if (!mapBlockIndex.empty() && pindexGenesisBlock == NULL)
                     return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
 				}
