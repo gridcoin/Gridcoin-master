@@ -139,7 +139,7 @@ void BoincHelper::registerBoinc()
         return;
     }
 
-    m_axObject.reset(new QAxObject("Boinc.Utilization"));
+    m_axObject = QSharedPointer<QAxObject>(new QAxObject("Boinc.Utilization"));
 
     if (!m_axObject)
     {
@@ -158,7 +158,7 @@ void BoincHelper::unregisterBoinc()
     }
 
 #if defined(WIN32)
-    m_axObject.reset();
+    m_axObject.clear();
 
     const QString appDirPath = QApplication::applicationDirPath() + "\\";
 

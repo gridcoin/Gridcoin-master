@@ -8,10 +8,14 @@ QT += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
-#    QT += axcontainer
+    
+    win32 {
+        QT += axcontainer
+    }
 } else {
-#    QT += qaxcontainer
-#    CONFIG += qaxcontainer
+    win32 {
+        CONFIG += qaxcontainer
+    }
 }
 
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
