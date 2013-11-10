@@ -41,7 +41,11 @@ protected:
 
     struct ProcessData
     {
-        ProcessData();
+        BoincHelper::ProcessData::ProcessData() :
+            ppid(0),
+            prev_cputime(0)
+        {
+        }
 
         QString cmd;
         int ppid;

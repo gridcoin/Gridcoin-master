@@ -383,11 +383,3 @@ void BoincHelper::unregisterBoinc()
 
     m_registered = false;
 }
-
-
-BoincHelper::ProcessData::ProcessData() :
-    ppid(0),
-    prev_cputime(0)
-{
-
-}
