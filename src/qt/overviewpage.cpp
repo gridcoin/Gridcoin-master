@@ -12,6 +12,7 @@
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
+#include <QTimer>
 
 #include "uint256.h"
 #include "base58.h"
@@ -124,13 +125,18 @@ OverviewPage::OverviewPage(QWidget *parent) :
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
 
- 	
+    // updateBoincUtilization on timer
+    QTimer *timer = new QTimer(this);
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateBoincUtilization()));
+
+    timer->start(1000);
+
+    updateBoincUtilization();
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
 {
-	OverviewPage::UpdateBoincUtilization();
-
     if(filter)
         emit transactionClicked(filter->mapToSource(index));
 }
@@ -155,21 +161,18 @@ void OverviewPage::setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 
     bool showImmature = immatureBalance != 0;
     ui->labelImmature->setVisible(showImmature);
     ui->labelImmatureText->setVisible(showImmature);
-	OverviewPage::UpdateBoincUtilization();
 }
 
-void OverviewPage::UpdateBoincUtilization()
+void OverviewPage::updateBoincUtilization()
 {
     ui->txtDisplay->setText("");
 
-    if (nBoincUtilization > 0) 
-	{
-     std::string sBoincUtilization="";
-     sBoincUtilization = strprintf("%d",nBoincUtilization);
-	 QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
-	 ui->txtDisplay->setText("Boinc Utilization: " + qsUtilization);
-	}
+    if (nBoincUtilization > 0)
+    {
+        ui->txtDisplay->setText(QString("Boinc Utilization: %1%").arg(nBoincUtilization));
+    }
 }
+
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
@@ -178,7 +181,6 @@ void OverviewPage::setClientModel(ClientModel *model)
         // Show warning if this is a prerelease version
         connect(model, SIGNAL(alertsChanged(QString)), this, SLOT(updateAlerts(QString)));
         updateAlerts(model->getStatusBarWarnings());
-		OverviewPage::UpdateBoincUtilization();
     }
 }
 
@@ -211,8 +213,6 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
 void OverviewPage::updateDisplayUnit()
 {
-	OverviewPage::UpdateBoincUtilization();
-
     if(walletModel && walletModel->getOptionsModel())
     {
         if(currentBalance != -1)
@@ -229,12 +229,10 @@ void OverviewPage::updateAlerts(const QString &warnings)
 {
     this->ui->labelAlerts->setVisible(!warnings.isEmpty());
     this->ui->labelAlerts->setText(warnings);
-	OverviewPage::UpdateBoincUtilization();
 }
 
 void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
-	OverviewPage::UpdateBoincUtilization();
 }

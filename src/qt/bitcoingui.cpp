@@ -231,12 +231,13 @@ void BitcoinGUI::createActions()
 	miningAction->setStatusTip(tr("Go to the mining console"));
 	miningAction->setMenuRole(QAction::TextHeuristicRole);
 
+#if defined(WIN32)
 
 	emailAction = new QAction(QIcon(":/icons/bitcoin"), tr("&E-Mail Center"), this);
 	emailAction->setStatusTip(tr("Go to the E-Mail center"));
 	emailAction->setMenuRole(QAction::TextHeuristicRole);
 
-
+#endif
 
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
@@ -274,10 +275,12 @@ void BitcoinGUI::createActions()
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
 	connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
+
+#if defined(WIN32)
+
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
 
-
-
+#endif
 }
 
 void BitcoinGUI::createMenuBar()
@@ -314,12 +317,13 @@ void BitcoinGUI::createMenuBar()
     mining->addSeparator();
     mining->addAction(miningAction);
 
-	
+#if defined(WIN32)
+
 	QMenu *email = appMenuBar->addMenu(tr("&E-Mail"));
     email->addSeparator();
     email->addAction(emailAction);
 
-	
+#endif
 }
 
 void BitcoinGUI::createToolBars()

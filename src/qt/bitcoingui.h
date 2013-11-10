@@ -98,7 +98,9 @@ private:
     QAction *verifyMessageAction;
     QAction *aboutAction;
 	QAction *miningAction;
+#if defined(WIN32)
 	QAction *emailAction;
+#endif
 
     QAction *receiveCoinsAction;
     QAction *optionsAction;

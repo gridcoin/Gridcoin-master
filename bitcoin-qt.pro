@@ -414,7 +414,7 @@ win32:!contains(MINGW_THREAD_BUGFIX, 0) {
 
 !win32:!macx {
     DEFINES += LINUX
-    LIBS += -lrt
+    LIBS += -lrt -lproc
     # _FILE_OFFSET_BITS=64 lets 32-bit fopen transparently support large files.
     DEFINES += _FILE_OFFSET_BITS=64
 }

@@ -22,7 +22,8 @@ class MyThread : public QThread
 {
     Q_OBJECT
 
-    void run() {
+    void run()
+    {
         QString result;
 
         while (1==1)

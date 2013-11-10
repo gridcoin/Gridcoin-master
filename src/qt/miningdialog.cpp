@@ -1,10 +1,11 @@
 #include "miningdialog.h"
 #include "ui_miningdialog.h"
+
 #include <QPushButton>
-
 #include <QProcess>
-
+#include <QTimer>
 #include <QMessageBox>
+
 #include "clientmodel.h"
 #include "clientversion.h"
 #include "uint256.h"
@@ -26,6 +27,19 @@ MiningDialog::MiningDialog(QWidget *parent) :
 
     // Set current copyright year
     // ui->copyrightLabel->setText(tr("Copyright") + QString(" &copy; 2009-%1 ").arg(COPYRIGHT_YEAR) + tr("The Bitcoin developers") + QString("<br>") + tr("Copyright") + QString(" &copy; "));
+
+    QTimer *timer = new QTimer(this);
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(refreshClicked()));
+
+    timer->start(1000);
+
+#if defined(LINUX)
+
+    ui->btnRegister->hide();
+    ui->btnUnregister->hide();
+
+#endif
 }
 
 void MiningDialog::setModel(ClientModel *model)
@@ -49,11 +63,7 @@ MiningDialog::~MiningDialog()
 void MiningDialog::refreshClicked()
 {
 	  //Show the boinc homogenized utilization
-	  ui->lblProcessingPowerValue->setText(tr("Calculating..."));
-      std::string sBoincUtilization="";
-      sBoincUtilization = strprintf("%d",nBoincUtilization);
-	  QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
-	  ui->lblProcessingPowerValue->setText(qsUtilization);
+      ui->lblProcessingPowerValue->setText(QString("%1%").arg(nBoincUtilization));
 
       BoincHelper &helper = BoincHelper::instance();
 
