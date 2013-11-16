@@ -11,8 +11,6 @@
     #include <unistd.h>
 #endif
 
-#include <QDebug>
-
 BoincHelper::BoincHelper() :
     m_registered(false)
 {
@@ -161,8 +159,6 @@ int BoincHelper::utilization()
     // usage logic
     float usage_percent = qMin(75.0f, m_averageCPUUtilization);
     float usage_memory = qMin(25.0f, m_totalMemoryUtilization);
-
-    qDebug() << usage_percent << usage_memory;
 
     if (usage_percent <= 1.0f)
     {
