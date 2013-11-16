@@ -41,7 +41,7 @@ protected:
 
     struct ProcessData
     {
-        BoincHelper::ProcessData::ProcessData() :
+        ProcessData() :
             ppid(0),
             prev_cputime(0)
         {

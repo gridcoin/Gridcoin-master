@@ -162,7 +162,9 @@ int BoincHelper::utilization()
     float usage_percent = qMin(75.0f, m_averageCPUUtilization);
     float usage_memory = qMin(25.0f, m_totalMemoryUtilization);
 
-    if (usage_percent <= 0.0001f)
+    qDebug() << usage_percent << usage_memory;
+
+    if (usage_percent <= 1.0f)
     {
         usage_memory = 0;
     }
