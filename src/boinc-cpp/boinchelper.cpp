@@ -87,8 +87,6 @@ int BoincHelper::utilization()
 
     if (!pt)
     {
-        qCritical() << "openproc failed";
-
         return 0;
     }
 
@@ -221,8 +219,6 @@ QString BoincHelper::md5()
 
     if (!f.open(QIODevice::ReadOnly))
     {
-        qCritical() << f.fileName() << "not found";
-
         return "";
     }
 
@@ -293,8 +289,6 @@ QString BoincHelper::authenticityString()
 
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qCritical() << f.fileName() << "not found";
-
         return "-10";
     }
 
