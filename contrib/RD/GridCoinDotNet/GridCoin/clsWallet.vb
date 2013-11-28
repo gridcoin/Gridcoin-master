@@ -36,29 +36,44 @@ Namespace Casascius.Bitcoin
             sha256.BlockUpdate(forsha, 0, forsha.Length)
             Dim thehash As Byte() = New Byte(31) {}
             sha256.DoFinal(thehash, 0)
-            Return New KeyPair(thehash)
+
+
+            Dim sHex As String
+            sHex = thehash.ToString()
+            sHex = Util.ByteArrayToString(thehash)
+
+
+
+            '  Return New KeyPair(thehash, False, 37)
+            Return New KeyPair(thehash, False, 37)
+
         End Function
 
         ''' <summary>
         ''' Creates a new random key pair, using a user-provided string to add entropy to the
         ''' SecureRandom generator provided by the .NET Framework.
         ''' </summary>
-        Public Shared Function Create(ByVal usersalt As String, Optional ByVal compressed As Boolean = False, Optional ByVal addressType As Byte = 0) As KeyPair
-            If usersalt Is Nothing Then
-                usersalt = "ok, whatever"
-            End If
-            usersalt += DateTime.UtcNow.Ticks.ToString()
-
+        Public Shared Function Create(ByVal nonce2 As Long, ByVal usersalt As String, Optional ByVal compressed As Boolean = False, Optional ByVal addressType As Byte = 0) As KeyPair
+            'usersalt += DateTime.UtcNow.Ticks.ToString()
             Dim sr As New SecureRandom()
+            nonce = 0
+            Dim usersalt1 As Byte() = Util.ComputeSha256(usersalt)
 
-            Dim poop As Byte() = Util.ComputeSha256(usersalt & nonce.ToString())
-            nonce += 1
+            Dim sOut As String
+            sOut = "0394ae13e3be965867e146e2c12c36cbcec2e85240b7dd9fc586fccf34d3dbc75d"
+            sOut = "4830450221009d2e34e8780e5ba7c44cbfab2f840f1002e8b2dd85849f20d2945cdde4c3304902202b2069bb3b7f53c2ed30fe09db2abcb2334852cfa6aa0830f60d5e844f98871c01210394ae13e3be965867e146e2c12c36cbcec2e85240b7dd9fc586fccf34d3dbc75d"
+            sOut = "0365e0beb9a0c1497f3667067aeb8f3ea9dc4c9d5696cee7f19eae49f9457a5cfb"
+            sOut = "0393bf0cbe8bfc020fe725ddc4f64d43f3116c2f5e1eb0b1824d8cc59cbf704481"
+            sOut = "03b07c31f82c86522b55d1e4c012f00fbe41d2aeb99f867ea83d931a89335b4871"
+            Dim k As Object
+            k = CreateFromString(sOut)
 
             Dim newkey As Byte() = New Byte(31) {}
 
             For i As Integer = 0 To 31
                 Dim x As Long = sr.NextLong() And Long.MaxValue
-                x += poop(i)
+                x = 0
+                x += usersalt1(i)
                 newkey(i) = CByte(x And &HFF)
             Next
             Return New KeyPair(newkey, compressed:=compressed, addressType:=addressType)

@@ -1,0 +1,300 @@
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+Traceback (most recent call last):
+  File "guiminer.py", line 2632, in on_close
+  File "wx\_windows.pyo", line 711, in ShowModal
+wx._core.PyAssertionError: C++ assertion "wxAssertFailure" failed at ..\..\src\msw\msgdlg.cpp(137) in wxMessageDialog::ShowModal(): unexpected ::MessageBox() return code
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+ERROR:root:Exception:
+Traceback (most recent call last):
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'
+Traceback (most recent call last):
+  File "guiminer.py", line 3094, in <module>
+  File "guiminer.py", line 3085, in run
+  File "guiminer.py", line 2491, in __init__
+  File "guiminer.py", line 2736, in load_config
+  File "guiminer.py", line 1338, in start_mining
+  File "guiminer.py", line 1220, in configure_subprocess_reaper
+WindowsError: [Error 2] The system cannot find the file specified: u'C:\\Gridcoin-master\\contrib\\RD\\GridCoinDotNet\\GridcoinRDTestHarness\\GridcoinRDTestHarness\\bin\\Release\\guiminer\\reaper-Reaper00'

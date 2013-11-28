@@ -1,0 +1,70 @@
+Gridcoin Integrated RBPPS Pool Mining Reward System
+(Round Based Pay Per Share)
+
+10-26-2013
+
+
+1. Payment is made when a block is found by any pool miner running boinc (not when shares are submitted).
+
+2. To participate in Pool mining, the miner puts the client in Pool mining mode (If the miner is in Solo mining mode, payouts work as they do now -- If they were pool mining for a while and decide to quit, they will drop out of the scope of pool payments after the lookback window period is exceeded).
+
+3. A separate initiative adjusts the maximum gridcoin payout range to 5-350, where 5 is a miner not running boinc, 6-150 is a miner running boinc with no Nvidia,
+151-250 is a miner with an Nvidia, and 251-350 is a miner with two Nvidias.  I will test one Nvidia by Christmas 2013, and max out my baseline @ 250.  I will test two
+nvidias (If Im lucky!) and make sure the miner can hit 350 before we release this new client.
+
+4. When a block is found in Pool OR Solo mode, we will write the BOINC authenticity information into the coinbase block descriptor.  This will not only satisfy
+my desire for tighter security, allow a financial audit success, but it will also give us the ability to verify boinc pool mining participants.
+
+5. When a block is found in Pool mode, the system will look at the current network difficulty, and based on a single 7950 static reference level, calculate how many hours the lookback period is.
+
+For example, if the difficulty is at 1, and a block is found, if it would take 20 hours for a single 7950 to find a block at that level, the lookback period is 20 hours.
+
+The system will scan 20 hours of history and find POOL miners who found blocks successfully, their wallet address, and their boinc utilization (found in the persisted step #4).
+
+It will then create a payout based on the actual accurate homogenized boinc utilization for all pool miners over the lookback period, for the total reward.  
+If the total reward < 350, it will add a 25GRC
+bonus to the block, for payment to the block finder.  If the payout is already maxed out at 350, the 25 will come out of the payout total as a bonus for the block finder.
+
+This will give motivation to continuing ACTIVE mining in the pool, and not attempt to mine and shut off and Hope that a block is found within the next lookback period.
+
+Next, the total subsidy will be distributed to the wallets in unequal portions determined by the actual miners boinc utilization (remember, if they didnt have boinc utilization,
+they arent active pool mining participants since this integrated pool is closed to boinc users only).
+
+6.  A person who found more than one block in the lookback period is compensated more than once, to reward larger miners proporionately.
+7.  Here is an example of a typical payout, based on 10 active boinc pool miners, and the amount paid to the block finder:  
+(Miner #1 found the block)
+(Since total avg utilization by the pool was 61, payout is 91.50GRC + 25Bonus (to the finder), since this # is < 350, the total of 116.5 GRC payout to the pool is valid.
+
+From the base pool payout of 91.50GRC, we calculate the total boinc shares to be paid out on (610 shares total - add each utilization) - each utilization receives .15 GRC
+(91.50/610 = .15GRC)
+
+Miner #		Boinc Utilization     Avg Utilization		Payout
+
+1			50		61			25 (BONUS) + (50 SHARES * .15 @ 50 Utilization) = 7.50 + 25 = 32.50GRC
+2			10		61			10 SHARES * .15 = 1.50
+3			50		61			50 SHARES * .15 = 7.50
+4			50		61			7.50
+5			50		61			7.50
+6			100		61			15.00
+7			100		61			15.00
+8			100		61			15.00
+9			50		61			7.50
+10			50		61			7.50
+Grand Total		610		61 Avg Pool		116.5 GRC PAID
+
+8.  A total coinbase block subsidy of 116.50 is paid to wallet #1.  However, immediately afterwards, wallet #1 generates 9 outbound transactions to wallet #2-10 for the "Payout" amount.
+Leaving Wallet #1 with a total credit of 32.50GRC.
+
+In this model, miners who participate in boinc actively are rewarded fairly for their activities, and miners who have more than one rig per wallet or more than one card per wallet
+are compensated higher when anyone finds a block.  Because they will receive multiple payments when a block is found by anyone.
+
+It is unlikely the system will be vehemently abused by miners who try to "time" the payouts since it is too much trouble to switch pools right after they are compensated for blocks.
+
+9.  An example of a miner onboard pool mining and not compensated until they "find" their first block is the same as a credit card that has just been charged but the bill is delayed 30 days.
+10.  Another example is a miner who has been onboard for 3 months and pulls the plug.  If 10 blocks are found and the lookback period is up to 24 hours, they will be compensated for the next 24 hours
+without actually mining.  Since 9 & 10 cancel each other out this is not a concern.
+
+11.  The integrated mining will probably remain stable for at least a year, while we can enjoy the luxury of not having our miners to trust external pools with our precious boinc network data
+(falsifying the requests).
+
+

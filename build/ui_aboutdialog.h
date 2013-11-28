@@ -43,7 +43,45 @@ public:
     {
         if (AboutDialog->objectName().isEmpty())
             AboutDialog->setObjectName(QString::fromUtf8("AboutDialog"));
-        AboutDialog->resize(674, 360);
+        AboutDialog->resize(762, 360);
+        QPalette palette;
+        QBrush brush(QColor(0, 255, 0, 255));
+        brush.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::WindowText, brush);
+        QBrush brush1(QColor(27, 240, 134, 255));
+        brush1.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Button, brush1);
+        QBrush brush2(QColor(0, 0, 127, 255));
+        brush2.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Light, brush2);
+        palette.setBrush(QPalette::Active, QPalette::Text, brush);
+        QBrush brush3(QColor(137, 148, 68, 255));
+        brush3.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::ButtonText, brush3);
+        QBrush brush4(QColor(255, 255, 255, 255));
+        brush4.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Base, brush4);
+        QBrush brush5(QColor(0, 0, 0, 255));
+        brush5.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Window, brush5);
+        palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::Button, brush1);
+        palette.setBrush(QPalette::Inactive, QPalette::Light, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::Text, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::ButtonText, brush3);
+        palette.setBrush(QPalette::Inactive, QPalette::Base, brush4);
+        palette.setBrush(QPalette::Inactive, QPalette::Window, brush5);
+        QBrush brush6(QColor(120, 120, 120, 255));
+        brush6.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush6);
+        palette.setBrush(QPalette::Disabled, QPalette::Button, brush1);
+        palette.setBrush(QPalette::Disabled, QPalette::Light, brush2);
+        palette.setBrush(QPalette::Disabled, QPalette::Text, brush6);
+        palette.setBrush(QPalette::Disabled, QPalette::ButtonText, brush6);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush5);
+        palette.setBrush(QPalette::Disabled, QPalette::Window, brush5);
+        AboutDialog->setPalette(palette);
+        AboutDialog->setAutoFillBackground(true);
         horizontalLayout_2 = new QHBoxLayout(AboutDialog);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         label_4 = new QLabel(AboutDialog);
@@ -111,6 +149,13 @@ public:
 
         buttonBox = new QDialogButtonBox(AboutDialog);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        QPalette palette1;
+        QBrush brush7(QColor(46, 57, 1, 255));
+        brush7.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::ButtonText, brush7);
+        palette1.setBrush(QPalette::Inactive, QPalette::ButtonText, brush7);
+        palette1.setBrush(QPalette::Disabled, QPalette::ButtonText, brush6);
+        buttonBox->setPalette(palette1);
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Ok);
 
@@ -129,7 +174,7 @@ public:
 
     void retranslateUi(QDialog *AboutDialog)
     {
-        AboutDialog->setWindowTitle(QApplication::translate("AboutDialog", "About Gridcoin", 0, QApplication::UnicodeUTF8));
+        AboutDialog->setWindowTitle(QApplication::translate("AboutDialog", "About Litecoin", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("AboutDialog", "<b>Gridcoin</b> ", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("AboutDialog", "\n"
 "This is experimental software.\n"

@@ -180,7 +180,7 @@ Value getworkex(const Array& params, bool fHelp)
         }
 
         result.push_back(Pair("merkle", merkle_arr));
-		printf("Created new block Gridcoin with getworkex");
+		//		printf("Created new block Gridcoin with getworkex");
 
         return result;
     }
@@ -216,7 +216,9 @@ Value getworkex(const Array& params, bool fHelp)
             CDataStream(coinbase, SER_NETWORK, PROTOCOL_VERSION) >> pblock->vtx[0];
 
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
-		printf("Who realized the ethereal nature here?");
+	
+		printf("End of getworkEx Gridcoin");
+		
 		bool status = CheckWork(pblock, *pwalletMain, reservekey);
 		if (status) {
 				if (bPoolMiningMode) {
@@ -314,7 +316,7 @@ Value getwork(const Array& params, bool fHelp)
         result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
         result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); // deprecated
         result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
-		printf("created new gridcoin block in getwork");
+		//printf("created new grc block in g-etwork");
 
         return result;
     }
@@ -342,14 +344,8 @@ Value getwork(const Array& params, bool fHelp)
 		printf("created new gridcoin block in getwork with update");
 		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
 		if (status) {
-			//10-30-2013
 				if (bPoolMiningMode) {
 				//Pay the pool miners:
-				Array params;
-				params.push_back("");
-				params.push_back("");
-				//11-1-2013
-				//Value v = listminers(params,false);
 				}
 
 		}

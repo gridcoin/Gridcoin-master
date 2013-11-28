@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace boost;
+
 using namespace boost::assign;
 using namespace json_spirit;
 
@@ -25,6 +26,23 @@ using namespace json_spirit;
 // Utilities: convert hex-encoded Values
 // (throws error if not hex).
 //
+
+
+std::string BoincProjectAddress(int projectid);
+int BoincProjectId(std::string grc);
+
+extern std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& out_amount, int64& out_locktime, int64& out_projectid, std::string& out_projectaddress, std::string& out_comments, std::string& out_grcaddress);
+
+extern double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
+
+
+
+extern void SendGridcoinProjectBeacons();
+
+
+std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex);
+
+
 uint256 ParseHashV(const Value& v, string strName)
 {
     string strHex;
@@ -77,6 +95,139 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out)
         a.push_back(CBitcoinAddress(addr).ToString());
     out.push_back(Pair("addresses", a));
 }
+
+
+
+std::string PubKeyToGRCAddress(const CScript& scriptPubKey)
+{
+    txnouttype type;
+    vector<CTxDestination> addresses;
+    int nRequired;
+
+    if (!ExtractDestinations(scriptPubKey, type, addresses, nRequired))
+    {
+        return "";
+    }
+
+    Array a;
+	std::string grcaddress = "";
+    BOOST_FOREACH(const CTxDestination& addr, addresses)
+	{
+		grcaddress = CBitcoinAddress(addr).ToString();
+	}
+	return grcaddress;
+}
+
+
+
+std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& out_amount, int64& out_locktime, int64& out_projectid, 
+		std::string& out_projectaddress, std::string& out_comments, std::string& out_grcaddress)
+{
+	//Returns project information and user public wallet address that initiated the project
+
+	int64 locktime = (boost::int64_t)tx.nLockTime;
+	int64 amountproject  = 0;
+	std::string grc1 = "";
+	int64 amountwallet = 0;
+	std::string grc2 = "";
+	//Project transactions are always 3
+	if (tx.vout.size()  != 4) {
+		return "";
+	}
+
+	out_projectaddress="";
+	out_projectid = 0;
+	out_locktime = 0;
+	out_amount = 0;
+	
+	//Output 1 contains project info
+    const CTxOut& txproject = tx.vout[0];
+	amountwallet = txproject.nValue; 
+	
+	if (amountwallet != 167) {
+		//printf("project amount mismatch.");
+	}
+
+    grc1 = PubKeyToGRCAddress(txproject.scriptPubKey);
+	int boincprojectid = BoincProjectId(grc1);
+	if (boincprojectid == 0) return ""; //Project transaction always map to a project
+	// Extract the Sender GRC address
+
+	const CTxOut& txSENDER = tx.vout[3]; //TX OUTPUT #1
+	std::string grcSENDER = PubKeyToGRCAddress(txSENDER.scriptPubKey);
+	
+	const CTxOut& txProjectPayment = tx.vout[2];
+	amountproject = txProjectPayment.nValue;
+	if (txSENDER.nValue != 267) {
+		return "";
+	}
+
+	if (amountproject == 260) {
+		return ""; // Project checksum mismatch
+	}
+	std::string o = "";
+	o = grc1 + "," + boost::lexical_cast<string>(amountwallet) + "," + grc2 + "," + boost::lexical_cast<string>(amountproject) + "----" + grcSENDER;
+	out_comments = o;
+
+	out_amount = amountwallet;
+	out_locktime = locktime;
+	out_projectid = boincprojectid;
+	out_projectaddress = grc1;
+	out_grcaddress = grcSENDER;
+	return grcSENDER;
+	
+}
+
+
+
+
+
+double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments)
+{
+
+	//Returns tx amount paid to cpu miner in coinbase 
+	std::string grc1 = "";
+	double total = 0;
+	bool bCPUTx = false;
+	for (unsigned int i = 0; i < tx.vout.size(); i++)
+    {
+        const CTxOut& txout = tx.vout[i];
+		bCPUTx = false;
+        double paid = DoubleFromAmount(txout.nValue);
+		std::string sPaid = RoundToString(paid,10);
+		std::string suffix = "";
+		 grc1 = PubKeyToGRCAddress(txout.scriptPubKey);
+		
+		if (sPaid.length() > 4 && paid > 0) {
+			suffix = sPaid.substr(sPaid.length()-4,4);
+			if (suffix == "7900") bCPUTx = true;
+		}
+
+	    if (!cpuminerpaymentsconsolidated[grc1].paid && bCPUTx) 
+				{
+					MiningEntry me;
+					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(grc1,me));
+					cpuminerpaymentsconsolidated[grc1].paid=true;
+					cpuminerpaymentsconsolidated[grc1] = me;
+		 		}
+    	MiningEntry me1 = cpuminerpaymentsconsolidated[grc1];
+		me1.totalpayments = me1.totalpayments + paid;
+		cpuminerpaymentsconsolidated[grc1]=me1;
+    }
+    
+	std::string o = "";
+	o = grc1 + "," + boost::lexical_cast<string>(total);
+	out_comments = o;
+	out_total = total;
+	return total;
+	
+}
+
+
+
+
+
+
 
 void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
 {
@@ -166,6 +317,22 @@ Value getrawtransaction(const Array& params, bool fHelp)
     Object result;
     result.push_back(Pair("hex", strHex));
     TxToJSON(tx, hashBlock, result);
+	//Gridcoin - return block info 
+	int64 out_amount = 0;
+	int64 out_locktime = 0;
+	int64 nProjId = 0;
+	std::string sProjectAddress = "";
+	std::string comments = "";
+	std::string grc_address = "";
+	std::string o1 = TxToString(tx, hashBlock, out_amount, out_locktime, nProjId, sProjectAddress, comments, grc_address);
+
+
+	result.push_back(Pair("GRCAddress", grc_address));
+	result.push_back(Pair("GRCAmount",out_amount));
+	
+	result.push_back(Pair("Comments",comments));
+	
+
     return result;
 }
 
@@ -260,6 +427,15 @@ Value listunspent(const Array& params, bool fHelp)
 }
 
 
+static inline bool GetCPUMiningMode()
+{
+    if (mapArgs["-cpumining"] == "true") 
+	{
+		return true;
+	} 
+	return false;
+}
+
 
 
 static inline bool GetPoolMiningMode()
@@ -271,6 +447,12 @@ static inline bool GetPoolMiningMode()
 	return false;
 }
 
+
+static inline string GetBoincProjectUserId(int projectid)
+{
+	std::string key = "-Project" + RoundToString(projectid,0);
+	return mapArgs[key];
+}
 
 
 
@@ -285,6 +467,115 @@ Value getpoolminingmode(const Array& params, bool fHelp)
 		results.push_back(entry);
 		return results;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+std::string SendMultiProngedTransaction(int projectid, std::string userid)
+{
+     std::vector<std::pair<CScript, int64> > vecSend;
+     CScript scriptPubKey;
+	 std::string projectaddress = BoincProjectAddress(projectid);
+	 std::string grcaddress = DefaultWalletAddress();
+	 CBitcoinAddress address1(projectaddress);
+     CBitcoinAddress address2(grcaddress);
+	 CBitcoinAddress address3(grcaddress);
+
+     
+	 if (userid.length() > 7 || userid=="" || userid.length() < 3) return "Invalid project userid";
+	//11-23-2013
+	  
+     long lAmount = boost::lexical_cast<long>(userid);
+	       
+	 scriptPubKey.SetDestination(address1.Get());
+	 vecSend.push_back(make_pair(scriptPubKey, lAmount));
+
+	 scriptPubKey.SetDestination(address2.Get());
+	 vecSend.push_back(make_pair(scriptPubKey, 167));
+	 
+	 scriptPubKey.SetDestination(address3.Get());
+	 vecSend.push_back(make_pair(scriptPubKey, 267));
+
+	 CWalletTx wtx;
+	 if (pwalletMain->IsLocked()) return "Wallet Locked";
+	    CReserveKey keyChange(pwalletMain);
+
+     int64 nFeeRequired = 0;
+     std::string strFailReason;
+     LOCK2(cs_main, pwalletMain->cs_wallet);
+
+     bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, strFailReason);
+
+     if(!pwalletMain->CommitTransaction(wtx, keyChange))
+       {
+            return "failure";
+       }
+        std::string txid = wtx.GetHash().GetHex();
+        return "succeed";
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+std::string Compensate2(string grc_address, int64 nAmount, string commentfrom, string commentto)
+{
+
+	try {
+			CBitcoinAddress address(grc_address);
+			if (!address.IsValid()) return "Invalid Gridcoin address";
+			CWalletTx wtx;
+			wtx.mapValue["comment"] = commentfrom;
+			wtx.mapValue["to"]      = commentto;
+			if (pwalletMain->IsLocked()) return "Wallet Locked";
+		     string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+			if (strError != "") return strError;
+			string transaction_id = wtx.GetHash().GetHex().c_str();
+			if (transaction_id.length() > 5) {
+				return "SUCCESS";
+			}
+			return "FAIL";
+	}
+			catch (std::exception &e) {
+  
+		return "FAIL2";
+	}
+}
+
+
 
 
 
@@ -335,16 +626,15 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
 	block.ReadFromDisk(pLastBlock);
 	int64 LastBlockTime = pLastBlock->GetBlockTime();
-	printf("LastBlockTime %d",LastBlockTime);
 
 	//Gridcoin - 10-30-2013  Calculate the lookback period
 	//      ---------------------- Difficulty Calculation For Lookback Period: ------------------------------------
-	////    Difficulty = (24) *60 mins * 60 secs * 2
+	////    Difficulty = (24) *60 mins * 60 secs * 1.8
     //////  400Kh/s @ 1 difficulty = 8 blocks per day (lookbackperiod = 2 days)
 
 	double diff = GetDifficulty(pLastBlock);
 	if (diff < .05) diff = .05;
-	double lookback = diff * 24 * 60 * 60 * 2;
+	double lookback = diff * 24 * 60 * 60 * 1.8;
 	double total_utilization = 0;
 	double total_rows = 0;
     double avg_boinc = 0;
@@ -353,9 +643,8 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
     //  -1 showing for miner2 ba packet
     //	boinc_authenticity_packet = BoincMD5,sBoincBALevel,UtilizationLevel,CARD_VERSION,POOL_MINING_MODE,WalletAddress();
 	//  Compensate Miners -----------------------------------------
-
-    std::map<std::string, MiningEntry> minerpayments;
-    //11-1-2013
+	//  std::map<std::string, MiningEntry> minerpayments;
+	//  11-1-2013
     minerpayments.clear();
 
 	double compensated_rows = 0;
@@ -368,19 +657,32 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 
 	MiningEntry ae;
     //Iterate through the chain in reverse
-							
+	int pay = 1;
+
     for (int i = nMaxDepth; i > 0; i--)
     {
-     	CBlockIndex* pblockindex = FindBlockByHeight(i);
-		block.ReadFromDisk(pblockindex);
-	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
-        if (block.hashBoinc.length() > 10 && block.hashBoinc.length() < 300) {
+    	pay = blockcache[i];
+		if (pay == 0) {
+			//blockcache.insert(map<string,MiningEntry>::value_type(wallet,meNew));
+			blockcache.insert(map<int,int>::value_type(i,1));
+		}
+		if (pay != 10)
+		{
+		CBlockIndex* pblockindex = FindBlockByHeight(i);
+	    block.ReadFromDisk(pblockindex);
+	
+		int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
+		blockcache[i]=20;
+
+        if (block.hashBoinc.length() > 10 && block.hashBoinc.length() < 750) {
 				vector<std::string> vecBoinc;
 		        std::string brh = block.hashBoinc;
 				boost::split(vecBoinc,brh,boost::is_any_of(","));
 				if (vecBoinc.size() > 4) {
 					string pool_mode = vecBoinc[4];
 					if (pool_mode=="SOLO_MINING" || pool_mode=="POOL_MINING") {
+						        if (nActualTimespan > lookback) i=0;
+
 						     	if (nActualTimespan < lookback) {
 								if (pool_mode == "POOL_MINING") {
 										string md5 = vecBoinc[0];
@@ -395,6 +697,9 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 											MiningEntry meNew;
 											compensated_rows++;
 											string blocktime =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pblockindex->GetBlockTime()).c_str();
+											int blockhour = boost::lexical_cast<int>(DateTimeStrFormat("%H", pblockindex->GetBlockTime()).c_str());
+											int wallethour = HourFromGRCAddress(wallet);
+											blockcache[i]=1;
 											meNew = minerpayments[wallet];
 											if (meNew.paid != true) {
 												meNew.paid=true;
@@ -405,13 +710,16 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 											meNew.strAccount = wallet;
 											meNew.shares = meNew.shares + iBU;
 											meNew.payments++;
+											meNew.blockhour = blockhour;
+											meNew.wallethour = wallethour;
+											meNew.boinchash = block.hashBoinc;
 											//string narr = "GRCMiningPmt_Shares=" + RoundToString(total_shares,2) + "_" + RoundToString(rbpps,7) + "RBPPS[Total:GRC" + RoundToString(payout,4) + "],Payment=" + RoundToString(total_payment,4);
 											string long_narr = "Shares:" + RoundToString(meNew.shares,2) +",Block:" + RoundToString(i,0) + ",TimeSpan:" + RoundToString(nActualTimespan,0);
 											meNew.strComment = long_narr;
 											minerpayments[wallet]=meNew;
 											total_utilization = total_utilization + iBU;
 											total_rows++;
-											printf("PoolMining: %s ",long_narr.c_str());
+											//printf("PoolMining: %s ",long_narr.c_str());
 											total_shares = total_shares + iBU;
 					
 										}
@@ -420,6 +728,7 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 							}
 					  }
 				}
+			}
 		}
 	}
 	
@@ -438,20 +747,162 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 		//End of Payments
 		//Persist the rbpps, payout, total_utilization, total_rows:
 		MiningEntry me;
-
-		//			if (minerpayments[wallet] == NULL) minerpayments[wallet] = 
     	me.rbpps = rbpps;
 		me.payout = payout;
 		me.totalutilization = total_utilization;
 		me.totalrows= total_rows;
 		me.avgboinc = avg_boinc;
 		me.lookback = lookback;
+		me.difficulty  = diff;
+
 		minerpayments.insert(map<string,MiningEntry>::value_type("totals",me));
-		
+		//printf("rbpps: %d ",rbpps);
 		return minerpayments;
-							
     
 }
+
+
+
+
+
+std::map<std::string, MiningEntry> CalculateCPUMining()
+{
+
+	int nMaxDepth = nBestHeight;
+    CBlock block;
+	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
+	block.ReadFromDisk(pLastBlock);
+	int64 LastBlockTime = pLastBlock->GetBlockTime();
+	
+	double diff = GetDifficulty(pLastBlock);
+	if (diff < .05) diff = .05;
+    double lookback = 24 * 60 * 60;
+
+	double total_utilization = 0;
+	double total_rows = 0;
+    double avg_boinc = 0;
+    string wallet = "";
+
+	cpuminerpayments.clear();
+	cpuminerpaymentsconsolidated.clear();
+
+	double compensated_rows = 0;
+	string last_wallet = "";
+	double total_payment = 0;
+	double iBU = 0;
+	double compensation = 0;
+	printf("Reaching payout CPU to miners.");
+	double total_shares = 0;
+	
+	MiningEntry ae;
+    //Iterate through the chain in reverse
+	
+	int istart = 0;
+
+    for (int ii = nMaxDepth; ii > 0; ii--)
+    {
+     	CBlockIndex* pblockindex = FindBlockByHeight(ii);
+		block.ReadFromDisk(pblockindex);
+	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
+	    if (nActualTimespan > lookback) 
+		{
+						istart = ii;
+						break;
+		}
+    }
+	
+
+    for (int i = istart; i <= nMaxDepth; i++)
+    {
+     	CBlockIndex* pblockindex = FindBlockByHeight(i);
+		block.ReadFromDisk(pblockindex);
+	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
+        cpuminerpayments = BlockToCPUMinerPayments(block,pblockindex);
+		MiningEntry me;
+    	me.lookback = lookback;
+		me.difficulty  = diff;
+		cpuminerpayments.insert(map<string,MiningEntry>::value_type("totals",me));
+	}  
+
+	//Consolidate the Project-CPUMiners-ProjectCredits collection into CPUMiners collection - For each CPU miner, verify PoW
+	int inum=0;
+	
+	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
+	{
+
+			MiningEntry ae = cpuminerpayments[(*ii).first];
+			MiningEntry pow = cpupow[ae.homogenizedkey];
+
+	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && pow.cpupowverificationtries > 0 && pow.cpupowverificationresult > 0) 
+			{
+				inum++;
+		    	
+				if (!cpuminerpaymentsconsolidated[ae.strAccount].paid) 
+				{ 
+					MiningEntry me2;
+					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(ae.strAccount,me2));
+					cpuminerpaymentsconsolidated[ae.strAccount].paid=true;
+					cpuminerpaymentsconsolidated[ae.strAccount] = me2;
+		 		}
+	            MiningEntry me1;
+				me1 = cpuminerpaymentsconsolidated[ae.strAccount];
+         	    me1.strAccount = ae.strAccount;
+				me1.credits = me1.credits + pow.cpupowverificationresult;
+			    
+			    cpuminerpaymentsconsolidated[ae.strAccount] = me1;
+			}
+
+    }
+
+	return cpuminerpayments;
+
+  }
+
+
+
+
+
+void SendGridcoinProjectBeacons()
+{
+
+	if (!GetCPUMiningMode()) return;
+
+	std::map<std::string, MiningEntry> cpumap = CalculateCPUMining();
+	//For each Gridcoin project in the lookback period, send a project beacon
+	MiningEntry me;
+
+	for (int i = 1; i < 6; i++) 
+	{
+		std::string key = RoundToString(i,0) + DefaultWalletAddress();
+		//Verify user is participating first:
+		std::string userid = GetBoincProjectUserId(i);
+		if (userid.length() > 2)  
+		{
+			if (cpumap[key].locktime == 0) 
+			{
+				
+				SendMultiProngedTransaction(i,userid);
+				printf("Sending beacon for project %d",i);
+				cpumap[key].locktime = 1;
+				cpuminerpayments[key].locktime=1;
+			}
+			else
+			{
+				printf("Transaction previously sent.");
+			}
+		}
+
+	}
+
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -462,7 +913,7 @@ Value listminers(const Array& params, bool fHelp)
 	printf("Creating miner payout report...");
 		if (fHelp || params.size() > 3)
         throw runtime_error(
-            "listminers [minconf=1] [maxconf=9999999]  [\"address\",...]\n"
+            "listminers [minconf=1] [maxconf=9999999] \n"
             "Returns array of pool mining transactions\n"
             "{}");
 
@@ -470,15 +921,18 @@ Value listminers(const Array& params, bool fHelp)
 
 	Array results;
 
-    std::map<std::string, MiningEntry> minerpayments;
-  
-
-    minerpayments = CalculatePoolMining();
+	minerpayments = CalculatePoolMining();
+    
     int inum = 0;
    
     double rbpps = minerpayments["totals"].rbpps;
     double total_payments = 0;
 	Object entry;
+	
+	entry.push_back(Pair("Mining Report Version",1.3));
+	std::string boinc_authenticity = BoincAuthenticity();
+	entry.push_back(Pair("Boinc Version",boinc_authenticity));
+	entry.push_back(Pair("Difficulty",minerpayments["totals"].difficulty));
 	entry.push_back(Pair("Grand Total Utilization",minerpayments["totals"].totalutilization));
 	entry.push_back(Pair("Average Boinc", minerpayments["totals"].avgboinc));
 	entry.push_back(Pair("Grand Total Block Payout",minerpayments["totals"].payout));
@@ -499,6 +953,15 @@ Value listminers(const Array& params, bool fHelp)
 				inum++;
 				e.push_back(Pair("Payment #",inum));
 				e.push_back(Pair("Payment Comment",ae.strComment));
+				e.push_back(Pair("Block Hour",ae.blockhour));
+				e.push_back(Pair("Wallet Hour",ae.wallethour));
+				int64 currenttime = GetTime();
+
+				int currenthour = boost::lexical_cast<int>(DateTimeStrFormat("%H", currenttime));
+			    e.push_back(Pair("Current Hour",currenthour));
+				
+				e.push_back(Pair("Boinc Hash",ae.boinchash));
+				
 				e.push_back(Pair("Shares", RoundToString(ae.shares,2)));
 				e.push_back(Pair("Account",ae.strAccount));
 				e.push_back(Pair("Payments",ae.payments));
@@ -514,6 +977,115 @@ Value listminers(const Array& params, bool fHelp)
         return results;
 
 }
+
+
+
+
+Value listcpuminers(const Array& params, bool fHelp)
+{
+
+	printf("Creating cpu miner payout report...");
+		if (fHelp || params.size() > 3)
+        throw runtime_error(
+            "listminers [minconf=1] [maxconf=9999999] \n"
+            "Returns array of pool mining transactions\n"
+            "{}");
+
+	RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
+	Array results;
+
+    if (nMinerPaymentCount > 5) nMinerPaymentCount=0;
+	nMinerPaymentCount++;
+	cpuminerpayments.clear();
+	cpuminerpayments = CalculateCPUMining();
+	    
+    int inum = 0;
+   
+    double rbpps = cpuminerpayments["totals"].rbpps;
+    double total_payments = 0;
+	Object entry;
+	
+	entry.push_back(Pair("CPU Credit Details Report Version",1.01));
+	entry.push_back(Pair("Difficulty",cpuminerpayments["totals"].difficulty));
+    entry.push_back(Pair("Lookback Period", cpuminerpayments["totals"].lookback));
+
+	results.push_back(entry);
+
+	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
+	{
+
+			MiningEntry ae = cpuminerpayments[(*ii).first];
+
+	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2) 
+			{
+				double compensation = ae.shares*rbpps;
+	     		Object e;
+				inum++;
+				e.push_back(Pair("CPU Miner #",inum));
+				e.push_back(Pair("Payment Comment",ae.strComment));
+				e.push_back(Pair("GRC Address",ae.strAccount));
+				e.push_back(Pair("ProjectId",ae.projectid));
+				e.push_back(Pair("ProjectAddress",ae.projectaddress));
+				e.push_back(Pair("Project UserId",ae.projectuserid));
+				MiningEntry CPU = cpupow[ae.homogenizedkey];
+				e.push_back(Pair("CPU Daily Avg Credits Earned",CPU.cpupowverificationresult));
+				e.push_back(Pair("CPU Verification Tries",CPU.cpupowverificationtries));
+				e.push_back(Pair("CPU Verification GRC Address",CPU.strAccount));
+
+				e.push_back(Pair("CPU PoW Key",CPU.cpupowhash));
+					e.push_back(Pair("Total Payments",ae.totalpayments));
+			
+				e.push_back(Pair("Block #",ae.blocknumber));
+				e.push_back(Pair("TX ID",ae.transactionid));
+			
+				e.push_back(Pair("Locktime",ae.locktime));
+
+	     		results.push_back(e);
+			}
+
+    }
+
+
+
+	Object e2;
+
+
+	//Emit Consolidated report
+	e2.push_back(Pair("Consolidated CPU Credit Report Version",1.0));
+	results.push_back(e2);
+
+	inum=0;
+	for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
+	{
+
+			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
+
+	        if (ae.strAccount.length() > 5) 
+			{
+				double compensation = ae.shares*rbpps;
+	     		Object e3;
+				inum++;
+				e3.push_back(Pair("CPU Miner #",inum));
+				e3.push_back(Pair("Payment Comment",ae.strComment));
+				e3.push_back(Pair("GRC Address",ae.strAccount));
+				e3.push_back(Pair("Total Avg Daily Credits",ae.credits));
+				e3.push_back(Pair("Last Paid",ae.lastpaid));
+				e3.push_back(Pair("Total Payments",ae.totalpayments));
+			
+	     		results.push_back(e3);
+			}
+
+    }
+
+
+		Object e5;
+		e5.push_back(Pair("Grand Total Payments",RoundToString(total_payments,6)));
+		results.push_back(e5);
+        return results;
+
+}
+
+
 
 
 

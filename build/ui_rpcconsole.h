@@ -78,10 +78,73 @@ public:
         if (RPCConsole->objectName().isEmpty())
             RPCConsole->setObjectName(QString::fromUtf8("RPCConsole"));
         RPCConsole->resize(740, 450);
+        QPalette palette;
+        QBrush brush(QColor(0, 255, 0, 255));
+        brush.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::WindowText, brush);
+        QBrush brush1(QColor(255, 255, 0, 255));
+        brush1.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Button, brush1);
+        palette.setBrush(QPalette::Active, QPalette::Light, brush);
+        palette.setBrush(QPalette::Active, QPalette::BrightText, brush);
+        QBrush brush2(QColor(0, 0, 0, 255));
+        brush2.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Base, brush2);
+        palette.setBrush(QPalette::Active, QPalette::Window, brush2);
+        palette.setBrush(QPalette::Active, QPalette::HighlightedText, brush);
+        palette.setBrush(QPalette::Active, QPalette::AlternateBase, brush2);
+        QBrush brush3(QColor(8, 8, 8, 255));
+        brush3.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::NoRole, brush3);
+        palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::Button, brush1);
+        palette.setBrush(QPalette::Inactive, QPalette::Light, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::BrightText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::Base, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::Window, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::HighlightedText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::NoRole, brush3);
+        QBrush brush4(QColor(120, 120, 120, 255));
+        brush4.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush4);
+        palette.setBrush(QPalette::Disabled, QPalette::Button, brush1);
+        palette.setBrush(QPalette::Disabled, QPalette::Light, brush);
+        palette.setBrush(QPalette::Disabled, QPalette::BrightText, brush);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush2);
+        palette.setBrush(QPalette::Disabled, QPalette::Window, brush2);
+        palette.setBrush(QPalette::Disabled, QPalette::HighlightedText, brush);
+        palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush2);
+        palette.setBrush(QPalette::Disabled, QPalette::NoRole, brush3);
+        RPCConsole->setPalette(palette);
+        RPCConsole->setAutoFillBackground(true);
         verticalLayout_2 = new QVBoxLayout(RPCConsole);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         tabWidget = new QTabWidget(RPCConsole);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
+        QPalette palette1;
+        palette1.setBrush(QPalette::Active, QPalette::Light, brush2);
+        palette1.setBrush(QPalette::Active, QPalette::BrightText, brush);
+        QBrush brush5(QColor(3, 3, 3, 255));
+        brush5.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::Base, brush5);
+        palette1.setBrush(QPalette::Active, QPalette::HighlightedText, brush1);
+        palette1.setBrush(QPalette::Active, QPalette::AlternateBase, brush2);
+        palette1.setBrush(QPalette::Active, QPalette::NoRole, brush3);
+        palette1.setBrush(QPalette::Inactive, QPalette::Light, brush2);
+        palette1.setBrush(QPalette::Inactive, QPalette::BrightText, brush);
+        palette1.setBrush(QPalette::Inactive, QPalette::Base, brush5);
+        palette1.setBrush(QPalette::Inactive, QPalette::HighlightedText, brush1);
+        palette1.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush2);
+        palette1.setBrush(QPalette::Inactive, QPalette::NoRole, brush3);
+        palette1.setBrush(QPalette::Disabled, QPalette::Light, brush2);
+        palette1.setBrush(QPalette::Disabled, QPalette::BrightText, brush);
+        palette1.setBrush(QPalette::Disabled, QPalette::Base, brush2);
+        palette1.setBrush(QPalette::Disabled, QPalette::HighlightedText, brush1);
+        palette1.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush2);
+        palette1.setBrush(QPalette::Disabled, QPalette::NoRole, brush3);
+        tabWidget->setPalette(palette1);
+        tabWidget->setAutoFillBackground(true);
         tab_info = new QWidget();
         tab_info->setObjectName(QString::fromUtf8("tab_info"));
         gridLayout = new QGridLayout(tab_info);
@@ -104,6 +167,7 @@ public:
         clientName = new QLabel(tab_info);
         clientName->setObjectName(QString::fromUtf8("clientName"));
         clientName->setCursor(QCursor(Qt::IBeamCursor));
+        clientName->setAutoFillBackground(true);
         clientName->setTextFormat(Qt::PlainText);
         clientName->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -117,6 +181,7 @@ public:
         clientVersion = new QLabel(tab_info);
         clientVersion->setObjectName(QString::fromUtf8("clientVersion"));
         clientVersion->setCursor(QCursor(Qt::IBeamCursor));
+        clientVersion->setAutoFillBackground(true);
         clientVersion->setTextFormat(Qt::PlainText);
         clientVersion->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -131,6 +196,7 @@ public:
         openSSLVersion = new QLabel(tab_info);
         openSSLVersion->setObjectName(QString::fromUtf8("openSSLVersion"));
         openSSLVersion->setCursor(QCursor(Qt::IBeamCursor));
+        openSSLVersion->setAutoFillBackground(true);
         openSSLVersion->setTextFormat(Qt::PlainText);
         openSSLVersion->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -144,6 +210,7 @@ public:
         buildDate = new QLabel(tab_info);
         buildDate->setObjectName(QString::fromUtf8("buildDate"));
         buildDate->setCursor(QCursor(Qt::IBeamCursor));
+        buildDate->setAutoFillBackground(true);
         buildDate->setTextFormat(Qt::PlainText);
         buildDate->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -157,6 +224,7 @@ public:
         startupTime = new QLabel(tab_info);
         startupTime->setObjectName(QString::fromUtf8("startupTime"));
         startupTime->setCursor(QCursor(Qt::IBeamCursor));
+        startupTime->setAutoFillBackground(true);
         startupTime->setTextFormat(Qt::PlainText);
         startupTime->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -219,6 +287,7 @@ public:
         totalBlocks = new QLabel(tab_info);
         totalBlocks->setObjectName(QString::fromUtf8("totalBlocks"));
         totalBlocks->setCursor(QCursor(Qt::IBeamCursor));
+        totalBlocks->setAutoFillBackground(true);
         totalBlocks->setTextFormat(Qt::PlainText);
         totalBlocks->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -232,6 +301,7 @@ public:
         lastBlockTime = new QLabel(tab_info);
         lastBlockTime->setObjectName(QString::fromUtf8("lastBlockTime"));
         lastBlockTime->setCursor(QCursor(Qt::IBeamCursor));
+        lastBlockTime->setAutoFillBackground(true);
         lastBlockTime->setTextFormat(Qt::PlainText);
         lastBlockTime->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -279,6 +349,26 @@ public:
         messagesWidget = new QTextEdit(tab_console);
         messagesWidget->setObjectName(QString::fromUtf8("messagesWidget"));
         messagesWidget->setMinimumSize(QSize(0, 100));
+        QPalette palette2;
+        palette2.setBrush(QPalette::Active, QPalette::Light, brush);
+        palette2.setBrush(QPalette::Active, QPalette::Text, brush);
+        palette2.setBrush(QPalette::Active, QPalette::BrightText, brush);
+        palette2.setBrush(QPalette::Active, QPalette::ButtonText, brush1);
+        QBrush brush6(QColor(11, 2, 5, 255));
+        brush6.setStyle(Qt::SolidPattern);
+        palette2.setBrush(QPalette::Active, QPalette::Base, brush6);
+        palette2.setBrush(QPalette::Inactive, QPalette::Light, brush);
+        palette2.setBrush(QPalette::Inactive, QPalette::Text, brush);
+        palette2.setBrush(QPalette::Inactive, QPalette::BrightText, brush);
+        palette2.setBrush(QPalette::Inactive, QPalette::ButtonText, brush1);
+        palette2.setBrush(QPalette::Inactive, QPalette::Base, brush6);
+        palette2.setBrush(QPalette::Disabled, QPalette::Light, brush);
+        palette2.setBrush(QPalette::Disabled, QPalette::Text, brush4);
+        palette2.setBrush(QPalette::Disabled, QPalette::BrightText, brush);
+        palette2.setBrush(QPalette::Disabled, QPalette::ButtonText, brush4);
+        palette2.setBrush(QPalette::Disabled, QPalette::Base, brush2);
+        messagesWidget->setPalette(palette2);
+        messagesWidget->setAutoFillBackground(true);
         messagesWidget->setReadOnly(true);
         messagesWidget->setProperty("tabKeyNavigation", QVariant(false));
         messagesWidget->setProperty("columnCount", QVariant(2));
@@ -296,6 +386,26 @@ public:
 
         lineEdit = new QLineEdit(tab_console);
         lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
+        QPalette palette3;
+        QBrush brush7(QColor(0, 0, 127, 255));
+        brush7.setStyle(Qt::SolidPattern);
+        palette3.setBrush(QPalette::Active, QPalette::Light, brush7);
+        palette3.setBrush(QPalette::Active, QPalette::Text, brush);
+        palette3.setBrush(QPalette::Active, QPalette::BrightText, brush);
+        palette3.setBrush(QPalette::Active, QPalette::ButtonText, brush);
+        palette3.setBrush(QPalette::Active, QPalette::Base, brush6);
+        palette3.setBrush(QPalette::Inactive, QPalette::Light, brush7);
+        palette3.setBrush(QPalette::Inactive, QPalette::Text, brush);
+        palette3.setBrush(QPalette::Inactive, QPalette::BrightText, brush);
+        palette3.setBrush(QPalette::Inactive, QPalette::ButtonText, brush);
+        palette3.setBrush(QPalette::Inactive, QPalette::Base, brush6);
+        palette3.setBrush(QPalette::Disabled, QPalette::Light, brush7);
+        palette3.setBrush(QPalette::Disabled, QPalette::Text, brush4);
+        palette3.setBrush(QPalette::Disabled, QPalette::BrightText, brush);
+        palette3.setBrush(QPalette::Disabled, QPalette::ButtonText, brush4);
+        palette3.setBrush(QPalette::Disabled, QPalette::Base, brush2);
+        lineEdit->setPalette(palette3);
+        lineEdit->setAutoFillBackground(true);
 
         horizontalLayout->addWidget(lineEdit);
 
@@ -328,8 +438,8 @@ public:
 
     void retranslateUi(QDialog *RPCConsole)
     {
-        RPCConsole->setWindowTitle(QApplication::translate("RPCConsole", "Gridcoin - Debug window", 0, QApplication::UnicodeUTF8));
-        label_9->setText(QApplication::translate("RPCConsole", "Gridcoin Core", 0, QApplication::UnicodeUTF8));
+        RPCConsole->setWindowTitle(QApplication::translate("RPCConsole", "Gridcoin - Debug Console", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("RPCConsole", "Litecoin Core", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("RPCConsole", "Client name", 0, QApplication::UnicodeUTF8));
         clientName->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
         label_6->setText(QApplication::translate("RPCConsole", "Client version", 0, QApplication::UnicodeUTF8));
@@ -354,12 +464,12 @@ public:
         lastBlockTime->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
         labelDebugLogfile->setText(QApplication::translate("RPCConsole", "Debug log file", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        openDebugLogfileButton->setToolTip(QApplication::translate("RPCConsole", "Open the Gridcoin debug log file from the current data directory. This can take a few seconds for large log files.", 0, QApplication::UnicodeUTF8));
+        openDebugLogfileButton->setToolTip(QApplication::translate("RPCConsole", "Open the Litecoin debug log file from the current data directory. This can take a few seconds for large log files.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         openDebugLogfileButton->setText(QApplication::translate("RPCConsole", "&Open", 0, QApplication::UnicodeUTF8));
         labelCLOptions->setText(QApplication::translate("RPCConsole", "Command-line options", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        showCLOptionsButton->setToolTip(QApplication::translate("RPCConsole", "Show the Gridcoin-Qt help message to get a list with possible Gridcoin command-line options.", 0, QApplication::UnicodeUTF8));
+        showCLOptionsButton->setToolTip(QApplication::translate("RPCConsole", "Show the Litecoin-Qt help message to get a list with possible Litecoin command-line options.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         showCLOptionsButton->setText(QApplication::translate("RPCConsole", "&Show", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_info), QApplication::translate("RPCConsole", "&Information", 0, QApplication::UnicodeUTF8));

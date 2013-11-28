@@ -25,7 +25,7 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 
-	QAxObject *globalcom;
+	//QAxObject *globalcom;
 
 
 
@@ -55,7 +55,12 @@ public:
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
-        QColor foreground = option.palette.color(QPalette::Text);
+        //QColor foreground = option.palette.color(QPalette::Text);
+		//11-28-2013
+		QColor foreground = QColor(200, 0, 0);
+
+
+
         if(value.canConvert<QBrush>())
         {
             QBrush brush = qvariant_cast<QBrush>(value);

@@ -63,8 +63,11 @@
 
 #include <iostream>
 
+using namespace std;
+
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 int nTick = 0;
+extern void SendGridcoinProjectBeacons();
 
 
 QAxObject *globalcom;
@@ -145,7 +148,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent) :
     QString curStyle = QApplication::style()->metaObject()->className();
     if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
     {
-        progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 7px; margin: 0px; }");
+        progressBar->setStyleSheet("QProgressBar { background-color: #08e8e8; border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 7px; margin: 0px; }");
     }
 
     statusBar()->addWidget(progressBarLabel);
@@ -237,6 +240,10 @@ void BitcoinGUI::createActions()
 	miningAction->setStatusTip(tr("Go to the mining console"));
 	miningAction->setMenuRole(QAction::TextHeuristicRole);
 
+	projectsAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Projects Console"), this);
+	projectsAction->setStatusTip(tr("Go to the projects console"));
+	projectsAction->setMenuRole(QAction::TextHeuristicRole);
+
 
 	emailAction = new QAction(QIcon(":/icons/bitcoin"), tr("&E-Mail Center"), this);
 	emailAction->setStatusTip(tr("Go to the E-Mail center"));
@@ -281,7 +288,7 @@ void BitcoinGUI::createActions()
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
 	connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
-
+	connect(projectsAction, SIGNAL(triggered()), this, SLOT(projectsClicked()));
 
 
 }
@@ -319,13 +326,15 @@ void BitcoinGUI::createMenuBar()
 	QMenu *mining = appMenuBar->addMenu(tr("&Mining"));
     mining->addSeparator();
     mining->addAction(miningAction);
-
-	
+		
 	QMenu *email = appMenuBar->addMenu(tr("&E-Mail"));
     email->addSeparator();
     email->addAction(emailAction);
+		
+	QMenu *projects = appMenuBar->addMenu(tr("&Projects"));
+    projects->addSeparator();
+    projects->addAction(projectsAction);
 
-	
 }
 
 void BitcoinGUI::createToolBars()
@@ -508,13 +517,30 @@ void BitcoinGUI::emailClicked()
     
       globalcom->dynamicCall("ShowEmailModule()");
 
-
 }
+
+
+void BitcoinGUI::projectsClicked()
+{
+
+	if (globalcom==NULL) {
+		globalcom = new QAxObject("Boinc.Utilization");
+	}
+    
+    globalcom->dynamicCall("ShowProjects()");
+}
+
+
+
 void BitcoinGUI::miningClicked()
 {
-	MiningDialog dlg;
-	dlg.setModel(clientModel);
-	dlg.exec();
+		
+	if (globalcom==NULL) {
+		globalcom = new QAxObject("Boinc.Utilization");
+	}
+    
+      globalcom->dynamicCall("ShowMiningConsole()");
+
 }
 
 void BitcoinGUI::gotoOverviewPage()
@@ -896,28 +922,82 @@ void BitcoinGUI::toggleHidden()
     showNormalIfMinimized(true);
 }
 
+
+void UpdateCPUPoW()
+{
+
+	try {
+		//For each CPU miner, verify PoW
+		int inum=0;
+	
+		for(map<string,MiningEntry>::iterator ii=cpupow.begin(); ii!=cpupow.end(); ++ii) 
+		{
+
+				MiningEntry ae = cpupow[(*ii).first];
+				if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && ae.cpupowverificationtries==0) 
+				{
+					inum++;
+					int iRegVer = 0;
+					//PoW(iProjectId, lUserId, sGRCAddress
+					std::string sCPUPoW = boost::lexical_cast<std::string>(ae.projectid) + ":" + boost::lexical_cast<std::string>(ae.projectuserid) + ":" + ae.strAccount;
+
+					QString PoW = QString::fromUtf8(sCPUPoW.c_str()); 
+					double iPoWResult = globalcom->dynamicCall("CPUPoW(QString)",PoW).toDouble();
+					ae.cpupowverificationresult = iPoWResult;
+					ae.cpupowverificationtries++;
+					ae.cpupowhash = sCPUPoW;
+					cpupow[ae.homogenizedkey] = ae;
+					return; //Bail to ensure GUI is responsive
+				}
+
+		}
+	
+	} 
+	catch(std::runtime_error &e) {
+
+		printf("General error in UpdateCpuPow");
+	}
+          
+
+}
+
+
+
+
+
 void BitcoinGUI::timerfire()
 {
-	
+	try {
+	std::string time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
 	if (globalcom==NULL) {
 		//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
 		//issue the command: lodctr /r (to rebuild the performance counters in the registry)
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
-    
+
+	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
 	//Gridcoin - 10-29-2013 - Gather the Boinc Utilization Per Thread 
 	int utilization = 0;
 	utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
 	int thread_count = 0;
 	thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
-
-	//	int running_time = 0;
-	//	running_time = globalcom->dynamicCall("Elapsed()").toInt();
+	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
 	// Gridcoin - Gather the MD5 hash of the Boinc program:
 	QVariant md5_1 = globalcom->dynamicCall("BoincMD5()");
 	QString md5 = md5_1.toString();
 	sBoincMD5 = md5.toUtf8().constData();
 
+	QVariant minedHash_1 = globalcom->dynamicCall("MinedHash()");
+	QString minedHash = minedHash_1.toString();
+	sMinedHash = minedHash.toUtf8().constData();
+
+	QVariant sourceBlock_1 = globalcom->dynamicCall("SourceBlock()");
+	QString sourceBlock = sourceBlock_1.toString();
+	sSourceBlock = sourceBlock.toUtf8().constData();
+	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
+	QVariant bdot_1 = globalcom->dynamicCall("BoincDeltaOverTime()");
+	QString bdot = bdot_1.toString();
+	sBoincDeltaOverTime = bdot.toUtf8().constData();
 	int iRegVer = 0;
 	iRegVer = globalcom->dynamicCall("Version()").toInt();
 	sRegVer = boost::lexical_cast<std::string>(iRegVer);
@@ -939,14 +1019,50 @@ void BitcoinGUI::timerfire()
 	//  1 = Success
 
 	nTick++;
-	if (nTick > 10) {
+
+	if (nTick > 90) {
 		printf("Boinc Utilization: %d, Thread Count: %d",utilization, thread_count);
+		//Send project beacons for TeamGridcoin:
+		try {
+		SendGridcoinProjectBeacons();
+		}  catch (std::exception& e)
+		{}
 		nTick=0;
 	}
 	nBoincUtilization = utilization;
+	
+	
+    time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
+	printf("BestChain: new best=%s  height=%d  date=%s\n",
+    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
+    //Upload the current block to the GVM
+	QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
+    globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
+	//Set Public Wallet Address
+	QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
+    globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
+
+	try {
+	UpdateCPUPoW();
+	}  catch (std::exception& e)
+	{}
+
+	
+	}
+
+	catch(std::runtime_error &e) {
+
+
+		printf("GENERAL RUNTIME ERROR!");
+
+
+	}
+          
 
 
 }
+
+
 
 QString BitcoinGUI::toqstring(int o) {
 	std::string pre="";
@@ -968,9 +1084,7 @@ void BitcoinGUI::detectShutdown()
 {
 
 	 // Tell the main threads to shutdown.
-  
-  
-    if (ShutdownRequested())
+     if (ShutdownRequested())
         QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
 }
 

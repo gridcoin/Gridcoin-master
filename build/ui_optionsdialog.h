@@ -88,11 +88,60 @@ public:
         if (OptionsDialog->objectName().isEmpty())
             OptionsDialog->setObjectName(QString::fromUtf8("OptionsDialog"));
         OptionsDialog->resize(540, 380);
+        QPalette palette;
+        QBrush brush(QColor(0, 255, 0, 255));
+        brush.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::WindowText, brush);
+        QBrush brush1(QColor(255, 255, 255, 255));
+        brush1.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Base, brush1);
+        QBrush brush2(QColor(0, 0, 0, 255));
+        brush2.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Window, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::Base, brush1);
+        palette.setBrush(QPalette::Inactive, QPalette::Window, brush2);
+        QBrush brush3(QColor(120, 120, 120, 255));
+        brush3.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush2);
+        palette.setBrush(QPalette::Disabled, QPalette::Window, brush2);
+        OptionsDialog->setPalette(palette);
+        OptionsDialog->setAutoFillBackground(true);
         OptionsDialog->setModal(true);
         verticalLayout = new QVBoxLayout(OptionsDialog);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         tabWidget = new QTabWidget(OptionsDialog);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
+        QPalette palette1;
+        QBrush brush4(QColor(0, 0, 127, 255));
+        brush4.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::Light, brush4);
+        QBrush brush5(QColor(170, 255, 127, 255));
+        brush5.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::BrightText, brush5);
+        palette1.setBrush(QPalette::Active, QPalette::Base, brush4);
+        QBrush brush6(QColor(255, 255, 0, 255));
+        brush6.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::HighlightedText, brush6);
+        palette1.setBrush(QPalette::Active, QPalette::AlternateBase, brush4);
+        QBrush brush7(QColor(0, 0, 255, 255));
+        brush7.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::NoRole, brush7);
+        palette1.setBrush(QPalette::Inactive, QPalette::Light, brush4);
+        palette1.setBrush(QPalette::Inactive, QPalette::BrightText, brush5);
+        palette1.setBrush(QPalette::Inactive, QPalette::Base, brush4);
+        palette1.setBrush(QPalette::Inactive, QPalette::HighlightedText, brush6);
+        palette1.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush4);
+        palette1.setBrush(QPalette::Inactive, QPalette::NoRole, brush7);
+        palette1.setBrush(QPalette::Disabled, QPalette::Light, brush4);
+        palette1.setBrush(QPalette::Disabled, QPalette::BrightText, brush5);
+        palette1.setBrush(QPalette::Disabled, QPalette::Base, brush2);
+        palette1.setBrush(QPalette::Disabled, QPalette::HighlightedText, brush6);
+        palette1.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush4);
+        palette1.setBrush(QPalette::Disabled, QPalette::NoRole, brush7);
+        tabWidget->setPalette(palette1);
+        tabWidget->setAutoFillBackground(true);
         tabWidget->setTabPosition(QTabWidget::North);
         tabMain = new QWidget();
         tabMain->setObjectName(QString::fromUtf8("tabMain"));
@@ -333,7 +382,7 @@ public:
 
         retranslateUi(OptionsDialog);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(3);
 
 
         QMetaObject::connectSlotsByName(OptionsDialog);
@@ -345,20 +394,20 @@ public:
         transactionFeeInfoLabel->setText(QApplication::translate("OptionsDialog", "Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB.", 0, QApplication::UnicodeUTF8));
         transactionFeeLabel->setText(QApplication::translate("OptionsDialog", "Pay transaction &fee", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        bitcoinAtStartup->setToolTip(QApplication::translate("OptionsDialog", "Automatically start Gridcoin after logging in to the system.", 0, QApplication::UnicodeUTF8));
+        bitcoinAtStartup->setToolTip(QApplication::translate("OptionsDialog", "Automatically start Litecoin after logging in to the system.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        bitcoinAtStartup->setText(QApplication::translate("OptionsDialog", "&Start Gridcoin on system login", 0, QApplication::UnicodeUTF8));
+        bitcoinAtStartup->setText(QApplication::translate("OptionsDialog", "&Start Litecoin on system login", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         resetButton->setToolTip(QApplication::translate("OptionsDialog", "Reset all client options to default.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         resetButton->setText(QApplication::translate("OptionsDialog", "&Reset Options", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabMain), QApplication::translate("OptionsDialog", "&Main", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        mapPortUpnp->setToolTip(QApplication::translate("OptionsDialog", "Automatically open the Gridcoin client port on the router. This only works when your router supports UPnP and it is enabled.", 0, QApplication::UnicodeUTF8));
+        mapPortUpnp->setToolTip(QApplication::translate("OptionsDialog", "Automatically open the Litecoin client port on the router. This only works when your router supports UPnP and it is enabled.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         mapPortUpnp->setText(QApplication::translate("OptionsDialog", "Map port using &UPnP", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        connectSocks->setToolTip(QApplication::translate("OptionsDialog", "Connect to the Gridcoin network through a SOCKS proxy (e.g. when connecting through Tor).", 0, QApplication::UnicodeUTF8));
+        connectSocks->setToolTip(QApplication::translate("OptionsDialog", "Connect to the Litecoin network through a SOCKS proxy (e.g. when connecting through Tor).", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         connectSocks->setText(QApplication::translate("OptionsDialog", "&Connect through SOCKS proxy:", 0, QApplication::UnicodeUTF8));
         proxyIpLabel->setText(QApplication::translate("OptionsDialog", "Proxy &IP:", 0, QApplication::UnicodeUTF8));
@@ -385,14 +434,14 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tabWindow), QApplication::translate("OptionsDialog", "&Window", 0, QApplication::UnicodeUTF8));
         langLabel->setText(QApplication::translate("OptionsDialog", "User Interface &language:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        lang->setToolTip(QApplication::translate("OptionsDialog", "The user interface language can be set here. This setting will take effect after restarting Gridcoin.", 0, QApplication::UnicodeUTF8));
+        lang->setToolTip(QApplication::translate("OptionsDialog", "The user interface language can be set here. This setting will take effect after restarting Litecoin.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         unitLabel->setText(QApplication::translate("OptionsDialog", "&Unit to show amounts in:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         unit->setToolTip(QApplication::translate("OptionsDialog", "Choose the default subdivision unit to show in the interface and when sending coins.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        displayAddresses->setToolTip(QApplication::translate("OptionsDialog", "Whether to show Gridcoin addresses in the transaction list or not.", 0, QApplication::UnicodeUTF8));
+        displayAddresses->setToolTip(QApplication::translate("OptionsDialog", "Whether to show Litecoin addresses in the transaction list or not.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         displayAddresses->setText(QApplication::translate("OptionsDialog", "&Display addresses in transaction list", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabDisplay), QApplication::translate("OptionsDialog", "&Display", 0, QApplication::UnicodeUTF8));

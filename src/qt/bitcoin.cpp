@@ -102,7 +102,7 @@ static void InitMessage(const std::string &message)
 {
     if(splashref)
     {
-        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(55,55,55));
+        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(25,25,25));
         qApp->processEvents();
     }
     printf("init message: %s\n", message.c_str());
@@ -280,13 +280,12 @@ int main(int argc, char *argv[])
 	
         QTimer* pollShutdownTimer = new QTimer(guiref);
         QObject::connect(pollShutdownTimer, SIGNAL(timeout()), guiref, SLOT(detectShutdown()));
-        pollShutdownTimer->start(1000);
+        pollShutdownTimer->start(300);
 
 		
 	 	QTimer *timer = new QTimer(guiref);
 		QObject::connect(timer, SIGNAL(timeout()), guiref, SLOT(timerfire()));
-		timer->start(5000);
-
+		timer->start(10000);
 
 
         if(AppInit2(threadGroup))

@@ -117,6 +117,13 @@ Value ValueFromAmount(int64 amount)
     return (double)amount / (double)COIN;
 }
 
+double DoubleFromAmount(int64 amount)
+{
+
+    return (double)amount / (double)COIN;
+
+}
+
 std::string HexBits(unsigned int nBits)
 {
     union {
@@ -223,6 +230,8 @@ static const CRPCCommand vRPCCommands[] =
     { "getaccount",             &getaccount,             false,     false },
     { "getaddressesbyaccount",  &getaddressesbyaccount,  true,      false },
     { "sendtoaddress",          &sendtoaddress,          false,     false },
+	{ "sendtoself",             &sendtoself,             false,     false },
+	{ "sendtoinvalidaddress",   &sendtoinvalidaddress,   false,     false },
     { "getreceivedbyaddress",   &getreceivedbyaddress,   false,     false },
     { "getreceivedbyaccount",   &getreceivedbyaccount,   false,     false },
     { "listreceivedbyaddress",  &listreceivedbyaddress,  false,     false },
@@ -242,6 +251,7 @@ static const CRPCCommand vRPCCommands[] =
     { "createmultisig",         &createmultisig,         true,      true  },
     { "getrawmempool",          &getrawmempool,          true,      false },
     { "getblock",               &getblock,               false,     false },
+	{ "getblockbyhash",         &getblockbyhash,         false,     false },
     { "getblockhash",           &getblockhash,           false,     false },
     { "gettransaction",         &gettransaction,         false,     false },
     { "listtransactions",       &listtransactions,       false,     false },
@@ -260,6 +270,7 @@ static const CRPCCommand vRPCCommands[] =
     { "importprivkey",          &importprivkey,          false,     false },
     { "listunspent",            &listunspent,            false,     false },
 	{ "listminers",             &listminers,             false,     false },
+	{ "listcpuminers",          &listcpuminers,          false,     false },
 	{ "getpoolminingmode",      &getpoolminingmode,      false,     false }, 
     { "getrawtransaction",      &getrawtransaction,      false,     false },
     { "createrawtransaction",   &createrawtransaction,   false,     false },
@@ -935,7 +946,7 @@ void JSONRequest::parse(const Value& valRequest)
     if (valMethod.type() != str_type)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Method must be a string");
     strMethod = valMethod.get_str();
-    if (strMethod != "getwork" && strMethod != "getworkex" && strMethod != "getblocktemplate")
+    if (strMethod != "getwork" && strMethod != "getworkex" && strMethod != "getblocktemplate" && strMethod != "getblock" && strMethod != "getdifficulty")
         printf("ThreadRPCServer method=%s\n", strMethod.c_str());
 
     // Parse params
@@ -986,6 +997,7 @@ static string JSONRPCExecBatch(const Array& vReq, bool bLoopback)
 
 double static MegaHashProtection()
 {
+	try {
   clock_t current = clock();
   if (nMegaHashProtection == 0) 
   {
@@ -995,10 +1007,25 @@ double static MegaHashProtection()
   }
   double elapsed_secs = double(current - nMegaHashProtection)/(double)CLOCKS_PER_SEC;
   return elapsed_secs;
+	}
+
+	 catch (std::exception& e)
+       
+	 {
+
+		 return 0;
+	 }
 }
 
 
-
+static inline bool GetCPUMiningMode()
+{
+	if (mapArgs["-cpumining"] == "true") 
+	{
+		return true;
+	} 
+	return false;
+}
 
 static inline bool GetPoolMiningMode()
 {
@@ -1071,11 +1098,10 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 
 			//10-29-2013 GridCoin: Implement Pool Mining
 			bPoolMiningMode = GetPoolMiningMode();
-			
+			bCPUMiningMode = GetCPUMiningMode();
 
             if (!read_string(strRequest, valRequest))
                 throw JSONRPCError(RPC_PARSE_ERROR, "Parse error");
-
 
 
             string strReply;
@@ -1263,6 +1289,8 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "getnetworkhashps"       && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "getnetworkhashps"       && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "sendtoaddress"          && n > 1) ConvertTo<double>(params[1]);
+	if (strMethod == "sendtoself"             && n > 0) ConvertTo<double>(params[0]);
+	if (strMethod == "sendtoinvalidaddress"   && n > 1) ConvertTo<double>(params[1]);
     if (strMethod == "settxfee"               && n > 0) ConvertTo<double>(params[0]);
     if (strMethod == "setmininput"            && n > 0) ConvertTo<double>(params[0]);
     if (strMethod == "getreceivedbyaddress"   && n > 1) ConvertTo<boost::int64_t>(params[1]);
@@ -1273,7 +1301,8 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "listreceivedbyaccount"  && n > 1) ConvertTo<bool>(params[1]);
     if (strMethod == "getbalance"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "getblockhash"           && n > 0) ConvertTo<boost::int64_t>(params[0]);
-    if (strMethod == "move"                   && n > 2) ConvertTo<double>(params[2]);
+	if (strMethod == "getblock"               && n > 0) ConvertTo<boost::int64_t>(params[0]);
+	if (strMethod == "move"                   && n > 2) ConvertTo<double>(params[2]);
     if (strMethod == "move"                   && n > 3) ConvertTo<boost::int64_t>(params[3]);
     if (strMethod == "sendfrom"               && n > 2) ConvertTo<double>(params[2]);
     if (strMethod == "sendfrom"               && n > 3) ConvertTo<boost::int64_t>(params[3]);
@@ -1294,6 +1323,8 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "listunspent"            && n > 2) ConvertTo<Array>(params[2]);
 	if (strMethod == "listminers"             && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "listminers"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
+	if (strMethod == "listcpuminers"          && n > 0) ConvertTo<boost::int64_t>(params[0]);
+	if (strMethod == "listcpuminers"          && n > 1) ConvertTo<boost::int64_t>(params[1]);
 	if (strMethod == "getpoolminingmode"      && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "getrawtransaction"      && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "createrawtransaction"   && n > 0) ConvertTo<Array>(params[0]);

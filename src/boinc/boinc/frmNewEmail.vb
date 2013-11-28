@@ -10,7 +10,7 @@ Public Class frmNewEmail
 
 
     Private Sub frmNewEmail_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
-        txtFrom.Text = frmMail.KeyValue("popfromemail")
+        txtFrom.Text = KeyValue("popfromemail")
         txtFrom.ReadOnly = True
         btnRichText.Checked = True
         btnHTML.Checked = False
@@ -20,7 +20,7 @@ Public Class frmNewEmail
     Private Sub InitialBrowserLoader(ByVal sInitialValue As String)
         Dim doc As HtmlDocument
         ToFile(sInitialValue)
-        If lPass = 0 Then WebBrowser1.Navigate(frmMail.GetGridPath("Email") + "\temp.html")
+        If lPass = 0 Then WebBrowser1.Navigate(GetGridPath("Email") + "\temp.html")
 
     End Sub
     Private Sub ShowBodyContainer(ByVal sInitialValue As String)
@@ -45,7 +45,7 @@ Public Class frmNewEmail
 
     End Sub
     Private Sub ToFile(ByVal sData As String)
-        Dim oWriter As New System.IO.StreamWriter(frmMail.GetGridPath("email") + "\temp.html")
+        Dim oWriter As New System.IO.StreamWriter(GetGridPath("email") + "\temp.html")
         oWriter.Write(sData)
         oWriter.Close()
     End Sub
@@ -71,8 +71,8 @@ Public Class frmNewEmail
         End If
     End Sub
     Private Sub btnSend_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSend.Click
-        Dim client As Net.Mail.SmtpClient = New Net.Mail.SmtpClient(frmMail.KeyValue("smtphost"))
-        Dim n As New System.Net.NetworkCredential(frmMail.KeyValue("popuser"), frmMail.KeyValue("poppassword"))
+        Dim client As Net.Mail.SmtpClient = New Net.Mail.SmtpClient(KeyValue("smtphost"))
+        Dim n As New System.Net.NetworkCredential(KeyValue("popuser"), KeyValue("poppassword"))
         client.UseDefaultCredentials = False
         client.Credentials = n
         client.Port = 587

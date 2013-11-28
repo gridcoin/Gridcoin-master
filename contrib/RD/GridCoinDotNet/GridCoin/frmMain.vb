@@ -73,10 +73,13 @@ Public Class frmGridCoin
     End Sub
 
     Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button3.Click
+        CreateBitcoinWallet()
+
+        Stop
 
 
-        frmMail.Show()
-        frmMail.RetrievePop3Emails()
+        '  frmMail.Show()
+        '  frmMail.RetrievePop3Emails()
 
 
     End Sub

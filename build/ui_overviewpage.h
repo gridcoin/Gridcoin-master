@@ -61,7 +61,106 @@ public:
     {
         if (OverviewPage->objectName().isEmpty())
             OverviewPage->setObjectName(QString::fromUtf8("OverviewPage"));
-        OverviewPage->resize(573, 342);
+        OverviewPage->resize(771, 658);
+        QPalette palette;
+        QBrush brush(QColor(0, 255, 0, 255));
+        brush.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::WindowText, brush);
+        QBrush brush1(QColor(170, 255, 127, 255));
+        brush1.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Button, brush1);
+        QBrush brush2(QColor(0, 0, 107, 255));
+        brush2.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Light, brush2);
+        palette.setBrush(QPalette::Active, QPalette::Midlight, brush1);
+        QBrush brush3(QColor(0, 0, 127, 255));
+        brush3.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Dark, brush3);
+        QBrush brush4(QColor(0, 113, 170, 255));
+        brush4.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Mid, brush4);
+        QBrush brush5(QColor(0, 255, 127, 255));
+        brush5.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Text, brush5);
+        QBrush brush6(QColor(255, 255, 0, 255));
+        brush6.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::BrightText, brush6);
+        QBrush brush7(QColor(0, 197, 0, 255));
+        brush7.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::ButtonText, brush7);
+        QBrush brush8(QColor(12, 12, 12, 255));
+        brush8.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Base, brush8);
+        QBrush brush9(QColor(0, 0, 0, 255));
+        brush9.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Window, brush9);
+        QBrush brush10(QColor(141, 141, 141, 255));
+        brush10.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Shadow, brush10);
+        QBrush brush11(QColor(85, 255, 0, 255));
+        brush11.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::HighlightedText, brush11);
+        palette.setBrush(QPalette::Active, QPalette::Link, brush3);
+        QBrush brush12(QColor(255, 255, 127, 255));
+        brush12.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::LinkVisited, brush12);
+        QBrush brush13(QColor(127, 212, 255, 255));
+        brush13.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::AlternateBase, brush13);
+        palette.setBrush(QPalette::Active, QPalette::NoRole, brush3);
+        QBrush brush14(QColor(255, 255, 220, 255));
+        brush14.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::ToolTipBase, brush14);
+        QBrush brush15(QColor(0, 255, 255, 255));
+        brush15.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::ToolTipText, brush15);
+        palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::Button, brush1);
+        palette.setBrush(QPalette::Inactive, QPalette::Light, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::Midlight, brush1);
+        palette.setBrush(QPalette::Inactive, QPalette::Dark, brush3);
+        palette.setBrush(QPalette::Inactive, QPalette::Mid, brush4);
+        palette.setBrush(QPalette::Inactive, QPalette::Text, brush5);
+        palette.setBrush(QPalette::Inactive, QPalette::BrightText, brush6);
+        palette.setBrush(QPalette::Inactive, QPalette::ButtonText, brush7);
+        palette.setBrush(QPalette::Inactive, QPalette::Base, brush8);
+        palette.setBrush(QPalette::Inactive, QPalette::Window, brush9);
+        palette.setBrush(QPalette::Inactive, QPalette::Shadow, brush10);
+        palette.setBrush(QPalette::Inactive, QPalette::HighlightedText, brush11);
+        palette.setBrush(QPalette::Inactive, QPalette::Link, brush3);
+        palette.setBrush(QPalette::Inactive, QPalette::LinkVisited, brush12);
+        palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush13);
+        palette.setBrush(QPalette::Inactive, QPalette::NoRole, brush3);
+        palette.setBrush(QPalette::Inactive, QPalette::ToolTipBase, brush14);
+        palette.setBrush(QPalette::Inactive, QPalette::ToolTipText, brush15);
+        palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::Button, brush1);
+        palette.setBrush(QPalette::Disabled, QPalette::Light, brush2);
+        palette.setBrush(QPalette::Disabled, QPalette::Midlight, brush1);
+        palette.setBrush(QPalette::Disabled, QPalette::Dark, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::Mid, brush4);
+        palette.setBrush(QPalette::Disabled, QPalette::Text, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::BrightText, brush6);
+        palette.setBrush(QPalette::Disabled, QPalette::ButtonText, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush9);
+        palette.setBrush(QPalette::Disabled, QPalette::Window, brush9);
+        palette.setBrush(QPalette::Disabled, QPalette::Shadow, brush10);
+        palette.setBrush(QPalette::Disabled, QPalette::HighlightedText, brush11);
+        palette.setBrush(QPalette::Disabled, QPalette::Link, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::LinkVisited, brush12);
+        QBrush brush16(QColor(0, 170, 255, 255));
+        brush16.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush16);
+        palette.setBrush(QPalette::Disabled, QPalette::NoRole, brush3);
+        palette.setBrush(QPalette::Disabled, QPalette::ToolTipBase, brush14);
+        palette.setBrush(QPalette::Disabled, QPalette::ToolTipText, brush15);
+        OverviewPage->setPalette(palette);
+        QFont font;
+        font.setFamily(QString::fromUtf8("MS UI Gothic"));
+        font.setPointSize(10);
+        OverviewPage->setFont(font);
+        OverviewPage->setWindowOpacity(55);
+        OverviewPage->setAutoFillBackground(true);
         topLayout = new QVBoxLayout(OverviewPage);
         topLayout->setObjectName(QString::fromUtf8("topLayout"));
         labelAlerts = new QLabel(OverviewPage);
@@ -87,10 +186,10 @@ public:
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         label_5 = new QLabel(frame);
         label_5->setObjectName(QString::fromUtf8("label_5"));
-        QFont font;
-        font.setBold(true);
-        font.setWeight(75);
-        label_5->setFont(font);
+        QFont font1;
+        font1.setBold(true);
+        font1.setWeight(75);
+        label_5->setFont(font1);
 
         horizontalLayout_4->addWidget(label_5);
 
@@ -121,7 +220,7 @@ public:
 
         labelBalance = new QLabel(frame);
         labelBalance->setObjectName(QString::fromUtf8("labelBalance"));
-        labelBalance->setFont(font);
+        labelBalance->setFont(font1);
         labelBalance->setCursor(QCursor(Qt::IBeamCursor));
         labelBalance->setText(QString::fromUtf8("0 GRC"));
         labelBalance->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
@@ -135,7 +234,7 @@ public:
 
         labelUnconfirmed = new QLabel(frame);
         labelUnconfirmed->setObjectName(QString::fromUtf8("labelUnconfirmed"));
-        labelUnconfirmed->setFont(font);
+        labelUnconfirmed->setFont(font1);
         labelUnconfirmed->setCursor(QCursor(Qt::IBeamCursor));
         labelUnconfirmed->setText(QString::fromUtf8("0 GRC"));
         labelUnconfirmed->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
@@ -149,7 +248,7 @@ public:
 
         labelImmature = new QLabel(frame);
         labelImmature->setObjectName(QString::fromUtf8("labelImmature"));
-        labelImmature->setFont(font);
+        labelImmature->setFont(font1);
         labelImmature->setText(QString::fromUtf8("0 GRC"));
         labelImmature->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
@@ -177,6 +276,7 @@ public:
         verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
         frame_2 = new QFrame(OverviewPage);
         frame_2->setObjectName(QString::fromUtf8("frame_2"));
+        frame_2->setAutoFillBackground(true);
         frame_2->setFrameShape(QFrame::StyledPanel);
         frame_2->setFrameShadow(QFrame::Raised);
         verticalLayout = new QVBoxLayout(frame_2);
@@ -205,6 +305,22 @@ public:
 
         listTransactions = new QListView(frame_2);
         listTransactions->setObjectName(QString::fromUtf8("listTransactions"));
+        QPalette palette1;
+        QBrush brush17(QColor(0, 0, 0, 0));
+        brush17.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::Button, brush17);
+        QBrush brush18(QColor(2, 7, 3, 255));
+        brush18.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::Base, brush18);
+        palette1.setBrush(QPalette::Active, QPalette::Window, brush17);
+        palette1.setBrush(QPalette::Inactive, QPalette::Button, brush17);
+        palette1.setBrush(QPalette::Inactive, QPalette::Base, brush18);
+        palette1.setBrush(QPalette::Inactive, QPalette::Window, brush17);
+        palette1.setBrush(QPalette::Disabled, QPalette::Button, brush17);
+        palette1.setBrush(QPalette::Disabled, QPalette::Base, brush9);
+        palette1.setBrush(QPalette::Disabled, QPalette::Window, brush17);
+        listTransactions->setPalette(palette1);
+        listTransactions->setAutoFillBackground(true);
         listTransactions->setStyleSheet(QString::fromUtf8("QListView { background: transparent; }"));
         listTransactions->setFrameShape(QFrame::NoFrame);
         listTransactions->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -239,7 +355,7 @@ public:
         OverviewPage->setWindowTitle(QApplication::translate("OverviewPage", "Form", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("OverviewPage", "Wallet", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        labelWalletStatus->setToolTip(QApplication::translate("OverviewPage", "The displayed information may be out of date. Your wallet automatically synchronizes with the Gridcoin network after a connection is established, but this process has not completed yet.", 0, QApplication::UnicodeUTF8));
+        labelWalletStatus->setToolTip(QApplication::translate("OverviewPage", "The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label->setText(QApplication::translate("OverviewPage", "Balance:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -256,7 +372,7 @@ public:
         txtDisplay->setText(QApplication::translate("OverviewPage", "TextLabel", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("OverviewPage", "<b>Recent transactions</b>", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        labelTransactionsStatus->setToolTip(QApplication::translate("OverviewPage", "The displayed information may be out of date. Your wallet automatically synchronizes with the Gridcoin network after a connection is established, but this process has not completed yet.", 0, QApplication::UnicodeUTF8));
+        labelTransactionsStatus->setToolTip(QApplication::translate("OverviewPage", "The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
     } // retranslateUi
 

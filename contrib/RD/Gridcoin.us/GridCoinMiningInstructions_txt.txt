@@ -1,0 +1,57 @@
+Gridcoin
+
+Step by step mining instructions for Windows/Cgminer/Solo Mining:
+
+Version: 1.0
+
+Creation Date: 10-6-2013
+Gridcoin Go Live Date: 10-17-2013
+
+
+1.  Download gridcoin-qt from here: http://www.gridcoin.us/
+
+2.  Extract gridcoin-qt to a place on your hard drive, IE "c:\currencies\gridcoin", for example.
+
+3.  Launch gridcoin-qt.exe, and let the block chain synchronize.  Do not attempt to mine until the block chain is up to date.
+
+4.  The standard cryptocoin clients look for the gridcoin.conf in the data directory (on windows this is c:\users\%username%\appdata\roaming\gridcoin.  Edit or create the gridcoin.conf file.  Place these settings in the file:
+server=1
+rpcuser=rpcusername
+rpcpassword=rpcpassword
+rpcallowip=127.0.0.1
+rpcport=9332
+
+Note: You can use any rpcport you like, any username and password pair you like.  The server switch tells the client you are going to turn on the rpcmining server.  You can technically change the allowed IP to a wildcard, or to a LAN ip, or to a pool IP, but remember with gridcoin, if you are not mining against the loopback address, when you find a block, your subsidy will only be 5 GRC.  
+
+When you mine with BOINC running, against the loopback address, you will receive a subsidy from 6-150 depending on how high your boinc utilization is.  For example, if you are using 75% of your processor over the average sample duration, and running a few threads that take up some memory, your score may approach 90.  This would yield a 1.5* subsidy, or 135 GRC.  Full boinc utilization of 100 yields 150.  You can see the current boinc utilization by going into the mining console from gridcoin-qt and looking for the BOINC utilization level.
+
+5.  Download cgminer from here: http://ck.kolivas.org/apps/cgminer/.
+Click on 3.5.0 windows zip version (older versions may also work).
+
+
+6.  Extract and install cgminer in it's permanent directory.  
+7.  Edit the cgminer .conf file.  Modify the JSON pools section as below:
+"pools" : [
+        {
+                "url" : "127.0.0.1:9332",
+                "user" : "rpcusername",
+                "pass" : "rpcpassword"
+        }
+]
+
+to match the gridcoin-qt configuration for rpcmining.
+
+8.  Download and Install Boinc for windows.  Reboot.  Add a few projects through the project manager.  Launch boinc.  Verify boinc is working.
+
+9.  Launch Gridcoin-qt.  Click on the mining console menu.  Click register mining module.  This will register the boinc.dll with the OS, that will allow communication between boinc, cgminer and gridcoin-qt.  Note:  If you do not register the DLL, boinc utilization will always show as zero.
+
+10.  Go back to gridcoin-qt and while boinc is running, verify the boinc utilization level is greater than zero.
+
+11.  Launch cgminer.  Once blocks are found, verify you receive a higher subsidy when boinc is running.
+
+12.  To install permanently, go to the gridcoin-qt menu, settings | Options, click on Start Gridcoin on system Login, apply, OK.  Set up a batch file to launch cgminer with the "-c config.conf" file switch pointed to the configuration file.  Set up the batch file to be launched on reboot (one way to do this is to create a shortcut to the batch file and place it in your start | All Programs | Startup folder).
+
+Happy Mining!
+
+
+

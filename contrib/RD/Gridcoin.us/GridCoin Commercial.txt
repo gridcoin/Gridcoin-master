@@ -1,0 +1,31 @@
+GridCoin, Commercial:
+
+
+Gridcoin is a new cryptocurrency aimed at providing real benefits to humanity by 
+forming a peer to peer network of boinc projects 
+	that may lead to advances in medicine, science and other fields.
+
+A cryptocurrency allows instant peer to peer transactions, worldwide payments and very low processing fees.
+
+Gridcoin teams up with the Berkeley open insfrastructure computing grid to utilize
+	unused clock cycles to power boinc projects in parallel with the algorithms that keep the network running.
+
+The coin miners are rewarded less if they do not participate in Boinc, and more if they do.
+
+Boinc has over 70 projects that include cancer, hiv, protien, alzheimers, rice strains, hunger problems, malaria, mad cow,
+dna, nanotechnology and more.
+
+Bitcoin currently consumes 23000 megawatts of power per day which ends up in the environment as waste heat.
+
+Why not use a coin that benefits humanity by putting that work to good use?
+
+Its easy to get started. Download the client to start, its free.
+
+If you would like to participate in boinc, or in distributed mining, please read the mining document.
+
+Lets support Gridcoin, the future green currency!
+
+
+
+
+

@@ -16,6 +16,7 @@ class CReserveKey;
 #include "json/json_spirit_reader_template.h"
 #include "json/json_spirit_writer_template.h"
 #include "json/json_spirit_utils.h"
+#include "global_objects_noui.hpp"
 
 #include "util.h"
 
@@ -33,22 +34,7 @@ enum HTTPStatusCode
 };
 
 
-
-
-
-    struct MiningEntry {
-        double shares;
-		std::string strComment;
-        std::string strAccount;
-		double payout;
-		double rbpps;
-		double totalutilization;
-		double totalrows;
-		double avgboinc;
-		bool   paid;
-		double payments;
-		double lookback;
-    };
+ 
 
 
 
@@ -151,6 +137,8 @@ extern CReserveKey* pMiningKey;
 extern int64 nWalletUnlockTime;
 extern int64 AmountFromValue(const json_spirit::Value& value);
 extern json_spirit::Value ValueFromAmount(int64 amount);
+extern double DoubleFromAmount(int64 amount);
+
 extern double GetDifficulty(const CBlockIndex* blockindex = NULL);
 extern std::string HexBits(unsigned int nBits);
 extern std::string HelpRequiringPassphrase();
@@ -177,6 +165,7 @@ extern json_spirit::Value setaccount(const json_spirit::Array& params, bool fHel
 extern json_spirit::Value getaccount(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getaddressesbyaccount(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value sendtoaddress(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value sendtoinvalidaddress(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value signmessage(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value verifymessage(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getreceivedbyaddress(const json_spirit::Array& params, bool fHelp);
@@ -206,11 +195,11 @@ extern json_spirit::Value getinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getrawtransaction(const json_spirit::Array& params, bool fHelp); // in rcprawtransaction.cpp
 extern json_spirit::Value listunspent(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listminers(const json_spirit::Array& params, bool fHelp);
-
+extern json_spirit::Value sendtoself(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value listcpuminers(const json_spirit::Array& params, bool fHelp);
 extern std::string RoundToString(double d, int place);
-
-
 extern std::map<std::string, MiningEntry> CalculatePoolMining();
+
 
 extern json_spirit::Value getpoolminingmode(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value lockunspent(const json_spirit::Array& params, bool fHelp);
@@ -227,6 +216,8 @@ extern json_spirit::Value setmininput(const json_spirit::Array& params, bool fHe
 extern json_spirit::Value getrawmempool(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getblockhash(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getblock(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value getblockbyhash(const json_spirit::Array& params, bool fHelp);
+
 extern json_spirit::Value gettxoutsetinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value gettxout(const json_spirit::Array& params, bool fHelp);
 

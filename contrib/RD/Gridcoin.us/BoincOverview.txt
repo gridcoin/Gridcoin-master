@@ -1,0 +1,79 @@
+GridCoin is a new cryptocurrency that aims to provide real benefits to humanity by compensating the coin miners for participating in BOINC projects 
+that may lead to advances in medicine, biology, mathematics, science, climatology, and astrophysics by concentrating a large percentage
+of the computational power towards BOINC research - instead of generating unecessary heat and wasted power for the proof of work
+algorithms required to keep the coin network running.
+
+It is estimated that bitcoin is using approximately 23,312 megawatt hours per day (see electric consumption @ http://blockchain.info/stats (24 hour stats)) 
+of electric for block solving algorithms.  
+
+The aim of the gridcoin project is to shift the computational power primarily to Boinc projects while the mining operations become a second priority -
+so as the network is scaled up, boinc utilization is scaled up in tandem.
+
+The coin miners will be rewarded with a small token subsidy if they fail to mine boinc shares, but a much larger subsidy when mining with boinc.
+
+This digital cryptocurrency allows instant peer to peer transactions, worldwide payments and very low processing fees.
+The source code is open source and allows everyone to take part in the success of the currency.
+
+About the Berkeley Open Infrastructure for network computing grid:
+
+Boinc is an opensource volunteer oriented computing grid that combines the processing power of all of the distributed PC's to concentrate on important projects.
+Its free, and harnesses the unused clock cycles from PC and Video cards to aid in the research for the project goal.
+
+Some of the major projects that you can participate in:
+
+* Cancer research to help find cures for cancer and schizophrenia
+* Rosetta@Home: 3 dimensional protien modeling, HIV, Cancer, Alzheimers
+* World community grid: Various projects including researching strains of rice for regions where hunger is a concern
+http://www.worldcommunitygrid.org/research/rice/overview.do
+* Malaria control 
+* Alzheimers and Mad cow research
+* DNA Sequencing, Microorganism identification, Bird flu research, protien docking algorithms, molecular biology, evolution research
+* Nanotechnology research to find new molecular materials
+* Large scale protien structure prediction, understanding diseases and pathologies
+* Quantum chemistry
+* Discovery of new drugs
+* Microgravity and microfluid research
+* Search for Neutron stars
+* Particle accelerator research
+* Cryptographic research
+* Search for extraterrestrials
+* Creating better weather models, predicting the weather
+
+
+
+
+
+
+
+
+Mining:
+
+Step by step mining document will be released this week.
+Compatible with cgminer.
+
+
+
+Security:
+
+
+GridCoin leverages the latest code that brought bitcoin and litecoin to where they are today.
+Gridcoin uses the stronger scrypt alogrithm to prevent manipulation of the blockchain.
+
+
+Fair Go Live:
+
+GridCoin has the LiteCoin 'instamine' prevention code built in.
+Gridcoin will go live with a clean database, at a preannounced date to make it fair to all who want to participate in mining the coin.
+
+
+
+
+
+Algorithm: scrypt (like litecoin)
+Re-target: 3.5 days (like litecoin) with 2.5 min block targets
+Block reward: 5-150, 5 if you mine with a miner like cgminer without Boinc running on the machine, 6-150 if you mine with boinc running, you receive a calculated subsidy based on boinc utilization.
+Total coins: 84 million (like litecoin)
+
+ 
+
+
