@@ -435,7 +435,7 @@ void BoincHelper::setLastBlockHash(const QString &hash)
 #if defined(WIN32)
     if (!m_axObject)
     {
-        return 0;
+        return;
     }
 
     m_axObject->dynamicCall("SetLastBlockHash(QString)", hash);
@@ -450,7 +450,7 @@ void BoincHelper::setPublicWalletAddress(const QString &address)
 #if defined(WIN32)
     if (!m_axObject)
     {
-        return 0;
+        return;
     }
 
     m_axObject->dynamicCall("SetPublicWalletAddress(QString)", address);
