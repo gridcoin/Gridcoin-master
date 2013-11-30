@@ -13,13 +13,12 @@ class BoincHelper
 {
 public:
 
-    static const float BOINC_MEMORY_FOOTPRINT = 5000000.0f;
+    static const float BoincMemoryFootprint = 5000000.0f;
 
     virtual ~BoincHelper();
 
     static BoincHelper &instance();
 
-    void showEmailModule();
     int utilization();
     int threads();
     QString md5();
@@ -28,17 +27,23 @@ public:
     bool registered() const;
     void registerBoinc();
     void unregisterBoinc();
+    void showEmailModule();
+    void showProjects();
+    void showMiningConsole();
+    double CPUPoW(const QString &pow);
+    QString minedHash();
+    QString sourceBlock();
+    QString deltaOverTime();
+    void setLastBlockHash(const QString &hash);
+    void setPublicWalletAddress(const QString &address);
 
 protected:
 
     bool m_registered;
 
 #if defined(WIN32)
-
     QSharedPointer<QAxObject> m_axObject;
-
 #elif defined(LINUX)
-
     struct ProcessData
     {
         ProcessData() :
@@ -59,7 +64,6 @@ protected:
     float m_averageCPUUtilization;
     float m_totalMemoryUtilization;
     long m_pageSize;
-
 #endif
 
 private:

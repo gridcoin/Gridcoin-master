@@ -97,11 +97,10 @@ private:
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
-	QAction *miningAction;
-
-    QAction *projectsAction;
 
 #if defined(WIN32)
+    QAction *miningAction;
+    QAction *projectsAction;
 	QAction *emailAction;
 #endif
 

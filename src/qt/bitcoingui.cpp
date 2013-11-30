@@ -228,20 +228,19 @@ void BitcoinGUI::createActions()
     aboutAction->setStatusTip(tr("Show information about Gridcoin"));
     aboutAction->setMenuRole(QAction::AboutRole);
 	
-	miningAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Mining Console"), this);
-	miningAction->setStatusTip(tr("Go to the mining console"));
-	miningAction->setMenuRole(QAction::TextHeuristicRole);
+
+#if defined(WIN32)
+    miningAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Mining Console"), this);
+    miningAction->setStatusTip(tr("Go to the mining console"));
+    miningAction->setMenuRole(QAction::TextHeuristicRole);
 
     projectsAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Projects Console"), this);
     projectsAction->setStatusTip(tr("Go to the projects console"));
     projectsAction->setMenuRole(QAction::TextHeuristicRole);
 
-#if defined(WIN32)
-
 	emailAction = new QAction(QIcon(":/icons/bitcoin"), tr("&E-Mail Center"), this);
 	emailAction->setStatusTip(tr("Go to the E-Mail center"));
 	emailAction->setMenuRole(QAction::TextHeuristicRole);
-
 #endif
 
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
@@ -279,14 +278,11 @@ void BitcoinGUI::createActions()
     connect(changePassphraseAction, SIGNAL(triggered()), walletFrame, SLOT(changePassphrase()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
-	connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
-
-    connect(projectsAction, SIGNAL(triggered()), this, SLOT(projectsClicked()));
 
 #if defined(WIN32)
-
+    connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
+    connect(projectsAction, SIGNAL(triggered()), this, SLOT(projectsClicked()));
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
-
 #endif
 }
 
@@ -320,7 +316,9 @@ void BitcoinGUI::createMenuBar()
     help->addAction(aboutAction);
     help->addAction(aboutQtAction);
 
-	QMenu *mining = appMenuBar->addMenu(tr("&Mining"));
+
+#if defined(WIN32)
+    QMenu *mining = appMenuBar->addMenu(tr("&Mining"));
     mining->addSeparator();
     mining->addAction(miningAction);
 
@@ -328,12 +326,9 @@ void BitcoinGUI::createMenuBar()
     projects->addSeparator();
     projects->addAction(projectsAction);
 
-#if defined(WIN32)
-
     QMenu *email = appMenuBar->addMenu(tr("&E-Mail"));
     email->addSeparator();
     email->addAction(emailAction);
-
 #endif
 }
 
@@ -509,29 +504,17 @@ void BitcoinGUI::aboutClicked()
 
 void BitcoinGUI::emailClicked()
 {
-	//Launch the Email Center
     BoincHelper::instance().showEmailModule();
 }
 
 void BitcoinGUI::projectsClicked()
 {
-
-	if (globalcom==NULL) {
-		globalcom = new QAxObject("Boinc.Utilization");
-	}
-    
-    globalcom->dynamicCall("ShowProjects()");
+    BoincHelper::instance().showProjects();
 }
 
 void BitcoinGUI::miningClicked()
 {
-		
-	if (globalcom==NULL) {
-		globalcom = new QAxObject("Boinc.Utilization");
-	}
-    
-      globalcom->dynamicCall("ShowMiningConsole()");
-
+    BoincHelper::instance().showMiningConsole();
 }
 
 void BitcoinGUI::gotoOverviewPage()
@@ -915,8 +898,13 @@ void BitcoinGUI::toggleHidden()
 
 void UpdateCPUPoW()
 {
+    using std::map;
+    using std::string;
+
     try
     {
+        BoincHelper &helper = BoincHelper::instance();
+
         //For each CPU miner, verify PoW
         int inum=0;
 
@@ -928,21 +916,19 @@ void UpdateCPUPoW()
             {
                 inum++;
 
-                int iRegVer = 0;
+                //int iRegVer = 0;
                 //PoW(iProjectId, lUserId, sGRCAddress
                 std::string sCPUPoW = boost::lexical_cast<std::string>(ae.projectid) + ":" + boost::lexical_cast<std::string>(ae.projectuserid) + ":" + ae.strAccount;
 
                 QString PoW = QString::fromUtf8(sCPUPoW.c_str());
-                double iPoWResult = globalcom->dynamicCall("CPUPoW(QString)",PoW).toDouble();
+                double iPoWResult = helper.CPUPoW(PoW);;
                 ae.cpupowverificationresult = iPoWResult;
                 ae.cpupowverificationtries++;
                 ae.cpupowhash = sCPUPoW;
                 cpupow[ae.homogenizedkey] = ae;
                 return; //Bail to ensure GUI is responsive
             }
-
         }
-
     }
     catch(std::runtime_error &e)
     {
@@ -952,82 +938,40 @@ void UpdateCPUPoW()
 
 void BitcoinGUI::timerfire()
 {
-    // TODO: Update with code
-    /*
-    //Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and
-    //issue the command: lodctr /r (to rebuild the performance counters in the registry)
-
-    BoincHelper &helper = BoincHelper::instance();
-
-        //Gridcoin - 10-29-2013 - Gather the Boinc Utilization Per Thread
-    int utilization = helper.utilization();
-    int thread_count = helper.threads();
-
-        //        int running_time = 0;
-        //        running_time = globalcom->dynamicCall("Elapsed()").toInt();
-        // Gridcoin - Gather the MD5 hash of the Boinc program:
-    sBoincMD5 = helper.md5().toUtf8().constData();
-
-    sRegVer = boost::lexical_cast<std::string>(helper.version());
-
-        //Gather the authenticity level:
-        //1.  Retrieve the Boinc MD5 Hash
-        //2.  Verify the boinc.exe contains the Berkeley source libraries
-        //3.  Verify the exe is an official release
-        //4.  Verify the size of the exe is above the threshhold
-
-    sBoincBA = helper.authenticityString().toUtf8().constData();
-        // -1 = Invalid Executable
-        // -2 = Failed Authenticity Check
-        // -3 = Failed library check
-        // -4 = Failed to Find boinc tray
-        // -10= Error during enumeration
-        //  1 = Success
-
-    if (++nTick > 10) {
-        printf("Boinc Utilization: %d, Thread Count: %d", utilization, thread_count);
-        nTick = 0;
-        }
-
-        nBoincUtilization = utilization;
-      */
-
     try
     {
+        BoincHelper &helper = BoincHelper::instance();
+
         std::string time1 = DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
 
-        if (globalcom==NULL)
-        {
-            //Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and
-            //issue the command: lodctr /r (to rebuild the performance counters in the registry)
-            globalcom = new QAxObject("Boinc.Utilization");
-        }
+        //Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and
+        //issue the command: lodctr /r (to rebuild the performance counters in the registry)
 
         time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
         //Gridcoin - 10-29-2013 - Gather the Boinc Utilization Per Thread
         int utilization = 0;
-        utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
+        utilization = helper.utilization();
         int thread_count = 0;
-        thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
+        thread_count = helper.threads();
         time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
         // Gridcoin - Gather the MD5 hash of the Boinc program:
-        QVariant md5_1 = globalcom->dynamicCall("BoincMD5()");
+        QVariant md5_1 = helper.md5();
         QString md5 = md5_1.toString();
         sBoincMD5 = md5.toUtf8().constData();
 
-        QVariant minedHash_1 = globalcom->dynamicCall("MinedHash()");
+        QVariant minedHash_1 = helper.minedHash();
         QString minedHash = minedHash_1.toString();
         sMinedHash = minedHash.toUtf8().constData();
 
-        QVariant sourceBlock_1 = globalcom->dynamicCall("SourceBlock()");
+        QVariant sourceBlock_1 = helper.sourceBlock();
         QString sourceBlock = sourceBlock_1.toString();
         sSourceBlock = sourceBlock.toUtf8().constData();
         time1 = DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
-        QVariant bdot_1 = globalcom->dynamicCall("BoincDeltaOverTime()");
+        QVariant bdot_1 = helper.deltaOverTime();
         QString bdot = bdot_1.toString();
         sBoincDeltaOverTime = bdot.toUtf8().constData();
         int iRegVer = 0;
-        iRegVer = globalcom->dynamicCall("Version()").toInt();
+        iRegVer = helper.version();
         sRegVer = boost::lexical_cast<std::string>(iRegVer);
 
         //Gather the authenticity level:
@@ -1036,7 +980,7 @@ void BitcoinGUI::timerfire()
         //3.  Verify the exe is an official release
         //4.  Verify the size of the exe is above the threshhold
 
-        QVariant ba_1 = globalcom->dynamicCall("BoincAuthenticityString()");
+        QVariant ba_1 = helper.authenticityString();
         QString ba = ba_1.toString();
         sBoincBA = ba.toUtf8().constData();
         // -1 = Invalid Executable
@@ -1069,10 +1013,10 @@ void BitcoinGUI::timerfire()
                hashBestChain.ToString().c_str(), nBestHeight, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
         //Upload the current block to the GVM
         QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str());
-        globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
+        helper.setLastBlockHash(lbh);
         //Set Public Wallet Address
         QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str());
-        globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
+        helper.setPublicWalletAddress(pwa);
 
         try
         {

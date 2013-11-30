@@ -15,7 +15,6 @@ BoincHelper::BoincHelper() :
     m_registered(false)
 {
 #if defined(LINUX)
-
     meminfo();
 
     m_pageSize = sysconf(_SC_PAGE_SIZE);
@@ -25,7 +24,6 @@ BoincHelper::BoincHelper() :
     m_threadsNum = 0;
     m_averageCPUUtilization = 0.0f;
     m_totalMemoryUtilization = 0.0f;
-
 #endif
 }
 
@@ -41,37 +39,16 @@ BoincHelper &BoincHelper::instance()
     return inst;
 }
 
-void BoincHelper::showEmailModule()
-{
-#if defined(WIN32)
-
-    if (!m_axObject)
-    {
-        return;
-    }
-
-    m_axObject->dynamicCall("ShowEmailModule()");
-
-#else
-
-#warning Not implemented
-
-#endif
-}
-
 int BoincHelper::utilization()
 {
 #if defined(WIN32)
-
     if (!m_axObject)
     {
         return 0;
     }
 
     return m_axObject->dynamicCall("BoincUtilization()").toInt();
-
 #elif defined(LINUX)
-
     /*
      Instantaneous CPU percentage is commonly desired, but is not tracked
      by the kernel and is therefore not available anywhere procps can read.
@@ -166,11 +143,8 @@ int BoincHelper::utilization()
     usage_percent += usage_memory;
 
     return usage_percent;
-
 #else
-
 #warning Not implemented
-
 #endif
 
     return 0;
@@ -179,22 +153,16 @@ int BoincHelper::utilization()
 int BoincHelper::threads()
 {
 #if defined(WIN32)
-
     if (!m_axObject)
     {
         return 0;
     }
 
     return m_axObject->dynamicCall("BoincThreads()").toInt();
-
 #elif defined(LINUX)
-
     return m_threadsNum;
-
 #else
-
 #warning Not implemented
-
 #endif
 
     return 0;
@@ -203,16 +171,13 @@ int BoincHelper::threads()
 QString BoincHelper::md5()
 {
 #if defined(WIN32)
-
     if (!m_axObject)
     {
         return "";
     }
 
     return m_axObject->dynamicCall("BoincMD5()").toString();
-
 #elif defined(LINUX)
-
     QCryptographicHash hash(QCryptographicHash::Md5);
 
     QFile f("/usr/bin/boinc");
@@ -225,11 +190,8 @@ QString BoincHelper::md5()
     hash.addData(f.readAll());
 
     return hash.result().toHex();
-
 #else
-
 #warning Not implemented
-
 #endif
 
     return "";
@@ -238,22 +200,16 @@ QString BoincHelper::md5()
 int BoincHelper::version()
 {
 #if defined(WIN32)
-
     if (!m_axObject)
     {
         return 0;
     }
 
     return m_axObject->dynamicCall("Version()").toInt();
-
 #elif defined(LINUX)
-
     return 1;
-
 #else
-
 #warning Not implemented
-
 #endif
 
     return 0;
@@ -262,14 +218,12 @@ int BoincHelper::version()
 QString BoincHelper::authenticityString()
 {
 #if defined(WIN32)
-
     if (!m_axObject)
     {
         return "";
     }
 
     return m_axObject->dynamicCall("BoincAuthenticityString()").toString();
-
 #elif defined(LINUX)
     /*
       '1.  Retrieve the Boinc MD5 Hash
@@ -307,11 +261,8 @@ QString BoincHelper::authenticityString()
     // there is no "LIBEAY32.dll" and boinctray
 
     return "1";
-
 #else
-
 #warning Not implemented
-
 #endif
 
     return "";
@@ -330,7 +281,6 @@ void BoincHelper::registerBoinc()
     }
 
 #if defined(WIN32)
-
     const QString appDirPath = QApplication::applicationDirPath() + "\\";
 
     if (!QProcess::execute(appDirPath + "regtlibv12.exe", QStringList() << "boinc.tlb"))
@@ -349,7 +299,6 @@ void BoincHelper::registerBoinc()
     {
         return;
     }
-
 #endif
 
     m_registered = true;
@@ -363,15 +312,149 @@ void BoincHelper::unregisterBoinc()
     }
 
 #if defined(WIN32)
-
     m_axObject.clear();
 
     const QString appDirPath = QApplication::applicationDirPath() + "\\";
 
     QProcess::execute(appDirPath + "regasm.exe", QStringList() << "boinc.dll" << "-u");
     QProcess::execute(appDirPath + "regtlibv12.exe", QStringList() << "boinc.tlb" << "-u");
-
 #endif
 
     m_registered = false;
+}
+
+void BoincHelper::showEmailModule()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("ShowEmailModule()");
+#else
+#warning Not implemented
+#endif
+}
+
+void BoincHelper::showProjects()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("ShowProjects()");
+#else
+#warning Not implemented
+#endif
+}
+
+void BoincHelper::showMiningConsole()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("ShowMiningConsole()");
+#else
+#warning Not implemented
+#endif
+}
+
+double BoincHelper::CPUPoW(const QString &pow)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return 0;
+    }
+
+    return m_axObject->dynamicCall("CPUPoW(QString)", pow).toDouble();
+#else
+#warning Not implemented
+#endif
+
+    return 0;
+}
+
+QString BoincHelper::minedHash()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return "";
+    }
+
+    return m_axObject->dynamicCall("MinedHash()").toString();
+#else
+#warning Not implemented
+#endif
+
+    return "";
+}
+
+QString BoincHelper::sourceBlock()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return "";
+    }
+
+    return m_axObject->dynamicCall("SourceBlock()").toString();
+#else
+#warning Not implemented
+#endif
+
+    return "";
+}
+
+QString BoincHelper::deltaOverTime()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return "";
+    }
+
+    return m_axObject->dynamicCall("BoincDeltaOverTime()").toString();
+
+#else
+#warning Not implemented
+#endif
+
+    return "";
+}
+
+void BoincHelper::setLastBlockHash(const QString &hash)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return 0;
+    }
+
+    m_axObject->dynamicCall("SetLastBlockHash(QString)", hash);
+
+#else
+#warning Not implemented
+#endif
+}
+
+void BoincHelper::setPublicWalletAddress(const QString &address)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return 0;
+    }
+
+    m_axObject->dynamicCall("SetPublicWalletAddress(QString)", address);
+#else
+#warning Not implemented
+#endif
 }
