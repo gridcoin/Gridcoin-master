@@ -173,7 +173,7 @@ GridCoinDotNet
 	<summary>
  Creates a new key pair using the SHA256 hash of a given string as the private key.
  </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.Create(System.String,System.Boolean,System.Byte)">
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.Create(System.Int64,System.String,System.Boolean,System.Byte)">
 	<summary>
  Creates a new random key pair, using a user-provided string to add entropy to the
  SecureRandom generator provided by the .NET Framework.

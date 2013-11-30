@@ -515,7 +515,14 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest)
     }
 
 
-    /// debug print
+    double hog = (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0;
+	if (hog > 9000)
+	{
+			printf("Last seen > 2 hours, ignoring host");
+			return NULL;
+	}
+
+
     printf("trying connection %s lastseen=%.1fhrs\n",
         pszDest ? pszDest : addrConnect.ToString().c_str(),
         pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
@@ -912,7 +919,7 @@ void ThreadSocketHandler()
                 // so we don't deadlock:
                 // * We send some data.
                 // * We wait for data to be received (and disconnect after timeout).
-                // * We process a message in the buffer (message handler thread).
+                // * We process a message in the buffer (message handler thrd).
                 {
                     TRY_LOCK(pnode->cs_vSend, lockSend);
                     if (lockSend && !pnode->vSendMsg.empty()) {

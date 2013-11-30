@@ -55,6 +55,3 @@ C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbp
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmGridCoin.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.Resources.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbproj.GenerateResource.Cache
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\OpenPop.dll
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmMail.resources
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmNewEmail.resources

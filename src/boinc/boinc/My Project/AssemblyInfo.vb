@@ -8,17 +8,17 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("boinc")> 
+<Assembly: AssemblyTitle("Berkeley Open Infrastructure Computing Grid")> 
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
-<Assembly: AssemblyProduct("boinc")> 
-<Assembly: AssemblyCopyright("Copyright ©  2013")> 
+<Assembly: AssemblyProduct("Boinc")> 
+<Assembly: AssemblyCopyright("Copyright ©  2013 - Gridcoin")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(True)> 
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("b0db9c87-080b-433e-9d87-1c653932b2cd")> 
+<Assembly: Guid("bcdb9c87-080b-433e-9d87-1c653132b2cd")> 
 
 ' Version information for an assembly consists of the following four values:
 '
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.0")> 
-<Assembly: AssemblyFileVersion("1.0.0.0")> 
+<Assembly: AssemblyVersion("1.15.7.77")> 
+<Assembly: AssemblyFileVersion("1.15.7.77")> 

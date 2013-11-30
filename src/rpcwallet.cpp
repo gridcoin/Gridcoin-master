@@ -18,6 +18,15 @@ using namespace json_spirit;
 
 int64 nWalletUnlockTime;
 static CCriticalSection cs_nWalletUnlockTime;
+#include <boost/lexical_cast.hpp>
+
+std::string Compensate(string grc_address, double dAmount, string commentfrom, string commentto);
+
+
+std::string Compensate2(string grc_address, int64 nAmount, string commentfrom, string commentto);
+
+
+
 
 std::string HelpRequiringPassphrase()
 {
@@ -266,6 +275,46 @@ Value setmininput(const Array& params, bool fHelp)
 }
 
 
+
+Value sendtoself(const Array& params, bool fHelp)
+{
+	 if (fHelp)
+        throw runtime_error(
+            "sendtoself <gridcoinaddress> <amount> [comment] [comment-to]\n"
+            "<amount> is a real and is rounded to the nearest 0.00000001"
+            + HelpRequiringPassphrase());
+
+    int64 nAmount = AmountFromValue(params[0]);
+
+	nAmount = nAmount + 000117;  //7900
+
+	std::string address2 = DefaultWalletAddress();
+
+
+	CBitcoinAddress address(address2);
+    if (!address.IsValid())       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Gridcoin address");
+
+    // Wallet comments
+    CWalletTx wtx;
+        wtx.mapValue["comment"] = "CPU Mining";
+		
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+
+    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+
+    if (strError != "")
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+
+    return wtx.GetHash().GetHex();
+
+
+}
+
+
+
+
+
 Value sendtoaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 4)
@@ -297,6 +346,43 @@ Value sendtoaddress(const Array& params, bool fHelp)
 
     return wtx.GetHash().GetHex();
 }
+
+
+
+Value sendtoinvalidaddress(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 2 || params.size() > 4)
+        throw runtime_error(
+            "sendtoinvalidaddress <gridcoinaddress> <amount> [comment] [comment-to]\n"
+            "<amount> is a real and is rounded to the nearest 0.00000001"
+            + HelpRequiringPassphrase());
+
+    CBitcoinAddress address(params[0].get_str());
+
+    //if (!address.IsValid())        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Gridcoin address");
+	
+    // Amount
+    int64 nAmount = AmountFromValue(params[1]);
+
+    // Wallet comments
+    CWalletTx wtx;
+    if (params.size() > 2 && params[2].type() != null_type && !params[2].get_str().empty())
+        wtx.mapValue["comment"] = params[2].get_str();
+    if (params.size() > 3 && params[3].type() != null_type && !params[3].get_str().empty())
+        wtx.mapValue["to"]      = params[3].get_str();
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+
+    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx,5000);
+    if (strError != "")
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+
+    return wtx.GetHash().GetHex();
+}
+
+
+
 
 Value listaddressgroupings(const Array& params, bool fHelp)
 {

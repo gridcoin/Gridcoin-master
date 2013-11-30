@@ -1343,6 +1343,7 @@ bool CWallet::CreateTransaction(CScript scriptPubKey, int64 nValue,
     return CreateTransaction(vecSend, wtxNew, reservekey, nFeeRet, strFailReason);
 }
 
+
 // Call after CreateTransaction unless you want to abort
 bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
 {
@@ -1395,6 +1396,10 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
 
 
 
+
+
+
+
 string CWallet::SendMoney(CScript scriptPubKey, int64 nValue, CWalletTx& wtxNew, bool fAskFee)
 {
     CReserveKey reservekey(this);
@@ -1440,6 +1445,10 @@ string CWallet::SendMoneyToDestination(const CTxDestination& address, int64 nVal
 
     return SendMoney(scriptPubKey, nValue, wtxNew, fAskFee);
 }
+
+
+
+
 
 
 

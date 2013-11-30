@@ -1014,7 +1014,8 @@ bool AppInit2(boost::thread_group& threadGroup)
         {
             string msg(_("Warning: error reading wallet.dat! All keys read correctly, but transaction data"
                          " or address book entries might be missing or incorrect."));
-            InitWarning(msg);
+			   uiInterface.InitMessage(_("All keys read correctly but transaction data may be missing!"));
+			   //            InitWarning(msg);
         }
         else if (nLoadWalletRet == DB_TOO_NEW)
             strErrors << _("Error loading wallet.dat: Wallet requires newer version of Gridcoin") << "\n";
@@ -1133,7 +1134,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     printf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain->setKeyPool.size());
     printf("mapWallet.size() = %"PRIszu"\n",       pwalletMain->mapWallet.size());
     printf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain->mapAddressBook.size());
-	//CHALUPASTART
+	//
 
     StartNode(threadGroup);
 

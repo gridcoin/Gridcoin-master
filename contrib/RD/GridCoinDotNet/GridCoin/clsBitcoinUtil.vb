@@ -363,6 +363,7 @@ Namespace Casascius.Bitcoin
             If AddressType = "Litecoin" Then
                 cointype = 48
             End If
+
             hex2(0) = CByte(cointype And &HFF)
             Return ByteArrayToBase58Check(hex2)
 

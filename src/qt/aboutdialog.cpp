@@ -15,10 +15,12 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
 
     // Set current copyright year and boinc utilization
-    ui->labelUtilization->setText(tr("Boinc Utilization: %1").arg(nBoincUtilization));
-
-    ui->copyrightLabel->setText(tr("Copyright 2009-%1 The Bitcoin/Litecoin/Gridcoin developers")
-                                .arg(ABOUTDIALOG_COPYRIGHT_YEAR));
+    QString cr = "Copyright 2009-2013 The Bitcoin/Litecoin/Gridcoin developers";
+    std::string sBoincUtilization="";
+    sBoincUtilization = strprintf("%d",nBoincUtilization);
+	QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
+	QString qsRegVersion  = QString::fromUtf8(sRegVer.c_str());
+	ui->copyrightLabel->setText("Boinc Utilization: " + qsUtilization + "              " + ", Registered Version: " + qsRegVersion + "             " + cr);
 }
 
 void AboutDialog::setModel(ClientModel *model)

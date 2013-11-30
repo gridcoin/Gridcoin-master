@@ -87,6 +87,7 @@ TransactionView::TransactionView(QWidget *parent) :
 #if QT_VERSION >= 0x040700
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
     amountWidget->setPlaceholderText(tr("Min amount"));
+	//Gridcoin-Override base colors
 #endif
 #ifdef Q_OS_MAC
     amountWidget->setFixedWidth(97);
@@ -176,6 +177,13 @@ void TransactionView::setModel(WalletModel *model)
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Status, 23);
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Date, 120);
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Type, 120);
+		transactionView->horizontalHeader()->setStyleSheet("background-color: #08ff08;");
+		//Add stylesheet to transaction view list:
+		transactionView->setStyleSheet("background-color: #081008;");
+   
+
+
+
 #if QT_VERSION < 0x050000
         transactionView->horizontalHeader()->setResizeMode(TransactionTableModel::ToAddress, QHeaderView::Stretch);
 #else

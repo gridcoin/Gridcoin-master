@@ -71,14 +71,12 @@ static const int fHaveUPnP = false;
 
 extern CScript COINBASE_FLAGS;
 
-
-
-
-
-
 extern CCriticalSection cs_main;
 extern std::map<uint256, CBlockIndex*> mapBlockIndex;
 extern std::set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexValid;
+
+extern std::string BoincAuthenticity();
+
 extern uint256 hashGenesisBlock;
 extern CBlockIndex* pindexGenesisBlock;
 extern int nBestHeight;
@@ -95,6 +93,8 @@ extern int64 nHPSTimerStart;
 extern int64 nTimeBestReceived;
 extern CCriticalSection cs_setpwalletRegistered;
 extern std::set<CWallet*> setpwalletRegistered;
+
+extern double HourFromGRCAddress(std::string sAddress);
 extern unsigned char pchMessageStart[4];
 extern bool fImporting;
 extern bool fReindex;
@@ -1333,6 +1333,7 @@ public:
 
     void UpdateTime(const CBlockIndex* pindexPrev);
 };
+
 
 class CBlock : public CBlockHeader
 {

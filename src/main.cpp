@@ -46,6 +46,7 @@ CCriticalSection cs_main;
 
 CTxMemPool mempool;
 unsigned int nTransactionsUpdated = 0;
+double nPoolMiningCounter = 0;
 
 map<uint256, CBlockIndex*> mapBlockIndex;
 
@@ -73,13 +74,30 @@ bool fTxIndex = false;
 unsigned int nCoinCacheSize = 5000;
 // Gridcoin status    *************
 int nBoincUtilization = 0;
+double nMinerPaymentCount = 0;
+
 int nPrint = 0;
 std::string sBoincMD5 = "";
 std::string sBoincBA = "";
 std::string sRegVer = "";
+std::string sBoincDeltaOverTime = "";
+std::string sBoincAuthenticity = "";
+std::string sMinedHash = "";
+std::string sSourceBlock = "";
+std::string sDefaultWalletAddress = "";
 
+std::map<std::string, MiningEntry> minerpayments;
+std::map<std::string, MiningEntry> cpuminerpayments;
+std::map<std::string, MiningEntry> cpupow;
+std::map<std::string, MiningEntry> cpuminerpaymentsconsolidated;
+
+std::map<int, int> blockcache;
+
+
+  
 bool bPoolMiningMode = false;
 bool bBoincSubsidyEligible = false;
+bool bCPUMiningMode = false;
 
 
 
@@ -116,7 +134,7 @@ int64 nMinimumInputValue = DUST_HARD_LIMIT;
 //
 // These functions dispatch to one or all registered wallets
 /////////////////////////////////////////////////////////////////////////////
-double MEGAHASH_VIOLATION_THRESHHOLD = 30; //Do Not Tamper with this value or you will break the program
+double MEGAHASH_VIOLATION_THRESHHOLD = 45; //Do Not Tamper with this value or you will break the program
 double nMegaHashProtection = 0;
 /////////////////////////////////////////////////////////////////////////////
 
@@ -709,9 +727,10 @@ bool CTxMemPool::accept(CValidationState &state, CTransaction &tx, bool fCheckIn
 
     // Rather not work on nonstandard transactions (unless -testnet)
     string strNonStd;
-    if (!fTestNet && !tx.IsStandard(strNonStd))
-        return error("CTxMemPool::accept() : nonstandard transaction (%s)",
-                     strNonStd.c_str());
+
+	//11-20-2013 GRC:NonStandard Transactions
+    if (!fTestNet && !tx.IsStandard(strNonStd))      return error("CTxMemPool::accept() : nonstandard transaction (%s)",               strNonStd.c_str());
+
 
     // is it already in the memory pool?
     uint256 hash = tx.GetHash();
@@ -811,7 +830,7 @@ bool CTxMemPool::accept(CValidationState &state, CTransaction &tx, bool fCheckIn
             static double dFreeCount;
             static int64 nLastTime;
             int64 nNow = GetTime();
-
+										
             LOCK(cs);
 
             // Use an exponentially decaying ~10-minute window:
@@ -2864,8 +2883,6 @@ bool InitBlockIndex() {
             block.nTime    = 1381926777;
             block.nNonce   = 1310944;
 	    }
-
-        //// debug print
         uint256 hash = block.GetHash();
 		
         printf("%s\n", hash.ToString().c_str());
@@ -2873,13 +2890,8 @@ bool InitBlockIndex() {
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
 		//Gridcoin merkleroot: 	//10-16-2013
 		assert(block.hashMerkleRoot==uint256("0xda43abf15a2fcd57ceae9ea0b4e0d872981e2c0b72244466650ce6010a14efb8"));
-
-
-        block.print();
-		//TODO: ADD THIS ASSERTION 10-16-2013
+		block.print();
 		assert(hash == hashGenesisBlock);
-
-
 
     	printf("starting new code");
 	    // If genesis block hash does not match, then generate new genesis hash.
@@ -2916,7 +2928,6 @@ bool InitBlockIndex() {
         block.print();
 
         assert(block.GetHash() == hashGenesisBlock);
-//        assert(block.CheckBlock());
 		printf("End of expirimentation");
 
         // Start new block file
@@ -3594,6 +3605,9 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             pindex = pindex->pnext;
         int nLimit = 500;
         printf("getblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().c_str(), nLimit);
+
+		try {
+
         for (; pindex; pindex = pindex->pnext)
         {
             if (pindex->GetBlockHash() == hashStop)
@@ -3611,6 +3625,12 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 break;
             }
         }
+		}
+
+	    catch (std::exception& e) {
+    		printf("GETBLOCKS ERROR, GRIDCOIN.");
+		}
+
     }
 
 
@@ -4329,7 +4349,10 @@ std::string GRCDefaultPubKeyHex(CReserveKey& reservekey)
 
 std::string DefaultWalletAddress() 
 {
+	try {
 	//Gridcoin - Find the default public GRC address (not used anymore)
+	if (sDefaultWalletAddress.length() > 0) return sDefaultWalletAddress;
+
     string strAccount;
 	int i = 0;
 	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
@@ -4337,9 +4360,31 @@ std::string DefaultWalletAddress()
     	 const CBitcoinAddress& address = item.first;
 		 const std::string& strName = item.second;
 		 bool fMine = IsMine(*pwalletMain, address.Get());
-		 if (fMine) return CBitcoinAddress(address).ToString();
+		 if (fMine && strName == "Default") {
+			 sDefaultWalletAddress=CBitcoinAddress(address).ToString();
+			 return sDefaultWalletAddress;
+		 }
     }
+
+
     //Cant Find
+
+	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
+    {
+    	 const CBitcoinAddress& address = item.first;
+		 const std::string& strName = item.second;
+		 bool fMine = IsMine(*pwalletMain, address.Get());
+		 if (fMine) {
+			 sDefaultWalletAddress=CBitcoinAddress(address).ToString();
+			 return sDefaultWalletAddress;
+		 }
+    }
+	}
+	 catch (std::exception& e)
+	 {
+	 }
+       
+
 	return "?";
 }
 
@@ -4347,24 +4392,60 @@ std::string DefaultWalletAddress()
 
 
 
-
 std::string BoincAuthenticity() 
 {
+	
 
 		std::string boinc_authenticity = "";
+		try
+		{
 		std::string pool_mode = "SOLO_MINING";
 		if (bPoolMiningMode) pool_mode = "POOL_MINING";
 		//Gridcoin - record Boinc Authenticity information:
 		boinc_authenticity = sBoincMD5 +"," + sBoincBA + "," + boost::lexical_cast<std::string>(nBoincUtilization);
-		boinc_authenticity = boinc_authenticity + ",CARD_VERSION," + pool_mode + "," + DefaultWalletAddress() + "," + sRegVer;
+		if (sSourceBlock.length() < 10) sSourceBlock = "?";
+
+		boinc_authenticity = boinc_authenticity + ",CRD_V," + pool_mode + "," + DefaultWalletAddress() + "," + sRegVer + "," + sBoincDeltaOverTime + "," + sMinedHash + "," + sSourceBlock;
+		printf("ba %s",boinc_authenticity.c_str());
 		//hexpubkey reserved for future use
+		sBoincAuthenticity = boinc_authenticity;
+		}
+		 catch (std::exception& e)
+		 {
+		 }
         return boinc_authenticity;
 
 }
 
 
+double Round(double d, int place)
+{
+	//boost::lexical_cast<string>(iBU)
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(place) << d ;
+	//11-3-2013
+	double r = lexical_cast<double>(ss.str());
+	return r;
+}
 
 	
+double HourFromGRCAddress(string sAddress) 
+{
+	//Convert a public GRC address to its corresponding HOUR for payment
+	if (sAddress.length() == 0) return 0;
+	char ch = *sAddress.rbegin();
+	//	char ch = sAddress.back();
+	char ch2=tolower(ch);
+	int asc = ch2; //Ascii value 0-9 = 48-57, a-z = 97 - 122
+	if (asc > 96) asc=asc-39;	//asc now equals 48-83
+	int lookup = asc-47;	//asc now equals 1-36
+	double hour = Round(lookup/1.5,0);  //convert to 24 hour format, hour now equals 1-24
+	if (hour > 24) hour=24;
+	if (hour < 1) hour = 1;
+	int clockhour = hour-1; //Return 0-23 (Military Clock hours)
+	return clockhour;
+}
+
 
 
 
@@ -4376,16 +4457,18 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
     txNew.vin.resize(1);
 	txNew.vout.resize(1);
 	txNew.vin[0].prevout.SetNull();
-    
-	if (!bPoolMiningMode) {
+    nPoolMiningCounter++;
+	//If program has just started or miner is not pool mining:
+	if (!bPoolMiningMode || nPoolMiningCounter < 5) {
 		txNew.vout.resize(1);
 		return txNew;
 	}
 
 	
-   std::map<std::string, MiningEntry> minerpayments;
-   minerpayments = CalculatePoolMining();
-
+	//   std::map<std::string, MiningEntry> minerpayments;
+	if (nMinerPaymentCount > 9) nMinerPaymentCount=0;
+	nMinerPaymentCount++;
+	if (nMinerPaymentCount==1) minerpayments = CalculatePoolMining();
     minerstobepaid = 0;
 	for(map<string,MiningEntry>::iterator ii2=minerpayments.begin(); ii2!=minerpayments.end(); ++ii2) 
 	{
@@ -4402,16 +4485,16 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
    double rbpps = minerpayments["totals"].rbpps;
    double total_payments = 0;
 	
-   printf("Grand Total Utilization %d, Avg Boinc %d",minerpayments["totals"].totalutilization, minerpayments["totals"].avgboinc);
-   printf("Grand Total Block Payout %d, rbpps %d",minerpayments["totals"].payout,rbpps);
+   //printf("Grand Total Utilization %d, Avg Boinc %d",minerpayments["totals"].totalutilization, minerpayments["totals"].avgboinc);
+   //printf("Grand Total Block Payout %d, rbpps %d",minerpayments["totals"].payout,rbpps);
 
    	for(map<string,MiningEntry>::iterator ii=minerpayments.begin(); ii!=minerpayments.end(); ++ii) 
 	{
 
 			MiningEntry ae = minerpayments[(*ii).first];
             if (ae.strAccount.length() > 5) {
-				int64 compensation = ae.shares*rbpps;
-			 	printf("Payment # %d, Comment %s",inum,ae.strComment.c_str());
+				double compensation = ae.shares*rbpps;
+			 	//printf("Payment # %d, Comment %s",inum,ae.strComment.c_str());
 				//printf("Shares %d, Account %s", RoundToString(ae.shares,2).c_str(),ae.strAccount.c_str());
 				//printf("Payments %d, compensation: %d",ae.payments,RoundToString(compensation,6).c_str());
 				total_payments = total_payments + compensation;
@@ -4427,10 +4510,9 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
    }
 	
 
-	   //printf("Grand Total Payments %d",RoundToString(total_payments,6).c_str());
+	    //printf("Grand Total Payments %d",RoundToString(total_payments,6).c_str());
 
-	   //If we are in pool mining mode, resize the transaction to the amount of recipients
-	  
+ 	    //If we are in pool mining mode, resize the transaction to the amount of recipients, and pay each recipient in one atomic coinbase transaction
 		if (minerstobepaid==0) {
 			    txNew.vin.resize(1);
 				txNew.vout.resize(1);
@@ -4456,7 +4538,6 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 {
 
 
-	printf("Calling create new gridcoin block...");
 
     // Gridcoin - Create new Coinbase block (11-1-2013)
     auto_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
@@ -4491,6 +4572,16 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 	CPubKey pubkey;
     if (!reservekey.GetReservedKey(pubkey))       return NULL;
     if (minerspaid==0) txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
+
+
+
+
+
+
+	try {
+
+
+
 	
 	//GRIDCOIN - POOL_MING - 10-31-2013 
     //Add our coinbase tx as first transaction
@@ -4708,7 +4799,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 			pblocktemplate->vTxFees[0]=-nFees;
 			pblock->vtx[0].vout[0].nValue = oldvalue;
 			double test = pblock->vtx[0].vout[0].nValue;
-			printf("PAYMENT AMOUNT %.8g",test);
+			//printf("PAYMENT AMOUNT %.8g",test);
 		}
 
 
@@ -4731,12 +4822,21 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         CValidationState state;
 		
 
+
         if (!pblock->ConnectBlock(state, &indexDummy, viewNew, true))
             throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
+		}
 
+		//End of Try-Catch
+		}
+		 catch (std::exception& e)
+		 {
 
-    }
-	 
+		 }
+
+	 ////////////////////////////////////////////////////////////////////////////// PblockTemplate.release() ///////////////////////////////////////////////////////////////////////
+
+	try {
 	    double mh = MegaHashProtection();
 
 	    if (mh < MEGAHASH_VIOLATION_THRESHHOLD) {
@@ -4749,7 +4849,11 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 		}
 		nMegaHashProtection = clock();
 
-	
+	}
+	catch (std::exception& e)
+	{
+
+	}
 
 		return pblocktemplate.release();
 }

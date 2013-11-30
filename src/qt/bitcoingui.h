@@ -98,6 +98,9 @@ private:
     QAction *verifyMessageAction;
     QAction *aboutAction;
 	QAction *miningAction;
+
+    QAction *projectsAction;
+
 #if defined(WIN32)
 	QAction *emailAction;
 #endif
@@ -195,8 +198,12 @@ private slots:
 
     /** Show Mining Console */
 	void miningClicked();
-    /** Show the E-Mail Center */
+
+	/** Show the E-Mail Center */
 	void emailClicked();
+
+	void projectsClicked();
+
 
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */

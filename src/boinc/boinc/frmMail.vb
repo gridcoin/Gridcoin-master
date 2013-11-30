@@ -688,39 +688,8 @@ dontaddit:
             End If
         End If
     End Sub
-    Public Shared Function GetGridPath(ByVal sType As String) As String
-        Dim sTemp As String
-        sTemp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\Gridcoin\" + sType
-        If System.IO.Directory.Exists(sTemp) = False Then
-            Try
-                System.IO.Directory.CreateDirectory(sTemp)
-            Catch ex As Exception
-
-            End Try
-        End If
-        Return sTemp
-    End Function
-    Public Shared Function KeyValue(ByVal sKey As String) As String
-        Try
-            Dim sFolder As String
-            sFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\Gridcoin"
-            Dim sPath As String
-            sPath = sFolder + "\gridcoin.conf"
-            Dim sr As New StreamReader(sPath)
-            Dim sRow As String
-            Dim vRow() As String
-            Do While sr.EndOfStream = False
-                sRow = sr.ReadLine
-                vRow = Split(sRow, "=")
-                If LCase(vRow(0)) = LCase(sKey) Then
-                    Return vRow(1)
-                End If
-            Loop
-        Catch ex As Exception
-            Return ""
-
-        End Try
-    End Function
+   
+    
     Private Sub UidlButtonClick(ByVal sender As Object, ByVal e As EventArgs)
         Dim uids As List(Of String) = p3.GetMessageUids()
 
