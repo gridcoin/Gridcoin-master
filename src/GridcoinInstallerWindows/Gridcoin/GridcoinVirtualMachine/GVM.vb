@@ -22,7 +22,16 @@
             Return CPUMiner.MinedHash
         End Get
     End Property
-
+    Public ReadOnly Property mbunarr1 As Double
+        Get
+            Return mdProcNarrComponent1
+        End Get
+    End Property
+    Public ReadOnly Property mbunarr2 As Double
+        Get
+            Return mdProcNarrComponent2
+        End Get
+    End Property
     Public ReadOnly Property SourceBlock As String
         Get
             Return CPUMiner.SourceBlock
@@ -106,9 +115,28 @@
 
         End Get
     End Property
+
+    Public ReadOnly Property CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, ByVal sGRCHash3 As String, ByVal sBoinchash As String) As Double
+        Get
+            Return modCryptography.CheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sBoinchash)
+
+        End Get
+    End Property
+
+
     Public ReadOnly Property BoincAuthenticityString As String
         Get
             Return Trim(VerifyBoincAuthenticity.ToString())
+        End Get
+    End Property
+    Public ReadOnly Property BoincCreditsAtPointInTime As Double
+        Get
+            Return modBoincCredits.BoincCreditsAtPointInTime
+        End Get
+    End Property
+    Public ReadOnly Property BoincCreditsAvgAtPointInTime As Double
+        Get
+            Return modBoincCredits.BoincCreditsAvgAtPointInTime
         End Get
     End Property
     Public Function ReturnBoincCreditsAtPointInTime(ByVal dLookback As Double) As Double

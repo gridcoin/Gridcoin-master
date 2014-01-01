@@ -1387,7 +1387,7 @@
         </font>
        </property>
        <property name="toolTip">
-        <string>Sign a message to prove you own a Litecoin address</string>
+        <string>Sign a message to prove you own a Gridcoin address</string>
        </property>
        <property name="text">
         <string>Sign &amp;Message</string>
@@ -1471,7 +1471,7 @@
         </font>
        </property>
        <property name="toolTip">
-        <string>Verify a message to ensure it was signed with a specified Litecoin address</string>
+        <string>Verify a message to ensure it was signed with a specified Gridcoin address</string>
        </property>
        <property name="text">
         <string>&amp;Verify Message</string>

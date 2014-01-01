@@ -48,6 +48,11 @@ CTxMemPool mempool;
 unsigned int nTransactionsUpdated = 0;
 double nPoolMiningCounter = 0;
 
+extern bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
+
+
+extern void FlushGridcoinBlockFile(bool fFinalize);
+
 map<uint256, CBlockIndex*> mapBlockIndex;
 
 //////////////////////////////////////////////////////////
@@ -59,6 +64,7 @@ uint256 hashGenesisBlock("0x2e463ddc588a5900589c75234510c536ce58ec94dafd07157c4b
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // Gridcoin: starting difficulty is 1 / 2^12
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
+int nBestAccepted = -1;
 
 uint256 nBestChainWork = 0;
 uint256 nBestInvalidWork = 0;
@@ -93,6 +99,7 @@ std::map<std::string, MiningEntry> cpuminerpaymentsconsolidated;
 
 std::map<int, int> blockcache;
 
+int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight);
 
   
 bool bPoolMiningMode = false;
@@ -1684,6 +1691,32 @@ void static FlushBlockFile(bool fFinalize = false)
     }
 }
 
+
+void FlushGridcoinBlockFile(bool fFinalize)
+{
+    LOCK(cs_LastBlockFile);
+
+    CDiskBlockPos posOld(nLastBlockFile, 0);
+
+    FILE *fileOld = OpenBlockFile(posOld);
+    if (fileOld) {
+        if (fFinalize)
+            TruncateFile(fileOld, infoLastBlockFile.nSize);
+        FileCommit(fileOld);
+        fclose(fileOld);
+    }
+
+    fileOld = OpenUndoFile(posOld);
+    if (fileOld) {
+        if (fFinalize)
+            TruncateFile(fileOld, infoLastBlockFile.nUndoSize);
+        FileCommit(fileOld);
+        fclose(fileOld);
+    }
+}
+
+
+
 bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigned int nAddSize);
 
 static CCheckQueue<CScriptCheck> scriptcheckqueue(128);
@@ -1700,7 +1733,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
         return false;
 
     // verify that the view's current state corresponds to the previous block
-    assert(pindex->pprev == view.GetBestBlock());
+	if ( pindex->pprev != view.GetBestBlock()) 	return false;
 
     // Special case for the genesis block, skipping connection of its transactions
     // (its coinbase is unspendable)
@@ -1724,7 +1757,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
     // Now that the whole chain is irreversibly beyond that time it is applied to all blocks,
     // this prevents exploiting the issue against nodes in their initial block download.
     bool fEnforceBIP30 = true;
-
+	//printf("Checking for BIP30 violation...");
     if (fEnforceBIP30) {
         for (unsigned int i=0; i<vtx.size(); i++) {
             uint256 hash = GetTxHash(i);
@@ -1798,6 +1831,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
     if (vtx[0].GetValueOut() > MaxBlockValue(pindex->nHeight, nFees))
         return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", vtx[0].GetValueOut(), MaxBlockValue(pindex->nHeight, nFees)));
 
+	printf("Writing undo information to disk...");
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -1835,7 +1869,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
             return state.Abort(_("Failed to write transaction index"));
 
     // add this block to the view's block chain
-    assert(view.SetBestBlock(pindex));
+	if (!view.SetBestBlock(pindex)) return false;
 
     // Watch for transactions paying to me
     for (unsigned int i=0; i<vtx.size(); i++)
@@ -1849,7 +1883,7 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
     // All modifications to the coin state will be done in this cache.
     // Only when all have succeeded, we push it to pcoinsTip.
     CCoinsViewCache view(*pcoinsTip, true);
-
+	
     // Find the fork (typically, there is none)
     CBlockIndex* pfork = view.GetBestBlock();
     CBlockIndex* plonger = pindexNew;
@@ -2182,7 +2216,11 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
     // Size limits
     //if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)        return state.DoS(100, error("CheckBlock() : size limits failed"));
 
-
+	// Size limits
+    if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
+        return state.DoS(100, error("CheckBlock() : size limits failed"));
+	
+	
     // Gridcoin: Special short-term limits to avoid 10,000 BDB lock limit:
     if (GetBlockTime() < 1376568000)  // stop enforcing 15 August 2013 00:00:00
     {
@@ -2204,6 +2242,7 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
     // Check proof of work matches claimed amount
     if (fCheckPOW && !CheckProofOfWork(GetPoWHash(), nBits))
         return state.DoS(50, error("CheckBlock() : proof of work failed"));
+	 
 
     // Check timestamp
     if (GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
@@ -2214,7 +2253,7 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
         return state.DoS(100, error("CheckBlock() : first tx is not coinbase"));
 
 	//Gridcoin Pool Mining:
-	 for (unsigned int i = 1; i < vtx.size(); i++)  if (vtx[i].IsCoinBase())       return state.DoS(100, error("CheckBlock() : more than one coinbase"));
+	 for (unsigned int i = 1; i < vtx.size(); i++)  if (vtx[i].IsCoinBase())  return state.DoS(100, error("CheckBlock() : more than one coinbase"));
 	
 
     // Check transactions
@@ -2266,7 +2305,17 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
         if (mi == mapBlockIndex.end())
             return state.DoS(10, error("AcceptBlock() : prev block not found"));
         pindexPrev = (*mi).second;
+
         nHeight = pindexPrev->nHeight+1;
+
+		//12-1-2013 Gridcoin: Enforce boinchash:
+		int result = CheckCPUWorkByCurrentBlock(hashBoinc.c_str(),nHeight);
+    	printf("ProcessBlock: Current Boinc Hash %s, Result: %d Height: %d",hashBoinc.c_str(),result,nHeight);
+	    if (result != 1) {
+            return state.Invalid(error("AcceptBlock() : ProcessBlock() : Failed, Boinchash invalid."));
+		  //printf("ProcessBlock: Failed, Block not accepted, Boinchash %s, Result: %d",hashBoinc.c_str(),result);
+	    }
+
 
         // Check proof of work
         if (nBits != GetNextWorkRequired(pindexPrev, this))
@@ -2335,7 +2384,7 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
             if (nBestHeight > (pnode->nStartingHeight != -1 ? pnode->nStartingHeight - 2000 : nBlockEstimate))
                 pnode->PushInventory(CInv(MSG_BLOCK, hash));
     }
-
+	nBestAccepted = nHeight;
     return true;
 }
 
@@ -2362,7 +2411,8 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
     if (mapOrphanBlocks.count(hash))
         return state.Invalid(error("ProcessBlock() : already have block (orphan) %s", hash.ToString().c_str()));
 
-    // Preliminary checks
+    // Preliminary checks 12-23-2013
+
     if (!pblock->CheckBlock(state))
         return error("ProcessBlock() : CheckBlock FAILED");
 
@@ -2385,13 +2435,31 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
         }
     }
 
+	//Gridcoin 12-24-2013
 
     // If we don't already have its previous block, shunt it off to holding area until we get it
     if (pblock->hashPrevBlock != 0 && !mapBlockIndex.count(pblock->hashPrevBlock))
     {
-        printf("ProcessBlock: ORPHAN BLOCK, prev=%s\n", pblock->hashPrevBlock.ToString().c_str());
+        //Gridcoin 12-24-2013 Test Orphan
+		printf("ProcessBlock: ORPHAN BLOCK, prev=%s\n", pblock->hashPrevBlock.ToString().c_str());
+	
+		try {
+					int result = CheckCPUWorkByCurrentBlock(pblock->hashBoinc.c_str(), nBestHeight);
+					if (result != 1) 
+					{
+						printf("invalid hash %s height %d error %d",pblock->hashBoinc.c_str(), nBestHeight,result);
+						return state.Invalid(error("ProcessBlock() : Failed, Boinchash invalid"));
+ 					}
+		}
+        catch(...) 
+		{
+				//return state.DoS(1, error("ProcessBlock() : Failed, Boinchash invalid :: Error"));
+				return state.Invalid(error("ProcessBlock() : Failed Boinchash Invalid :: Error"));
+ 		} 
+		
+		//return state.Invalid(error("ProcessBlock() : Christmas 2013 - Force orphan off the chain"));
 
-        // Accept orphans as long as there is a node to request its parents from
+	    // Accept orphans as long as there is a node to request its parents from
         if (pfrom) {
             CBlock* pblock2 = new CBlock(*pblock);
             mapOrphanBlocks.insert(make_pair(hash, pblock2));
@@ -2429,7 +2497,7 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
     }
 
     printf("ProcessBlock: ACCEPTED\n");
-    return true;
+	return true;
 }
 
 
@@ -2603,11 +2671,9 @@ bool AbortNode(const std::string &strMessage) {
 bool CheckDiskSpace(uint64 nAdditionalBytes)
 {
     uint64 nFreeBytesAvailable = filesystem::space(GetDataDir()).available;
-
     // Check for nMinDiskSpace bytes (currently 50MB)
     if (nFreeBytesAvailable < nMinDiskSpace + nAdditionalBytes)
         return AbortNode(_("Error: Disk space is low!"));
-
     return true;
 }
 
@@ -2928,8 +2994,7 @@ bool InitBlockIndex() {
         block.print();
 
         assert(block.GetHash() == hashGenesisBlock);
-		printf("End of expirimentation");
-
+	
         // Start new block file
         try {
             unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
@@ -3755,8 +3820,11 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (ProcessBlock(state, pfrom, &block))
             mapAlreadyAskedFor.erase(inv);
         int nDoS;
-        if (state.IsInvalid(nDoS))
-            pfrom->Misbehaving(nDoS);
+		//12-26-2013 DoS error
+		//Gridcoin - Temporarily disable orphan block - DoS (Peer Is Misbehaving) attack detection:
+		//                     if (state.IsInvalid(nDoS))         pfrom->Misbehaving(nDoS);
+
+
     }
 
 
@@ -4806,7 +4874,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 		//Gridcoin: 10-30-2013: Construct the authenticity packet
 		std::string boinc_authenticity = BoincAuthenticity();
 	    pblock->hashBoinc = boinc_authenticity;
-
+		
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
         pblock->UpdateTime(pindexPrev);
@@ -4824,7 +4892,12 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 
 
         if (!pblock->ConnectBlock(state, &indexDummy, viewNew, true))
-            throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
+            //throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
+			printf("CreateNewBlock() Gridcoin : Connect Block Failed!");
+			return pblocktemplate.release();
+
+
+
 		}
 
 		//End of Try-Catch
@@ -4835,8 +4908,8 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 		 }
 
 	 ////////////////////////////////////////////////////////////////////////////// PblockTemplate.release() ///////////////////////////////////////////////////////////////////////
-
-	try {
+    if (false) {
+	    try {
 	    double mh = MegaHashProtection();
 
 	    if (mh < MEGAHASH_VIOLATION_THRESHHOLD) {
@@ -4844,18 +4917,18 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 				printf("mh/vc %.8g, threshhold=%.8g",MEGAHASH_VIOLATION_COUNT, MEGAHASH_VIOLATION_THRESHHOLD);
 				printf("MEGAHASH VIOLATION. REDUCE HASHPOWER.");
 				if (fTestNet) MEGAHASH_VIOLATION_COUNT--;
-
-        
 		}
 		nMegaHashProtection = clock();
+     	}
+	    catch (std::exception& e)
+	    {
 
+	    }
 	}
-	catch (std::exception& e)
-	{
 
-	}
 
-		return pblocktemplate.release();
+	
+	return pblocktemplate.release();
 }
 
 

@@ -1,1 +1,0 @@
-"C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\guiminer\cgminer\cgminer.exe" --scrypt -u rachalupa -p halford9 -o http://127.0.0.1:9332 --gpu-platform 0 -d 1 -w 256 -v 1 -I 13 -g 2 -l 1 -c cgminer1.conf --thread-concurrency 8192

@@ -4,6 +4,9 @@
 
 #include <QApplication>
 
+#include <QTimer>
+
+
 #include "bitcoingui.h"
 #include "clientmodel.h"
 #include "walletmodel.h"
@@ -50,6 +53,9 @@ Q_DECLARE_METATYPE(bool*)
 static BitcoinGUI *guiref;
 static SplashScreen *splashref;
 
+
+
+boost::thread_group threadGroup;
 
 
 
@@ -117,16 +123,6 @@ static std::string Translate(const char* psz)
 }
 
 
-static std::string LogChupe(const char* psz)
-{
-	
-    //QMetaObject::invokeMethod(guiref, "GetResult", GUIUtil::blockingGUIThreadConnection(),                               Q_ARG(QString, "motherteet"),                               Q_ARG(QString*, &resultset));
- 	QString test = "empty";
-	printf("init message: test");
-	return "";
-
-}
-
 
 
 
@@ -145,6 +141,35 @@ static void handleRunawayException(std::exception *e)
     QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Gridcoin can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
     exit(1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char *argv[])
@@ -231,8 +256,8 @@ int main(int argc, char *argv[])
     // Subscribe to global signals from core
     uiInterface.ThreadSafeMessageBox.connect(ThreadSafeMessageBox);
     uiInterface.ThreadSafeAskFee.connect(ThreadSafeAskFee);
-	uiInterface.LogChupe.connect(LogChupe);
 
+	
 	
     uiInterface.InitMessage.connect(InitMessage);
     uiInterface.Translate.connect(Translate);
@@ -261,6 +286,13 @@ int main(int argc, char *argv[])
         splashref = &splash;
     }
 
+
+	/////////////////////////////////////////// Start Gridcoin ActiveX Server
+   
+   // QAxFactory::startServer();
+	
+	
+	////////////////////////////////////////////// End of ActiveX - Start Gridcoin
     app.processEvents();
     app.setQuitOnLastWindowClosed(false);
 
@@ -273,7 +305,8 @@ int main(int argc, char *argv[])
             GUIUtil::SetStartOnSystemStartup(true);
 #endif
 
-        boost::thread_group threadGroup;
+        //boost::thread_group threadGroup;
+		
 
         BitcoinGUI window;
         guiref = &window;
@@ -286,9 +319,9 @@ int main(int argc, char *argv[])
 	 	QTimer *timer = new QTimer(guiref);
 		QObject::connect(timer, SIGNAL(timeout()), guiref, SLOT(timerfire()));
 		timer->start(10000);
+	  
 
-
-        if(AppInit2(threadGroup))
+        if(AppInit2())
         {
             {
                 // Put this in a block, so that the Model objects are cleaned up before

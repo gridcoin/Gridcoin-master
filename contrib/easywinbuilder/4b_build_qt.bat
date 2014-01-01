@@ -23,6 +23,8 @@
  QMAKE_CXXFLAGS="%ADDITIONALCCFLAGS%"^
  QMAKE_CFLAGS="%ADDITIONALCCFLAGS%"
 
+@set QTPATH=c:\qt\4.8.4\bin
+
 @%QTPATH%\qmake.exe %QMPS%
 @echo.
 @echo.

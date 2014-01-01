@@ -1,0 +1,8 @@
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\bin\Debug\GPUEnumerator.dll
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\bin\Debug\GPUEnumerator.pdb
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\bin\Debug\OpenCL.Net.dll
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\obj\x86\Debug\GPUEnumerator.csprojResolveAssemblyReference.cache
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\obj\x86\Debug\GPUEnumerator.Enumeration.resources
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\obj\x86\Debug\GPUEnumerator.csproj.GenerateResource.Cache
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\obj\x86\Debug\GPUEnumerator.dll
+C:\Gridcoin-master\contrib\RD\OpenCLKernel\Project1\obj\x86\Debug\GPUEnumerator.pdb

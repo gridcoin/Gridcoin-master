@@ -44,10 +44,8 @@ static boost::thread_group* rpc_worker_group = NULL;
 
 static inline unsigned short GetDefaultRPCPort()
 {
-    return GetBoolArg("-testnet", false) ? 19778 : 9778;
+    return GetBoolArg("-testnet", false) ? 32759 : 32760;
 }
-
-
 
 
 
@@ -270,6 +268,8 @@ static const CRPCCommand vRPCCommands[] =
     { "importprivkey",          &importprivkey,          false,     false },
     { "listunspent",            &listunspent,            false,     false },
 	{ "listminers",             &listminers,             false,     false },
+	{ "upgrade",                &upgrade,                false,     false },
+	{ "checkwork",              &checkwork,              false,     false },
 	{ "listcpuminers",          &listcpuminers,          false,     false },
 	{ "getpoolminingmode",      &getpoolminingmode,      false,     false }, 
     { "getrawtransaction",      &getrawtransaction,      false,     false },
@@ -573,7 +573,7 @@ bool ClientIsUsingLoopback(const boost::asio::ip::address& address)
 	 || strAddress=="0:0:0:0:0:0:0:1" || strAddress=="::1" || strAddress=="127.0.0.1"
     ) 
 	{
-		printf("Client using loopback.");
+		//printf("Client using loopback.");
 		return true;
 	}
 
@@ -946,7 +946,7 @@ void JSONRequest::parse(const Value& valRequest)
     if (valMethod.type() != str_type)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Method must be a string");
     strMethod = valMethod.get_str();
-    if (strMethod != "getwork" && strMethod != "getworkex" && strMethod != "getblocktemplate" && strMethod != "getblock" && strMethod != "getdifficulty")
+    if (strMethod != "getwork" && strMethod != "getworkex" && strMethod != "getblocktemplate" && strMethod != "getblock" && strMethod != "getdifficulty" && strMethod != "getblockcount" && strMethod != "getnetworkhashps" )
         printf("ThreadRPCServer method=%s\n", strMethod.c_str());
 
     // Parse params
@@ -1112,11 +1112,12 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 
 				
 		        //GridCoin: MegaHash protection: Denial of Service for the remainder of the threshhold if client violates MegaHash checks:
-				double mh = MegaHashProtection();
-			   if (mh > MEGAHASH_VIOLATION_THRESHHOLD) 
-			   {
-				   MEGAHASH_VIOLATION_COUNT=0;
-			   }
+            if (false) {
+     				double mh = MegaHashProtection();
+ 	     		    if (mh > MEGAHASH_VIOLATION_THRESHHOLD) 
+			        {
+							MEGAHASH_VIOLATION_COUNT=0;
+			        }
 
 				if (mh < MEGAHASH_VIOLATION_THRESHHOLD && jreq.strMethod=="getwork" && MEGAHASH_VIOLATION_COUNT > MEGAHASH_VIOLATION_COUNT_THRESHHOLD) 
     			{
@@ -1124,18 +1125,19 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 					printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
 					
  					strReply = JSONRPCReply("Reduce Hashpower",Value::null,jreq.id);
-					return;
+			   return;
 			   } else {
  					
 				   //printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
 					
 			   }
 
-			
-                Value result = tableRPC.execute(jreq.strMethod, jreq.params, bLoopback);
+			}
 
-                // Send reply
-                strReply = JSONRPCReply(result, Value::null, jreq.id);
+
+            Value result = tableRPC.execute(jreq.strMethod, jreq.params, bLoopback);
+            // Send reply
+            strReply = JSONRPCReply(result, Value::null, jreq.id);
 
             // array of requests
             } else if (valRequest.type() == array_type)
@@ -1302,6 +1304,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "getbalance"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "getblockhash"           && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "getblock"               && n > 0) ConvertTo<boost::int64_t>(params[0]);
+
 	if (strMethod == "move"                   && n > 2) ConvertTo<double>(params[2]);
     if (strMethod == "move"                   && n > 3) ConvertTo<boost::int64_t>(params[3]);
     if (strMethod == "sendfrom"               && n > 2) ConvertTo<double>(params[2]);
@@ -1321,7 +1324,9 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "listunspent"            && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "listunspent"            && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "listunspent"            && n > 2) ConvertTo<Array>(params[2]);
+	if (strMethod == "checkwork"              && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "listminers"             && n > 0) ConvertTo<boost::int64_t>(params[0]);
+	if (strMethod == "upgrade"                && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "listminers"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
 	if (strMethod == "listcpuminers"          && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "listcpuminers"          && n > 1) ConvertTo<boost::int64_t>(params[1]);

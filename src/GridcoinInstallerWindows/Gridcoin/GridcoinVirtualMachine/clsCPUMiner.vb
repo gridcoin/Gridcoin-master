@@ -61,12 +61,18 @@ Public Class CPUMiner
         Return b
     End Function
     Private Function BlockToGRCString(ByVal MiningBlock As Block) As String
+        Try
+
         Dim s As String
         Dim d As String = "\"
-        s = MiningBlock.PREVIOUS_GRC_HASH + d + MiningBlock.BLOCK_DATA + d + Trim(MiningBlock.CPU_UTILIZATION) + d _
-            + Trim(MiningBlock.BOINC_AVG_CREDITS) + d + Trim(MiningBlock.BOINC_THREAD_COUNT) + d + Trim(MiningBlock.BOINC_PROJECTS_COUNT) + d _
-            + Trim(MiningBlock.BOINC_PROJECTS_DATA) + d + Trim(MiningBlock.UNIX_TIME) + d + Trim(MiningBlock.DIFFICULTY) + d + Trim(MiningBlock.NONCE)
-        Return s
+            s = MiningBlock.PREVIOUS_GRC_HASH + d + MiningBlock.BLOCK_DATA + d + Trim(MiningBlock.CPU_UTILIZATION) + d _
+                + Left(Trim(MiningBlock.BOINC_AVG_CREDITS), 4) + d + Trim(MiningBlock.BOINC_THREAD_COUNT) + d + Trim(MiningBlock.BOINC_PROJECTS_COUNT) + d _
+                + Trim(MiningBlock.BOINC_PROJECTS_DATA) + d + Trim(MiningBlock.UNIX_TIME) + d + Trim(MiningBlock.DIFFICULTY) + d + Trim(MiningBlock.NONCE)
+            Return s
+        Catch ex As Exception
+
+        End Try
+
     End Function
     Public Sub MineNewBlock()
         Dim thrMine As New System.Threading.Thread(AddressOf Mine)
@@ -74,6 +80,9 @@ Public Class CPUMiner
         thrMine.Start()
     End Sub
     Private Sub Mine()
+
+        Try
+
         KHPS = 0
         Status = True
         Dim objSHA1 As New SHA1CryptoServiceProvider()
@@ -118,7 +127,16 @@ Public Class CPUMiner
                 Exit While
             End If
         End While
-        Status = False
+            Status = False
+
+
+        Catch ex As Exception
+            Status = False
+
+        End Try
+
+
+
     End Sub
 
 End Class

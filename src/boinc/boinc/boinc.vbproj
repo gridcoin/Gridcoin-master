@@ -32,7 +32,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>bin\release\</OutputPath>
+    <OutputPath>..\..\..\release\</OutputPath>
     <DocumentationFile>boinc.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <RegisterForComInterop>true</RegisterForComInterop>
@@ -50,10 +50,24 @@
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GPUEnumerator">
+      <HintPath>..\..\..\release\GPUEnumerator.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\release\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="OpenPop, Version=2.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\release\OpenPop.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite.NET, Version=0.21.1869.3794, Culture=neutral, PublicKeyToken=c273bd375e695f9c">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\release\SQLite.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -77,6 +91,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsMailFunctions.vb" />
+    <Compile Include="frmLeaderboard.Designer.vb">
+      <DependentUpon>frmLeaderboard.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmLeaderboard.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmGridcoinMiner.Designer.vb">
+      <DependentUpon>frmGridcoinMiner.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmGridcoinMiner.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMail.Designer.vb">
       <DependentUpon>frmMail.vb</DependentUpon>
     </Compile>
@@ -101,8 +127,21 @@
     <Compile Include="frmProjects.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="modGRC.vb" />
+    <Compile Include="frmSQL.Designer.vb">
+      <DependentUpon>frmSQL.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmSQL.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="modBoincLeaderboard.vb" />
+    <Compile Include="modCgMiner.vb" />
+    <Compile Include="modGRC.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="modWinAPI.vb" />
+    <Compile Include="Mutex.vb" />
+    <Compile Include="OpenCL.vb" />
+    <Compile Include="Sql.vb" />
     <Compile Include="Utilization.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -121,6 +160,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmLeaderboard.resx">
+      <DependentUpon>frmLeaderboard.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmGridcoinMiner.resx">
+      <DependentUpon>frmGridcoinMiner.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMail.resx">
       <DependentUpon>frmMail.vb</DependentUpon>
       <SubType>Designer</SubType>
@@ -133,6 +178,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmProjects.resx">
       <DependentUpon>frmProjects.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmSQL.resx">
+      <DependentUpon>frmSQL.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -154,6 +202,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Contact.ico" />
+    <None Include="Resources\gradient753.png" />
+    <None Include="Resources\gradient752.png" />
+    <None Include="Resources\gradient751.png" />
+    <None Include="Resources\gradient75.png" />
+    <None Include="Resources\gradientmiddle.png" />
+    <None Include="Resources\GradientU.png" />
     <None Include="Resources\gradient.jpg" />
     <None Include="Resources\mining.jpg" />
     <None Include="Resources\splash.png" />

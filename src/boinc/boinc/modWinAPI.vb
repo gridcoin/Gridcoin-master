@@ -489,6 +489,10 @@ Module modWinAPI
 
 
     Public Function KillProcess(ByVal sWildcard As String)
+        Dim sCheck As String = Replace(LCase(sWildcard), "*", "")
+        If KeyValue("close" + sCheck) = "false" Then Exit Function
+
+
         For Each p As Process In Process.GetProcesses
             If p.ProcessName Like sWildcard Then
                 p.Kill()

@@ -1,0 +1,4 @@
+C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbprojResolveAssemblyReference.cache
+C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\WindowsApplication1\obj\x86\Debug\WindowsApplication1.Form1.resources
+C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\WindowsApplication1\obj\x86\Debug\WindowsApplication1.Resources.resources
+C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbproj.GenerateResource.Cache

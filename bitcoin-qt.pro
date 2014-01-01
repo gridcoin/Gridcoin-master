@@ -1,17 +1,20 @@
 TEMPLATE = app
 TARGET = gridcoin-qt
 macx:TARGET = "Gridcoin-Qt"
-VERSION = 0.7.7.1
+VERSION = 0.7.7.2
 INCLUDEPATH += src src/json src/qt
+INCLUDEPATH += tmp/moc/release_shared 
 QT += core gui network
 QT += qaxcontainer
+#QT += axserver
+#QT += widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
-
 CONFIG += qaxcontainer
+#CONFIG += qaxserver dll
 
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
@@ -220,8 +223,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/threadsafety.h \
     src/limitedmap.h \
     src/qt/macnotificationhandler.h \
-    src/qt/splashscreen.h
-
+    src/qt/splashscreen.h \
+ 
 SOURCES += src/qt/bitcoin.cpp \
     src/qt/bitcoingui.cpp \
     src/qt/transactiontablemodel.cpp \
@@ -293,6 +296,10 @@ SOURCES += src/qt/bitcoin.cpp \
     src/leveldb.cpp \
     src/txdb.cpp \
     src/qt/splashscreen.cpp
+
+##
+#RC_FILE  = qaxserver.rc
+#DEF_FILE = qaxserver.def
 
 RESOURCES += src/qt/bitcoin.qrc
 

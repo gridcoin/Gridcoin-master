@@ -31,7 +31,7 @@ using namespace boost;
 
 
 
-static const int MAX_OUTBOUND_CONNECTIONS = 8;
+static const int MAX_OUTBOUND_CONNECTIONS = 16;
 
 bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
 
@@ -515,14 +515,7 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest)
     }
 
 
-    double hog = (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0;
-	if (hog > 9000)
-	{
-			printf("Last seen > 2 hours, ignoring host");
-			return NULL;
-	}
-
-
+    
     printf("trying connection %s lastseen=%.1fhrs\n",
         pszDest ? pszDest : addrConnect.ToString().c_str(),
         pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
@@ -1422,12 +1415,13 @@ void ThreadOpenConnections()
             if (IsLimited(addr))
                 continue;
 
-            // only consider very recently tried nodes after 30 failed attempts
-            if (nANow - addr.nLastTry < 600 && nTries < 30)
+            // only consider very recently tried nodes after 50 failed attempts
+			//Gridcoin changing to 500:
+            if (nANow - addr.nLastTry < 600 && nTries < 500)
                 continue;
 
-            // do not allow non-default ports, unless after 50 invalid addresses selected already
-            if (addr.GetPort() != GetDefaultPort() && nTries < 50)
+            // do not allow non-default ports, unless after 2050 invalid addresses selected already
+            if (addr.GetPort() != GetDefaultPort() && nTries < 2050)
                 continue;
 
             addrConnect = addr;
@@ -1794,12 +1788,10 @@ void static Discover()
         NewThread(ThreadGetMyExternalIP, NULL);
 }
 
-void StartNode(boost::thread_group& threadGroup)
+void StartNode()
 {
     
 	 
-
-
 	//Global Start Node
 
 	
@@ -1831,6 +1823,7 @@ void StartNode(boost::thread_group& threadGroup)
 #endif
 
     // Send and receive from sockets, accept connections
+
     threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
 
     // Initiate outbound connections from -addnode
@@ -1892,6 +1885,7 @@ public:
 #ifdef WIN32
         // Shutdown Windows Sockets
         WSACleanup();
+	
 #endif
     }
 }

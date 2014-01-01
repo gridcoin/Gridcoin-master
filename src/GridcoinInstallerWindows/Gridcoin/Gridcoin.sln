@@ -6,8 +6,13 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "boinc", "..\..\boinc\boinc\boinc.vbproj", "{359913F7-DF2D-4632-9A0C-52E9FD0D4ED9}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "GridcoinRDTestHarness", "..\..\..\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\GridcoinRDTestHarness.vbproj", "{4BC8C393-8CD6-4AF3-BFEE-EAA1CA10255B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C75E342F-955A-495C-A208-0E0076B5520F} = {C75E342F-955A-495C-A208-0E0076B5520F}
+	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "GridcoinVirtualMachine", "GridcoinVirtualMachine\GridcoinVirtualMachine.vbproj", "{C75E342F-955A-495C-A208-0E0076B5520F}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "GRCRestarter", "..\..\..\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\GRCRestarter.vbproj", "{71158817-61D2-45D2-B3B6-BAABAF1C1F83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +66,16 @@ Global
 		{C75E342F-955A-495C-A208-0E0076B5520F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{C75E342F-955A-495C-A208-0E0076B5520F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C75E342F-955A-495C-A208-0E0076B5520F}.Release|x86.ActiveCfg = Release|Any CPU
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Debug|x86.ActiveCfg = Debug|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Debug|x86.Build.0 = Debug|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Release|Any CPU.ActiveCfg = Release|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Release|Mixed Platforms.Build.0 = Release|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Release|x86.ActiveCfg = Release|x86
+		{71158817-61D2-45D2-B3B6-BAABAF1C1F83}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

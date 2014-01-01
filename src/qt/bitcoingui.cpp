@@ -10,6 +10,9 @@
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
 
+
+#include <QProcess>
+
 #include "bitcoingui.h"
 #include "..\global_objects.hpp"
 #include "..\global_objects_noui.hpp"
@@ -31,6 +34,7 @@
 #include "ui_interface.h"
 #include "wallet.h"
 #include "init.h"
+
 
 #include <boost/lexical_cast.hpp>
 
@@ -60,6 +64,7 @@
 #include <QSettings>
 #include <QDesktopWidget>
 #include <QListWidget>
+#include "bitcoinrpc.h"
 
 #include <iostream>
 
@@ -67,10 +72,37 @@ using namespace std;
 
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 int nTick = 0;
+int nTickRestart = 0;
+
 extern void SendGridcoinProjectBeacons();
+std::string NodesToString();
+
+
+
+extern int UpgradeClient();
+extern int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight);
+extern int CloseGuiMiner();
+void RestartGridcoin3();
+
+
+json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
+bool TestGridcoinWork(std::string sWork);
+
+std::string GetGridcoinWork();
+extern int RestartClient();
+extern int ReindexWallet();
+
+void FlushGridcoinBlockFile(bool fFinalize);
+
+extern int ReindexBlocks();
+bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
 
 
 QAxObject *globalcom;
+
+
+
+int cputick = 0;
 
 	
 BitcoinGUI::BitcoinGUI(QWidget *parent) :
@@ -175,6 +207,280 @@ BitcoinGUI::~BitcoinGUI()
 #endif
 }
 
+
+
+
+extern  int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string boinchash);
+extern  int CheckCPUWorkByBlock(int blocknumber);
+
+
+int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string boinchash)
+{
+	//+1 Valid
+    //-1 CPU Hash does not contain gridcoin block hash
+    //-2 CPU Source Hash Invalid
+    //-10 Boinc Hash Invalid
+    //-11 Boinc Hash Present but invalid
+    //-12 MD5 Error
+    //-14 Rehashed output error
+    //-15 CPU hash does not match SHA computed hash
+    //-16 General Error
+	int result = 0;
+	QString h1 = QString::fromUtf8(lastblockhash.c_str()); 
+	QString h2 = QString::fromUtf8(greatblockhash.c_str());
+	QString h3 = QString::fromUtf8(greatgrandparentsblockhash.c_str());
+    QString h4 = QString::fromUtf8(boinchash.c_str());
+	//Gridcoin start new instance;
+	if (globalcom==NULL) {
+			printf("globalcom==null");
+			      MilliSleep(5000);
+			if (globalcom==NULL) {
+				printf("globalcom still == null");
+				MilliSleep(5000);
+				if (globalcom==NULL) {
+							printf("globalcom still == null II");
+							MilliSleep(5000);
+				}
+			}
+			//globalcom = new QAxObject("Boinc.Utilization");	
+	}
+	if (globalcom==NULL) return -30;
+
+	result =  globalcom->dynamicCall("CheckWork(QString,QString,QString,QString)",h1,h2,h3,h4).toInt();
+	return result;
+}
+
+
+
+std::string Trim(int64 i)
+{
+	std::string s = "";
+	s=boost::lexical_cast<std::string>(i);
+	return s;
+}
+
+
+std::string TrimD(double i)
+{
+	std::string s = "";
+	s=boost::lexical_cast<std::string>(i);
+	return s;
+}
+
+
+bool IsInvalidChar(char c) 
+{  
+	int asc = (int)c;
+
+	if (asc >= 0 && asc < 32) return true;
+	if (asc > 128) return true;
+	if (asc == 124) return true;
+	return false;
+} 
+std::string Clean(std::string s) 
+{
+
+	char ch;
+	std::string sOut = "";
+	for (int i=0;i < s.length(); i++) 
+	{
+		ch = s.at(i);
+		if (IsInvalidChar(ch)==false) sOut = sOut + ch;
+
+	}
+	return sOut;
+
+
+}
+
+std::string RetrieveBlockAsString(int lSqlBlock)
+{
+
+	//Insert into Blocks (hash,confirmations,size,height,version,merkleroot,tx,time,nonce,bits,difficulty,boinchash,previousblockhash,nextblockhash) VALUES ();
+    
+	try {
+	
+		if (lSqlBlock==0) lSqlBlock=1;
+		if (lSqlBlock > nBestHeight) return "";
+
+		printf("Finding block %d",lSqlBlock);
+		CBlock block;
+		CBlockIndex* blockindex = FindBlockByHeight(lSqlBlock);
+		block.ReadFromDisk(blockindex);
+
+		std::string s = "";
+		std::string d = "|";
+
+	s = block.GetHash().GetHex() + d + "C" + d 	+ Trim(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)) + d 	+ Trim(blockindex->nHeight) + d;
+	s = s + Trim(block.nVersion) + d + block.hashMerkleRoot.GetHex() + d + "TX" + d + Trim(block.GetBlockTime()) + d + Trim(block.nNonce) + d + Trim(block.nBits) + d;
+	s = s + TrimD(GetDifficulty(blockindex)) + d
+		+		Clean(block.hashBoinc) + d 
+		+ blockindex->pprev->GetBlockHash().GetHex() + d;
+	s = s + blockindex->pnext->GetBlockHash().GetHex();
+		return s;
+	}
+	catch(...)
+	{
+		printf("Runtime error in RetrieveBlockAsString");
+		return "";
+
+	}
+
+}
+
+
+
+std::string RetrieveBlocksAsString(int lSqlBlock)
+{
+	std::string sout = "";
+	for (int i = lSqlBlock; i < lSqlBlock+51; i++) {
+		sout = sout + RetrieveBlockAsString(i) + "{ROW}";
+	}
+	return sout;
+}
+
+
+
+
+
+int CheckCPUWorkByBlock(int blocknumber)
+{
+	try {
+	//Blocks newer than BestHeight-100 must be checked:
+    if (blocknumber < nBestHeight-100) return 1;
+	//Blocks before 26150 (Dec 4, 2013) are grandfathered in (boinchash did not implement CPU mining before this date):
+	if (blocknumber < 36850) return 1;
+    CBlock block;
+	CBlockIndex* pBlock = FindBlockByHeight(blocknumber);
+	block.ReadFromDisk(pBlock);
+	std::string boinchash = block.hashBoinc.c_str();
+	pBlock = FindBlockByHeight(blocknumber-1);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash1 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-2);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash2 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-3);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash3 = pBlock->phashBlock->GetHex().c_str();
+	int result = 0;
+	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,boinchash);
+	return result;
+	} 
+    	catch (std::exception &e) 
+	{
+			return -20; //General Error: CheckCPUWorkByBlock Fails
+    }
+
+}
+
+
+bool OutOfSync() 
+{
+	//12-25-2013
+
+	if (GetNumBlocksOfPeers() != nBestHeight) return true;
+	if ( fReindex || fImporting || IsInitialBlockDownload() ) return true;
+	return false;
+
+}
+
+
+int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight)
+{
+	try {
+
+		if (OutOfSync() )
+		{
+			printf("Checkcpuworkbycurrentblock:OutOfSync=true best height %d   numofblocks %d",nBestHeight,GetNumBlocksOfPeers());
+			return 1;
+    	}
+    
+	if (nBlockHeight < nBestHeight-100) return 1;
+	//Blocks before 26150 (Dec 4, 2013) are grandfathered in (boinchash did not implement CPU mining before this date):
+	//Adding (12-23-2013) Added AcceptBlock enforcement at block 36850
+	if (!fTestNet && nBlockHeight < 36850) return 1;
+    if (fTestNet  && nBlockHeight < 806  ) return 1;
+	  
+	CBlock block;
+	CBlockIndex* pBlock = FindBlockByHeight(nBlockHeight-1);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash1 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(nBlockHeight-1);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash2 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(nBlockHeight-2);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash3 = pBlock->phashBlock->GetHex().c_str();
+	int result = 0;
+	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,boinchash);
+	if (result != 0) {
+		    if (OutOfSync() )
+			{
+				printf("Checkcpuworkbycurrentblock:OutOfSync=true2 best height %d   numofblocks %d",nBestHeight,GetNumBlocksOfPeers());
+				return 1;
+			}
+
+			printf("Checkcpuworkbycurrentblock:Error - best height %d   numofblocks %d",nBestHeight,GetNumBlocksOfPeers());
+	}
+	return result;
+	} 
+    	catch (...) 
+	{
+			return -20; //General Error: CheckCPUWorkByBlock Fails
+    }
+
+}
+
+
+
+
+
+int ReindexWallet()
+{
+			QString sFilename = "GRCRestarter.exe";
+			QString sArgument = "";
+			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
+			QProcess p;
+			globalcom->dynamicCall("ReindexWallet()");
+			StartShutdown();
+			return 1;
+}
+
+
+
+int RestartClient()
+{
+			QString sFilename = "GRCRestarter.exe";
+			QString sArgument = "";
+			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
+			QProcess p;
+			globalcom->dynamicCall("RestartWallet()");
+			StartShutdown();
+			return 1;
+}
+
+
+int UpgradeClient()
+{
+			QString sFilename = "GRCRestarter.exe";
+			QString sArgument = "upgrade";
+			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
+			QProcess p;
+			globalcom->dynamicCall("UpgradeWallet()");
+			StartShutdown();
+			return 1;
+}
+
+int CloseGuiMiner()
+{
+	try {
+	globalcom->dynamicCall("CloseGUIMiner()");
+	} catch(...) { return 0; } 
+
+	return 1;
+}
+
 void BitcoinGUI::createActions()
 {
 	
@@ -245,9 +551,18 @@ void BitcoinGUI::createActions()
 	projectsAction->setMenuRole(QAction::TextHeuristicRole);
 
 
+
 	emailAction = new QAction(QIcon(":/icons/bitcoin"), tr("&E-Mail Center"), this);
 	emailAction->setStatusTip(tr("Go to the E-Mail center"));
 	emailAction->setMenuRole(QAction::TextHeuristicRole);
+
+	rebuildAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Rebuild Block Chain"), this);
+	rebuildAction->setStatusTip(tr("Rebuild Block Chain"));
+	rebuildAction->setMenuRole(QAction::TextHeuristicRole);
+
+	sqlAction = new QAction(QIcon(":/icons/bitcoin"), tr("&SQL Query Analyzer"), this);
+	sqlAction->setStatusTip(tr("SQL Query Analyzer"));
+	sqlAction->setMenuRole(QAction::TextHeuristicRole);
 
 
 
@@ -289,6 +604,11 @@ void BitcoinGUI::createActions()
 	connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
 	connect(projectsAction, SIGNAL(triggered()), this, SLOT(projectsClicked()));
+	connect(rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildClicked()));
+
+	connect(sqlAction, SIGNAL(triggered()), this, SLOT(sqlClicked()));
+
+
 
 
 }
@@ -334,6 +654,18 @@ void BitcoinGUI::createMenuBar()
 	QMenu *projects = appMenuBar->addMenu(tr("&Projects"));
     projects->addSeparator();
     projects->addAction(projectsAction);
+
+
+	QMenu *rebuild = appMenuBar->addMenu(tr("&Rebuild Block Chain"));
+	rebuild->addSeparator();
+	rebuild->addAction(rebuildAction);
+
+	
+	QMenu *sql = appMenuBar->addMenu(tr("&SQL Query Analyzer"));
+	sql->addSeparator();
+	sql->addAction(sqlAction);
+
+
 
 }
 
@@ -519,6 +851,10 @@ void BitcoinGUI::emailClicked()
 
 }
 
+void BitcoinGUI::rebuildClicked()
+{
+	ReindexBlocks();
+}
 
 void BitcoinGUI::projectsClicked()
 {
@@ -528,6 +864,18 @@ void BitcoinGUI::projectsClicked()
 	}
     
     globalcom->dynamicCall("ShowProjects()");
+}
+
+
+
+void BitcoinGUI::sqlClicked()
+{
+
+	if (globalcom==NULL) {
+		globalcom = new QAxObject("Boinc.Utilization");
+	}
+    
+    globalcom->dynamicCall("ShowSql()");
 }
 
 
@@ -923,9 +1271,85 @@ void BitcoinGUI::toggleHidden()
 }
 
 
-void UpdateCPUPoW()
+
+
+
+int ReindexBlocks()
 {
 
+	int result = ReindexWallet();
+	return 1;
+		
+}
+
+
+
+
+int ReindexBlocks_Old()
+{
+
+	int nMaxDepth = nBestHeight;
+    CBlock block;
+	if (nMaxDepth < 500) return -3;
+	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth-100);
+	
+    CValidationState stateDummy;
+	CCoinsViewCache view(*pcoinsTip, true);
+
+	block.ReadFromDisk(pLastBlock);
+	int64 LastBlockTime = pLastBlock->GetBlockTime();
+	//Iterate through the chain in reverse
+	int istart = 0;
+    for (int ii = nMaxDepth; ii > nMaxDepth-100; ii--)
+    {
+     	CBlockIndex* pblockindex = FindBlockByHeight(ii);
+		block.ReadFromDisk(pblockindex);
+		//12-15-2013
+		block.hashPrevBlock = 0;
+        block.hashMerkleRoot = 0;
+        block.nVersion = 0;
+        block.nTime    = 0;
+        block.nBits    = 0;
+        block.nNonce   = 0;
+	    unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
+        CDiskBlockPos blockPos;
+        CValidationState state;
+        if (!FindBlockPos(state, blockPos, nBlockSize+8, ii, block.nTime, false))                return -1;
+		if (!block.WriteToDisk(blockPos)) return -2;
+		if (!block.DisconnectBlock(stateDummy, pblockindex, view)) return -9;
+		printf("Reindexing %d",ii);
+
+    }
+	 // Flush changes to global coin state
+    int64 nStart = GetTimeMicros();
+    int nModified = view.GetCacheSize();
+    assert(view.Flush());
+    
+	int64 nTime = GetTimeMicros() - nStart;
+    
+    // Make sure it's successfully written to disk before changing memory structure
+   	FlushGridcoinBlockFile(true);
+    if (!pcoinsTip->Flush()) return -16;
+	
+	//if (!SetBestChain(stateDummy, pLastBlock))     return -6;
+	pwalletMain->SetBestChain(CBlockLocator(pLastBlock));
+    return 1;
+		
+}
+
+
+
+
+void UpdateCPUPoW()
+{
+	cputick++;
+	if (cputick > 15) {
+		cputick=0;
+		//ToDo:Enable this for CPU Mining:
+		//CalculateCPUMining();
+	}
+
+	
 	try {
 		//For each CPU miner, verify PoW
 		int inum=0;
@@ -964,7 +1388,6 @@ void UpdateCPUPoW()
 
 
 
-
 void BitcoinGUI::timerfire()
 {
 	try {
@@ -973,6 +1396,8 @@ void BitcoinGUI::timerfire()
 		//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
 		//issue the command: lodctr /r (to rebuild the performance counters in the registry)
 		globalcom = new QAxObject("Boinc.Utilization");
+		globalcom->dynamicCall("ShowMiningConsole()");
+
 	}
 
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
@@ -1020,32 +1445,113 @@ void BitcoinGUI::timerfire()
 
 	nTick++;
 
-	if (nTick > 90) {
+	if (nTick > 90) 
+	{
 		printf("Boinc Utilization: %d, Thread Count: %d",utilization, thread_count);
 		//Send project beacons for TeamGridcoin:
 		try {
-		SendGridcoinProjectBeacons();
-		}  catch (std::exception& e)
-		{}
+				//Send Gridcoin Node Info to SQL:
+				QString gni = QString::fromUtf8(NodesToString().c_str());
+				globalcom->dynamicCall("SetNodes(QString)",gni);
+				SendGridcoinProjectBeacons();
+		}  
+		catch (std::exception& e)
+		{
+		}
 		nTick=0;
+
 	}
+
+	nTickRestart++;
+	if (nTickRestart > 120) 
+	{
+		nTickRestart = 0;
+		printf("Restarting gridcoin's network layer;");
+		RestartGridcoin3();
+	}
+
+
 	nBoincUtilization = utilization;
-	
-	
-    time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
-	printf("BestChain: new best=%s  height=%d  date=%s\n",
-    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
-    //Upload the current block to the GVM
+		
+    //time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
+	//printf("BestChain: new best=%s  height=%d  date=%s\n",    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
+	try {    
+	//Upload the current block to the GVM
 	QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
     globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
+
+
+
+
+	//Retrieve SQL high block number:
+	//RetrieveSqlHighBlock
+	int iSqlBlock = 0;
+	iSqlBlock = globalcom->dynamicCall("RetrieveSqlHighBlock()").toInt();
+	printf("sql high block %d", iSqlBlock);
+
+	//Send Gridcoin block to SQL:
+	QString qsblock = QString::fromUtf8(RetrieveBlocksAsString(iSqlBlock).c_str());
+	globalcom->dynamicCall("SetSqlBlock(Qstring)",qsblock);
+
+
 	//Set Public Wallet Address
 	QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
     globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
 
-	try {
-	UpdateCPUPoW();
-	}  catch (std::exception& e)
-	{}
+	//Set Best Block
+	//12-22-2013
+	globalcom->dynamicCall("SetBestBlock(int)", nBestHeight);
+
+
+
+	if (1==0) {
+			//////////////////////////////////////////////// OUTBOUND GETWORK
+			//If user is Gridcoin mining, send getwork
+			std::string gridwork = "";
+			//If GridMiner GetWork is empty, execute getwork():
+			QVariant gw_1 = globalcom->dynamicCall("GetWork()");
+			QString gw_2 = gw_1.toString();
+			gridwork = gw_2.toUtf8().constData();
+			printf("Gridwork %s",gridwork.c_str());
+			if (gridwork.length() == 0) {
+				gridwork = GetGridcoinWork();
+				printf("gridwork2: %s",gridwork.c_str());
+				QString qsGridwork = QString::fromUtf8(gridwork.c_str());
+				globalcom->dynamicCall("SetWork(QString)",qsGridwork);
+			}
+
+			try {
+				///////////////////////////////////////////// INBOUND GETWORK
+				QString sbd_1 = globalcom->dynamicCall("RetrieveSolvedBlockData()").toString();
+				std::string sbd = sbd_1.toUtf8().constData();
+				printf("Solvedblockdata %s",sbd.c_str());
+				if (sbd.length() > 0)
+				{
+				 	bool result = TestGridcoinWork(sbd);
+					QString callback = "FALSE";
+					if (result) callback="TRUE";
+					globalcom->dynamicCall("SolvedBlockDataCallback(QString)",callback);
+					std::string sCallback = callback.toUtf8().constData();
+					printf("Solvedblockdata callback %s",sCallback.c_str());
+				}
+			}
+			catch (...)
+			{  		}
+			
+
+		}
+	
+	}
+	catch (...)
+	{
+	}
+
+
+		try {
+			UpdateCPUPoW();
+		}
+		catch (std::exception& e)
+		{    		}
 
 	
 	}

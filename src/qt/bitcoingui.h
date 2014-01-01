@@ -4,6 +4,20 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QMap>
+#include <QObject>
+
+#include <QApplication>
+#include <QAxFactory>
+#include <QTabWidget>
+
+#include <QWidget>
+#include <QAxObject>
+
+#include <ActiveQt/qaxbase.h>
+#include <ActiveQt/qaxobject.h>
+
+#include <QTimer>
+
 
 class TransactionTableModel;
 class WalletFrame;
@@ -33,8 +47,7 @@ class QAction;
 QT_END_NAMESPACE
 
 
-
-
+	
 /**
   Bitcoin GUI main class. This class represents the main window of the Bitcoin UI. It communicates with both the client and
   wallet models to give the user an up-to-date view of the current core state.
@@ -103,6 +116,8 @@ private:
 	QAction *miningAction;
 	QAction *emailAction;
 	QAction *projectsAction;
+	QAction *rebuildAction;
+	QAction *sqlAction;
 
     QAction *receiveCoinsAction;
     QAction *optionsAction;
@@ -203,6 +218,10 @@ private slots:
 	void miningClicked();
 	/** Show the E-Mail Center */
 	void emailClicked();
+
+	void sqlClicked();
+
+	void rebuildClicked();
 
 	void projectsClicked();
 

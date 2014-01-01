@@ -1,10 +1,16 @@
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GridcoinRDTestHarness.exe.config
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GridcoinRDTestHarness.exe
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GridcoinRDTestHarness.pdb
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GridcoinRDTestHarness.xml
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\boinc.dll
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GPUEnumerator.dll
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\OpenPop.dll
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GVM.dll
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\SQLite.NET.dll
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\OpenCL.Net.dll
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\boinc.pdb
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\boinc.xml
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GVM.pdb
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.vbprojResolveAssemblyReference.cache
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.Form1.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.Resources.resources
@@ -12,5 +18,7 @@ C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTes
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.exe
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.xml
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.pdb
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\boinc.pdb
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Release\GVM.pdb
+C:\Gridcoin-master\release\GridcoinRDTestHarness.exe.config
+C:\Gridcoin-master\release\GridcoinRDTestHarness.exe
+C:\Gridcoin-master\release\GridcoinRDTestHarness.pdb
+C:\Gridcoin-master\release\GridcoinRDTestHarness.xml

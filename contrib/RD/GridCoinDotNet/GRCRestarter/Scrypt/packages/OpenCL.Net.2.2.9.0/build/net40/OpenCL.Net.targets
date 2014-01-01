@@ -1,0 +1,22 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);Kernel</CoreCompileDependsOn>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvailableItemName Include="Kernel"/>
+  </ItemGroup>
+  <UsingTask TaskName="OpenCL.Net.Tasks.Kernel" AssemblyFile="..\..\lib\net40\OpenCL.Net.dll" />
+  <Target Name="Kernel" Inputs="@(Kernel)" Outputs="@(Kernel->'$(IntermediateOutputPath)%(FileName).kernel.cs')">
+    <Kernel InputFiles="@(Kernel)" OutputFiles="@(Kernel->'$(IntermediateOutputPath)%(FileName).kernel.cs')">
+      <Output TaskParameter="OutputFiles" ItemName="KernelWrapper"/>
+    </Kernel>
+  </Target>
+  <ItemGroup>
+    <Compile Include="@(Kernel->'$(IntermediateOutputPath)%(FileName).kernel.cs')">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+    <Content Include="@(Kernel)">
+      <CopyToOutputDirectory>%(CopyToOutputDirectory)</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

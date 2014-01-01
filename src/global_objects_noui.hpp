@@ -11,6 +11,7 @@ extern std::string sMinedHash;
 extern std::string sSourceBlock;
 
 
+
 extern bool bBoincSubsidyEligible;
 extern bool bPoolMiningMode;
 extern bool bCPUMiningMode;

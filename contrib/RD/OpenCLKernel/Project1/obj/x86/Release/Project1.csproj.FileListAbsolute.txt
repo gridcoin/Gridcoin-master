@@ -1,0 +1,9 @@
+C:\gridcoin-master\contrib\rd\gridcoindotnet\GRCRestarter\Project1\Project1\obj\x86\Release\Project1.RamGec_About_Box1.resources
+C:\gridcoin-master\contrib\rd\gridcoindotnet\GRCRestarter\Project1\Project1\obj\x86\Release\Project1.csproj.GenerateResource.Cache
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\Project1\Project1\bin\Release\Project1.exe.config
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\Project1\Project1\bin\Release\Project1.exe
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\Project1\Project1\bin\Release\Project1.pdb
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\Project1\Project1\bin\Release\OpenCL.Net.dll
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\Project1\Project1\obj\x86\Release\Project1.csprojResolveAssemblyReference.cache
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\Project1\Project1\obj\x86\Release\Project1.exe
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\Project1\Project1\obj\x86\Release\Project1.pdb
