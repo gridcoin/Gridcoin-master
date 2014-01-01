@@ -56,46 +56,34 @@
         Dim sql As String
         Dim d As New Sql
         Dim dBlock As Double = d.HighBlockNumber
-        Dim lBlock As Double = dBlock - 17856
-
+        Dim lBlock As Double = dBlock - 17856 '30 days back
         If lBlock < 1 Then lBlock = 1
-        ' If lBlock < 100 Then Exit Function
         d.Close()
-
         sql = "Delete from Leaderboard" 'Truncate Table
-
         d.Exec(sql)
-
-        '30 days
-        '''''''''Fake data
-        Dim sHash2 As String
-        sHash2 = "xa3,1,    98,  CRD_V, SOLO_MIN, GBZkHyR7sKXfdh1Z7FMxbsLB,   23, 2854:2963:2969  ,483CB1696,310838f9d793552203e4da93a50b500ffbf7bddb8040774fefd00fb888761f0e\1:3a94913164b731f5c712e4a7852575a3\50\2969\3\58842\roset:fight\1386004003\2\270722"
-
-        
-        sql = "Insert into Blocks (height,boinchash) VALUES ('1','" + sHash2 + "');"
-        d.Exec(sql)
-        sql = "Insert into Blocks (height,boinchash) VALUES ('2','" + sHash2 + "');"
-        d.Exec(sql)
-
-        sql = "Insert into Blocks (height,boinchash) VALUES ('3','" + sHash2 + "');"
-        d.Exec(sql)
-
-
-
-
-        ''''''
-
+        '''''''''Fake temporary data useful for sample queries until all the clients sync blocks into sql server: (1-1-2014)
+        If True Then
+            Dim sHash2 As String
+            sHash2 = "xa3,1,    98,  CRD_V, SOLO_MIN, GBZkHyR7sKXfdh1Z7FMxbsLB,   23, 2854:2963:2969  ,483CB1696,310830774fefd00fb888761f0e\1:3a94913164b731f5c712e4a7852575a3\50\2969\3\58842\World_1000_175:MILKY_2000_275:SETI_3000_375\1386004003\2\270722"
+            sql = "Insert into Blocks (height,boinchash) VALUES ('1','" + sHash2 + "');"
+            d.Exec(sql)
+            sql = "Insert into Blocks (height,boinchash) VALUES ('2','" + sHash2 + "');"
+            d.Exec(sql)
+            sql = "Insert into Blocks (height,boinchash) VALUES ('3','" + sHash2 + "');"
+            d.Exec(sql)
+        Else
+            If lBlock < 100 Then Exit Function
+        End If
+        '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         sql = "Select height,Boinchash From blocks where height > " + Trim(lBlock) + ";"
         Dim dr As Finisar.SQLite.SQLiteDataReader
         dr = d.Query(sql)
 
-        '1-1-2014
         'MD5, Avg_Credits, UTILIZATION,  CRD_V, pool_mode, DefaultWalletAddress() ,RegVer,BoincDeltaOverTime,MinedHash, sSourceBlock;
-        'xa3, 1,           98,           CRD_V, SOLO_MIN, GBZkHyR7sKXfdh1Z7FMxbsLB,    23,2854:2963:2969    ,483CB1696, 310838f9d793552203e4da93a50b500ffbf7bddb8040774fefd00fb888761f0e\1:3a94913164b731f5c712e4a7852575a3\50\2969\3\58842\roset:fight\1386004003\2\270722
+        'xa3, 1,           98,           CRD_V, SOLO_MIN, GBZkHyR7sKXfdh1Z7FMxbsLB,    23,2854:2963:2969 ,483CB1696,00fb888761f0e\1:3a94913164b731f5c712e4a7852575a3\50\2969\3\58842\roset:fight\1386004003\2\270722
         '310838f9d793552\1:3a94913164b731f5c712e4\50    \2969 \3  \58842\roset:fight \1386004003\2  \270722
         'BoincSolvedHash\Credits:OriginalSha1Hash\Utiliz\AvgCr\thr\totcr\ProjExpanded\UnixTime  \pCo\Nonce
         Dim sqlI As String = ""
-
         Dim sHash As String
         Dim vHash() As String
         While dr.Read
@@ -110,10 +98,7 @@
                 Dim vExpandedProjects() As String
                 If UBound(vSourceBlock) > 8 Then
                     sExpandedProjects = vSourceBlock(6)
-
-                    sExpandedProjects = "World_1000_100:MILKY_2000_200:SETI_3000_300"
-
-
+                    'sExpandedProjects = "World_1000_100:MILKY_2000_200:SETI_3000_300"
                     If sExpandedProjects.Contains("_") Then
                         vExpandedProjects = Split(sExpandedProjects, ":")
                         Dim sProjData As String
@@ -132,17 +117,14 @@
                                 sGRCAddress = vHash(5)
                                 Dim bp As New BoincProject
                                 bp = CodeToProject(sProject)
-
                                 If Len(bp.URL) > 1 Then
                                     sqlI = sqlI + "Insert into LeaderBoard (Added, Address, Host, Project, Credits, ProjectName, ProjectURL) VALUES " _
                                                           & "(date('now'),'" + sGRCAddress + "','" + sHost + "','" + sProject + "','" + Trim(dCredits) + "','" + bp.Name _
                                                           + "','" + bp.URL + "');"
-        
+
 
 
                                 End If
-
-
                             End If
                         Next
                     End If
@@ -151,10 +133,7 @@
         End While
         d.Close()
         d.Exec(sqlI)
-
         d = Nothing
-
-
     End Function
 
 End Module

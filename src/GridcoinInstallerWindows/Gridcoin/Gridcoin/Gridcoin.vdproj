@@ -27,6 +27,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_20B3A9D4AE984BCEA9D4706628A9CB96"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_25A4E53EA1A4409E8C576940B5725709"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -40,12 +46,6 @@
         "Entry"
         {
         "MsmKey" = "8:_37F6B65813F044C7BE5EFB3E20D848DA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_420D6C6023064683A04B304C75288D7A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -89,6 +89,12 @@
         {
         "MsmKey" = "8:_70623124DBA5BD1CEF0F65A8A439E9F2"
         "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_70623124DBA5BD1CEF0F65A8A439E9F2"
+        "OwnerKey" = "8:_C2CDFD985257421D838A2EDDA0C74E9E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -256,6 +262,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_EDC8FF33DEA84EC0BB3664CD1C316318"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -305,12 +317,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_463632BA3613CAC595BB60644F74EBBE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -467,6 +473,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20B3A9D4AE984BCEA9D4706628A9CB96"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\release\\cgminer_base64.zip"
+            "TargetName" = "8:cgminer_base64.zip"
+            "Tag" = "8:"
+            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_25A4E53EA1A4409E8C576940B5725709"
             {
             "AssemblyRegister" = "3:1"
@@ -522,26 +548,6 @@
             {
             "SourcePath" = "8:..\\..\\..\\..\\release\\cgminer.exe"
             "TargetName" = "8:cgminer.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_420D6C6023064683A04B304C75288D7A"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\release\\cgminer.zip"
-            "TargetName" = "8:cgminer.zip"
             "Tag" = "8:"
             "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
             "Condition" = "8:"
@@ -1234,16 +1240,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Gridcoin 6.4"
-        "ProductCode" = "8:{4BD8B14E-138A-4A42-B991-FFF7BBE5AA0E}"
-        "PackageCode" = "8:{D1B3D24F-B0DC-41D0-A726-44DE735B12C3}"
+        "ProductName" = "8:Gridcoin 6.59"
+        "ProductCode" = "8:{C5F0045A-B265-477B-9847-332B3AD12C78}"
+        "PackageCode" = "8:{5D524F16-73F3-4848-A728-8488276E1004}"
         "UpgradeCode" = "8:{9617E9EA-252F-43CE-B53E-B48C85F71192}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:6.4"
+        "ProductVersion" = "8:6.59"
         "Manufacturer" = "8:Gridcoin"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

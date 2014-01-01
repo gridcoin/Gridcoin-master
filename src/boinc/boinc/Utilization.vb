@@ -1,8 +1,6 @@
 ﻿Imports Microsoft.VisualBasic
 Imports System.Timers
 
-
-
 Public Class Utilization
     Implements IGridCoinMining
     'Private mSharedGPUStat() As SharedMemory
@@ -17,7 +15,6 @@ Public Class Utilization
         Public Stale As Double
         Public Message As String
     End Structure
-
     Private lfrmMiningCounter As Long = 0
     Public ReadOnly Property BoincUtilization As Double
         Get
@@ -137,7 +134,7 @@ Public Class Utilization
     Public Function ShowSql()
         mfrmSql = New frmSQL
         mfrmSql.Show()
-        
+
     End Function
     Public Function ShowGridcoinMiner()
         If mfrmGridcoinMiner Is Nothing Then
@@ -171,7 +168,6 @@ Public Class Utilization
                 mfrmMining.Focus()
             End If
         Catch ex As Exception
-
         End Try
     End Function
     Public ReadOnly Property MinedHash As String
@@ -191,32 +187,26 @@ Public Class Utilization
         modGRC.LoadNodes(data)
         Log("Loaded successfully")
     End Sub
-
     Public Sub SetSqlBlock(ByVal data As String)
-        '1-1-2014
         _lLeaderboard = _lLeaderboard + 1
         If _lLeaderboard > 6 Then
             _lLeaderboard = 0
             UpdateLeaderBoard()
-
         End If
-        Log(data)
         Try
             Dim s As New Sql
             s.InsertBlocks(data)
             s.Close()
-
-            Log("Inserted block")
         Catch ex As Exception
             Log("SetSqlBlock:" + ex.Message)
-
         End Try
     End Sub
     Public Sub UpdateLeaderBoard()
-        modBoincLeaderboard.RefreshLeaderboard()
-
+        Try
+            modBoincLeaderboard.RefreshLeaderboard()
+        Catch ex As Exception
+        End Try
     End Sub
-
     Public Sub SetLastBlockHash(ByVal data As String)
         clsGVM.LastBlockHash = Trim(data)
     End Sub

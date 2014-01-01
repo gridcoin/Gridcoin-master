@@ -102,12 +102,11 @@ Public Class frmSQL
 
             dgcc.ForeColor = System.Drawing.Color.SandyBrown
             dgv.ColumnHeadersDefaultCellStyle = dgcc
-
             For x = 0 To dr.FieldCount - 1
-                dgv.Columns(x).AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
-
+                dgv.Columns(x).AutoSizeMode = DataGridViewAutoSizeColumnMode.None
             Next
-        While dr.Read
+
+         While dr.Read
             dgv.Rows.Add()
             For x = 0 To dr.FieldCount - 1
                 sValue = dr(x).ToString
@@ -116,6 +115,10 @@ Public Class frmSQL
             iRow = iRow + 1
 
             End While
+            For x = 0 To dr.FieldCount - 1
+                dgv.Columns(x).AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            Next
+
             Exit Sub
         Catch ex As Exception
             MsgBox(ex.Message, vbCritical, "Gridcoin Query Analayzer")
