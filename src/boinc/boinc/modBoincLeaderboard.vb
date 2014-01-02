@@ -54,7 +54,6 @@
 
     Public Function RefreshLeaderboard()
         Log("Updating Leaderboard")
-
         Dim sql As String
         Dim d As New Sql
         Dim dBlock As Double = d.HighBlockNumber
@@ -66,13 +65,11 @@
         '''''''''Fake temporary data useful for sample queries until all the clients sync blocks into sql server: (1-1-2014)
         If True Then
             Dim sHash2 As String
-            sHash2 = "xa3,1,    98,  CRD_V, SOLO_MIN, GBZkHyR7sKXfdh1Z7FMxbsLB,   23, 2854:2963:2969  ,483CB1696,310830774fefd00fb888761f0e\1:3a94913164b731f5c712e4a7852575a3\50\2969\3\58842\World_1000_175:MILKY_2000_275:SETI_3000_375\1386004003\2\270722"
-            sql = "Insert into Blocks (height,boinchash) VALUES ('1','" + sHash2 + "');"
-            d.Exec(sql)
-            sql = "Insert into Blocks (height,boinchash) VALUES ('2','" + sHash2 + "');"
-            d.Exec(sql)
-            sql = "Insert into Blocks (height,boinchash) VALUES ('3','" + sHash2 + "');"
-            d.Exec(sql)
+            sHash2 = "xa3,1, 98, CRD_V, SOLO_MIN, GBZkHyR7sKXfdh1Z7FMxbsLB,  23, 2854:2963:2969  ,483CB1696,310830774fefd00fb888761f0e\1:3a94913164b731f5c712e4a7852575a3\50\2969\3\58842\World_1000_175:MILKY_2000_275:SETI_3000_375\1386004003\2\270722"
+            For x = 1 To 10
+                sql = "Update Blocks set boinchash = '" + sHash2 + "' where height = '" + Trim(x) + "';"
+                d.Exec(sql)
+            Next
             lBlock = 0
         Else
             If lBlock < 100 Then Exit Function
@@ -137,6 +134,16 @@
         d.Close()
         d.Exec(sqlI)
         d = Nothing
+    End Function
+
+    'Copy the prod database to the read only database:
+    Public Function ReplicateDatabase()
+        Dim sPath As String = GetGridFolder() + "Sql\gridcoin"
+    Dim sROPath As String = GetGridFolder() + "Sql\gridcoin_ro"
+        Try
+            FileCopy(sPath, sROPath)
+        Catch ex As Exception
+        End Try
     End Function
 
 End Module

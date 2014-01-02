@@ -6,17 +6,8 @@ Public Class frmSQL
     Private mData As Sql
 
     Private Sub frmSQL_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+        ReplicateDatabase()
 
-        'Copy the prod database to the read only database:
-        
-        Dim sPath As String = GetGridFolder() + "Sql\gridcoin"
-        Dim sROPath As String = GetGridFolder() + "Sql\gridcoin_ro"
-        Try
-            FileCopy(sPath, sROPath)
-
-        Catch ex As Exception
-
-        End Try
         mData = New Sql("gridcoin_ro")
 
 

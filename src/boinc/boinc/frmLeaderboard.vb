@@ -5,6 +5,9 @@ Imports System.Text
 Public Class frmLeaderboard
 
     Private Sub frmLeaderboard_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+
+        ReplicateDatabase()
+
         Dim sql As String
         'Populate Gridcoin Network Average Credits Per Project
         sql = "Select '' as Rank, avg(credits) as [Net Avg Credits], ProjectName as [Project Name] from leaderboard " _
@@ -33,34 +36,26 @@ Public Class frmLeaderboard
     End Sub
 
     Private Sub SqlToGrid(sql As String, dgv As DataGridView, bClear As Boolean)
-        Dim mData As New Sql
+        Dim mData As New Sql("gridcoin_ro")
         Dim dr As Finisar.SQLite.SQLiteDataReader
         Try
             dr = mData.Query(sql)
         Catch ex As Exception
-            MsgBox(ex.Message, vbCritical, "Gridcoin Analysis Error")
             Exit Sub
         End Try
         If dr Is Nothing Then Exit Sub
         If dr.FieldCount = 0 Then Exit Sub
-
         If bClear Or dgv.Rows.Count = 0 Then
             dgv.Rows.Clear()
             dgv.Columns.Clear()
             dgv.BackgroundColor = Drawing.Color.Black
             dgv.ForeColor = Drawing.Color.Lime
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-       
-
         End If
-
         Dim sValue As String
         Dim iRow As Long = 0
-
-
         Try
             If dgv.Rows.Count = 0 Then
-            
                 For x = 0 To dr.FieldCount - 1
                     Dim dc As New System.Windows.Forms.DataGridViewColumn
                     dc.Name = dr.GetName(x)
@@ -83,7 +78,7 @@ Public Class frmLeaderboard
                     dgv.Columns(x).AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
                 Next x
                 dgv.ReadOnly = True
-                
+
             End If
 
             While dr.Read
@@ -91,16 +86,30 @@ Public Class frmLeaderboard
                 iRow = iRow + 1
 
                 For x = 0 To dr.FieldCount - 1
-                    sValue = dr(x).ToString
+                    sValue = ""
+
+                    Try
+                        sValue = dr(x).ToString
+
+                    Catch ex As Exception
+
+                    End Try
                     If x = 0 Then sValue = iRow
-                    dgv.Rows(dgv.Rows.Count - 2).Cells(x).Value = Trim(sValue)
+                    Try
+
+                        dgv.Rows(dgv.Rows.Count - 2).Cells(x).Value = Trim(sValue)
+
+                    Catch ex As Exception
+
+                    End Try
 
                 Next x
-        
+
             End While
             Exit Sub
         Catch ex As Exception
-            MsgBox(ex.Message, vbCritical, "Gridcoin Analysis Error")
+            '  MsgBox(ex.Message, vbCritical, "Gridcoin Analysis Error")
+            Exit Sub
         End Try
     End Sub
     
