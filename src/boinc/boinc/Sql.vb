@@ -198,7 +198,6 @@ Public Class Sql
             mobjCommand = mobjConnExec.CreateCommand()
             mobjCommand.CommandText = sSQL
             mobjCommand.ExecuteNonQuery()
-            Log("Executed Query ")
             mobjConnExec.Close()
         Catch ex As Exception
             Log("Sql.Exec:" + sSQL + ":" + ex.Message)

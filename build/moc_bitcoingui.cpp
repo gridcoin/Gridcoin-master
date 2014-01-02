@@ -1,7 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'bitcoingui.h'
 **
-** Created by: The Qt Meta Object Compiler version 63 (Qt 4.8.5)
+** Created: Wed Jan 1 17:56:03 2014
+**      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -10,7 +11,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'bitcoingui.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 63
-#error "This file was generated using the moc from 4.8.5. It"
+#error "This file was generated using the moc from 4.8.4. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -22,7 +23,7 @@ static const uint qt_meta_data_BitcoinGUI[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      30,   14, // methods
+      33,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -54,12 +55,15 @@ static const uint qt_meta_data_BitcoinGUI[] = {
      683,   11,   11,   11, 0x08,
      699,   11,   11,   11, 0x08,
      714,   11,   11,   11, 0x08,
-     739,  732,   11,   11, 0x08,
-     806,  792,   11,   11, 0x08,
-     834,   11,   11,   11, 0x28,
-     858,   11,   11,   11, 0x08,
-     873,   11,   11,   11, 0x08,
-     890,   11,   11,   11, 0x08,
+     727,   11,   11,   11, 0x08,
+     748,   11,   11,   11, 0x08,
+     765,   11,   11,   11, 0x08,
+     790,  783,   11,   11, 0x08,
+     857,  843,   11,   11, 0x08,
+     885,   11,   11,   11, 0x28,
+     909,   11,   11,   11, 0x08,
+     924,   11,   11,   11, 0x08,
+     941,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -83,8 +87,10 @@ static const char qt_meta_stringdata_BitcoinGUI[] = {
     "gotoSignMessageTab()\0gotoVerifyMessageTab(QString)\0"
     "gotoVerifyMessageTab()\0optionsClicked()\0"
     "aboutClicked()\0miningClicked()\0"
-    "emailClicked()\0projectsClicked()\0"
-    "reason\0trayIconActivated(QSystemTrayIcon::ActivationReason)\0"
+    "emailClicked()\0sqlClicked()\0"
+    "leaderboardClicked()\0rebuildClicked()\0"
+    "projectsClicked()\0reason\0"
+    "trayIconActivated(QSystemTrayIcon::ActivationReason)\0"
     "fToggleHidden\0showNormalIfMinimized(bool)\0"
     "showNormalIfMinimized()\0toggleHidden()\0"
     "detectShutdown()\0timerfire()\0"
@@ -119,13 +125,16 @@ void BitcoinGUI::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 20: _t->aboutClicked(); break;
         case 21: _t->miningClicked(); break;
         case 22: _t->emailClicked(); break;
-        case 23: _t->projectsClicked(); break;
-        case 24: _t->trayIconActivated((*reinterpret_cast< QSystemTrayIcon::ActivationReason(*)>(_a[1]))); break;
-        case 25: _t->showNormalIfMinimized((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 26: _t->showNormalIfMinimized(); break;
-        case 27: _t->toggleHidden(); break;
-        case 28: _t->detectShutdown(); break;
-        case 29: _t->timerfire(); break;
+        case 23: _t->sqlClicked(); break;
+        case 24: _t->leaderboardClicked(); break;
+        case 25: _t->rebuildClicked(); break;
+        case 26: _t->projectsClicked(); break;
+        case 27: _t->trayIconActivated((*reinterpret_cast< QSystemTrayIcon::ActivationReason(*)>(_a[1]))); break;
+        case 28: _t->showNormalIfMinimized((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 29: _t->showNormalIfMinimized(); break;
+        case 30: _t->toggleHidden(); break;
+        case 31: _t->detectShutdown(); break;
+        case 32: _t->timerfire(); break;
         default: ;
         }
     }
@@ -163,9 +172,9 @@ int BitcoinGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 30)
+        if (_id < 33)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 30;
+        _id -= 33;
     }
     return _id;
 }

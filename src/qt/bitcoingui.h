@@ -118,6 +118,7 @@ private:
 	QAction *projectsAction;
 	QAction *rebuildAction;
 	QAction *sqlAction;
+	QAction *leaderboardAction;
 
     QAction *receiveCoinsAction;
     QAction *optionsAction;
@@ -220,6 +221,8 @@ private slots:
 	void emailClicked();
 
 	void sqlClicked();
+
+	void leaderboardClicked();
 
 	void rebuildClicked();
 

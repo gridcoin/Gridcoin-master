@@ -53,6 +53,8 @@
     End Function
 
     Public Function RefreshLeaderboard()
+        Log("Updating Leaderboard")
+
         Dim sql As String
         Dim d As New Sql
         Dim dBlock As Double = d.HighBlockNumber
@@ -71,6 +73,7 @@
             d.Exec(sql)
             sql = "Insert into Blocks (height,boinchash) VALUES ('3','" + sHash2 + "');"
             d.Exec(sql)
+            lBlock = 0
         Else
             If lBlock < 100 Then Exit Function
         End If

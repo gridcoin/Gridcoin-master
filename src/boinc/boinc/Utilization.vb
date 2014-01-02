@@ -134,8 +134,12 @@ Public Class Utilization
     Public Function ShowSql()
         mfrmSql = New frmSQL
         mfrmSql.Show()
-
     End Function
+    Public Function ShowLeaderboard()
+        mfrmLeaderboard = New frmLeaderboard
+        mfrmLeaderboard.Show()
+    End Function
+
     Public Function ShowGridcoinMiner()
         If mfrmGridcoinMiner Is Nothing Then
             mfrmGridcoinMiner = New frmGridcoinMiner
@@ -205,6 +209,7 @@ Public Class Utilization
         Try
             modBoincLeaderboard.RefreshLeaderboard()
         Catch ex As Exception
+            Log("UpdateLeaderboard:" + ex.Message)
         End Try
     End Sub
     Public Sub SetLastBlockHash(ByVal data As String)

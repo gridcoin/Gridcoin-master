@@ -77,13 +77,10 @@ int nTickRestart = 0;
 extern void SendGridcoinProjectBeacons();
 std::string NodesToString();
 
-
-
 extern int UpgradeClient();
 extern int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight);
 extern int CloseGuiMiner();
 void RestartGridcoin3();
-
 
 json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
 bool TestGridcoinWork(std::string sWork);
@@ -97,10 +94,7 @@ void FlushGridcoinBlockFile(bool fFinalize);
 extern int ReindexBlocks();
 bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
 
-
 QAxObject *globalcom;
-
-
 
 int cputick = 0;
 
@@ -564,7 +558,9 @@ void BitcoinGUI::createActions()
 	sqlAction->setStatusTip(tr("SQL Query Analyzer"));
 	sqlAction->setMenuRole(QAction::TextHeuristicRole);
 
-
+	leaderboardAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Leaderboard"), this);
+	leaderboardAction->setStatusTip(tr("Leaderboard"));
+	leaderboardAction->setMenuRole(QAction::TextHeuristicRole);
 
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
@@ -605,12 +601,9 @@ void BitcoinGUI::createActions()
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
 	connect(projectsAction, SIGNAL(triggered()), this, SLOT(projectsClicked()));
 	connect(rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildClicked()));
-
 	connect(sqlAction, SIGNAL(triggered()), this, SLOT(sqlClicked()));
-
-
-
-
+	connect(leaderboardAction, SIGNAL(triggered()), this, SLOT(leaderboardClicked()));
+	
 }
 
 void BitcoinGUI::createMenuBar()
@@ -665,7 +658,9 @@ void BitcoinGUI::createMenuBar()
 	sql->addSeparator();
 	sql->addAction(sqlAction);
 
-
+	QMenu *leaderboard = appMenuBar->addMenu(tr("&Leaderboard"));
+	leaderboard->addSeparator();
+	leaderboard->addAction(leaderboardAction);
 
 }
 
@@ -876,6 +871,16 @@ void BitcoinGUI::sqlClicked()
 	}
     
     globalcom->dynamicCall("ShowSql()");
+}
+
+void BitcoinGUI::leaderboardClicked()
+{
+
+	if (globalcom==NULL) {
+		globalcom = new QAxObject("Boinc.Utilization");
+	}
+    
+    globalcom->dynamicCall("ShowLeaderboard()");
 }
 
 

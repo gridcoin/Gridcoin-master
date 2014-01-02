@@ -5,13 +5,12 @@ Imports System.IO
 Imports System.Reflection
 
 Module modGRC
-
     Public mfrmMining As frmMining
     Public clsGVM As GridcoinVirtualMachine.GVM
     Public mfrmProjects As frmProjects
     Public mfrmSql As frmSQL
     Public mfrmGridcoinMiner As frmGridcoinMiner
-
+    Public mfrmLeaderboard As frmLeaderboard
     Structure xGridcoinMiningStructure
         Public Shared device As String = "0"
         Public Shared gpu_thread_concurrency As String = "8192"
