@@ -5,8 +5,15 @@
 #include "net.h"
 #include "bitcoinrpc.h"
 
+#include <boost/lexical_cast.hpp>
+
 using namespace json_spirit;
 using namespace std;
+
+
+extern std::string NodesToString();
+
+
 
 Value getconnectioncount(const Array& params, bool fHelp)
 {
@@ -31,6 +38,26 @@ static void CopyNodeStats(std::vector<CNodeStats>& vstats)
         vstats.push_back(stats);
     }
 }
+
+
+std::string NodesToString()
+{
+    LOCK(cs_vNodes);
+	std::string row = "";
+	//12-27-2013
+	std::string sOut = "";
+    BOOST_FOREACH(CNode* pnode, vNodes) 
+	{
+		row = pnode->addr.ToString() + "|" + boost::lexical_cast<std::string>(pnode->nVersion);
+		sOut = sOut + row + "\r\n";
+    }
+	return sOut;
+	
+}
+
+	
+
+
 
 Value getpeerinfo(const Array& params, bool fHelp)
 {

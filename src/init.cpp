@@ -18,14 +18,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <openssl/crypto.h>
 
-
-
-
-
-
-
-
-
 #include "global_objects_noui.hpp"
 
 #ifndef WIN32
@@ -38,9 +30,9 @@ using namespace boost;
 CWallet* pwalletMain;
 CClientUIInterface uiInterface;
 
+int CloseGuiMiner();
 
-
-
+extern void RestartGridcoin3();
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
@@ -79,7 +71,7 @@ enum BindFlags {
 // threads that should only be stopped after the main network-processing
 // threads have exited.
 //
-// Note that if running -daemon the parent process returns from AppInit2
+// Note that if running -daemon the parent process returns from AppInit
 // before adding any threads to the threadGroup, so .join_all() returns
 // immediately and the parent exits from main().
 //
@@ -97,6 +89,12 @@ void StartShutdown()
 {
     fRequestShutdown = true;
 }
+
+
+
+
+
+
 bool ShutdownRequested()
 {
     return fRequestShutdown;
@@ -106,9 +104,12 @@ static CCoinsViewDB *pcoinsdbview;
 
 void Shutdown()
 {
+
     static CCriticalSection cs_Shutdown;
     TRY_LOCK(cs_Shutdown, lockShutdown);
     if (!lockShutdown) return;
+	
+	CloseGuiMiner();
 
     RenameThread("bitcoin-shutoff");
     nTransactionsUpdated++;
@@ -135,17 +136,34 @@ void Shutdown()
 
 //
 // Signal handlers are very limited in what they are allowed to do, so:
+
+//void DetectShutdownThread(hread_group* thrgroup)
 //
-void DetectShutdownThread(boost::thread_group* threadGroup)
+void DetectShutdownThread()
 {
    
     while (!fRequestShutdown)
     {
         MilliSleep(200);
-        if (fRequestShutdown)
-            threadGroup->interrupt_all();
+        if (fRequestShutdown) 
+			threadGroup.interrupt_all();
     }
 }
+
+
+
+void RestartGridcoin3() 
+{
+     	//Gridcoin - 12-26-2013 Stop all network threads; Stop the node; Restart the Node.
+		threadGroup.interrupt_all();
+        threadGroup.join_all();
+		StopNode();
+		StartNode();
+        threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+}
+
+
+
 
 void HandleSIGTERM(int)
 {
@@ -168,7 +186,8 @@ void HandleSIGHUP(int)
 #if !defined(QT_GUI)
 bool AppInit(int argc, char* argv[])
 {
-    boost::thread_group threadGroup;
+   
+	
     boost::thread* detectShutdownThread = NULL;
 
     bool fRet = false;
@@ -236,8 +255,11 @@ bool AppInit(int argc, char* argv[])
         }
 #endif
 
-        detectShutdownThread = new boost::thread(boost::bind(&DetectShutdownThread, &threadGroup));
-        fRet = AppInit2(threadGroup);
+        //detectShutdownThread = new boost::thread(boost::bind(&DetectShutdownThread, threadGroup));
+		threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "detectshutdown", &DetectShutdownThread));
+		
+
+        fRet = AppInit2();
     }
     catch (std::exception& e) {
         PrintExceptionContinue(&e, "AppInit()");
@@ -262,6 +284,11 @@ bool AppInit(int argc, char* argv[])
 }
 
 extern void noui_connect();
+
+
+
+
+
 int main(int argc, char* argv[])
 {
     bool fRet = false;
@@ -276,7 +303,14 @@ int main(int argc, char* argv[])
 
     return (fRet ? 0 : 1);
 }
+
+
+
 #endif
+
+
+
+
 
 bool static InitError(const std::string &str)
 {
@@ -330,7 +364,7 @@ std::string HelpMessage()
         "  -socks=<n>             " + _("Select the version of socks proxy to use (4-5, default: 5)") + "\n" +
         "  -tor=<ip:port>         " + _("Use proxy to reach tor hidden services (default: same as -proxy)") + "\n"
         "  -dns                   " + _("Allow DNS lookups for -addnode, -seednode and -connect") + "\n" +
-        "  -port=<port>           " + _("Listen for connections on <port> (default: 9778 or testnet: 19778)") + "\n" +
+        "  -port=<port>           " + _("Listen for connections on <port> (default: 32760 or testnet: 32759)") + "\n" +
         "  -maxconnections=<n>    " + _("Maintain at most <n> connections to peers (default: 125)") + "\n" +
         "  -addnode=<ip>          " + _("Add a node to connect to and attempt to keep the connection open") + "\n" +
         "  -connect=<ip>          " + _("Connect only to the specified node(s)") + "\n" +
@@ -373,7 +407,7 @@ std::string HelpMessage()
 #endif
         "  -rpcuser=<user>        " + _("Username for JSON-RPC connections") + "\n" +
         "  -rpcpassword=<pw>      " + _("Password for JSON-RPC connections") + "\n" +
-        "  -rpcport=<port>        " + _("Listen for JSON-RPC connections on <port> (default: 9778 or testnet: 19778)") + "\n" +
+        "  -rpcport=<port>        " + _("Listen for JSON-RPC connections on <port> (default: 32760 or testnet: 32759)") + "\n" +
         "  -rpcallowip=<ip>       " + _("Allow JSON-RPC connections from specified IP address") + "\n" +
 #ifndef QT_GUI
         "  -rpcconnect=<ip>       " + _("Send commands to node running on <ip> (default: 127.0.0.1)") + "\n" +
@@ -471,7 +505,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 /** Initialize bitcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
-bool AppInit2(boost::thread_group& threadGroup)
+bool AppInit2()
 {
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
@@ -1136,14 +1170,15 @@ bool AppInit2(boost::thread_group& threadGroup)
     printf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain->mapAddressBook.size());
 	//
 
-    StartNode(threadGroup);
+
+    StartNode();
+	//Store a reference to the threadGroup:
+	
 
     if (fServer)
         StartRPCThreads();
 
     // ********************************************************* Step 12: finished
-
-	//uiInterface.LogChupe("hi");
     uiInterface.InitMessage(_("Done loading"));
 
      // Add wallet transactions that aren't already in a block to mapTransactions
@@ -1152,9 +1187,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     // Run a thread to flush wallet periodically
     threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
 	//Create the GridCoin thread
-	//MyThread* t = NULL;
-	//MyThread* mythread = NULL;
-	
 
     return !fRequestShutdown;
 }

@@ -8,7 +8,6 @@ Imports System.Object
 Imports System.Security.Cryptography
 
 
-
 Public Module modCryptography
     Private TripleDes As New TripleDESCryptoServiceProvider
     Public MerkleRoot As String = "0xda43abf15a2fcd57ceae9ea0b4e0d872981e2c0b72244466650ce6010a14efb8"
@@ -32,6 +31,8 @@ Public Module modCryptography
         End Try
     End Function
     Public Function ReturnGVMGuid(ByVal sType As String) As String
+        Try
+
         GBoincThreadCount = Guid.NewGuid
         GBoincCPUUtilization = Guid.NewGuid
         GBoincAvgCredits = Guid.NewGuid
@@ -40,7 +41,11 @@ Public Module modCryptography
         Dim sKey As String
         sKey = Des3DecryptData(sType)
         sHash = sHash + sKey
-        Return sHash
+            Return sHash
+        Catch ex As Exception
+
+        End Try
+
     End Function
     Private Function TruncateHash(ByVal key As String, ByVal length As Integer) As Byte()
         Dim sha1 As New SHA1CryptoServiceProvider
@@ -53,10 +58,20 @@ Public Module modCryptography
         Return hash
     End Function
     Public Function ToBase64(ByVal data As String) As String
-        Return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(data))
+        Try
+            Return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(data))
+
+        Catch ex As Exception
+            Return ""
+        End Try
     End Function
     Public Function FromBase64(ByVal data As String) As String
-        Return Encoding.UTF8.GetString(Convert.FromBase64String(data))
+        Try
+            Return Encoding.UTF8.GetString(Convert.FromBase64String(data))
+
+        Catch ex As Exception
+            Return ""
+        End Try
     End Function
     Public Function ByteArrayToHexString(ByVal ba As Byte()) As String
         Dim hex As StringBuilder
@@ -117,11 +132,19 @@ Public Module modCryptography
     End Function
 
     Private Sub Merkle(ByVal sSalt As String)
+        Try
+
         TripleDes.Key = TruncateHash(MerkleRoot + Right(sSalt, 4), TripleDes.KeySize \ 8)
-        TripleDes.IV = TruncateHash("", TripleDes.BlockSize \ 8)
+            TripleDes.IV = TruncateHash("", TripleDes.BlockSize \ 8)
+        Catch ex As Exception
+
+        End Try
+
     End Sub
 
     Public Function Des3EncryptData(ByVal plaintext As String) As String
+
+        Try
 
         ' Convert the plaintext string to a byte array. 
         Call Merkle(MerkleRoot)
@@ -143,9 +166,16 @@ Public Module modCryptography
             Return Convert.ToBase64String(ms.ToArray)
 
         Catch ex As Exception
-            Stop
+        
+            End Try
+
+
+        Catch ex As Exception
 
         End Try
+
+
+
     End Function
     Public Function Des3DecryptData(ByVal encryptedtext As String) As String
         Try
@@ -167,8 +197,7 @@ Public Module modCryptography
         ' Convert the plaintext stream to a string. 
             Return System.Text.Encoding.Unicode.GetString(ms.ToArray)
         Catch ex As Exception
-            Stop
-
+        
         End Try
 
     End Function
@@ -202,5 +231,74 @@ Public Module modCryptography
         Return Val(span.TotalSeconds)
     End Function
 
+    Public Function CheckWork(ByVal sGridBlockHash1 As String, ByVal sGridBlockHash2 As String, _
+                              ByVal sGridBlockHash3 As String, ByVal sBoincHash As String) As Double
+        'CheckWorkResultCodes
+
+        '+1 Valid
+        '-1 CPU Hash does not contain gridcoin block hash
+        '-2 CPU Source Hash Invalid
+        '-10 Boinc Hash Invalid
+        '-11 Boinc Hash Present but invalid
+        '-12 MD5 Error
+        '-14 Rehashed output error
+        '-15 CPU hash does not match SHA computed hash
+        '-16 General Error
+
+        If Len(sBoincHash) < 80 Then Return -10
+        Dim vBoincHash() As String
+        vBoincHash = Split(sBoincHash, ",")
+        If UBound(vBoincHash) < 8 Then Return -11 'Invalid Boinc Hash
+        Dim sCPUSourceHash As String
+        Dim sCPUHash As String
+
+        sCPUSourceHash = vBoincHash(9)
+        sCPUHash = vBoincHash(8)
+        Dim sMD5 As String
+        sMD5 = vBoincHash(0)
+        If Len(sMD5) < 7 Then Return -12 'MD5 Error
+
+        'Verify CPUSourceHash contains Gridcoin block hash
+        If (Not sCPUSourceHash.Contains(sGridBlockHash1) And Not sCPUSourceHash.Contains(sGridBlockHash2) And Not sCPUSourceHash.Contains(sGridBlockHash3)) Then
+            Return -1 'CPU Hash does not contain Gridcoin block hash
+        End If
+        'Extract MD5 from Source Hash
+        Dim vCPUSourceHash() As String
+        sCPUSourceHash = Replace(sCPUSourceHash, "\\", "\")
+
+        vCPUSourceHash = Split(sCPUSourceHash, "\")
+        If UBound(vCPUSourceHash) < 7 Then Return -2 'CPU Source Hash Invalid
+        Dim bHash() As Byte
+        Dim cHash As String
+
+        'ReHash the Source Hash
+        bHash = System.Text.Encoding.ASCII.GetBytes(sCPUSourceHash)
+        Dim objSHA1 As New SHA1CryptoServiceProvider()
+
+        cHash = Replace(BitConverter.ToString(objSHA1.ComputeHash(bHash)), "-", "")
+        'Extract difficulty
+        Dim diff As String
+        Dim targetms As Long = 10000 'This will change as soon as we implement the Moore's Law equation
+        diff = Trim(Math.Round(targetms / 5000, 0))
+        Dim sBoincAvgCredits As String
+        Dim sCPUUtilization As String
+        sCPUUtilization = vCPUSourceHash(2)
+        sBoincAvgCredits = vCPUSourceHash(3)
+        Dim sThreadCount As String
+        sThreadCount = vCPUSourceHash(4)
+        If Len(cHash) < 10 Then Return -14
+        If cHash <> sCPUHash Then Return -15
+        'Check Work
+
+        If cHash.Contains(Trim(diff)) And cHash.Contains(String.Format("{0:000}", sCPUUtilization)) _
+            And cHash.Contains(Trim(Val(sBoincAvgCredits))) _
+            And cHash.Contains(Trim(Val(sThreadCount))) Then
+            Return 1
+        End If
+
+
+        Return -16
+
+    End Function
 
 End Module

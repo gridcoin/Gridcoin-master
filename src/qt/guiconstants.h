@@ -11,12 +11,13 @@ static const int MAX_PASSPHRASE_SIZE = 1024;
 static const int STATUSBAR_ICONSIZE = 16;
 
 /* Invalid field background style FF 80 80       Gray*/
-#define STYLE_INVALID "background:#555555"
+#define STYLE_INVALID "background:#00FFFF"
 
 /* Transaction list -- unconfirmed transaction  (Very -GREEN) */
 #define COLOR_UNCONFIRMED QColor(0, 255,55)
 /* Transaction list -- negative amount (Red) */
 #define COLOR_NEGATIVE QColor(200, 0, 0)
+
 /* Transaction list -- bare address (without label) */
 #define COLOR_BAREADDRESS QColor(0, 240, 240)
 

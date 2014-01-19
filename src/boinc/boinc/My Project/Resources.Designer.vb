@@ -73,6 +73,66 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property gradient75() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("gradient75", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property gradient751() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("gradient751", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property gradient752() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("gradient752", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property gradient753() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("gradient753", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property gradientmiddle() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("gradientmiddle", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property GradientU() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("GradientU", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property mining() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("mining", resourceCulture)

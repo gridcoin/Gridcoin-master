@@ -1,0 +1,30 @@
+{
+"pools" : [
+	{
+		"url" : "http://127.0.0.1:9332/",
+		"user" : "rachalupa",
+		"pass" : "halford9"
+	}
+]
+,
+"api-listen" : true,
+"api-port" : "4000",
+"api-allow" : "W:127.0.0.1",
+"intensity" : "17",
+"vectors" : "1",
+"worksize" : "256",
+"kernel" : "scrypt",
+"scrypt" : true,
+"lookup-gap" : "2",
+"thread-concurrency" : "21712",
+"shaders" : "0",
+"gpu-engine" : "0",
+"temp-cutoff" : "80",
+"temp-overheat" : "70",
+"temp-target" : "60",
+"gpu-threads" : "1",
+"no-pool-disable" : false,
+"temp-hysteresis" : "3",
+"gpu-platform" : "0",
+"device" : "0"
+}

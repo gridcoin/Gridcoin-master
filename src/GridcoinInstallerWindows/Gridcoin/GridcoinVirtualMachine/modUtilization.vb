@@ -34,15 +34,18 @@ Module modUtilization
 
     Public Const BOINC_MEMORY_FOOTPRINT As Double = 5000000
     Public Const KERNEL_OVERHEAD As Double = 1.5
-    Private last_sample As Double
-    Public BoincAvgOverTime As String
-    Public _BoincMD5
-    Public _BoincAuthenticity As Double
-    Public BlockData As String
-    Public PublicWalletAddress As String
+    Private last_sample As Double = 0
+    Public BoincAvgOverTime As String = ""
+    Public _BoincMD5 = ""
+    Public _BoincAuthenticity As Double = 0
+    Public BlockData As String = ""
+    Public PublicWalletAddress As String = ""
+    Public mdProcNarrComponent1 As Double
+    Public mdProcNarrComponent2 As Double
 
-    Public mBoincProcessorUtilization As Double
-    Public mBoincThreads As Double
+    Public mBoincProcessorUtilization As Double = 0
+    Public mBoincThreads As Double = 0
+
   
     Public Sub Initialize()
         Housecleaning()
@@ -62,6 +65,8 @@ Module modUtilization
             _timerBoincCredits = New System.Timers.Timer(300000)
             AddHandler _timerBoincCredits.Elapsed, New ElapsedEventHandler(AddressOf BoincCreditsElapsed)
             _timerBoincCredits.Enabled = True
+            BoincCreditsElapsed()
+
         End If
 
     End Sub
@@ -77,6 +82,11 @@ Module modUtilization
         Try
             LogBoincCredits()
             ReturnBoincCreditsAtPointInTime(86400 / 2)
+            modBoincCredits.BoincCredits = BoincCreditsAtPointInTime
+
+            modBoincCredits.BoincCreditsAvg = BoincCreditsAvgAtPointInTime
+
+
         Catch ex As Exception
         End Try
     End Sub
@@ -209,6 +219,9 @@ CalculateUsage:
         usage_percent = usage_percent * 100 'Convert to a 3 digit percent
         If usage_percent > 100 Then usage_percent = 100
         If usage_percent < 0 Then usage_percent = 0
+        Dim h As Double
+        h = HomogenizedDailyCredits(usage_percent)
+        usage_percent = h
         'Create a two point moving average
         Dim avg_sample As Double
         avg_sample = (last_sample + usage_percent) / 2
@@ -216,6 +229,18 @@ CalculateUsage:
         last_sample = mBoincProcessorUtilization
         mBoincThreads = lThreadCount
         Return usage_percent
+    End Function
+    Public Function HomogenizedDailyCredits(cpu_use As Double)
+        Dim dAvg As Double = BoincCreditsAvg
+        If dAvg > 3000 Then dAvg = 3000
+        If dAvg < 0.01 Then dAvg = 0.01
+        Dim dUsage As Double = dAvg / 10
+        If dUsage > 100 Then dUsage = 100
+        If dUsage < 0 Then dUsage = 0
+        mdProcNarrComponent1 = cpu_use
+        mdProcNarrComponent2 = dUsage
+        Dim avg1 As Double = (cpu_use + dUsage) / 2
+        Return avg1
     End Function
     Public Function GetInheritedParent(ByVal sPID As IntPtr) As Process
         Try

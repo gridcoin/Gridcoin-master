@@ -1,10 +1,12 @@
 TEMPLATE = app
 TARGET = gridcoin-qt
 macx:TARGET = "Gridcoin-Qt"
-VERSION = 0.7.7.1
+VERSION = 0.7.7.2
 INCLUDEPATH += src src/json src/qt
 
 QT += core gui network
+
+#INCLUDEPATH += tmp/moc/release_shared
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
@@ -303,6 +305,10 @@ SOURCES += src/qt/bitcoin.cpp \
     src/txdb.cpp \
     src/qt/splashscreen.cpp \
     src/boinc-cpp/boinchelper.cpp
+
+##
+#RC_FILE  = qaxserver.rc
+#DEF_FILE = qaxserver.def
 
 RESOURCES += src/qt/bitcoin.qrc
 

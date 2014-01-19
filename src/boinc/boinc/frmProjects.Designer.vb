@@ -43,6 +43,8 @@ Partial Class frmProjects
         '
         'txtProject1
         '
+        Me.txtProject1.BackColor = System.Drawing.Color.Black
+        Me.txtProject1.ForeColor = System.Drawing.Color.Lime
         Me.txtProject1.Location = New System.Drawing.Point(317, 25)
         Me.txtProject1.Name = "txtProject1"
         Me.txtProject1.Size = New System.Drawing.Size(171, 20)
@@ -51,6 +53,8 @@ Partial Class frmProjects
         'Label1
         '
         Me.Label1.AutoSize = True
+        Me.Label1.BackColor = System.Drawing.Color.Black
+        Me.Label1.ForeColor = System.Drawing.Color.Lime
         Me.Label1.Location = New System.Drawing.Point(20, 31)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(208, 13)
@@ -59,6 +63,7 @@ Partial Class frmProjects
         '
         'GroupBox1
         '
+        Me.GroupBox1.BackColor = System.Drawing.Color.Black
         Me.GroupBox1.Controls.Add(Me.lblCredits5)
         Me.GroupBox1.Controls.Add(Me.lblCredits4)
         Me.GroupBox1.Controls.Add(Me.lblCredits3)
@@ -76,6 +81,7 @@ Partial Class frmProjects
         Me.GroupBox1.Controls.Add(Me.txtProject2)
         Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Controls.Add(Me.txtProject1)
+        Me.GroupBox1.ForeColor = System.Drawing.Color.Lime
         Me.GroupBox1.Location = New System.Drawing.Point(25, 36)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(661, 328)
@@ -86,6 +92,8 @@ Partial Class frmProjects
         'lblCredits5
         '
         Me.lblCredits5.AutoSize = True
+        Me.lblCredits5.BackColor = System.Drawing.Color.Black
+        Me.lblCredits5.ForeColor = System.Drawing.Color.Lime
         Me.lblCredits5.Location = New System.Drawing.Point(494, 144)
         Me.lblCredits5.Name = "lblCredits5"
         Me.lblCredits5.Size = New System.Drawing.Size(13, 13)
@@ -95,6 +103,8 @@ Partial Class frmProjects
         'lblCredits4
         '
         Me.lblCredits4.AutoSize = True
+        Me.lblCredits4.BackColor = System.Drawing.Color.Black
+        Me.lblCredits4.ForeColor = System.Drawing.Color.Lime
         Me.lblCredits4.Location = New System.Drawing.Point(494, 117)
         Me.lblCredits4.Name = "lblCredits4"
         Me.lblCredits4.Size = New System.Drawing.Size(13, 13)
@@ -104,6 +114,8 @@ Partial Class frmProjects
         'lblCredits3
         '
         Me.lblCredits3.AutoSize = True
+        Me.lblCredits3.BackColor = System.Drawing.Color.Black
+        Me.lblCredits3.ForeColor = System.Drawing.Color.Lime
         Me.lblCredits3.Location = New System.Drawing.Point(494, 87)
         Me.lblCredits3.Name = "lblCredits3"
         Me.lblCredits3.Size = New System.Drawing.Size(13, 13)
@@ -113,6 +125,8 @@ Partial Class frmProjects
         'lblCredits1
         '
         Me.lblCredits1.AutoSize = True
+        Me.lblCredits1.BackColor = System.Drawing.Color.Black
+        Me.lblCredits1.ForeColor = System.Drawing.Color.Lime
         Me.lblCredits1.Location = New System.Drawing.Point(494, 32)
         Me.lblCredits1.Name = "lblCredits1"
         Me.lblCredits1.Size = New System.Drawing.Size(13, 13)
@@ -122,6 +136,8 @@ Partial Class frmProjects
         'lblCredits2
         '
         Me.lblCredits2.AutoSize = True
+        Me.lblCredits2.BackColor = System.Drawing.Color.Black
+        Me.lblCredits2.ForeColor = System.Drawing.Color.Lime
         Me.lblCredits2.Location = New System.Drawing.Point(494, 58)
         Me.lblCredits2.Name = "lblCredits2"
         Me.lblCredits2.Size = New System.Drawing.Size(13, 13)
@@ -130,25 +146,31 @@ Partial Class frmProjects
         '
         'btnQuery
         '
+        Me.btnQuery.BackColor = System.Drawing.Color.Black
+        Me.btnQuery.ForeColor = System.Drawing.Color.Lime
         Me.btnQuery.Location = New System.Drawing.Point(412, 285)
         Me.btnQuery.Name = "btnQuery"
         Me.btnQuery.Size = New System.Drawing.Size(95, 32)
         Me.btnQuery.TabIndex = 11
         Me.btnQuery.Text = "Query Credits"
-        Me.btnQuery.UseVisualStyleBackColor = True
+        Me.btnQuery.UseVisualStyleBackColor = False
         '
         'btnSave
         '
+        Me.btnSave.BackColor = System.Drawing.Color.Black
+        Me.btnSave.ForeColor = System.Drawing.Color.Lime
         Me.btnSave.Location = New System.Drawing.Point(19, 285)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(95, 32)
         Me.btnSave.TabIndex = 10
         Me.btnSave.Text = "Save"
-        Me.btnSave.UseVisualStyleBackColor = True
+        Me.btnSave.UseVisualStyleBackColor = False
         '
         'Label5
         '
         Me.Label5.AutoSize = True
+        Me.Label5.BackColor = System.Drawing.Color.Black
+        Me.Label5.ForeColor = System.Drawing.Color.Lime
         Me.Label5.Location = New System.Drawing.Point(20, 144)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(215, 13)
@@ -157,6 +179,8 @@ Partial Class frmProjects
         '
         'txtProject5
         '
+        Me.txtProject5.BackColor = System.Drawing.Color.Black
+        Me.txtProject5.ForeColor = System.Drawing.Color.Lime
         Me.txtProject5.Location = New System.Drawing.Point(317, 137)
         Me.txtProject5.Name = "txtProject5"
         Me.txtProject5.Size = New System.Drawing.Size(171, 20)
@@ -165,6 +189,8 @@ Partial Class frmProjects
         'Label4
         '
         Me.Label4.AutoSize = True
+        Me.Label4.BackColor = System.Drawing.Color.Black
+        Me.Label4.ForeColor = System.Drawing.Color.Lime
         Me.Label4.Location = New System.Drawing.Point(19, 117)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(205, 13)
@@ -173,6 +199,8 @@ Partial Class frmProjects
         '
         'txtProject4
         '
+        Me.txtProject4.BackColor = System.Drawing.Color.Black
+        Me.txtProject4.ForeColor = System.Drawing.Color.Lime
         Me.txtProject4.Location = New System.Drawing.Point(316, 110)
         Me.txtProject4.Name = "txtProject4"
         Me.txtProject4.Size = New System.Drawing.Size(171, 20)
@@ -181,6 +209,8 @@ Partial Class frmProjects
         'Label3
         '
         Me.Label3.AutoSize = True
+        Me.Label3.BackColor = System.Drawing.Color.Black
+        Me.Label3.ForeColor = System.Drawing.Color.Lime
         Me.Label3.Location = New System.Drawing.Point(19, 87)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(229, 13)
@@ -189,6 +219,8 @@ Partial Class frmProjects
         '
         'txtProject3
         '
+        Me.txtProject3.BackColor = System.Drawing.Color.Black
+        Me.txtProject3.ForeColor = System.Drawing.Color.Lime
         Me.txtProject3.Location = New System.Drawing.Point(316, 80)
         Me.txtProject3.Name = "txtProject3"
         Me.txtProject3.Size = New System.Drawing.Size(171, 20)
@@ -197,6 +229,8 @@ Partial Class frmProjects
         'Label2
         '
         Me.Label2.AutoSize = True
+        Me.Label2.BackColor = System.Drawing.Color.Black
+        Me.Label2.ForeColor = System.Drawing.Color.Lime
         Me.Label2.Location = New System.Drawing.Point(20, 58)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(209, 13)
@@ -205,6 +239,8 @@ Partial Class frmProjects
         '
         'txtProject2
         '
+        Me.txtProject2.BackColor = System.Drawing.Color.Black
+        Me.txtProject2.ForeColor = System.Drawing.Color.Lime
         Me.txtProject2.Location = New System.Drawing.Point(317, 51)
         Me.txtProject2.Name = "txtProject2"
         Me.txtProject2.Size = New System.Drawing.Size(171, 20)
@@ -212,6 +248,7 @@ Partial Class frmProjects
         '
         'frmProjects
         '
+        Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(715, 432)
         Me.Controls.Add(Me.GroupBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)

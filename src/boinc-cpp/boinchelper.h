@@ -36,6 +36,18 @@ public:
     QString deltaOverTime();
     void setLastBlockHash(const QString &hash);
     void setPublicWalletAddress(const QString &address);
+    int checkWork(const QString &lastBlockHash, const QString &greatBlockHash, const QString &greatGrandParentsBlockHash, const QString &boinchash);
+    void closeGuiMiner();
+    void showSql();
+    void showLeaderBoard();
+    void setNodes(const QString &nodesToString);
+    int retrieveSqlHighBlock();
+    void setSqlBlock(const QString &blockAsString);
+    void setBestBlock(int bestHeight);
+    QString getWork();
+    void setWork(const QString &work);
+    QString retrieveSolvedBlockData();
+    void solvedBlockDataCallback(const QString &callback);
 
 protected:
 

@@ -177,9 +177,12 @@ void TransactionView::setModel(WalletModel *model)
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Status, 23);
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Date, 120);
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Type, 120);
-		transactionView->horizontalHeader()->setStyleSheet("background-color: #08ff08;");
+        transactionView->horizontalHeader()->setStyleSheet("background-color: #121212;color:green");
+
 		//Add stylesheet to transaction view list:
-		transactionView->setStyleSheet("background-color: #081008;");
+		transactionView->setStyleSheet("background-color: #161616;alternate-background-color: #363636;color:green;");
+
+
    
 
 

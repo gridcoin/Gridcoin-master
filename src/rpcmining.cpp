@@ -12,9 +12,15 @@
 using namespace json_spirit;
 using namespace std;
 
+
+extern std::string GetGridcoinWork();
+bool TestGridcoinWork(std::string sWork);
+
+
 // Return average network hashes per second based on the last 'lookup' blocks,
 // or from the last difficulty change if 'lookup' is nonpositive.
 // If 'height' is nonnegative, compute the estimate at the time when a given block was found.
+
 Value GetNetworkHashPS(int lookup, int height) {
     CBlockIndex *pb = pindexBest;
 
@@ -231,6 +237,7 @@ Value getworkex(const Array& params, bool fHelp)
     }
 }
 
+//Standard Getwork - Gridcoin
 
 Value getwork(const Array& params, bool fHelp)
 {
@@ -354,6 +361,182 @@ Value getwork(const Array& params, bool fHelp)
 
     }
 }
+
+
+
+
+//Standard Getwork - Gridcoin
+
+std::string GetGridcoinWork()
+{
+
+    if (vNodes.empty())
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Gridcoin is not connected!");
+    if (IsInitialBlockDownload())
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
+
+
+    typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
+    static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
+    static vector<CBlockTemplate*> vNewBlockTemplate;
+    // Update block
+        static unsigned int nTransactionsUpdatedLast;
+        static CBlockIndex* pindexPrev;
+        static int64 nStart;
+        static CBlockTemplate* pblocktemplate;
+        if (pindexPrev != pindexBest ||
+            (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60))
+        {
+            if (pindexPrev != pindexBest)
+            {
+                // Deallocate old blocks since they're obsolete now
+                mapNewBlock.clear();
+                BOOST_FOREACH(CBlockTemplate* pblocktemplate, vNewBlockTemplate)
+                    delete pblocktemplate;
+                vNewBlockTemplate.clear();
+            }
+
+            // Clear pindexPrev so future getworks make a new block, despite any failures from here on
+            pindexPrev = NULL;
+
+            // Store the pindexBest used before CreateNewBlock, to avoid races
+            nTransactionsUpdatedLast = nTransactionsUpdated;
+            CBlockIndex* pindexPrevNew = pindexBest;
+            nStart = GetTime();
+
+            // Create new block
+            pblocktemplate = CreateNewBlock(*pMiningKey);
+            if (!pblocktemplate)
+                throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
+            vNewBlockTemplate.push_back(pblocktemplate);
+
+            // Need to update only after we know CreateNewBlock succeeded
+            pindexPrev = pindexPrevNew;
+        }
+        CBlock* pblock = &pblocktemplate->block; // pointer for convenience
+
+        // Update nTime
+        pblock->UpdateTime(pindexPrev);
+        pblock->nNonce = 0;
+
+        // Update nExtraNonce
+        static unsigned int nExtraNonce = 0;
+        IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
+
+        // Save
+        mapNewBlock[pblock->hashMerkleRoot] = make_pair(pblock, pblock->vtx[0].vin[0].scriptSig);
+
+        // Pre-build hash buffers
+        char pmidstate[32];
+        char pdata[128];
+        char phash1[64];
+        FormatHashBuffers(pblock, pmidstate, pdata, phash1);
+        uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
+        Object result;
+        result.push_back(Pair("midstate", HexStr(BEGIN(pmidstate), END(pmidstate)))); // deprecated
+        result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
+        result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); // deprecated
+        result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
+
+		Value temp = result;
+		std::string styled =   write_string(temp, false);
+        printf("gridblockhash %s ", styled.c_str());
+		
+        return styled;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+bool TestGridcoinWork(std::string sWork)
+{
+
+	printf("Testing work %s",sWork.c_str());
+
+    if (vNodes.empty())  {
+		printf("Gridcoin is not connected!");
+		return false;
+	}
+
+    if (IsInitialBlockDownload()) 
+	{
+			printf("Gridcoin is downloading blocks...");
+			return false;
+	}
+
+    typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
+    static mapNewBlock_t mapNewBlock;    
+    static vector<CBlockTemplate*> vNewBlockTemplate;
+    // Parse parameters
+    vector<unsigned char> vchData = ParseHex(sWork);
+    if (vchData.size() != 128) {
+			printf("TestGridcoinWork;Invalid Size");
+			return false;
+	}
+	 printf("Checking block in TestGridCoinWork");
+
+        CBlock* pdata = (CBlock*)&vchData[0];
+        // Byte reverse
+        for (int i = 0; i < 128/4; i++)   
+			((unsigned int*)pdata)[i] = ByteReverse(((unsigned int*)pdata)[i]);
+        // Get saved block
+        if (!mapNewBlock.count(pdata->hashMerkleRoot)) {
+			printf("New block count does not match total block count.");
+			return false;
+		}
+        CBlock* pblock = mapNewBlock[pdata->hashMerkleRoot].first;
+        pblock->nTime = pdata->nTime;
+        pblock->nNonce = pdata->nNonce;
+        pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
+        pblock->hashMerkleRoot = pblock->BuildMerkleTree();
+		printf("Creating new gridcoin block in TestWork");
+
+		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
+		printf("Done with checkwork %d",pblock->nTime);
+		return status;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Value getblocktemplate(const Array& params, bool fHelp)

@@ -2,6 +2,7 @@
 #include "ui_miningdialog.h"
 
 #include <QPushButton>
+
 #include <QProcess>
 #include <QTimer>
 #include <QMessageBox>

@@ -19,6 +19,30 @@ boinc
 	<summary>
   Looks up a localized resource of type System.Drawing.Bitmap.
 </summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient75">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient751">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient752">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient753">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradientmiddle">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.GradientU">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
 </member><member name="P:boinc.My.Resources.Resources.mining">
 	<summary>
   Looks up a localized resource of type System.Drawing.Bitmap.

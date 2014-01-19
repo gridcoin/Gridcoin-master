@@ -458,3 +458,181 @@ void BoincHelper::setPublicWalletAddress(const QString &address)
 #warning Not implemented
 #endif
 }
+
+int BoincHelper::checkWork(const QString &lastBlockHash, const QString &greatBlockHash,
+                           const QString &greatGrandParentsBlockHash, const QString &boinchash)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    return m_axObject->dynamicCall("CheckWork(QString,QString,QString,QString)", lastBlockHash, greatBlockHash,
+                                   greatGrandParentsBlockHash, boinchash).toInt();
+#else
+#warning Not implemented
+#endif
+
+    return 0;
+}
+
+void BoincHelper::closeGuiMiner()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("CloseGUIMiner()");
+#else
+#warning Not implemented
+#endif
+}
+
+void BoincHelper::showSql()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("ShowSql()");
+#else
+#warning Not implemented
+#endif
+}
+
+void BoincHelper::showLeaderBoard()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("ShowLeaderboard()");
+#else
+#warning Not implemented
+#endif
+}
+
+void BoincHelper::setNodes(const QString &nodesToString)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("SetNodes(QString), nodesToString");
+#else
+#warning Not implemented
+#endif
+}
+
+int BoincHelper::retrieveSqlHighBlock()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    return m_axObject->dynamicCall("RetrieveSqlHighBlock()").toInt();
+#else
+#warning Not implemented
+#endif
+
+    return 0;
+}
+
+void BoincHelper::setSqlBlock(const QString &blockAsString)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("SetSqlBlock(QString), blockAsString");
+#else
+#warning Not implemented
+#endif
+}
+
+void BoincHelper::setBestBlock(int bestHeight)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("SetBestBlock(int), bestHeight");
+#else
+#warning Not implemented
+#endif
+}
+
+QString BoincHelper::getWork()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return "";
+    }
+
+    return m_axObject->dynamicCall("GetWork()").toString();
+#else
+#warning Not implemented
+#endif
+
+    return "";
+}
+
+void BoincHelper::setWork(const QString &work)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("SetWork(QString), work");
+#else
+#warning Not implemented
+#endif
+}
+
+QString BoincHelper::retrieveSolvedBlockData()
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return "";
+    }
+
+    return m_axObject->dynamicCall("RetrieveSolvedBlockData()").toString();
+#else
+#warning Not implemented
+#endif
+
+    return "";
+}
+
+void BoincHelper::solvedBlockDataCallback(const QString &callback)
+{
+#if defined(WIN32)
+    if (!m_axObject)
+    {
+        return;
+    }
+
+    m_axObject->dynamicCall("SolvedBlockDataCallback(QString), callback");
+#else
+#warning Not implemented
+#endif
+}

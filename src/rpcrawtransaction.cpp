@@ -30,6 +30,10 @@ using namespace json_spirit;
 
 std::string BoincProjectAddress(int projectid);
 int BoincProjectId(std::string grc);
+int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string boinchash);
+int CheckCPUWorkByBlock(int blocknumber);
+int UpgradeClient();
+
 
 extern std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& out_amount, int64& out_locktime, int64& out_projectid, std::string& out_projectaddress, std::string& out_comments, std::string& out_grcaddress);
 
@@ -623,6 +627,7 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 
 	int nMaxDepth = nBestHeight;
     CBlock block;
+
 	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
 	block.ReadFromDisk(pLastBlock);
 	int64 LastBlockTime = pLastBlock->GetBlockTime();
@@ -760,6 +765,8 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 		return minerpayments;
     
 }
+
+
 
 
 
@@ -905,6 +912,76 @@ void SendGridcoinProjectBeacons()
 
 
 
+Value checkwork(const Array& params, bool fHelp)
+{
+	 if (fHelp)
+        throw runtime_error(
+            "checkwork <blocknumber> \n"
+            "Returns CPU Miner Result Code after checking block"
+            + HelpRequiringPassphrase());
+
+	 printf("Starting checkwork...");
+
+    int blocknumber = params[0].get_int();
+    if (blocknumber < 5 || blocknumber > nBestHeight)
+        throw runtime_error("Block number out of range.");
+	Object entry;
+	
+	try {
+	
+	entry.push_back(Pair("Check Work",1.1));
+	entry.push_back(Pair("Block Number",blocknumber));
+	//11-29-2013
+    CBlock block;
+	CBlockIndex* pBlock = FindBlockByHeight(blocknumber);
+	block.ReadFromDisk(pBlock);
+	std::string boinchash = block.hashBoinc.c_str();
+	entry.push_back(Pair("Boinc Hash",boinchash));
+	printf(boinchash.c_str());
+	pBlock = FindBlockByHeight(blocknumber-1);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash1 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-2);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash2 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-3);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash3 = pBlock->phashBlock->GetHex().c_str();
+	entry.push_back(Pair("Last Block Hash",blockhash1));
+	entry.push_back(Pair("Prior Block Hash",blockhash2));
+	entry.push_back(Pair("Great Block Hash",blockhash3));
+	int result = 0;
+	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,boinchash);
+	entry.push_back(Pair("Check Work Result",result));
+	result = CheckCPUWorkByBlock(blocknumber);
+	entry.push_back(Pair("CheckWorkByBlock", result));
+	}
+
+	 catch (std::exception &e) {
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
+	 }
+   
+	return entry;
+
+}
+
+
+
+
+Value upgrade(const Array& params, bool fHelp)
+{
+		if (fHelp || params.size() > 3)
+        throw runtime_error(
+            "upgrade \n"
+            "Upgrades wallet to the latest version.\n"
+            "{}");
+		Object entry;
+		entry.push_back(Pair("Upgrading Wallet Version",1.0));
+		int result = 0;
+		result = UpgradeClient();
+     	entry.push_back(Pair("Result",result));
+		return result;
+}
 
 
 Value listminers(const Array& params, bool fHelp)
@@ -1033,7 +1110,7 @@ Value listcpuminers(const Array& params, bool fHelp)
 				e.push_back(Pair("CPU Verification GRC Address",CPU.strAccount));
 
 				e.push_back(Pair("CPU PoW Key",CPU.cpupowhash));
-					e.push_back(Pair("Total Payments",ae.totalpayments));
+				e.push_back(Pair("Total Payments",ae.totalpayments));
 			
 				e.push_back(Pair("Block #",ae.blocknumber));
 				e.push_back(Pair("TX ID",ae.transactionid));
