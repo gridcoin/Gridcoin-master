@@ -8,6 +8,9 @@
 #include <deque>
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
+
+// openssl/rand.h includes windows.h, which includes winsock.h which we don't want to be included
+#define WIN32_LEAN_AND_MEAN
 #include <openssl/rand.h>
 
 #ifndef WIN32

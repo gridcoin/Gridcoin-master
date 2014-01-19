@@ -28,9 +28,6 @@
 #include <QTranslator>
 #include <QLibraryInfo>
 
-//#include "global_objects.hpp"
-
-
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
 #endif

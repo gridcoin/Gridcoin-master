@@ -18,8 +18,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <openssl/crypto.h>
 
-
-
 #include "global_objects_noui.hpp"
 
 #ifndef WIN32
@@ -35,12 +33,6 @@ CClientUIInterface uiInterface;
 int CloseGuiMiner();
 
 extern void RestartGridcoin3();
-
-
-
-
-
-
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
@@ -953,7 +945,7 @@ bool AppInit2()
                 // If the loaded chain has a wrong genesis, bail out immediately
                 // (we're likely using a testnet datadir, or the other way around).
 
-				if (1==1) {
+                if (1==1) {
 					if (!mapBlockIndex.empty() && pindexGenesisBlock == NULL)
                     return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
 				}

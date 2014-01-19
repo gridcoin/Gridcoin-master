@@ -2,8 +2,6 @@
 #define OVERVIEWPAGE_H
 
 #include <QWidget>
-#include <QAxObject>
-
 
 namespace Ui {
     class OverviewPage;
@@ -29,10 +27,10 @@ public:
     void setClientModel(ClientModel *clientModel);
     void setWalletModel(WalletModel *walletModel);
     void showOutOfSyncWarning(bool fShow);
-	void UpdateBoincUtilization();
 
 public slots:
     void setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 immatureBalance);
+    void updateBoincUtilization();
 
 signals:
     void transactionClicked(const QModelIndex &index);

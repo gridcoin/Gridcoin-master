@@ -7,14 +7,9 @@
 #include <QObject>
 
 #include <QApplication>
-#include <QAxFactory>
 #include <QTabWidget>
 
 #include <QWidget>
-#include <QAxObject>
-
-#include <ActiveQt/qaxbase.h>
-#include <ActiveQt/qaxobject.h>
 
 #include <QTimer>
 
@@ -59,9 +54,6 @@ class BitcoinGUI : public QMainWindow
 public:
     static const QString DEFAULT_WALLET;
 	
-	QString toqstring(int o);
-
-
     explicit BitcoinGUI(QWidget *parent = 0);
     ~BitcoinGUI();
 
@@ -113,12 +105,15 @@ private:
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
-	QAction *miningAction;
+
+#if defined(WIN32)
+    QAction *miningAction;
+    QAction *projectsAction;
 	QAction *emailAction;
-	QAction *projectsAction;
-	QAction *rebuildAction;
-	QAction *sqlAction;
-	QAction *leaderboardAction;
+    QAction *rebuildAction;
+    QAction *sqlAction;
+    QAction *leaderboardAction;
+#endif
 
     QAction *receiveCoinsAction;
     QAction *optionsAction;
@@ -135,6 +130,7 @@ private:
     RPCConsole *rpcConsole;
 
     QMovie *syncIconMovie;
+
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
 
@@ -152,11 +148,6 @@ private:
     void saveWindowGeometry();
     /** Restore window size and position */
     void restoreWindowGeometry();
-
-	
-	
-
-
 
 public slots:
     /** Set number of connections shown in the UI */
@@ -215,14 +206,15 @@ private slots:
     /** Show about dialog */
     void aboutClicked();
 
-	/**show Mining Console */
+    /** Show Mining Console */
 	void miningClicked();
+
 	/** Show the E-Mail Center */
 	void emailClicked();
 
 	void sqlClicked();
 
-	void leaderboardClicked();
+    void leaderboardClicked();
 
 	void rebuildClicked();
 
@@ -242,9 +234,7 @@ private slots:
     /** called by a timer to check if fRequestShutdown has been set **/
     void detectShutdown();
 
-
 	void timerfire();
-
 };
 
 #endif // BITCOINGUI_H

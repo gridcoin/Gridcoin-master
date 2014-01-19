@@ -3,18 +3,26 @@ TARGET = gridcoin-qt
 macx:TARGET = "Gridcoin-Qt"
 VERSION = 0.7.7.2
 INCLUDEPATH += src src/json src/qt
-INCLUDEPATH += tmp/moc/release_shared 
-QT += core gui network
-QT += qaxcontainer
-#QT += axserver
-#QT += widgets
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui network
+
+#INCLUDEPATH += tmp/moc/release_shared
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+    
+    win32 {
+        QT += axcontainer
+    }
+} else {
+    win32 {
+        CONFIG += qaxcontainer
+    }
+}
+
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
-CONFIG += qaxcontainer
-#CONFIG += qaxserver dll
 
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
@@ -124,7 +132,7 @@ genleveldb.depends = FORCE
 PRE_TARGETDEPS += $$PWD/src/leveldb/libleveldb.a
 QMAKE_EXTRA_TARGETS += genleveldb
 # Gross ugly hack that depends on qmake internals, unfortunately there is no other way to do it.
-QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) clean
+QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) clean -y
 
 # regenerate src/build.h
 !win32|contains(USE_BUILD_INFO, 1) {
@@ -149,7 +157,6 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
     src/qt/miningdialog.h \
-	src/qt/gridcoin.h \
     src/qt/editaddressdialog.h \
     src/qt/bitcoinaddressvalidator.h \
     src/alert.h \
@@ -224,7 +231,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/limitedmap.h \
     src/qt/macnotificationhandler.h \
     src/qt/splashscreen.h \
- 
+    src/boinc-cpp/boinchelper.h
+
 SOURCES += src/qt/bitcoin.cpp \
     src/qt/bitcoingui.cpp \
     src/qt/transactiontablemodel.cpp \
@@ -236,7 +244,7 @@ SOURCES += src/qt/bitcoin.cpp \
     src/qt/aboutdialog.cpp \
     src/qt/miningdialog.cpp \
     src/qt/genesisgenerator.cpp \
-	src/gridcoin.cpp \
+    src/gridcoin.cpp \
     src/qt/editaddressdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
     src/alert.cpp \
@@ -295,7 +303,8 @@ SOURCES += src/qt/bitcoin.cpp \
     src/noui.cpp \
     src/leveldb.cpp \
     src/txdb.cpp \
-    src/qt/splashscreen.cpp
+    src/qt/splashscreen.cpp \
+    src/boinc-cpp/boinchelper.cpp
 
 ##
 #RC_FILE  = qaxserver.rc
@@ -367,7 +376,7 @@ OTHER_FILES += README.md \
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    win32:BOOST_LIB_SUFFIX = -mgw44-mt-s-1_50
+    win32:BOOST_LIB_SUFFIX = -mgw46-mt-1_54
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
@@ -410,7 +419,7 @@ win32:!contains(MINGW_THREAD_BUGFIX, 0) {
 
 !win32:!macx {
     DEFINES += LINUX
-    LIBS += -lrt
+    LIBS += -lrt -lproc
     # _FILE_OFFSET_BITS=64 lets 32-bit fopen transparently support large files.
     DEFINES += _FILE_OFFSET_BITS=64
 }
@@ -431,7 +440,7 @@ LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 # -lgdi32 has to happen after -lcrypto (see  #681)
 win32:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
-LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread$$BOOST_THREAD_LIB_SUFFIX -lole32
+LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread$$BOOST_THREAD_LIB_SUFFIX
 win32:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
 macx:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
 

@@ -10,46 +10,29 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <QAxObject>
-#include <ActiveQt/qaxbase.h>
-#include <ActiveQt/qaxobject.h>
-#include <QAxObject>
+
 #include <list>
 #include <QObject>
-#include <Qthread>
-#include "global_objects.hpp"
+#include <QThread>
 
 using namespace std;
 
 
 class MyThread : public QThread
- {
-     Q_OBJECT
-		 
-	 	
+{
+    Q_OBJECT
 
-     void run() {
+    void run()
+    {
+        QString result;
 
-		QString result;
+        while (1==1)
+        {
+            printf("Processing");
+            MilliSleep(2000);
+        }
+    }
 
-
-
-		 while (1==1) 
-
-		 {
-
-			   printf("Processing");
-			   MilliSleep(2000);
-       
-		 }
-
-	 }
-	 signals:
-	    void resultReady(const QString &s);
-
-
-
- };
-
- 
- 
+signals:
+    void resultReady(const QString &s);
+};

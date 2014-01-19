@@ -12,8 +12,6 @@
 using namespace json_spirit;
 using namespace std;
 
-#include "io.h"
-
 
 extern std::string GetGridcoinWork();
 bool TestGridcoinWork(std::string sWork);
