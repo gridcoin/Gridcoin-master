@@ -177,7 +177,11 @@ bool ATTR_WARN_PRINTF(1,2) error(const char *format, ...);
  * __attribute__((format(printf,X,Y))) gets expanded to __attribute__((format(OutputDebugStringF,X,Y)))
  * which confuses gcc.
  */
+#ifdef QT_GUI
+#define printf(...) printf(__VA_ARGS__), fflush(stdout)
+#else
 #define printf OutputDebugStringF
+#endif
 
 void LogException(std::exception* pex, const char* pszThread);
 void PrintException(std::exception* pex, const char* pszThread);
