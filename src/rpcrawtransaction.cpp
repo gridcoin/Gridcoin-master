@@ -30,7 +30,7 @@ using namespace json_spirit;
 
 std::string BoincProjectAddress(int projectid);
 int BoincProjectId(std::string grc);
-int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string boinchash);
+int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string greatgreatgrandparentsblockhash, std::string boinchash);
 int CheckCPUWorkByBlock(int blocknumber);
 int UpgradeClient();
 
@@ -39,9 +39,12 @@ extern std::string TxToString(const CTransaction& tx, const uint256 hashBlock, i
 
 extern double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
 
-
+extern std::map<std::string, MiningEntry> CalculateCPUMining();
 
 extern void SendGridcoinProjectBeacons();
+
+int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 	std::string greatgreatgrandparentsblockhash, std::string boinchash);
+
 
 
 std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex);
@@ -193,30 +196,64 @@ double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address,
 	std::string grc1 = "";
 	double total = 0;
 	bool bCPUTx = false;
+
+		 std::string mygrcaddress = DefaultWalletAddress();
+
+
 	for (unsigned int i = 0; i < tx.vout.size(); i++)
     {
         const CTxOut& txout = tx.vout[i];
 		bCPUTx = false;
-        double paid = DoubleFromAmount(txout.nValue);
-		std::string sPaid = RoundToString(paid,10);
+		
+		std::string sPaid = FormatMoney(txout.nValue);
+			
+		double paid = lexical_cast<double>(sPaid);
+        
+			//std::string sPaid = RoundToString(paid,10);
 		std::string suffix = "";
 		 grc1 = PubKeyToGRCAddress(txout.scriptPubKey);
-		
-		if (sPaid.length() > 4 && paid > 0) {
+	
+
+		if (sPaid.length() > 4 && paid > 0 && grc1.length() > 5) {
 			suffix = sPaid.substr(sPaid.length()-4,4);
-			if (suffix == "7900") bCPUTx = true;
+			if (suffix == "7900" || suffix=="0117" || suffix == "0079" ) bCPUTx = true;
+
+
+			 if (grc1==mygrcaddress && bCPUTx) {
+			 	printf("MyGrc Amount %s and suffix %s",sPaid.c_str(),suffix.c_str());
+			
+			 }
+
+
 		}
 
-	    if (!cpuminerpaymentsconsolidated[grc1].paid && bCPUTx) 
+
+		if (bCPUTx) 
+		{
+	       
+			 	MiningEntry me1 = cpuminerpaymentsconsolidated[grc1];
+
+			if (!me1.paid) 
 				{
-					MiningEntry me;
-					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(grc1,me));
-					cpuminerpaymentsconsolidated[grc1].paid=true;
-					cpuminerpaymentsconsolidated[grc1] = me;
+					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(grc1,me1));
+					me1.paid=true;
+					me1.cputotalpayments=0;
+					cpuminerpaymentsconsolidated[grc1] = me1;
 		 		}
-    	MiningEntry me1 = cpuminerpaymentsconsolidated[grc1];
-		me1.totalpayments = me1.totalpayments + paid;
-		cpuminerpaymentsconsolidated[grc1]=me1;
+   	 	   
+				me1.cputotalpayments = me1.cputotalpayments + paid;
+			try	
+			{	
+				me1.lastpaiddate =tx.nLockTime;
+			} catch(...) 
+			{ }
+            cpuminerpaymentsconsolidated[grc1]=me1;
+			//printf("Created cputx for %s",sPaid.c_str());
+
+
+		}
+
+
     }
     
 	std::string o = "";
@@ -622,7 +659,7 @@ std::string RoundToString(double d, int place)
 
 
 
-std::map<std::string, MiningEntry> CalculatePoolMining()
+std::map<std::string, MiningEntry> CalculatePoolMining(bool bPayDuringWalletHour)
 {
 
 	int nMaxDepth = nBestHeight;
@@ -657,7 +694,7 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 	double total_payment = 0;
 	double iBU = 0;
 	double compensation = 0;
-	printf("Reaching payout to miners.");
+//	printf("Reaching payout to miners.");
 	double total_shares = 0;
 
 	MiningEntry ae;
@@ -698,35 +735,41 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 										//11-1-2013  At this point in time we are using GRC public addresses, check for size between 20-40
 
 										if (iBU > 0 && wallet.length() > 20 && wallet.length() < 44) {
-														
-											MiningEntry meNew;
-											compensated_rows++;
-											string blocktime =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pblockindex->GetBlockTime()).c_str();
-											int blockhour = boost::lexical_cast<int>(DateTimeStrFormat("%H", pblockindex->GetBlockTime()).c_str());
-											int wallethour = HourFromGRCAddress(wallet);
-											blockcache[i]=1;
-											meNew = minerpayments[wallet];
-											if (meNew.paid != true) {
-												meNew.paid=true;
-												meNew.payments=0;
-												minerpayments.insert(map<string,MiningEntry>::value_type(wallet,meNew));
-											} 
 											
-											meNew.strAccount = wallet;
-											meNew.shares = meNew.shares + iBU;
-											meNew.payments++;
-											meNew.blockhour = blockhour;
-											meNew.wallethour = wallethour;
-											meNew.boinchash = block.hashBoinc;
-											//string narr = "GRCMiningPmt_Shares=" + RoundToString(total_shares,2) + "_" + RoundToString(rbpps,7) + "RBPPS[Total:GRC" + RoundToString(payout,4) + "],Payment=" + RoundToString(total_payment,4);
-											string long_narr = "Shares:" + RoundToString(meNew.shares,2) +",Block:" + RoundToString(i,0) + ",TimeSpan:" + RoundToString(nActualTimespan,0);
-											meNew.strComment = long_narr;
-											minerpayments[wallet]=meNew;
-											total_utilization = total_utilization + iBU;
-											total_rows++;
-											//printf("PoolMining: %s ",long_narr.c_str());
-											total_shares = total_shares + iBU;
-					
+											int64 currenttime = GetTime();
+
+											int currenthour = boost::lexical_cast<int>(DateTimeStrFormat("%H", currenttime));
+				     						int wallethour = HourFromGRCAddress(wallet);
+				                            if (  (bPayDuringWalletHour && wallethour==currenthour)    ||  !bPayDuringWalletHour)
+											{
+
+
+											  MiningEntry meNew;
+											  compensated_rows++;
+											  string blocktime =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pblockindex->GetBlockTime()).c_str();
+									 		  int blockhour = boost::lexical_cast<int>(DateTimeStrFormat("%H", pblockindex->GetBlockTime()).c_str());
+											  blockcache[i]=1;
+											  meNew = minerpayments[wallet];
+											  if (meNew.paid != true) {
+												 meNew.paid=true;
+												 meNew.payments=0;
+												 minerpayments.insert(map<string,MiningEntry>::value_type(wallet,meNew));
+											  } 
+											
+											  meNew.strAccount = wallet;
+											  meNew.shares = meNew.shares + iBU;
+											  meNew.payments++;
+											  meNew.blockhour = blockhour;
+											  meNew.wallethour = wallethour;
+											  meNew.boinchash = block.hashBoinc;
+											  //string narr = "GRCMiningPmt_Shares=" + RoundToString(total_shares,2) + "_" + RoundToString(rbpps,7) + "RBPPS[Total:GRC" + RoundToString(payout,4) + "],Payment=" + RoundToString(total_payment,4);
+											  string long_narr = "Shares:" + RoundToString(meNew.shares,2) +",Block:" + RoundToString(i,0) + ",TimeSpan:" + RoundToString(nActualTimespan,0);
+											  meNew.strComment = long_narr;
+											  minerpayments[wallet]=meNew;
+											  total_utilization = total_utilization + iBU;
+											  total_rows++;
+											  total_shares = total_shares + iBU;
+											}
 										}
 
 								}
@@ -761,7 +804,6 @@ std::map<std::string, MiningEntry> CalculatePoolMining()
 		me.difficulty  = diff;
 
 		minerpayments.insert(map<string,MiningEntry>::value_type("totals",me));
-		//printf("rbpps: %d ",rbpps);
 		return minerpayments;
     
 }
@@ -798,7 +840,8 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 	double total_payment = 0;
 	double iBU = 0;
 	double compensation = 0;
-	printf("Reaching payout CPU to miners.");
+
+	printf("Reaching calculatecpumining.");
 	double total_shares = 0;
 	
 	MiningEntry ae;
@@ -818,7 +861,7 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 		}
     }
 	
-
+	
     for (int i = istart; i <= nMaxDepth; i++)
     {
      	CBlockIndex* pblockindex = FindBlockByHeight(i);
@@ -831,9 +874,11 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 		cpuminerpayments.insert(map<string,MiningEntry>::value_type("totals",me));
 	}  
 
+
 	//Consolidate the Project-CPUMiners-ProjectCredits collection into CPUMiners collection - For each CPU miner, verify PoW
-	int inum=0;
-	
+	int iapproved=0;
+	double network_credits = 0;
+
 	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
 	{
 
@@ -842,24 +887,174 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 
 	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && pow.cpupowverificationtries > 0 && pow.cpupowverificationresult > 0) 
 			{
-				inum++;
-		    	
-				if (!cpuminerpaymentsconsolidated[ae.strAccount].paid) 
-				{ 
-					MiningEntry me2;
-					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(ae.strAccount,me2));
-					cpuminerpaymentsconsolidated[ae.strAccount].paid=true;
-					cpuminerpaymentsconsolidated[ae.strAccount] = me2;
-		 		}
-	            MiningEntry me1;
+				//1-14-2014 consolidate mining payments
+				MiningEntry me1;
 				me1 = cpuminerpaymentsconsolidated[ae.strAccount];
-         	    me1.strAccount = ae.strAccount;
+         	    
+				if (me1.paid != true) 
+				{ 
+					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(ae.strAccount,me1));
+					me1.paid=true;
+					me1.credits=0;
+					me1.networkcredits=0;
+					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
+		 		}
+	            me1.strAccount = ae.strAccount;
 				me1.credits = me1.credits + pow.cpupowverificationresult;
-			    
+	            network_credits = network_credits+me1.credits;		    
+				//printf("Increasing network credits by %d",network_credits);
+
 			    cpuminerpaymentsconsolidated[ae.strAccount] = me1;
+			}
+			
+    }
+
+
+
+
+
+	//Gridcoin Add total shares to cpuminerpaymentsconsolidated:
+	double max_daily_subsidy = 576*150;  //576 cpu-miners @ 150 grc per day.
+	double rbpps = max_daily_subsidy/(network_credits+.001);
+	
+	//Total everything
+
+
+		for(map<string,MiningEntry>::iterator ii2=cpuminerpaymentsconsolidated.begin(); ii2!=cpuminerpaymentsconsolidated.end(); ++ii2) 
+	{
+
+			MiningEntry ae2 = cpuminerpaymentsconsolidated[(*ii2).first];
+			MiningEntry pow2 = cpupow[ae2.homogenizedkey];
+	        if (ae2.strAccount.length() > 5 && ae2.projectuserid.length() > 2 && pow2.cpupowverificationtries > 0 && pow2.cpupowverificationresult > 0) 
+			{
+
+			 				iapproved++;			
+
+			}
+	}
+
+		printf("End of CPUMiner Totals");
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+
+
+	try {
+	
+		
+		
+		int iApproved2 = 0;
+
+		
+		for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
+	{
+
+			MiningEntry ae = cpuminerpayments[(*ii).first];
+			MiningEntry pow = cpupow[ae.homogenizedkey];
+
+	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && pow.cpupowverificationtries > 0 && pow.cpupowverificationresult > 0) 
+			{
+				
+ 	                MiningEntry me1;
+ 				    me1 = cpuminerpaymentsconsolidated[ae.strAccount];
+					me1.networkcredits = network_credits;
+        			me1.rbpps = rbpps;
+					double compensation = me1.rbpps * me1.credits;
+					if (compensation > 150) compensation = 150;
+					me1.compensation = compensation;
+
+					double owed = compensation - me1.cputotalpayments;
+					if (owed < 0) owed = 0;
+					if (owed > 150) owed=150;
+					me1.owed = owed;
+
+					me1.approvedtransactions = iapproved;
+					//1-20-2014 Change this to a max of 450 for cpuminer payments:
+					double next_payment_amount = 450/(iapproved+.01);
+					if (next_payment_amount > owed) next_payment_amount = owed;
+					me1.nextpaymentamount = next_payment_amount;
+					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
+				//	if (me1.nextpaymentamount > .05) iApproved2++;
 			}
 
     }
+
+
+
+		//1-23-2014
+
+			for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
+		{
+
+			MiningEntry me1 = cpuminerpaymentsconsolidated[(*ii).first];
+	//		MiningEntry pow = cpupow[ae.homogenizedkey];
+	        // MiningEntry me1 = cpuminerpaymentsconsolidated[ae.strAccount];
+	
+	        if (me1.nextpaymentamount > .05) 
+			{
+				
+	      //  		me1.networkcredits = network_credits;
+					iApproved2++;
+
+			}
+		}
+
+
+
+		for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
+	{
+
+			MiningEntry ae = cpuminerpayments[(*ii).first];
+			MiningEntry pow = cpupow[ae.homogenizedkey];
+	         MiningEntry me1 = cpuminerpaymentsconsolidated[ae.strAccount];
+	
+	        if (me1.nextpaymentamount > .05) 
+			{
+				
+	        		me1.networkcredits = network_credits;
+        			me1.rbpps = rbpps;
+					double compensation = me1.rbpps * me1.credits;
+					if (compensation > 150) compensation = 150;
+					me1.compensation = compensation;
+				    double owed = compensation - me1.cputotalpayments;
+					if (owed < 0) owed = 0;
+					if (owed > 150) owed=150;
+					me1.owed = owed;
+					me1.approvedtransactions = iApproved2;
+					//1-20-2014 Change this to a max of 450 for cpuminer payments:
+					double next_payment_amount = 450/(iApproved2+.01);
+					if (next_payment_amount > owed) next_payment_amount = owed;
+					me1.nextpaymentamount = next_payment_amount;
+					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
+				//}
+			}
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	} catch(...)
+
+	{
+
+		printf("Error in calculate cpu mining");
+
+	}
+
+
+		
 
 	return cpuminerpayments;
 
@@ -871,13 +1066,17 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 
 void SendGridcoinProjectBeacons()
 {
+	printf("Sending beacons:");
 
-	if (!GetCPUMiningMode()) return;
+	if (!GetCPUMiningMode()) {
+		printf("CPU mining disabled; no beacons to send.");
+		return;
+	}
 
 	std::map<std::string, MiningEntry> cpumap = CalculateCPUMining();
 	//For each Gridcoin project in the lookback period, send a project beacon
 	MiningEntry me;
-
+	
 	for (int i = 1; i < 6; i++) 
 	{
 		std::string key = RoundToString(i,0) + DefaultWalletAddress();
@@ -885,7 +1084,7 @@ void SendGridcoinProjectBeacons()
 		std::string userid = GetBoincProjectUserId(i);
 		if (userid.length() > 2)  
 		{
-			if (cpumap[key].locktime == 0) 
+			if (cpumap[key].locktime == 0)
 			{
 				
 				SendMultiProngedTransaction(i,userid);
@@ -895,8 +1094,12 @@ void SendGridcoinProjectBeacons()
 			}
 			else
 			{
-				printf("Transaction previously sent.");
+				printf("Transaction %d previously sent.",i);
 			}
+		} else
+		{
+					printf("User not participating in project %d.",i);
+		
 		}
 
 	}
@@ -909,11 +1112,53 @@ void SendGridcoinProjectBeacons()
 
 
 
+bool strreplace(std::string& str, const std::string& from, const std::string& to) {
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+
+
+
+
+bool IsBackslash(char c) 
+{  
+	int asc = (int)c;
+	if (asc == 92) return true;
+	return false;
+} 
+
+std::string ConvBS(std::string s) 
+{
+
+	char ch;
+	std::string sOut = "";
+	for (int i=0;i < s.length(); i++) 
+	{
+		ch = s.at(i);
+		if (IsBackslash(ch)) {
+			sOut = sOut + "~";
+		}
+		else
+			{
+				sOut = sOut + ch;
+		}
+
+	}
+	return sOut;
+}
+
 
 
 
 Value checkwork(const Array& params, bool fHelp)
 {
+	//RPCcheckwork 1-25-2014
+
+
 	 if (fHelp)
         throw runtime_error(
             "checkwork <blocknumber> \n"
@@ -937,7 +1182,6 @@ Value checkwork(const Array& params, bool fHelp)
 	block.ReadFromDisk(pBlock);
 	std::string boinchash = block.hashBoinc.c_str();
 	entry.push_back(Pair("Boinc Hash",boinchash));
-	printf(boinchash.c_str());
 	pBlock = FindBlockByHeight(blocknumber-1);
 	block.ReadFromDisk(pBlock);
 	std::string blockhash1 = pBlock->phashBlock->GetHex().c_str();
@@ -947,23 +1191,45 @@ Value checkwork(const Array& params, bool fHelp)
 	pBlock = FindBlockByHeight(blocknumber-3);
 	block.ReadFromDisk(pBlock);
 	std::string blockhash3 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-4);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash4 = pBlock->phashBlock->GetHex().c_str();
+
+	printf("Lastblockhash %s",blockhash1.c_str());
+	printf("Lastblockhash %s",blockhash2.c_str());
+printf("Lastblockhash %s",blockhash3.c_str());
+printf("Lastblockhash %s",blockhash4.c_str());
+
+boinchash = ConvBS(boinchash);
+
+printf("Boinchash %s",boinchash.c_str());
+
+
+
 	entry.push_back(Pair("Last Block Hash",blockhash1));
 	entry.push_back(Pair("Prior Block Hash",blockhash2));
 	entry.push_back(Pair("Great Block Hash",blockhash3));
+	entry.push_back(Pair("Great Great Block Hash",blockhash4));
+
+
 	int result = 0;
-	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,boinchash);
+	result = CheckCPUWorkLinux(blockhash1,blockhash2,blockhash3,blockhash4,boinchash);
+	printf("Last result %d",result);
+
 	entry.push_back(Pair("Check Work Result",result));
 	result = CheckCPUWorkByBlock(blocknumber);
 	entry.push_back(Pair("CheckWorkByBlock", result));
 	}
-
-	 catch (std::exception &e) {
+	//	 catch (std::exception &e) {
+	 catch (...) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
 	 }
    
 	return entry;
 
 }
+
+
 
 
 
@@ -998,7 +1264,7 @@ Value listminers(const Array& params, bool fHelp)
 
 	Array results;
 
-	minerpayments = CalculatePoolMining();
+	minerpayments = CalculatePoolMining(false);
     
     int inum = 0;
    
@@ -1061,6 +1327,7 @@ Value listminers(const Array& params, bool fHelp)
 Value listcpuminers(const Array& params, bool fHelp)
 {
 
+	
 	printf("Creating cpu miner payout report...");
 		if (fHelp || params.size() > 3)
         throw runtime_error(
@@ -1071,8 +1338,8 @@ Value listcpuminers(const Array& params, bool fHelp)
 	RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
 	Array results;
 
-    if (nMinerPaymentCount > 5) nMinerPaymentCount=0;
-	nMinerPaymentCount++;
+    //if (nMinerPaymentCount > 5) nMinerPaymentCount=0;
+	//nMinerPaymentCount++;
 	cpuminerpayments.clear();
 	cpuminerpayments = CalculateCPUMining();
 	    
@@ -1082,7 +1349,7 @@ Value listcpuminers(const Array& params, bool fHelp)
     double total_payments = 0;
 	Object entry;
 	
-	entry.push_back(Pair("CPU Credit Details Report Version",1.01));
+	entry.push_back(Pair("CPU Credit Details Report Version",1.02));
 	entry.push_back(Pair("Difficulty",cpuminerpayments["totals"].difficulty));
     entry.push_back(Pair("Lookback Period", cpuminerpayments["totals"].lookback));
 
@@ -1110,7 +1377,7 @@ Value listcpuminers(const Array& params, bool fHelp)
 				e.push_back(Pair("CPU Verification GRC Address",CPU.strAccount));
 
 				e.push_back(Pair("CPU PoW Key",CPU.cpupowhash));
-				e.push_back(Pair("Total Payments",ae.totalpayments));
+				e.push_back(Pair("Total Payments",ae.cputotalpayments));
 			
 				e.push_back(Pair("Block #",ae.blocknumber));
 				e.push_back(Pair("TX ID",ae.transactionid));
@@ -1126,10 +1393,12 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 	Object e2;
 
+	//1-23-2014
 
 	//Emit Consolidated report
-	e2.push_back(Pair("Consolidated CPU Credit Report Version",1.0));
+	e2.push_back(Pair("Consolidated CPU Credit Report Version",1.3));
 	results.push_back(e2);
+	double gtp = 0;
 
 	inum=0;
 	for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
@@ -1137,18 +1406,29 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
 
-	        if (ae.strAccount.length() > 5) 
-			{
+	        if (ae.strAccount.length() > 5 && ae.nextpaymentamount > .05) 
+			{ 
 				double compensation = ae.shares*rbpps;
 	     		Object e3;
 				inum++;
 				e3.push_back(Pair("CPU Miner #",inum));
 				e3.push_back(Pair("Payment Comment",ae.strComment));
 				e3.push_back(Pair("GRC Address",ae.strAccount));
-				e3.push_back(Pair("Total Avg Daily Credits",ae.credits));
-				e3.push_back(Pair("Last Paid",ae.lastpaid));
-				e3.push_back(Pair("Total Payments",ae.totalpayments));
+
+				e3.push_back(Pair("Total Avg Daily Credits",RoundToString(ae.credits,2)));
+				e3.push_back(Pair("Total Daily CPU Payments to your GRC Address",RoundToString(ae.cputotalpayments,4)));
+				e3.push_back(Pair("Amount Earned",RoundToString(ae.compensation,4)));
+				gtp=gtp+ae.compensation;
+
+				e3.push_back(Pair("Network CPUMined Boinc Credits",RoundToString(ae.networkcredits,2)));
+				e3.push_back(Pair("RBPPBAC Payment Per Boinc Avg Credit",RoundToString(ae.rbpps,4)));
+				e3.push_back(Pair("Outstanding Owed Amount",RoundToString(ae.owed,4)));
+				e3.push_back(Pair("Next Payment Amount",RoundToString(ae.nextpaymentamount,2)));
+					e3.push_back(Pair("Last Paid",ae.lastpaiddate));
 			
+				e3.push_back(Pair("Approved CPU-Mining Pool Payment Count",ae.approvedtransactions));
+
+
 	     		results.push_back(e3);
 			}
 
@@ -1156,7 +1436,7 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 
 		Object e5;
-		e5.push_back(Pair("Grand Total Payments",RoundToString(total_payments,6)));
+		e5.push_back(Pair("Grand Total Payments",RoundToString(gtp,6)));
 		results.push_back(e5);
         return results;
 

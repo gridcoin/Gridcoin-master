@@ -38,8 +38,11 @@ Module modBoincCredits
         Dim totalCredit As Double
         Dim dTotalProjects As Double
         Dim dTotalHostAvg As Double
-        Dim sProjects As String = ""
+            Dim sProjects As String = ""
+            Dim dLockTime As DateTime
+            Dim bValidLockTime As Boolean = False
             Dim sHostId As String = ""
+            Dim dAvgCredit As Double = 0
             Dim sSmallProj As String = ""
             Dim sSmallProjExpanded As String = ""
             Dim sProjectsExpanded As String = ""
@@ -49,7 +52,11 @@ Module modBoincCredits
                 If sTemp.Contains("<project_name>") Then
                     sProject = XMLValue(sTemp)
                     sSmallProj = Left(sProject, 5)
-
+                    sHostId = ""
+                    dCredit = 0
+                    dAvgCredit = 0
+                    dLockTime = CDate("1-1-1900")
+                    bValidLockTime = False
                     If Not sProjects.Contains(sSmallProj) Then
                         sProjects = sProjects + sSmallProj + ":"
                     End If
@@ -62,16 +69,17 @@ Module modBoincCredits
                 End If
                 If sTemp.Contains("hostid") Then
                     sHostId = XMLValue(sTemp)
-
                 End If
                 If sTemp.Contains("host_expavg_credit") Then
-                    dCredit = Val(XMLValue(sTemp))
-                    dTotalHostAvg = dTotalHostAvg + dCredit
-                    AddCredits(sProject, dCredit, 0, "host_expavg_credit")
-                    sSmallProjExpanded = sSmallProj + "_" + Trim(Val(dCredit)) + "_" + Trim(sHostId)
-
-                    If Not sProjectsExpanded.Contains(sProjectsExpanded) Then
+                    dAvgCredit = Val(XMLValue(sTemp))
+                    sSmallProjExpanded = sSmallProj + "_" + Trim(Math.Round(Val(dAvgCredit), 0)) + "_" + Trim(sHostId)
+                    dLockTime = HarvestLockTime(io, bValidLockTime)
+                    If Not sProjectsExpanded.Contains(sSmallProjExpanded) And bValidLockTime Then
                         sProjectsExpanded = sProjectsExpanded + sSmallProjExpanded + ":"
+                    End If
+                    If bValidLockTime And dAvgCredit > 0 Then
+                        dTotalHostAvg = dTotalHostAvg + dAvgCredit
+                        AddCredits(sProject, dAvgCredit, 0, "host_expavg_credit")
                     End If
                 End If
             Loop
@@ -86,9 +94,56 @@ Module modBoincCredits
         Catch ex As Exception
 
         End Try
+    End Function
+    Public Function UnixTimeStampToDateTime(dTimeStamp As Double) As DateTime
+        Try
+
+        Dim dateTime As System.DateTime = New System.DateTime(1970, 1, 1, 0, 0, 0, 0)
+        dateTime = dateTime.AddSeconds(dTimeStamp)
+            Return dateTime
+
+        Catch ex As Exception
+            Return CDate("1-1-1900")
+
+        End Try
 
     End Function
+    Public Function HarvestLockTime(ByRef io As System.IO.StreamReader, ByRef bLockTimeValid As Boolean) As DateTime
+        'Verify Lock time is valid with Boinc:
+        Try
 
+        Dim stemp As String
+            Dim dunixtime As Double
+            Dim hiunixtime As Double
+
+        bLockTimeValid = False
+        While Not io.EndOfStream
+                stemp = io.ReadLine
+                If stemp.Contains("</project>") Then
+                    Dim locktime As DateTime = UnixTimeStampToDateTime(hiunixtime)
+                    If DateDiff(DateInterval.Day, locktime, Now) < 3 Then bLockTimeValid = True 'LockTime must be within 3 days to be valid, otherwise user will need to update their project!
+                    Return locktime
+                End If
+
+                If stemp.Contains("rec_time") Then
+                    dunixtime = Val(XMLValue(stemp))
+                    If dunixtime > hiunixtime Then hiunixtime = dunixtime
+                End If
+                If stemp.Contains("min_rpc_time") Then
+                    dunixtime = Val(XMLValue(stemp))
+                    If dunixtime > hiunixtime Then hiunixtime = dunixtime
+                End If
+
+
+            End While
+            Return CDate("1-1-1900")
+        Catch ex As Exception
+            Return CDate("1-1-1900")
+        End Try
+
+        Return CDate("1-1-1900")
+
+    End Function
     Public Function ReturnBoincCreditsAtPointInTime(ByVal lLookbackSecs) As Double
         Try
 
@@ -141,7 +196,7 @@ Module modBoincCredits
     Public Function Housecleaning() As Double
 
 
-        Dim r As Long = Rnd(1) * 100 : If r < 80 Then Exit Function
+        Dim r As Long = Rnd(1) * 100 : If r < 70 Then Exit Function
 
 
         Try
@@ -170,10 +225,12 @@ Module modBoincCredits
                 iRow = iRow + 1
 
                 If UBound(vTemp) > 3 Then
-                    If IsDate(vTemp(0)) Then
-                        dtEntry = vTemp(0)
-                        If dtEntry > dtStart Then
-                            oSW.WriteLine(ToBase64(sTemp))
+                    If Len(Trim("" & vTemp(0))) > 0 Then
+                        If IsDate(vTemp(0)) Then
+                            dtEntry = vTemp(0)
+                            If dtEntry > dtStart Then
+                                oSW.WriteLine(ToBase64(sTemp))
+                            End If
                         End If
 
                     End If
@@ -193,37 +250,44 @@ Module modBoincCredits
 
     End Function
     Private Function AddCredits(ByVal sName As String, ByVal dCredit As Double, ByVal dProjectCount As Double, ByVal sCounterType As String)
+        Dim oSR As StreamWriter
+
         Try
 
-        Dim sPath As String
-        sPath = GetBoincDataFolder()
+            Dim sPath As String
+            sPath = GetBoincDataFolder()
 
-        sPath = sPath + Des3DecryptData("JhY0OC9WiRedUiptEb+eofCHaYrQ5GwjmLec5apcwEs=")
+            sPath = sPath + Des3DecryptData("JhY0OC9WiRedUiptEb+eofCHaYrQ5GwjmLec5apcwEs=")
 
-        Dim oSR As New StreamWriter(sPath, True)
-        Dim sRow As String
-        sRow = Trim(Now) + "," + sName + "," + Trim(dCredit) + "," + Trim(dProjectCount) + "," + sCounterType
-        sRow = ToBase64(sRow)
-        oSR.WriteLine(sRow)
+            oSR = New StreamWriter(sPath, True)
+            Dim sRow As String
+            sRow = Trim(Now) + "," + sName + "," + Trim(dCredit) + "," + Trim(dProjectCount) + "," + sCounterType
+            sRow = ToBase64(sRow)
+            oSR.WriteLine(sRow)
             oSR.Close()
         Catch ex As Exception
+            Try
+                If Not oSR Is Nothing Then oSR.Close()
 
+            Catch exx As Exception
+
+            End Try
         End Try
 
     End Function
     Private Function XMLValue(ByVal sRow As String) As String
         Try
 
-        Dim iEnd As Long
-        Dim iStart As Long
-        iStart = InStr(1, sRow, Chr(62))
-        If iStart = 0 Then Exit Function
-        iEnd = InStr(iStart, sRow, Chr(60) + Chr(47), CompareMethod.Text)
+            Dim iEnd As Long
+            Dim iStart As Long
+            iStart = InStr(1, sRow, Chr(62))
+            If iStart = 0 Then Exit Function
+            iEnd = InStr(iStart, sRow, Chr(60) + Chr(47), CompareMethod.Text)
 
-        If iEnd = 0 Then Exit Function
-        Dim sValue As String
+            If iEnd = 0 Then Exit Function
+            Dim sValue As String
 
-        sValue = Mid(sRow, iStart + 1, iEnd - iStart - 1)
+            sValue = Mid(sRow, iStart + 1, iEnd - iStart - 1)
             Return sValue
         Catch ex As Exception
 
@@ -259,19 +323,33 @@ Module modBoincCredits
         Return bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9
     End Function
 
-    Private Function CalculateApiURL(ByVal lProjectId As Long, ByVal sBoincUserId As String) As String
+    Public Function CalculateApiURL(ByVal lProjectId As Long, ByVal sBoincUserId As String) As String
         Try
 
-        Dim vAPI() As String
-        vAPI = Split(TeamGridcoinProjects(lProjectId), ",")
-        Dim sWap As String
-        sWap = vAPI(1) + "/userw.php" + "?" + "id=" + sBoincUserId
+            Dim vAPI() As String
+            vAPI = Split(TeamGridcoinProjects(lProjectId), ",")
+            Dim sWap As String
+            sWap = vAPI(1) + "/userw.php" + "?" + "id=" + sBoincUserId
             Return sWap
         Catch ex As Exception
 
         End Try
 
     End Function
+    Public Function CalculateFriendlyURL(ByVal lProjectId As Long, ByVal sBoincUserId As String) As String
+        Try
+
+            Dim vAPI() As String
+            vAPI = Split(TeamGridcoinProjects(lProjectId), ",")
+            Dim sWap As String
+            sWap = vAPI(1) + "/show_user.php?userid=" + sBoincUserId
+            Return sWap
+        Catch ex As Exception
+
+        End Try
+
+    End Function
+
     Public Function ExtractCreditsByProject(ByVal lProjectId As Long, ByVal lUserId As Long, ByVal sGRCAddress As String, ByRef sOutStruct As String) As Double
         'ExtractCreditsByProject
         '-1 Wallet address does not match API address

@@ -142,6 +142,16 @@ Module modGRC
             Return ""
         End Try
     End Function
+    Public Function cBOO(data As Object) As Boolean
+        Dim bOut As Boolean
+        Try
+            Dim sBoo As String = data.ToString
+            bOut = CBool(sBoo)
+        Catch ex As Exception
+            Return False
+        End Try
+        Return bOut
+    End Function
     Public Sub KillGuiMiner()
         Log("Closing all miners (guiminer,cgminer,conhost,reaper).")
 
@@ -299,6 +309,9 @@ Module modGRC
 
 
     Public Function LoadNodes(data As String)
+        Exit Function '
+        'Fix:1/5/2014 8:01:18 AM, getnewid:Argument 'Expression' cannot be converted to type 'DBNull'.
+
         Dim mData As New Sql
 
         Dim vData() As String

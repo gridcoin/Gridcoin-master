@@ -33,7 +33,7 @@ Partial Class Form1
         Me.ProgressBar1.MarqueeAnimationSpeed = 11
         Me.ProgressBar1.Maximum = 1000
         Me.ProgressBar1.Name = "ProgressBar1"
-        Me.ProgressBar1.Size = New System.Drawing.Size(501, 11)
+        Me.ProgressBar1.Size = New System.Drawing.Size(639, 11)
         Me.ProgressBar1.Step = 5
         Me.ProgressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee
         Me.ProgressBar1.TabIndex = 0
@@ -42,10 +42,10 @@ Partial Class Form1
         'txtStatus
         '
         Me.txtStatus.AutoSize = True
-        Me.txtStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtStatus.Font = New System.Drawing.Font("Segoe Print", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtStatus.Location = New System.Drawing.Point(12, 23)
         Me.txtStatus.Name = "txtStatus"
-        Me.txtStatus.Size = New System.Drawing.Size(21, 20)
+        Me.txtStatus.Size = New System.Drawing.Size(30, 33)
         Me.txtStatus.TabIndex = 1
         Me.txtStatus.Text = "..."
         '
@@ -56,13 +56,13 @@ Partial Class Form1
         Me.AutoSize = True
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
         Me.BackColor = System.Drawing.Color.Black
-        Me.ClientSize = New System.Drawing.Size(525, 96)
+        Me.ClientSize = New System.Drawing.Size(678, 96)
         Me.Controls.Add(Me.txtStatus)
         Me.Controls.Add(Me.ProgressBar1)
         Me.ForeColor = System.Drawing.Color.FromArgb(CType(CType(128, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "Form1"
-        Me.Text = "Gridcoin - Maintenance"
+        Me.Text = "Gridcoin - Maintenance v1.1"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

@@ -25,7 +25,7 @@
 
 @set QTPATH=c:\qt\4.8.4\bin
 
-@%QTPATH%\qmake.exe %QMPS%
+@%QTPATH%\qmake.exe %QMPS% USE_QRCODE=1
 @echo.
 @echo.
 @echo building qt - make...

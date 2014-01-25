@@ -61,6 +61,9 @@ static const int COINBASE_MATURITY = 100;
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 /** Maximum number of script-checking threads allowed */
+//450 + up to 4 for transaction fees
+static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 454;
+
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 #ifdef USE_UPNP
 static const int fHaveUPnP = true;

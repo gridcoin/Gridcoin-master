@@ -24,6 +24,8 @@ std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& o
 double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
 
 
+
+
 double GetDifficulty(const CBlockIndex* blockindex)
 {
     // Floating point number that is a multiple of the minimum difficulty,
@@ -105,6 +107,7 @@ int BoincProjectId(std::string grc)
    return 0;
 }
 
+
 std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex)
 {
    // result.push_back(Pair("hash", block.GetHash().GetHex()));
@@ -141,11 +144,13 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 	
 	  if (grc.length() > 20 && projectid > 0 && project_amount > 0 && projectaddress.length() > 20) {
 			strAccount = RoundToString(projectid,0) + out_grc_address;
-  	    	MiningEntry me;
-			if (!cpuminerpayments[strAccount].paid) 
+  	    	MiningEntry me = cpuminerpayments[strAccount];
+
+			if (!me.paid) 
 			{
 				cpuminerpayments.insert(map<string,MiningEntry>::value_type(strAccount,me));
-				cpuminerpayments[strAccount].paid=true;
+				me.paid = true;
+				cpuminerpayments[strAccount]=me;
 	 		}
      	    me.strAccount = out_grc_address;
     	    me.projectid = projectid;
@@ -155,19 +160,27 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 			me.projectuserid = account1;
      		me.transactionid = txid;
 	    	me.blocknumber = blockindex->nHeight;
-			me.projectaddress = projectaddress;
+	 		me.projectaddress = projectaddress;
 			me.strComment = comments + ":"+cpucomments;
 			me.homogenizedkey = strAccount;
-	  	    printf("Logging cpuminer payment for %s",grc.c_str());
+	  	    //printf("Logging cpuminer payment for %s",grc.c_str());
 	    	cpuminerpayments[strAccount]=me;
 			//Add this item to the CpuPoW check map
-			if (!cpupow[strAccount].paid) 
+			MiningEntry cpume = cpupow[strAccount];
+					
+			if (!cpume.paid) 
 			{
-					cpupow.insert(map<string,MiningEntry>::value_type(strAccount,me));
-					cpupow[strAccount] = me;
-					cpupow[strAccount].paid = true;
-					cpupow[strAccount].cpupowverificationresult = 0;
-					cpupow[strAccount].cpupowverificationtries = 0;
+					cpume.strAccount = me.strAccount;
+					cpume.projectid = projectid;
+					cpume.locktime = me.locktime;
+					cpume.projectuserid = account1;
+					cpume.transactionid = txid;
+					cpume.blocknumber = me.blocknumber;
+					cpume.projectaddress = projectaddress;
+					cpume.homogenizedkey=strAccount;
+					cpupow.insert(map<string,MiningEntry>::value_type(strAccount,cpume));
+					cpume.paid=true;
+					cpupow[strAccount] = cpume;
 			}
 
 	  }
@@ -274,7 +287,7 @@ Value getblockbyhash(const Array& params, bool fHelp)
 }
 
 
-//MainGetBlock 11-22-2013
+//MainGetBlock 
 
 Value getblock(const Array& params, bool fHelp)
 {

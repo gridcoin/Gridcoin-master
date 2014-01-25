@@ -232,7 +232,7 @@ Public Module modCryptography
     End Function
 
     Public Function CheckWork(ByVal sGridBlockHash1 As String, ByVal sGridBlockHash2 As String, _
-                              ByVal sGridBlockHash3 As String, ByVal sBoincHash As String) As Double
+                              ByVal sGridBlockHash3 As String, sGridBlockHash4 As String, ByVal sBoincHash As String) As Double
         'CheckWorkResultCodes
 
         '+1 Valid
@@ -259,7 +259,7 @@ Public Module modCryptography
         If Len(sMD5) < 7 Then Return -12 'MD5 Error
 
         'Verify CPUSourceHash contains Gridcoin block hash
-        If (Not sCPUSourceHash.Contains(sGridBlockHash1) And Not sCPUSourceHash.Contains(sGridBlockHash2) And Not sCPUSourceHash.Contains(sGridBlockHash3)) Then
+        If (Not sCPUSourceHash.Contains(sGridBlockHash1) And Not sCPUSourceHash.Contains(sGridBlockHash2) And Not sCPUSourceHash.Contains(sGridBlockHash3) And Not sCPUSourceHash.Contains(sGridBlockHash4)) Then
             Return -1 'CPU Hash does not contain Gridcoin block hash
         End If
         'Extract MD5 from Source Hash
@@ -295,7 +295,6 @@ Public Module modCryptography
             And cHash.Contains(Trim(Val(sThreadCount))) Then
             Return 1
         End If
-
 
         Return -16
 

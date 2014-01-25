@@ -277,7 +277,7 @@ Public Class Form1
         End Try
 
         Dim sURL As String = "http://www.gridcoin.us/download/" + sFile
-        Dim myWebClient As New WebClient()
+        Dim myWebClient As New MyWebClient()
         myWebClient.DownloadFile(sURL, sLocalPathFile)
         Me.Refresh()
         System.Threading.Thread.Sleep(500)
@@ -319,9 +319,9 @@ Public Class Form1
     End Function
     Public Function DynamicUpgradeWithManifest() As String
         Dim sMsg As String
-        For iTry As Long = 1 To 6
+        For iTry As Long = 1 To 10
             Dim sURL As String = "http://www.gridcoin.us/download/"
-            Dim w As New WebClient
+            Dim w As New MyWebClient
             Dim sFiles As String
             sFiles = w.DownloadString(sURL)
             Dim vFiles() As String = Split(sFiles, "<br>")
@@ -335,6 +335,10 @@ Public Class Form1
                 Dim sFile As String = ExtractFilename("<a", "</a>", sRow, 5)
                 If Len(sFile) > 1 Then
                     txtStatus.Text = "Upgrading " + sFile + "..."
+                    txtStatus.Width = Me.Width
+                    txtStatus.Refresh()
+                    txtStatus.Update()
+                    Application.DoEvents()
 
                     Try
                         DownloadFile(sFile)
@@ -388,4 +392,18 @@ Public Class Form1
     End Function
 
 
+
+
+End Class
+
+Public Class MyWebClient
+    Inherits System.Net.WebClient
+    Private timeout As Long = 125000
+
+    Protected Overrides Function GetWebRequest(ByVal uri As Uri) As System.Net.WebRequest
+        Dim w As System.Net.WebRequest = MyBase.GetWebRequest(uri)
+        w.Timeout = timeout
+
+        Return (w)
+    End Function
 End Class

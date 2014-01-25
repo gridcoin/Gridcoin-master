@@ -6,17 +6,23 @@ Public Class frmLeaderboard
 
     Private Sub frmLeaderboard_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
 
-        ReplicateDatabase()
+        Me.Show()
+        Me.Refresh()
+        Me.BringToFront()
+
+
+        Dim mData As New Sql("gridcoin_leaderboard")
 
         Dim sql As String
         'Populate Gridcoin Network Average Credits Per Project
-        sql = "Select '' as Rank, avg(credits) as [Net Avg Credits], ProjectName as [Project Name] from leaderboard " _
-            & " group by project   order by Project"
-        SqlToGrid(sql, dgvNetworkStats, True)
+        sql = "Select '' as Rank, avg(credits) as [Credits],factor as [Factor], avg(adjcredits) as [Adjusted Credits],ProjectName as [Project Name] from leaderboard  group by project   order by  upper(ProjectName);"
+
+
+        SqlToGrid(sql, dgvNetworkStats, True, mData)
         'Populate Gridcoin Leaders:
-        sql = "Select '' as Rank, avg(credits) Credits, Address [GRC Address] from leaderboard " _
-            & " group by Address order by avg(credits) desc "
-        SqlToGrid(sql, dgvLeaders, True)
+        sql = "Select '' as Rank, avg(credits*projectcount) Credits, avg(credits*factor*projectcount) as [Adjusted Credits], avg(projectcount) as [Projects], ScryptSleepChance as [Scrypt Sleep], Address [GRC Address] from leaderboard group by Address order by avg(credits*factor*projectcount) desc "
+
+        SqlToGrid(sql, dgvLeaders, True, mData)
         'Populate Gridcoin Leaders by Project:
         'Dim bp As BoincProject
         Dim iRow As Long = 0
@@ -29,22 +35,27 @@ Public Class frmLeaderboard
                         & " WHERE ProjectName='" + Trim(vProjExpanded(1)) + "'" _
                         & " Group by Address, ProjectName " _
                         & " Order by avg(credits) desc "
-                    SqlToGrid(sql, dgvLeadersByProject, False)
+                    SqlToGrid(sql, dgvLeadersByProject, False, mData)
                 End If
             End If
         Next
+        Me.BringToFront()
+
     End Sub
 
-    Private Sub SqlToGrid(sql As String, dgv As DataGridView, bClear As Boolean)
-        Dim mData As New Sql("gridcoin_ro")
-        Dim dr As Finisar.SQLite.SQLiteDataReader
+    Private Sub SqlToGrid(sql As String, dgv As DataGridView, bClear As Boolean, mData As Sql)
         Try
-            dr = mData.Query(sql)
+
+      
+        Dim dr As GridcoinReader
+
+        Try
+            dr = mData.GetGridcoinReader(sql)
         Catch ex As Exception
             Exit Sub
         End Try
-        If dr Is Nothing Then Exit Sub
-        If dr.FieldCount = 0 Then Exit Sub
+        If dr.Rows = 0 Then Exit Sub
+
         If bClear Or dgv.Rows.Count = 0 Then
             dgv.Rows.Clear()
             dgv.Columns.Clear()
@@ -54,11 +65,14 @@ Public Class frmLeaderboard
         End If
         Dim sValue As String
         Dim iRow As Long = 0
+        Dim gridrow As GridcoinReader.GridcoinRow
+        gridrow = dr.GetRow(1)
+
         Try
             If dgv.Rows.Count = 0 Then
-                For x = 0 To dr.FieldCount - 1
+                For x = 0 To gridrow.FieldNames.Count - 1
                     Dim dc As New System.Windows.Forms.DataGridViewColumn
-                    dc.Name = dr.GetName(x)
+                    dc.Name = gridrow.FieldNames(x)
                     Dim dgvct As New System.Windows.Forms.DataGridViewTextBoxCell
                     dgvct.Style.BackColor = Drawing.Color.Black
                     dgvct.Style.ForeColor = Drawing.Color.Lime
@@ -74,23 +88,30 @@ Public Class frmLeaderboard
                 dgv.ColumnHeadersDefaultCellStyle = dgcc
                 dgv.RowHeadersVisible = False
                 dgv.EditMode = DataGridViewEditMode.EditProgrammatically
-                For x = 0 To dr.FieldCount - 1
+                For x = 0 To gridrow.FieldNames.Count - 1
                     dgv.Columns(x).AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
                 Next x
                 dgv.ReadOnly = True
 
             End If
 
-            While dr.Read
+            For y = 1 To dr.Rows
+
                 dgv.Rows.Add()
                 iRow = iRow + 1
+                gridrow = dr.GetRow(y)
 
-                For x = 0 To dr.FieldCount - 1
+                For x = 0 To gridrow.FieldNames.Count - 1
                     sValue = ""
 
                     Try
-                        sValue = dr(x).ToString
+                        sValue = gridrow.Values(x).ToString
+                            If LCase(gridrow.FieldNames(x)) = "credits" Or LCase(gridrow.FieldNames(x)) = "projects" Or LCase(gridrow.FieldNames(x)) = "factor" Or LCase(gridrow.FieldNames(x)) = "adjusted credits" Then sValue = Trim(Math.Round(Val(GlobalizedDecimal(sValue)), 2))
+                            If LCase(gridrow.FieldNames(x)) = "scrypt sleep" Then
+                                sValue = String.Format("{0:p}", Val(GlobalizedDecimal(sValue)))
 
+                            End If
+                      
                     Catch ex As Exception
 
                     End Try
@@ -105,12 +126,20 @@ Public Class frmLeaderboard
 
                 Next x
 
-            End While
+                Next y
+                Application.DoEvents()
+                Me.BringToFront()
+
             Exit Sub
         Catch ex As Exception
             '  MsgBox(ex.Message, vbCritical, "Gridcoin Analysis Error")
             Exit Sub
+            End Try
+
+        Catch ex As Exception
+
         End Try
+
     End Sub
     
 End Class

@@ -1138,8 +1138,12 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
 
 int64 static MaxBlockValue(int nHeight, int64 nFees)
 {
+	//Rob Halford - 1/6/2014 - Adding the ability to pay CPU Miners up to Half of a block for CPU+Boinc mining:
+
 	//GridCoin - return the maximum value a miner can be paid based on full boinc utilization
-    int64 nSubsidy = 150 * COIN;
+    // int64 nSubsidy = 150 * COIN;  Decommissioning as of 1-6-2014
+	int64 nSubsidy = (150 + CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT) * COIN;
+
     // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
     nSubsidy >>= (nHeight / 840000); // Gridcoin: 840k blocks in ~4 years
 	//10-30-2013 (Allowing for inflation feature)
@@ -4527,16 +4531,16 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 	txNew.vin[0].prevout.SetNull();
     nPoolMiningCounter++;
 	//If program has just started or miner is not pool mining:
-	if (!bPoolMiningMode || nPoolMiningCounter < 5) {
+	if (!bPoolMiningMode) {
 		txNew.vout.resize(1);
 		return txNew;
 	}
 
 	
 	//   std::map<std::string, MiningEntry> minerpayments;
-	if (nMinerPaymentCount > 9) nMinerPaymentCount=0;
+	if (nMinerPaymentCount > 2) nMinerPaymentCount=0;
 	nMinerPaymentCount++;
-	if (nMinerPaymentCount==1) minerpayments = CalculatePoolMining();
+	minerpayments = CalculatePoolMining(true);
     minerstobepaid = 0;
 	for(map<string,MiningEntry>::iterator ii2=minerpayments.begin(); ii2!=minerpayments.end(); ++ii2) 
 	{
@@ -4547,20 +4551,31 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 				txNew.vout.resize(minerstobepaid);
 			}
     }
-
+//-----------------------------Expand txNew.vOut for CPUMiners:
+		for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
+	{
+			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
+	        if (ae.strAccount.length() > 5 && ae.nextpaymentamount > .05) 
+			{ 
+				minerstobepaid++;
+				txNew.vout.resize(minerstobepaid);
+		
+			}
+	}
+//--------------------------------------------------------------------------
 	
    int inum = 0;
    double rbpps = minerpayments["totals"].rbpps;
    double total_payments = 0;
 	
-   //printf("Grand Total Utilization %d, Avg Boinc %d",minerpayments["totals"].totalutilization, minerpayments["totals"].avgboinc);
-   //printf("Grand Total Block Payout %d, rbpps %d",minerpayments["totals"].payout,rbpps);
-
+   //1-14-2014
+   //Pay Pool Miners:
    	for(map<string,MiningEntry>::iterator ii=minerpayments.begin(); ii!=minerpayments.end(); ++ii) 
 	{
 
 			MiningEntry ae = minerpayments[(*ii).first];
-            if (ae.strAccount.length() > 5) {
+            if (ae.strAccount.length() > 5) 
+			{
 				double compensation = ae.shares*rbpps;
 			 	//printf("Payment # %d, Comment %s",inum,ae.strComment.c_str());
 				//printf("Shares %d, Account %s", RoundToString(ae.shares,2).c_str(),ae.strAccount.c_str());
@@ -4573,13 +4588,48 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 				txNew.vout[inum].scriptPubKey = sftp;
 				txNew.vout[inum].nValue = AmountFromValue(compensation);
 			    inum++;
-		}
+		    }
 
    }
 	
-
 	    //printf("Grand Total Payments %d",RoundToString(total_payments,6).c_str());
 
+
+	//Gridcoin -- 1-13-2014 ------------------------------------------- CPUMining -----------------------------------------
+
+	for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
+	{
+			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
+	        if (ae.strAccount.length() > 5 && ae.nextpaymentamount > .05) 
+			{ 
+				double compensation2 = ae.nextpaymentamount;
+	     		total_payments = total_payments + compensation2;
+				// Parse Gridcoin miner address
+				CScript sftp;
+				CBitcoinAddress address(ae.strAccount);
+				sftp.SetDestination(address.Get());
+				txNew.vout[inum].scriptPubKey = sftp;
+				//std::string cpu_compensation = RoundToString(compensation2,2);
+				double cpu_compensation = Round(compensation2,2);
+
+				txNew.vout[inum].nValue = AmountFromValue(cpu_compensation) + 000117;  //7900 
+	//			printf("Cpu mining payment generated: to %s for %d",ae.strAccount.c_str(),ae.nextpaymentamount);
+				//Change this to the prod amount:
+			//	txNew.vout[inum].nValue = AmountFromValue(.02) + 000117;  //7900 
+		//		printf("Paying cpu miner %s amt %d for block # %d",ae.strAccount.c_str(),compensation2,nBestHeight);
+
+			    inum++;
+	
+			}
+	}
+
+
+	
+
+
+
+
+	//--------------------------------------------------End of CPU Mining -------------------------------------------------
  	    //If we are in pool mining mode, resize the transaction to the amount of recipients, and pay each recipient in one atomic coinbase transaction
 		if (minerstobepaid==0) {
 			    txNew.vin.resize(1);
@@ -4855,7 +4905,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 		// Reward the miner based on Boinc utilization:
 		//************************************************ GRIDCOIN POOL MINING **********************************************
 
-		if (!bPoolMiningMode || minerspaid==0) {
+		if (minerspaid==0) {
 			pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
 		    pblocktemplate->vTxFees[0] = -nFees;
 
@@ -5011,9 +5061,8 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
         return false;
 
     printf("GridCoin RPCMiner:\n");
-    printf("proof-of-work found  \n  hash: %s  \ntarget: %s\n", hash.GetHex().c_str(), hashTarget.GetHex().c_str());
     pblock->print();
-    printf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue).c_str());
+    //printf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue).c_str());
 
     // Found a solution
     {

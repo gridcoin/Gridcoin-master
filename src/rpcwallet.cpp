@@ -290,6 +290,7 @@ Value sendtoself(const Array& params, bool fHelp)
             + HelpRequiringPassphrase());
 
     int64 nAmount = AmountFromValue(params[0]);
+	//1-12-2014 Pay to self
 
 	nAmount = nAmount + 000117;  //7900
 

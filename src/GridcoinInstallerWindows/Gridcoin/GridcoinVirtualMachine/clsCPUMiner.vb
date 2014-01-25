@@ -51,7 +51,7 @@ Public Class CPUMiner
         b.PREVIOUS_GRC_HASH = modUtilization.LastBlockHash
         b.BLOCK_DATA = modUtilization.BlockData
         b.CPU_UTILIZATION = modUtilization.mBoincProcessorUtilization
-        b.BOINC_AVG_CREDITS = modBoincCredits.BoincCreditsAvg
+        b.BOINC_AVG_CREDITS = Left(Trim(modBoincCredits.BoincCreditsAvg), 4)
         b.BOINC_THREAD_COUNT = modUtilization.mBoincThreads
         b.BOINC_PROJECTS_COUNT = modBoincCredits.BoincProjects
         b.BOINC_PROJECTS_DATA = modBoincCredits.BoincProjectData
@@ -66,7 +66,8 @@ Public Class CPUMiner
         Dim s As String
         Dim d As String = "\"
             s = MiningBlock.PREVIOUS_GRC_HASH + d + MiningBlock.BLOCK_DATA + d + Trim(MiningBlock.CPU_UTILIZATION) + d _
-                + Left(Trim(MiningBlock.BOINC_AVG_CREDITS), 4) + d + Trim(MiningBlock.BOINC_THREAD_COUNT) + d + Trim(MiningBlock.BOINC_PROJECTS_COUNT) + d _
+                + Left(Trim(MiningBlock.BOINC_AVG_CREDITS), 4) + d + Trim(MiningBlock.BOINC_THREAD_COUNT) _
+                + d + Trim(MiningBlock.BOINC_PROJECTS_COUNT) + d _
                 + Trim(MiningBlock.BOINC_PROJECTS_DATA) + d + Trim(MiningBlock.UNIX_TIME) + d + Trim(MiningBlock.DIFFICULTY) + d + Trim(MiningBlock.NONCE)
             Return s
         Catch ex As Exception
@@ -117,15 +118,15 @@ Public Class CPUMiner
                 KHPS = nonce / Elapsed.Seconds
                 If Elapsed.Seconds > 600 Then Exit Sub
             End If
-            If cHash.Contains(Trim(diff)) And cHash.Contains(String.Format("{0:000}", MiningBlock.CPU_UTILIZATION)) _
-                And cHash.Contains(Trim(Val(MiningBlock.BOINC_AVG_CREDITS))) _
-                And cHash.Contains(Trim(Val(MiningBlock.BOINC_THREAD_COUNT))) Then
-                Elapsed = Now - startime
-                MinedHash = cHash
-                SourceBlock = sSourceBlock
-                LastSolvedHash = MiningBlock.PREVIOUS_GRC_HASH
-                Exit While
-            End If
+                If cHash.Contains(Trim(diff)) And cHash.Contains(String.Format("{0:000}", MiningBlock.CPU_UTILIZATION)) _
+                    And cHash.Contains(Trim(Val(MiningBlock.BOINC_AVG_CREDITS))) _
+                    And cHash.Contains(Trim(Val(MiningBlock.BOINC_THREAD_COUNT))) Then
+                    Elapsed = Now - startime
+                    MinedHash = cHash
+                    SourceBlock = sSourceBlock
+                    LastSolvedHash = MiningBlock.PREVIOUS_GRC_HASH
+                    Exit While
+                End If
         End While
             Status = False
 

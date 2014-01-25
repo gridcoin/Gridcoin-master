@@ -21,7 +21,6 @@ Partial Class frmProjects
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmProjects))
         Me.txtProject1 = New System.Windows.Forms.TextBox()
-        Me.Label1 = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.lblCredits5 = New System.Windows.Forms.Label()
         Me.lblCredits4 = New System.Windows.Forms.Label()
@@ -30,14 +29,15 @@ Partial Class frmProjects
         Me.lblCredits2 = New System.Windows.Forms.Label()
         Me.btnQuery = New System.Windows.Forms.Button()
         Me.btnSave = New System.Windows.Forms.Button()
-        Me.Label5 = New System.Windows.Forms.Label()
         Me.txtProject5 = New System.Windows.Forms.TextBox()
-        Me.Label4 = New System.Windows.Forms.Label()
         Me.txtProject4 = New System.Windows.Forms.TextBox()
-        Me.Label3 = New System.Windows.Forms.Label()
         Me.txtProject3 = New System.Windows.Forms.TextBox()
-        Me.Label2 = New System.Windows.Forms.Label()
         Me.txtProject2 = New System.Windows.Forms.TextBox()
+        Me.lnkProject1 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject2 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject3 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject4 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject5 = New System.Windows.Forms.LinkLabel()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -50,20 +50,14 @@ Partial Class frmProjects
         Me.txtProject1.Size = New System.Drawing.Size(171, 20)
         Me.txtProject1.TabIndex = 0
         '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Black
-        Me.Label1.ForeColor = System.Drawing.Color.Lime
-        Me.Label1.Location = New System.Drawing.Point(20, 31)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(208, 13)
-        Me.Label1.TabIndex = 1
-        Me.Label1.Text = "1. Malaria Control - www.malariacontrol.net"
-        '
         'GroupBox1
         '
         Me.GroupBox1.BackColor = System.Drawing.Color.Black
+        Me.GroupBox1.Controls.Add(Me.lnkProject5)
+        Me.GroupBox1.Controls.Add(Me.lnkProject4)
+        Me.GroupBox1.Controls.Add(Me.lnkProject3)
+        Me.GroupBox1.Controls.Add(Me.lnkProject2)
+        Me.GroupBox1.Controls.Add(Me.lnkProject1)
         Me.GroupBox1.Controls.Add(Me.lblCredits5)
         Me.GroupBox1.Controls.Add(Me.lblCredits4)
         Me.GroupBox1.Controls.Add(Me.lblCredits3)
@@ -71,15 +65,10 @@ Partial Class frmProjects
         Me.GroupBox1.Controls.Add(Me.lblCredits2)
         Me.GroupBox1.Controls.Add(Me.btnQuery)
         Me.GroupBox1.Controls.Add(Me.btnSave)
-        Me.GroupBox1.Controls.Add(Me.Label5)
         Me.GroupBox1.Controls.Add(Me.txtProject5)
-        Me.GroupBox1.Controls.Add(Me.Label4)
         Me.GroupBox1.Controls.Add(Me.txtProject4)
-        Me.GroupBox1.Controls.Add(Me.Label3)
         Me.GroupBox1.Controls.Add(Me.txtProject3)
-        Me.GroupBox1.Controls.Add(Me.Label2)
         Me.GroupBox1.Controls.Add(Me.txtProject2)
-        Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Controls.Add(Me.txtProject1)
         Me.GroupBox1.ForeColor = System.Drawing.Color.Lime
         Me.GroupBox1.Location = New System.Drawing.Point(25, 36)
@@ -148,7 +137,7 @@ Partial Class frmProjects
         '
         Me.btnQuery.BackColor = System.Drawing.Color.Black
         Me.btnQuery.ForeColor = System.Drawing.Color.Lime
-        Me.btnQuery.Location = New System.Drawing.Point(412, 285)
+        Me.btnQuery.Location = New System.Drawing.Point(392, 285)
         Me.btnQuery.Name = "btnQuery"
         Me.btnQuery.Size = New System.Drawing.Size(95, 32)
         Me.btnQuery.TabIndex = 11
@@ -159,23 +148,12 @@ Partial Class frmProjects
         '
         Me.btnSave.BackColor = System.Drawing.Color.Black
         Me.btnSave.ForeColor = System.Drawing.Color.Lime
-        Me.btnSave.Location = New System.Drawing.Point(19, 285)
+        Me.btnSave.Location = New System.Drawing.Point(82, 285)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(95, 32)
         Me.btnSave.TabIndex = 10
         Me.btnSave.Text = "Save"
         Me.btnSave.UseVisualStyleBackColor = False
-        '
-        'Label5
-        '
-        Me.Label5.AutoSize = True
-        Me.Label5.BackColor = System.Drawing.Color.Black
-        Me.Label5.ForeColor = System.Drawing.Color.Lime
-        Me.Label5.Location = New System.Drawing.Point(20, 144)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(215, 13)
-        Me.Label5.TabIndex = 9
-        Me.Label5.Text = "5. Milky Way - milkyway.cs.rpi.edu/milkyway"
         '
         'txtProject5
         '
@@ -186,17 +164,6 @@ Partial Class frmProjects
         Me.txtProject5.Size = New System.Drawing.Size(171, 20)
         Me.txtProject5.TabIndex = 8
         '
-        'Label4
-        '
-        Me.Label4.AutoSize = True
-        Me.Label4.BackColor = System.Drawing.Color.Black
-        Me.Label4.ForeColor = System.Drawing.Color.Lime
-        Me.Label4.Location = New System.Drawing.Point(19, 117)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(205, 13)
-        Me.Label4.TabIndex = 7
-        Me.Label4.Text = "4. Docking@Home - docking.cis.udel.edu"
-        '
         'txtProject4
         '
         Me.txtProject4.BackColor = System.Drawing.Color.Black
@@ -205,17 +172,6 @@ Partial Class frmProjects
         Me.txtProject4.Name = "txtProject4"
         Me.txtProject4.Size = New System.Drawing.Size(171, 20)
         Me.txtProject4.TabIndex = 6
-        '
-        'Label3
-        '
-        Me.Label3.AutoSize = True
-        Me.Label3.BackColor = System.Drawing.Color.Black
-        Me.Label3.ForeColor = System.Drawing.Color.Lime
-        Me.Label3.Location = New System.Drawing.Point(19, 87)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(229, 13)
-        Me.Label3.TabIndex = 5
-        Me.Label3.Text = "3. Rosetta@Home - boinc.bakerlab.org/rosetta"
         '
         'txtProject3
         '
@@ -226,17 +182,6 @@ Partial Class frmProjects
         Me.txtProject3.Size = New System.Drawing.Size(171, 20)
         Me.txtProject3.TabIndex = 4
         '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.BackColor = System.Drawing.Color.Black
-        Me.Label2.ForeColor = System.Drawing.Color.Lime
-        Me.Label2.Location = New System.Drawing.Point(20, 58)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(209, 13)
-        Me.Label2.TabIndex = 3
-        Me.Label2.Text = "2. RNA World - www.rnaworld.de/rnaworld"
-        '
         'txtProject2
         '
         Me.txtProject2.BackColor = System.Drawing.Color.Black
@@ -245,6 +190,61 @@ Partial Class frmProjects
         Me.txtProject2.Name = "txtProject2"
         Me.txtProject2.Size = New System.Drawing.Size(171, 20)
         Me.txtProject2.TabIndex = 2
+        '
+        'lnkProject1
+        '
+        Me.lnkProject1.AutoSize = True
+        Me.lnkProject1.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject1.Location = New System.Drawing.Point(79, 32)
+        Me.lnkProject1.Name = "lnkProject1"
+        Me.lnkProject1.Size = New System.Drawing.Size(208, 13)
+        Me.lnkProject1.TabIndex = 18
+        Me.lnkProject1.TabStop = True
+        Me.lnkProject1.Text = "1. Malaria Control - www.malariacontrol.net"
+        '
+        'lnkProject2
+        '
+        Me.lnkProject2.AutoSize = True
+        Me.lnkProject2.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject2.Location = New System.Drawing.Point(79, 58)
+        Me.lnkProject2.Name = "lnkProject2"
+        Me.lnkProject2.Size = New System.Drawing.Size(209, 13)
+        Me.lnkProject2.TabIndex = 19
+        Me.lnkProject2.TabStop = True
+        Me.lnkProject2.Text = "2. RNA World - www.rnaworld.de/rnaworld"
+        '
+        'lnkProject3
+        '
+        Me.lnkProject3.AutoSize = True
+        Me.lnkProject3.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject3.Location = New System.Drawing.Point(79, 87)
+        Me.lnkProject3.Name = "lnkProject3"
+        Me.lnkProject3.Size = New System.Drawing.Size(229, 13)
+        Me.lnkProject3.TabIndex = 20
+        Me.lnkProject3.TabStop = True
+        Me.lnkProject3.Text = "3. Rosetta@Home - boinc.bakerlab.org/rosetta"
+        '
+        'lnkProject4
+        '
+        Me.lnkProject4.AutoSize = True
+        Me.lnkProject4.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject4.Location = New System.Drawing.Point(79, 117)
+        Me.lnkProject4.Name = "lnkProject4"
+        Me.lnkProject4.Size = New System.Drawing.Size(205, 13)
+        Me.lnkProject4.TabIndex = 21
+        Me.lnkProject4.TabStop = True
+        Me.lnkProject4.Text = "4. Docking@Home - docking.cis.udel.edu"
+        '
+        'lnkProject5
+        '
+        Me.lnkProject5.AutoSize = True
+        Me.lnkProject5.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject5.Location = New System.Drawing.Point(79, 144)
+        Me.lnkProject5.Name = "lnkProject5"
+        Me.lnkProject5.Size = New System.Drawing.Size(215, 13)
+        Me.lnkProject5.TabIndex = 22
+        Me.lnkProject5.TabStop = True
+        Me.lnkProject5.Text = "5. Milky Way - milkyway.cs.rpi.edu/milkyway"
         '
         'frmProjects
         '
@@ -260,7 +260,6 @@ Partial Class frmProjects
 
     End Sub
     Friend WithEvents txtProject1 As System.Windows.Forms.TextBox
-    Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents GroupBox1 As System.Windows.Forms.GroupBox
     Friend WithEvents lblCredits5 As System.Windows.Forms.Label
     Friend WithEvents lblCredits4 As System.Windows.Forms.Label
@@ -269,13 +268,14 @@ Partial Class frmProjects
     Friend WithEvents lblCredits2 As System.Windows.Forms.Label
     Friend WithEvents btnQuery As System.Windows.Forms.Button
     Friend WithEvents btnSave As System.Windows.Forms.Button
-    Friend WithEvents Label5 As System.Windows.Forms.Label
     Friend WithEvents txtProject5 As System.Windows.Forms.TextBox
-    Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents txtProject4 As System.Windows.Forms.TextBox
-    Friend WithEvents Label3 As System.Windows.Forms.Label
     Friend WithEvents txtProject3 As System.Windows.Forms.TextBox
-    Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents txtProject2 As System.Windows.Forms.TextBox
+    Friend WithEvents lnkProject5 As System.Windows.Forms.LinkLabel
+    Friend WithEvents lnkProject4 As System.Windows.Forms.LinkLabel
+    Friend WithEvents lnkProject3 As System.Windows.Forms.LinkLabel
+    Friend WithEvents lnkProject2 As System.Windows.Forms.LinkLabel
+    Friend WithEvents lnkProject1 As System.Windows.Forms.LinkLabel
 
 End Class

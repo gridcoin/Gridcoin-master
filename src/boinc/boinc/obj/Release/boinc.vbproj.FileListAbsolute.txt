@@ -9,7 +9,7 @@ C:\Gridcoin-master\release\boinc.dll
 C:\Gridcoin-master\release\boinc.pdb
 C:\Gridcoin-master\release\boinc.xml
 C:\Gridcoin-master\release\boinc.tlb
-C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.vbprojResolveAssemblyReference.cache
+C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmLeaderboard.resources
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmGridcoinMiner.resources
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmMail.resources
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmMining.resources
@@ -17,8 +17,8 @@ C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmNewEmail.resources
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmProjects.resources
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmSQL.resources
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.Resources.resources
-C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.vbproj.GenerateResource.Cache
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.dll
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.xml
 C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.pdb
-C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.frmLeaderboard.resources
+C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.vbprojResolveAssemblyReference.cache
+C:\Gridcoin-master\src\boinc\boinc\obj\Release\boinc.vbproj.GenerateResource.Cache

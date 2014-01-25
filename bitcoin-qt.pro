@@ -63,6 +63,12 @@ contains(USE_QRCODE, 1) {
     message(Building with QRCode support)
     DEFINES += USE_QRCODE
     LIBS += -lqrencode
+    } else
+    {
+    message(Building with QRCode support)
+    DEFINES += USE_QRCODE
+    LIBS += -lqrencode
+    
 }
 
 # use: qmake "USE_UPNP=1" ( enabled by default; default)
@@ -224,6 +230,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/limitedmap.h \
     src/qt/macnotificationhandler.h \
     src/qt/splashscreen.h \
+  
  
 SOURCES += src/qt/bitcoin.cpp \
     src/qt/bitcoingui.cpp \
@@ -316,11 +323,13 @@ FORMS += src/qt/forms/sendcoinsdialog.ui \
     src/qt/forms/rpcconsole.ui \
     src/qt/forms/optionsdialog.ui
 
-contains(USE_QRCODE, 1) {
+#contains(USE_QRCODE, 1) {
+
 HEADERS += src/qt/qrcodedialog.h
 SOURCES += src/qt/qrcodedialog.cpp
 FORMS += src/qt/forms/qrcodedialog.ui
-}
+
+#}
 
 contains(BITCOIN_QT_TEST, 1) {
 SOURCES += src/qt/test/test_main.cpp \

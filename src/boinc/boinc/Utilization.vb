@@ -7,6 +7,8 @@ Public Class Utilization
     Public _timerSnapshot As System.Timers.Timer
     Private _nBestBlock As Long
     Private _lLeaderboard As Long
+    Private _lLeaderUpdates As Long
+
     Public Structure CgSumm
         Public Mhs As Double
         Public Accepted As Double
@@ -28,6 +30,13 @@ Public Class Utilization
         End Get
     End Property
     Sub New()
+        UpdateKey("UpdatingLeaderboard", "false")
+        Try
+            If Not DatabaseExists("gridcoin_leaderboard") Then ReplicateDatabase("gridcoin_leaderboard")
+
+        Catch ex As Exception
+            Log("New:" + ex.Message)
+        End Try
         If clsGVM Is Nothing Then clsGVM = New GridcoinVirtualMachine.GVM
     End Sub
     Sub New(bLoadMiningConsole As Boolean)
@@ -39,9 +48,17 @@ Public Class Utilization
     End Function
     Public ReadOnly Property Version As Double
         Get
-            Return 50
+            Return 71
+
+
         End Get
     End Property
+    Public ReadOnly Property CalcApiUrl(lProj As Long, sUserId As String) As String
+        Get
+            Return Trim(clsGVM.CalcApiUrl(lProj, sUserId))
+        End Get
+    End Property
+
     Public Sub RestartWallet()
         Call RestartWallet1("")
     End Sub
@@ -71,14 +88,19 @@ Public Class Utilization
             Return clsGVM.BoincMD5()
         End Get
     End Property
-    Public ReadOnly Property CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, ByVal sGRCHash3 As String, ByVal sBoinchash As String) As Double
+    Public ReadOnly Property CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, ByVal sGRCHash3 As String, ByVal sGRCHash4 As String, ByVal sBoinchash As String) As Double
         Get
-            Return clsGVM.CheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sBoinchash)
+            Return clsGVM.CheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sGRCHash4, sBoinchash)
         End Get
     End Property
     Public ReadOnly Property RetrieveSqlHighBlock As Double
         Get
             Dim lBlock As Long = 0
+            If KeyValue("disablesql") = "true" Then Return 10
+
+            If KeyValue("UpdatingLeaderboard") = "true" Then Return mlSqlBestBlock
+
+
             Try
                 Dim data As New Sql
                 lBlock = data.HighBlockNumber
@@ -149,7 +171,6 @@ Public Class Utilization
         End If
     End Function
     Public Function CPUPoW(ByVal sHash As String) As Double
-
         Return clsGVM.CPUPoW(sHash)
     End Function
 
@@ -186,30 +207,65 @@ Public Class Utilization
     End Property
 
     Public Sub SetNodes(ByVal data As String)
+        'Fix expression cannot be converted to dbNull
+        Exit Sub
+
         Log(data)
         'Insert the Nodes
         modGRC.LoadNodes(data)
         Log("Loaded successfully")
     End Sub
+    Public Function TestOutdated(ByVal sdata As String, ByVal mins As Long) As Boolean
+        Return Outdated(sdata, mins)
+    End Function
+    Public Function TestKeyValue(ByVal sKey As String) As String
+        Return KeyValue(sKey)
+    End Function
+    Public Function TestUpdateKey(ByVal sKey As String, ByVal sValue As String)
+        Call UpdateKey(sKey, sValue)
+    End Function
     Public Sub SetSqlBlock(ByVal data As String)
-        _lLeaderboard = _lLeaderboard + 1
-        If _lLeaderboard > 6 Then
-            _lLeaderboard = 0
-            UpdateLeaderBoard()
+        If KeyValue("disablesql") = "true" Then Exit Sub
+
+        If KeyValue("UpdatingLeaderboard") = "true" Then Exit Sub
+
+        
+        If SQLInSync() And Outdated(KeyValue("UpdatedLeaderboard"), 90) Then
+            Log("In sync and outdated, updating leaderboard")
+            UpdateLeaderBoard() : Exit Sub
         End If
+        
+
+        Dim s As New Sql
+
         Try
-            Dim s As New Sql
             s.InsertBlocks(data)
             s.Close()
         Catch ex As Exception
             Log("SetSqlBlock:" + ex.Message)
+            Try
+                s.Close()
+
+            Catch exx As Exception
+                Log("setsqlblock" + exx.Message)
+            End Try
         End Try
     End Sub
+
     Public Sub UpdateLeaderBoard()
+        If KeyValue("disablesql") = "true" Then Exit Sub
+
         Try
-            modBoincLeaderboard.RefreshLeaderboard()
+            Dim thUpdateLeaderboard As New System.Threading.Thread(AddressOf modBoincLeaderboard.RefreshLeaderboard)
+            Log("Starting background update leaderboard thread.")
+
+            thUpdateLeaderboard.IsBackground = False
+
+            thUpdateLeaderboard.Start()
+
         Catch ex As Exception
             Log("UpdateLeaderboard:" + ex.Message)
+          
         End Try
     End Sub
     Public Sub SetLastBlockHash(ByVal data As String)
@@ -220,6 +276,10 @@ Public Class Utilization
     End Sub
     Public Sub SetBestBlock(ByVal nBlock As Long)
         _nBestBlock = nBlock
+        nBestBlock = nBlock
+        'Log("Best block height " + Trim(nBestBlock))
+
+
     End Sub
 
     Public Function CPUPoW(ByVal iProjectId As Integer, ByVal lUserId As Long, ByVal sGRCAddress As String) As Double

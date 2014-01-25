@@ -18,6 +18,9 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <openssl/crypto.h>
 
+//Adding
+//extern boost::thread_group threadGroup;
+
 
 
 #include "global_objects_noui.hpp"
@@ -1198,3 +1201,5 @@ bool AppInit2()
 
     return !fRequestShutdown;
 }
+
+

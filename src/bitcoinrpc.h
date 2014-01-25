@@ -201,7 +201,7 @@ extern json_spirit::Value checkwork(const json_spirit::Array& params, bool fHelp
 
 extern json_spirit::Value listcpuminers(const json_spirit::Array& params, bool fHelp);
 extern std::string RoundToString(double d, int place);
-extern std::map<std::string, MiningEntry> CalculatePoolMining();
+extern std::map<std::string, MiningEntry> CalculatePoolMining(bool bPayDuringWalletHour);
 
 
 extern json_spirit::Value getpoolminingmode(const json_spirit::Array& params, bool fHelp);

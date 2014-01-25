@@ -262,12 +262,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_EDC8FF33DEA84EC0BB3664CD1C316318"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -317,6 +311,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_463632BA3613CAC595BB60644F74EBBE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -382,7 +382,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\Gridcoin.msi"
+        "OutputFilename" = "8:..\\..\\..\\..\\release\\Gridcoin.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1240,16 +1240,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Gridcoin 6.71"
-        "ProductCode" = "8:{3224BDB6-BD54-4FA8-8233-FFF15051864F}"
-        "PackageCode" = "8:{8AE01A97-5BE1-42B5-8EBF-CAC53DD30CC3}"
+        "ProductName" = "8:Gridcoin 7.78"
+        "ProductCode" = "8:{0CADA3DF-51EC-4A19-BC4D-CD6E37A240C9}"
+        "PackageCode" = "8:{8AE8819A-C59F-4C83-ABE1-E12D3F063642}"
         "UpgradeCode" = "8:{9617E9EA-252F-43CE-B53E-B48C85F71192}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:6.71"
+        "ProductVersion" = "8:7.78"
         "Manufacturer" = "8:Gridcoin"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

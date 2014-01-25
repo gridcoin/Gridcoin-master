@@ -29,6 +29,10 @@
 using namespace std;
 using namespace boost;
 
+//boost::thread_group threadGroup;
+
+
+
 
 
 static const int MAX_OUTBOUND_CONNECTIONS = 16;

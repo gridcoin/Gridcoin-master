@@ -16,6 +16,8 @@ bool AppInit2();
 std::string HelpMessage();
 std::string LogSomething();
 
+//Commenting
 extern boost::thread_group threadGroup;
+
 
 #endif

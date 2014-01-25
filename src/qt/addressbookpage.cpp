@@ -8,8 +8,8 @@
 #include "csvmodelwriter.h"
 #include "guiutil.h"
 
-#ifdef USE_QRCODE
-#include "qrcodedialog.h"
+#ifdef EtherealRelease
+#include "xqrcodedialog.h"
 #endif
 
 #include <QSortFilterProxyModel>
@@ -36,9 +36,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     ui->exportButton->setIcon(QIcon());
 #endif
 
-#ifndef USE_QRCODE
-    ui->showQRCode->setVisible(false);
-#endif
+    ui->showQRCode->setVisible(true);
 
     switch(mode)
     {
@@ -86,9 +84,11 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     contextMenu->addSeparator();
     if(tab == SendingTab)
         contextMenu->addAction(sendCoinsAction);
-#ifdef USE_QRCODE
+
+
     contextMenu->addAction(showQRCodeAction);
-#endif
+
+
     if(tab == ReceivingTab)
         contextMenu->addAction(signMessageAction);
     else if(tab == SendingTab)
@@ -356,7 +356,7 @@ void AddressBookPage::on_exportButton_clicked()
 
 void AddressBookPage::on_showQRCode_clicked()
 {
-#ifdef USE_QRCODE
+
     QTableView *table = ui->tableView;
     QModelIndexList indexes = table->selectionModel()->selectedRows(AddressTableModel::Address);
 
@@ -365,12 +365,16 @@ void AddressBookPage::on_showQRCode_clicked()
         QString address = index.data().toString();
         QString label = index.sibling(index.row(), 0).data(Qt::EditRole).toString();
 
+		
+#ifdef EtherealRelease
         QRCodeDialog *dialog = new QRCodeDialog(address, label, tab == ReceivingTab, this);
+
         dialog->setModel(optionsModel);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
         dialog->show();
+		#endif
+
     }
-#endif
 }
 
 void AddressBookPage::contextualMenu(const QPoint &point)

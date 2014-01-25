@@ -32,6 +32,8 @@ Public Class frmMining
     Private mEnabled(10) As Boolean
     Private msReaperOut(10) As String
     Private miInitCounter As Long
+    Private msLastBlockHash As String
+    Private mlElapsedTime As Long
 
     Public Sub SetClsUtilization(c As Utilization)
         clsUtilization = c
@@ -52,6 +54,8 @@ Public Class frmMining
     Private Sub OneMinuteUpdate()
         Try
 
+            If mlLeaderboardPosition = 0 Or mdScryptSleep < 0.5 Then Call RefreshLeaderboardPosition()
+
         Dim lMinSetting = Val(KeyValue("RestartMiner"))
         Dim lRunning = Math.Abs(DateDiff(DateInterval.Minute, RestartedMinerAt, Now))
         If lMinSetting = 0 Then
@@ -67,24 +71,64 @@ Public Class frmMining
         End If
 
         lMinSetting = Val(KeyValue("RestartWallet"))
-        lRunning = Math.Abs(DateDiff(DateInterval.Minute, RestartedWalletAt, Now))
+            lRunning = Math.Abs(DateDiff(DateInterval.Minute, RestartedWalletAt, Now))
         If lMinSetting = 0 Then
             lblRestartWallet.Text = "Never"
         Else
             Dim dCountdown As Double
             dCountdown = lMinSetting - lRunning
-            lblRestartWallet.Text = Trim(dCountdown)
+                lblRestartWallet.Text = Trim(dCountdown)
             If dCountdown <= 0 Then
                 RestartedWalletAt = Now
                 RestartWallet()
             End If
         End If
+            'Update Scrypt Sleep
+            '1-15-2014
+            lblScryptSleep.Text = String.Format("{0:p}", Val(mdScryptSleep))
 
-        Catch ex As Exception
+            lblLeaderboardPosition.Text = Trim(mlLeaderboardPosition)
+            CalculateScryptSleep()
+
+            lblSleepLevel.Text = String.Format("{0:p}", Val(mdBlockSleepLevel))
+
+            lblStatus.Text = msSleepStatus
+
+        Catch exx As Exception
+            Log("One minute update:" + exx.Message)
 
         End Try
 
+
     End Sub
+    Public Function CalculateScryptSleep() As Double
+        Try
+            If Len(clsGVM.LastBlockHash) > 3 Then
+                msBlockSuffix = Mid(clsGVM.LastBlockHash, Len(clsGVM.LastBlockHash) - 3, 3)
+                lblBlockSuffix.Text = msBlockSuffix
+            End If
+
+
+            Dim dDecSuffix = CDbl("&h" + Trim(msBlockSuffix))
+            Dim dCalc = dDecSuffix / 40.96
+            'Globalization
+            dCalc = dCalc / 100
+
+            msSleepStatus = "WORK"
+            If mdScryptSleep >= dCalc Then msSleepStatus = "WORK" Else msSleepStatus = "SLEEP"
+            If dDecSuffix = 0 Then msSleepStatus = "WORK(-1)"
+            If mdScryptSleep < 0.5 Or mdScryptSleep > 1.0 Then msSleepStatus = "WORK(-2)"
+            'Globalization
+
+            mdBlockSleepLevel = dCalc
+            Return dCalc
+
+        Catch ex As Exception
+
+            msSleepStatus = "WORK(-3)"
+        End Try
+    End Function
+
     Public Sub Refresh2(ByVal bStatsOnly As Boolean)
         bCharting = False
         updateGh()
@@ -170,7 +214,6 @@ Public Class frmMining
                 last_total = l2
                 If l3 > (l1 * 5) Then l3 = l1
                 Application.DoEvents()
-                System.Threading.Thread.Sleep(50)
                 Dim pCreditsAvg As New DataPoint
                 dProj = clsGVM.BoincProjects
                 Dim d1 As Date = DateAdd(DateInterval.Day, -x, Now)
@@ -223,6 +266,7 @@ Public Class frmMining
     End Sub
 
     Private Sub Timer1_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tOneMinute.Tick
+
         Call Refresh2(False)
         Call OneMinuteUpdate()
 
@@ -236,6 +280,10 @@ Public Class frmMining
         End Try
     End Sub
     Private Sub RefreshRestartMinutes()
+    End Sub
+
+    Private Sub frmMining_Activated(sender As Object, e As System.EventArgs) Handles Me.Activated
+      
     End Sub
     Private Sub frmMining_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
 
@@ -277,6 +325,7 @@ Public Class frmMining
     Private Sub timerBoincBlock_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles timerBoincBlock.Tick
         lblCPUMinerElapsed.Text = Trim(Math.Round(clsGVM.CPUMiner.KHPS, 0))
         lblLastBlockHash.Text = Mid(clsGVM.LastBlockHash, 1, 43) + "..."
+        mlElapsedTime = mlElapsedTime + 1
 
         If clsGVM.CPUMiner.Status = False Then
             pbBoincBlock.Visible = False
@@ -287,6 +336,13 @@ Public Class frmMining
             If clsGVM.CPUMiner.Elapsed.Seconds > 0 Then pbBoincBlock.Value = clsGVM.CPUMiner.Elapsed.Seconds
             If clsGVM.CPUMiner.Elapsed.Seconds > pbBoincBlock.Maximum - 5 Then pbBoincBlock.Maximum = pbBoincBlock.Maximum + 15
         End If
+
+        If msLastBlockHash <> lblLastBlockHash.Text Then
+            If mlElapsedTime > 40 Then Call OneMinuteUpdate() 'Update scrypt sleep panel
+
+        End If
+        msLastBlockHash = lblLastBlockHash.Text
+
     End Sub
 
     Public Sub ReStartGuiMiner_Old()
@@ -521,7 +577,11 @@ Public Class frmMining
             Dim sNarr As String
             sNarr = "Breakdown: " + Trim(Math.Round(clsGVM.mbunarr1, 0)) + "," + Trim(Math.Round(clsGVM.mbunarr2, 0))
             lblProcNarr.Text = sNarr
-
+            If clsUtilization.BoincUtilization < 51 Then
+                lblWarning.Text = "Boinc Utilization Low"
+            Else
+                lblWarning.Text = ""
+            End If
         Catch ex As Exception
 
         End Try
@@ -638,15 +698,61 @@ Public Class frmMining
         End Try
     End Sub
     Private Sub frmMining_Load(sender As Object, e As System.EventArgs) Handles Me.Load
+    
         For x = 1 To 70
             Application.DoEvents()
             System.Threading.Thread.Sleep(100)
         Next
 
         RestartedWalletAt = Now
+        'Set the defaults for the checkboxes
+        chkFullSpeed.Checked = cBOO(KeyValue("chkFullSpeed"))
+        chkMiningEnabled.Checked = cBOO(KeyValue("chkMiningEnabled"))
+        chkCGMonitor.Checked = cBOO(KeyValue("chkCGMonitor"))
         bSuccessfullyLoaded = True
+
         Call OneMinuteUpdate()
         RefreshGPUList()
+
+        ResizeScreen()
+
+
+
+    End Sub
+    Private Sub PersistCheckboxes()
+        If Not bSuccessfullyLoaded Then Exit Sub
+
+        'Set the defaults for the checkboxes
+        UpdateKey("chkFullSpeed", chkFullSpeed.Checked.ToString)
+        UpdateKey("chkMiningEnabled", chkMiningEnabled.Checked.ToString)
+        UpdateKey("chkCGMonitor", chkCGMonitor.Checked.ToString)
+
+    End Sub
+    Private Sub ResizeScreen()
+        Dim height As Double = Screen.PrimaryScreen.Bounds.Height - 130
+
+        Dim maxheight As Double = 0
+        Try
+            For Each c As Control In Me.Controls
+                If (c.Location.Y + c.Height) > maxheight Then maxheight = (c.Location.Y + c.Height)
+            Next
+            If maxheight < height Then Exit Sub
+
+            Dim stretch As Double
+            stretch = height / maxheight
+            For Each c As Control In Me.Controls
+                Dim newY As Double = c.Location.Y * stretch
+                Dim newHeight As Double = c.Height * stretch
+                c.Height = newHeight
+                c.Location = New Point(c.Location.X, newY)
+            Next
+            Me.Height = Me.Height * stretch
+            Me.Height = Me.Height + 50
+            Me.Top = 10
+        Catch ex As Exception
+
+        End Try
+
     End Sub
     Private Sub RefreshGPUList()
         Try
@@ -671,13 +777,17 @@ Public Class frmMining
     End Sub
     Private Sub chkFullSpeed_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkFullSpeed.CheckedChanged
 
-        UpdateIntensity()
 
+        UpdateIntensity()
+        PersistCheckboxes()
 
     End Sub
 
     Private Sub chkMiningEnabled_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkMiningEnabled.CheckedChanged
+
         UpdateIntensity()
+        PersistCheckboxes()
+
     End Sub
     Private Sub UpdateIntensity()
 
@@ -735,8 +845,40 @@ Public Class frmMining
         If lDevId > -1 Then ShowWindow(mCGMinerHwnd(lDevId), 0)
 
     End Sub
+    Private Sub RefreshLeaderboardPosition()
+        Try
 
+        Dim sql As String
+            Dim mData As New Sql("gridcoin_leaderboard")
+            sql = "Select avg(credits*projectcount) Credits, avg(credits*factor*projectcount) as [Adjusted Credits], avg(projectcount) as [Projects], ScryptSleepChance, Address from leaderboard group by Address order by avg(credits*factor*projectcount) desc "
+        Dim gr As New GridcoinReader
+        gr = mData.GetGridcoinReader(sql)
+        If Len(clsGVM.PublicWalletAddress) < 10 Then Exit Sub
+        Dim grr As GridcoinReader.GridcoinRow
+            Dim sGRCAddress As String
+
+            For y = 1 To gr.Rows
+                sGRCAddress = gr.Value(y, "Address")
+
+                If Trim(sGRCAddress) = Trim(clsGVM.PublicWalletAddress) Then
+                    mlLeaderboardPosition = y
+                    mdScryptSleep = gr.Value(y, "ScryptSleepChance")
+
+                End If
+            Next
+
+        mData = Nothing
+        Catch ex As Exception
+            Log("RefreshLeaderboardPosition: " + ex.Message)
+        End Try
+
+        If mdScryptSleep = 0 Then mdScryptSleep = 0.5
+
+    End Sub
     Private Sub TimerCGMonitor_Tick(sender As System.Object, e As System.EventArgs) Handles TimerCGMonitor.Tick
+        RefreshLeaderboardPosition()
+
+
         'For each enabled CGMiner, restart if down:
         If chkCGMonitor.Checked = False Then Exit Sub
         For x = 0 To 5
@@ -755,5 +897,20 @@ Public Class frmMining
 
     Private Sub MenuStrip1_ItemClicked(sender As System.Object, e As System.Windows.Forms.ToolStripItemClickedEventArgs) Handles MenuStrip1.ItemClicked
 
+    End Sub
+
+    Public Sub New()
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+
+    End Sub
+
+    Private Sub chkCGMonitor_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkCGMonitor.CheckedChanged
+
+
+        PersistCheckboxes()
     End Sub
 End Class

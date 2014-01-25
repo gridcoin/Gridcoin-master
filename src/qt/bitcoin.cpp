@@ -53,9 +53,9 @@ Q_DECLARE_METATYPE(bool*)
 static BitcoinGUI *guiref;
 static SplashScreen *splashref;
 
-
-
 boost::thread_group threadGroup;
+
+
 
 
 

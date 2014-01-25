@@ -10,6 +10,8 @@ extern std::string sBoincAuthenticity;
 extern std::string sMinedHash;
 extern std::string sSourceBlock;
 
+extern int nRegVersion;
+
 
 
 extern bool bBoincSubsidyEligible;
@@ -24,6 +26,8 @@ extern double MEGAHASH_VIOLATION_COUNT;
 extern double MEGAHASH_VIOLATION_COUNT_THRESHHOLD;
 
     struct MiningEntry {
+
+
         double shares;
 		std::string strComment;
         std::string strAccount;
@@ -52,7 +56,28 @@ extern double MEGAHASH_VIOLATION_COUNT_THRESHHOLD;
 		std::string cpupowhash;
 		double credits;
 		double lastpaid;
+		double lastpaiddate;
+	
+
 		double totalpayments;
+
+
+		double networkcredits;
+		double compensation;
+	    double owed;
+	    double approvedtransactions;
+	    double nextpaymentamount;
+
+		double cputotalpayments;
+
+	
+		double dummy1;
+		double dummy2;
+		double dummy3;
+
+		bool approved;
+
+
     };
 
 
