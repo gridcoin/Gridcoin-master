@@ -539,7 +539,6 @@ std::string SendMultiProngedTransaction(int projectid, std::string userid)
 
      
 	 if (userid.length() > 7 || userid=="" || userid.length() < 3) return "Invalid project userid";
-	//11-23-2013
 	  
      long lAmount = boost::lexical_cast<long>(userid);
 	       
@@ -564,6 +563,7 @@ std::string SendMultiProngedTransaction(int projectid, std::string userid)
 
      if(!pwalletMain->CommitTransaction(wtx, keyChange))
        {
+		    printf("Send Project Beacon payment failure.");
             return "failure";
        }
         std::string txid = wtx.GetHash().GetHex();
@@ -1098,7 +1098,7 @@ void SendGridcoinProjectBeacons()
 			}
 		} else
 		{
-					printf("User not participating in project %d.",i);
+				printf("User not participating in project %d.",i);
 		
 		}
 
@@ -1197,14 +1197,11 @@ Value checkwork(const Array& params, bool fHelp)
 
 	printf("Lastblockhash %s",blockhash1.c_str());
 	printf("Lastblockhash %s",blockhash2.c_str());
-printf("Lastblockhash %s",blockhash3.c_str());
-printf("Lastblockhash %s",blockhash4.c_str());
-
-boinchash = ConvBS(boinchash);
-
-printf("Boinchash %s",boinchash.c_str());
-
-
+	printf("Lastblockhash %s",blockhash3.c_str());
+	printf("Lastblockhash %s",blockhash4.c_str());
+	boinchash = ConvBS(boinchash);
+	printf("Boinchash %s",boinchash.c_str());
+	
 
 	entry.push_back(Pair("Last Block Hash",blockhash1));
 	entry.push_back(Pair("Prior Block Hash",blockhash2));
@@ -1220,10 +1217,10 @@ printf("Boinchash %s",boinchash.c_str());
 	result = CheckCPUWorkByBlock(blocknumber);
 	entry.push_back(Pair("CheckWorkByBlock", result));
 	}
-	//	 catch (std::exception &e) {
-	 catch (...) {
-        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
-	 }
+	catch (...) {
+		return -20;
+        //throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
+	}
    
 	return entry;
 

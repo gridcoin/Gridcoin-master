@@ -222,6 +222,21 @@ extern  int CheckCPUWorkByBlock(int blocknumber);
 
 
 
+std::string Trim(int64 i)
+{
+	std::string s = "";
+	s=boost::lexical_cast<std::string>(i);
+	return s;
+}
+
+
+std::string TrimD(double i)
+{
+	std::string s = "";
+	s=boost::lexical_cast<std::string>(i);
+	return s;
+}
+
 
 
 
@@ -232,23 +247,29 @@ int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std
 	int result = 0;
 	std::string v1 = lastblockhash + "[COL]" + greatblockhash + "[COL]" + greatgrandparentsblockhash + "[COL]" + greatgreatgrandparentsblockhash + "[COL]" + boinchash;
 
-	//QString h1 = QString::fromUtf8(lastblockhash.c_str()); 
-	//QString h2 = QString::fromUtf8(greatblockhash.c_str());
-	//QString h3 = QString::fromUtf8(greatgrandparentsblockhash.c_str());
-	//QString h4 = QString::fromUtf8(greatgreatgrandparentsblockhash.c_str());
-    //QString h5 = QString::fromUtf8(boinchash.c_str());
+	QString h1 = QString::fromUtf8(lastblockhash.c_str()); 
+	QString h2 = QString::fromUtf8(greatblockhash.c_str());
+	QString h3 = QString::fromUtf8(greatgrandparentsblockhash.c_str());
+	QString h4 = QString::fromUtf8(greatgreatgrandparentsblockhash.c_str());
+    QString h5 = QString::fromUtf8(boinchash.c_str());
 	//Gridcoin start new instance;
-	QString h1 = QString::fromUtf8(v1.c_str());
+	//QString h1 = QString::fromUtf8(v1.c_str());
 	
 	printf("checkworklinux %s",v1.c_str());
 
 	//QString r1 =  globalcom->dynamicCall("CheckWorkLinux2(QString,QString,QString,QString,QString)",h1,h1,h1,h1,h1).toInt();
 	//	result =  globalcom->dynamicCall("CheckWorkLinux(QString)",h1).toInt();
 	int iRegVer = 0;
+
+						if (globalcom==NULL) printf("Globalcom is NULL20");
+											if (globalcom==NULL) return -111;
+	
 	iRegVer = globalcom->dynamicCall("Version()").toInt();
 	sRegVer = boost::lexical_cast<std::string>(iRegVer);
 	
 	printf("Reg Version %s",sRegVer.c_str());
+
+	result =  globalcom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
 
 
 //   QString qsblock = QString::fromUtf8(lastblockhash.c_str());
@@ -257,13 +278,11 @@ int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std
 
 
 
-
 	//QString ba = ba_1.toString();
-		//sBoincBA = ba.toUtf8().constData();
+	//sBoincBA = ba.toUtf8().constData();
+	//	printf("baa %s",sBoincBA.c_str());
 
-//	printf("baa %s",sBoincBA.c_str());
-
-	return 0;
+	return result;
 }
 
 
@@ -299,27 +318,28 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
 	QString h2 = QString::fromUtf8(greatblockhash.c_str());
 	QString h3 = QString::fromUtf8(greatgrandparentsblockhash.c_str());
 	QString h4 = QString::fromUtf8(greatgreatgrandparentsblockhash.c_str());
-
     QString h5 = QString::fromUtf8(boinchash.c_str());
 	//Gridcoin : ToDo: Ensure Linux can CheckWork  1-25-2014:
-	printf("RegVersion %d",nRegVersion);
+	std::string sRegVersion = TrimD(nRegVersion);
+
+	printf("RegVersion %i and %s",nRegVersion,sRegVersion.c_str());
 	if (nRegVersion < 25) 
 	{
 		printf("Linux:Overriding");
-			return 1;
+		return 1;
 
 	}
 
 	//Gridcoin start new instance;
 	if (globalcom==NULL) {
 			printf("globalcom==null");
-			      MilliSleep(5000);
+			MilliSleep(1000);
 			if (globalcom==NULL) {
 				printf("globalcom still == null");
-				MilliSleep(5000);
+				MilliSleep(1000);
 				if (globalcom==NULL) {
-							printf("globalcom still == null II");
-							MilliSleep(5000);
+					printf("globalcom still == null II");
+					MilliSleep(1000);
 				}
 			}
 			//globalcom = new QAxObject("Boinc.Utilization");	
@@ -338,21 +358,6 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
 }
 
 
-
-std::string Trim(int64 i)
-{
-	std::string s = "";
-	s=boost::lexical_cast<std::string>(i);
-	return s;
-}
-
-
-std::string TrimD(double i)
-{
-	std::string s = "";
-	s=boost::lexical_cast<std::string>(i);
-	return s;
-}
 
 
 bool IsInvalidChar(char c) 
@@ -956,11 +961,7 @@ void BitcoinGUI::aboutClicked()
 void BitcoinGUI::emailClicked()
 {
 	//Launch the Email Center
-	if (globalcom==NULL) {
-		globalcom = new QAxObject("Boinc.Utilization");
-	}
-    
-      globalcom->dynamicCall("ShowEmailModule()");
+    globalcom->dynamicCall("ShowEmailModule()");
 
 }
 
@@ -1474,25 +1475,42 @@ std::string ProjectFact(std::string pid1)
    if (pid1=="3") d1="2.01";     //rosetta
    if (pid1=="4") d1="1.78"; 
    if (pid1=="5") d1=".27"; 
-   printf("ProjFactor In %s Out %s",pid1.c_str(),d1.c_str());
+   //printf("ProjFactor In %s Out %s",pid1.c_str(),d1.c_str());
    return d1;
 
 }
 
 
+double ProjectFact2(int pid) 
+{
+   double d1 = 1;
+   if (pid==1) d1=4;    //malariacontrol.net
+   if (pid==2) d1=4;    //rnaworld
+   if (pid==3) d1=2.01;     //rosetta
+   if (pid==4) d1=1.78; 
+   if (pid==5) d1=.27; 
+   printf("ProjFactor2 In %i Out %f",pid,d1);
+   return d1;
+
+}
+
 
 void UpdateCPUPoW()
 {
 
+	int nVerify = rand() % 1000;  
+	if (nVerify < 667) return; 
+	if (!bPoolMiningMode) return;
+	
 	cputick++;
-	if (cputick > 15) {
+	if (cputick > 20) {
 		cputick=0;
 		//ToDo:Enable this for CPU Mining:
 		printf("Checking CPU Miners PoW;");
-
 		CalculateCPUMining();
 	}
 	
+    	
 	try {
 		//For each CPU miner, verify PoW
 		int inum=0;
@@ -1501,9 +1519,9 @@ void UpdateCPUPoW()
 		{
 
 				MiningEntry ae = cpupow[(*ii).first];
-				int vRetry = rand() % 1000;  //Retry Failed API calls 13% of the time:
+				int vRetry = rand() % 1500;  //Retry Failed API calls only a small % of the time:
 				bool bRetryFailure = false;  
-				if (ae.cpupowverificationresult < 0 && vRetry <= 9) bRetryFailure = true;
+				if (ae.cpupowverificationresult < 0 && vRetry <= 5) bRetryFailure = true;
 					
 				if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && (ae.cpupowverificationtries==0 || bRetryFailure) ) 
 				{
@@ -1515,19 +1533,27 @@ void UpdateCPUPoW()
 					double iPoWResult = 0;
 					try 
 					{
+	
 						iPoWResult = globalcom->dynamicCall("CPUPoW(QString)",PoW).toDouble();
+											if (globalcom==NULL) printf("Globalcom is NULL12");
+	
 					}
 						catch(...) {
 							printf("Stage 12 error.");
 						}
-					//ToDo:  Yes, this is heinously convoluted; for some reason, QT keeps crashing when an int or double is passed back from the factor; I realize this is prehistoric; please convert this function over to be OO.
-					std::string pf = ProjectFact(boost::lexical_cast<std::string>(ae.projectid));
-					double dPF = boost::lexical_cast<double>(pf);
-					double iSurrogate = iPoWResult;
-					double dFactResult = iSurrogate;
-					if (iSurrogate > 0)  			 dFactResult = dPF*iSurrogate;
+					//ToDo:  Yes, this is convoluted; for some reason, QT keeps crashing when an int or double is passed back from the factor
+
+		//			std::string pf = ProjectFact(boost::lexical_cast<std::string>(ae.projectid));
+			//		double dPF = boost::lexical_cast<double>(pf);
+					double dPF = ProjectFact2(ae.projectid);
+			//		double iSurrogate = iPoWResult;
+					double dFactResult = iPoWResult;
+					if (iPoWResult > 0) dFactResult = dPF*iPoWResult;
+
 					ae.cpupowverificationresult = dFactResult;
+					
 					std::string S1 = boost::lexical_cast<std::string>(dFactResult);
+					printf("Cpu Verification Result %s, Amount %f",S1.c_str(),dFactResult);
 					ae.cpupowverificationtries++;
 					ae.cpupowhash = sCPUPoW;
 					cpupow[ae.homogenizedkey] = ae;
@@ -1555,52 +1581,48 @@ void BitcoinGUI::timerfire()
 	if (globalcom==NULL) {
 		//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
 		//issue the command: lodctr /r (to rebuild the performance counters in the registry)
-		printf("Stage 0.");
-
 		globalcom = new QAxObject("Boinc.Utilization");
 		globalcom->dynamicCall("ShowMiningConsole()");
-
+		printf("Instantiating globalcom");
 	}
 
-
-
 	
-	printf("Stage 0.5");
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
 	//Gridcoin - 10-29-2013 - Gather the Boinc Utilization Per Thread 
 	int utilization = 0;
 	utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
+	if (globalcom==NULL) printf("Globalcom is NULL1");
+	
 	int thread_count = 0;
 	thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
-	printf("Stage .7");
 	// Gridcoin - Gather the MD5 hash of the Boinc program:
 	QVariant md5_1 = globalcom->dynamicCall("BoincMD5()");
 	QString md5 = md5_1.toString();
+	if (globalcom==NULL) printf("Globalcom is NULL2");
+	
 	sBoincMD5 = md5.toUtf8().constData();
-
-	printf("Stage 1");
-
 	QVariant minedHash_1 = globalcom->dynamicCall("MinedHash()");
+	if (globalcom==NULL) printf("Globalcom is NULL3");
+	
 	QString minedHash = minedHash_1.toString();
 	sMinedHash = minedHash.toUtf8().constData();
-
 	QVariant sourceBlock_1 = globalcom->dynamicCall("SourceBlock()");
+	if (globalcom==NULL) printf("Globalcom is NULL4");
+	
 	QString sourceBlock = sourceBlock_1.toString();
 	sSourceBlock = sourceBlock.toUtf8().constData();
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
-
 	QVariant bdot_1 = globalcom->dynamicCall("BoincDeltaOverTime()");
+	if (globalcom==NULL) printf("Globalcom is NULL5");
+	
 	QString bdot = bdot_1.toString();
 	sBoincDeltaOverTime = bdot.toUtf8().constData();
 
-	nRegVersion = 0;
     nRegVersion = globalcom->dynamicCall("Version()").toInt();
 	sRegVer = boost::lexical_cast<std::string>(nRegVersion);
 
-
 	printf("Reg Version %s",sRegVer.c_str());
-	printf("Stage 2");
 
 
 	//Gather the authenticity level:
@@ -1612,19 +1634,19 @@ void BitcoinGUI::timerfire()
 	QVariant ba_1 = globalcom->dynamicCall("BoincAuthenticityString()");
 	QString ba = ba_1.toString();
 	sBoincBA = ba.toUtf8().constData();
+	if (globalcom==NULL) printf("Globalcom is NULL6");
+	
 	// -1 = Invalid Executable
 	// -2 = Failed Authenticity Check
 	// -3 = Failed library check
 	// -4 = Failed to Find boinc tray
 	// -10= Error during enumeration
 	//  1 = Success
-	printf("Stage 3");
 
 	nTick++;
 	//15mins
 	if (nTick > 155) 
 	{
-		printf("Stage 4");
 
 		printf("Boinc Utilization: %d, Thread Count: %d",utilization, thread_count);
 		//Send project beacons for TeamGridcoin:
@@ -1657,8 +1679,6 @@ void BitcoinGUI::timerfire()
 	if (nTickRestart > 120) 
 	{
 		nTickRestart = 0;
-		printf("Stage 5");
-
 		printf("Restarting gridcoin's network layer;");
 		RestartGridcoin3();
 	}
@@ -1670,12 +1690,11 @@ void BitcoinGUI::timerfire()
 	//printf("BestChain: new best=%s  height=%d  date=%s\n",    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
 	try {    
 	//Upload the current block to the GVM
-		printf("Stage 6");
-
 	QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
     globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
 	nBlockCount++;
-
+	if (globalcom==NULL) printf("Globalcom is NULL7");
+	
 
 	if (nBlockCount > 1)
 	{
@@ -1686,27 +1705,32 @@ void BitcoinGUI::timerfire()
 
 		int iSqlBlock = 0;
 		iSqlBlock = globalcom->dynamicCall("RetrieveSqlHighBlock()").toInt();
+		if (globalcom==NULL) printf("Globalcom is NULL8");
+	
 		//printf("sql high block %d", iSqlBlock);
 		//Send Gridcoin block to SQL:
 	
 				QString qsblock = QString::fromUtf8(RetrieveBlocksAsString(iSqlBlock).c_str());
 				globalcom->dynamicCall("SetSqlBlock(Qstring)",qsblock);
-				printf("Stage 8");
+				if (globalcom==NULL) printf("Globalcom is NULL9");
+	
 
 	}
 
 		//Set Public Wallet Address
 		QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
-		printf("Stage 9");
+		if (globalcom==NULL) printf("Globalcom is NULL10");
+	
 
 		globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
 
 		//Set Best Block
-		//12-22-2013
-		printf("Stage 10");
+		if (globalcom==NULL) printf("Globalcom is NULL11");
+	
 
 		globalcom->dynamicCall("SetBestBlock(int)", nBestHeight);
-
+		if (globalcom==NULL) printf("Globalcom is NULL12");
+	
 
 
 	if (1==0) {
@@ -1753,7 +1777,7 @@ void BitcoinGUI::timerfire()
 
 
 		try {
-			printf("Stage 11");
+			//printf("Stage 11");
 
 			UpdateCPUPoW();
 		}

@@ -218,7 +218,7 @@ ErrTrap:
     End Property
     
     Public Function BoincDeltaOverTime() As String
-    
+        BoincDeltaOverTime = "0:0"
     End Function
  Public Sub SetLastBlockHash(ByVal data As String)
         linux.LastBlockHash = Trim(data)

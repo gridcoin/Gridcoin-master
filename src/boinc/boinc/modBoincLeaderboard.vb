@@ -214,7 +214,7 @@
             d.CreateLeaderboardTable()
 
             Dim dBlock As Double = d.HighBlockNumber
-            Dim lBlock As Double = dBlock - 17856 '30 days back
+            Dim lBlock As Double = dBlock - 11520 '20 days back
             If lBlock < 1 Then lBlock = 1
           
             sql = "Delete from Leaderboard" 'Truncate Table

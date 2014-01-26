@@ -937,7 +937,7 @@ Value checkwork(const Array& params, bool fHelp)
 	block.ReadFromDisk(pBlock);
 	std::string boinchash = block.hashBoinc.c_str();
 	entry.push_back(Pair("Boinc Hash",boinchash));
-	printf(boinchash.c_str());
+	
 	pBlock = FindBlockByHeight(blocknumber-1);
 	block.ReadFromDisk(pBlock);
 	std::string blockhash1 = pBlock->phashBlock->GetHex().c_str();
@@ -1095,7 +1095,8 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2) 
 			{
-				double compensation = ae.shares*rbpps;
+				
+				//double compensation = ae.shares*rbpps;
 	     		Object e;
 				inum++;
 				e.push_back(Pair("CPU Miner #",inum));
@@ -1139,7 +1140,7 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5) 
 			{
-				double compensation = ae.shares*rbpps;
+				//double compensation = ae.shares*rbpps;
 	     		Object e3;
 				inum++;
 				e3.push_back(Pair("CPU Miner #",inum));
