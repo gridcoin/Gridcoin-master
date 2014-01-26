@@ -26,14 +26,14 @@ sudo apt-get install ntp git build-essential libssl-dev libdb-dev libdb++-dev li
 sudo apt-get install qt-sdk
  
 cd ~
-git clone https://github.com/gridcoin/Gridcoin-master
+sudo git clone https://github.com/gridcoin/Gridcoin-master
 
 ###Note: Gridcoin-master/src is currently for windows, Gridcoin-master/Gridcoin-master-linux/src is for Linux (until we merge them)
 cd ~/Gridcoin-master/Gridcoin-master-linux/src 
 
 sudo rm obj/*.o 
-sudo cp net_daemon net.cpp
-sudo cp init_daemon init.cpp
+sudo cp net_daemon.cpp net.cpp
+sudo cp init_daemon.cpp init.cpp
 sudo chmod 755 leveldb/build_detect_platform 
 sudo make -f makefile.unix USE_UPNP=- 
 
