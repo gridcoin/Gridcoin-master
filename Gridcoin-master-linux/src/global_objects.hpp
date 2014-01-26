@@ -1,0 +1,6 @@
+
+//extern QThread *mythread;
+
+
+
+
