@@ -54,8 +54,12 @@ static BitcoinGUI *guiref;
 static SplashScreen *splashref;
 
 boost::thread_group threadGroup;
+//Global reference to globalcom
+
+static QAxObject *globalcom;
 
 
+extern int ThreadSafeVersion();
 
 
 
@@ -83,25 +87,48 @@ static bool ThreadSafeMessageBox(const std::string& message, const std::string& 
     }
 }
 
+
 static bool ThreadSafeAskFee(int64 nFeeRequired)
 {
-    if(!guiref)
-        return false;
-    if(nFeeRequired < CTransaction::nMinTxFee || nFeeRequired <= nTransactionFee || fDaemon)
-        return true;
-
+    if(!guiref)         return false;
+    if(nFeeRequired < CTransaction::nMinTxFee || nFeeRequired <= nTransactionFee || fDaemon)        return true;
     bool payFee = false;
-
     QMetaObject::invokeMethod(guiref, "askFee", GUIUtil::blockingGUIThreadConnection(),
                                Q_ARG(qint64, nFeeRequired),
                                Q_ARG(bool*, &payFee));
-
     return payFee;
 }
 
+//
+//static int noui_ThreadSafeCheckWork(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
+
+static int ThreadSafeCheckWork(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
+{
+	if (!guiref) return -100;
+	//1-26-2014
+	int result = -50;
+
+	QMetaObject::invokeMethod(guiref, "threadsafecheckwork", GUIUtil::blockingGUIThreadConnection(),
+			Q_ARG(QString, QString::fromStdString(h1)),
+			Q_ARG(QString, QString::fromStdString(h2)),
+			Q_ARG(QString, QString::fromStdString(h3)),
+			Q_ARG(QString, QString::fromStdString(h4)),
+			Q_ARG(QString, QString::fromStdString(h5)),
+			Q_ARG(int*, &result));
+	return result;
+}
 
 
+int ThreadSafeVersion()
 
+{
+	if (!guiref) return 0;
+	printf("calling for ver");
+	int v = globalcom->dynamicCall("Version()").toInt();
+	printf("ver %i",v);
+	return v;
+
+}
 
 
 static void InitMessage(const std::string &message)
@@ -257,7 +284,8 @@ int main(int argc, char *argv[])
     uiInterface.ThreadSafeMessageBox.connect(ThreadSafeMessageBox);
     uiInterface.ThreadSafeAskFee.connect(ThreadSafeAskFee);
 
-	
+	uiInterface.ThreadSafeCheckWork.connect(ThreadSafeCheckWork);
+
 	
     uiInterface.InitMessage.connect(InitMessage);
     uiInterface.Translate.connect(Translate);

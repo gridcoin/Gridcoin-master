@@ -11,6 +11,11 @@
 #include "bitcoinrpc.h"
 #include "db.h"
 
+#include <QAxObject>
+#include <ActiveQt/qaxbase.h>
+#include <ActiveQt/qaxobject.h>
+
+
 #include <boost/asio.hpp>
 #include <boost/asio/ip/v6_only.hpp>
 #include <boost/bind.hpp>
@@ -41,6 +46,15 @@ static std::string strRPCUserColonPass;
 static asio::io_service* rpc_io_service = NULL;
 static ssl::context* rpc_ssl_context = NULL;
 static boost::thread_group* rpc_worker_group = NULL;
+
+
+QAxObject *globalrpccom = NULL;
+
+
+
+
+//1-26-2014
+
 
 static inline unsigned short GetDefaultRPCPort()
 {
@@ -901,6 +915,10 @@ void StartRPCThreads()
     }
 
     rpc_worker_group = new boost::thread_group();
+	
+    globalrpccom = new QAxObject("Boinc.Security");
+
+
     for (int i = 0; i < GetArg("-rpcthreads", 4); i++)
         rpc_worker_group->create_thread(boost::bind(&asio::io_service::run, rpc_io_service));
 }
@@ -910,6 +928,7 @@ void StopRPCThreads()
     delete pMiningKey; pMiningKey = NULL;
 
     if (rpc_io_service == NULL) return;
+	//globalrpccom=NULL;
 
     rpc_io_service->stop();
     rpc_worker_group->join_all();

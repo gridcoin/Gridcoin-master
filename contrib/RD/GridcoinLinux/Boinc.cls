@@ -11,44 +11,28 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
+Option Explicit
 
 Public msLinux10 As String
-
-
-
 Private myTimer As Double
 
-
-
-
 Public Function Version() As Double
-Version = 7
+Version = 8
 
 End Function
 Public Function ShowMiningConsole()
-
-mFrmMining.Show vbModal
-
-
-
-     
+mLinuxGui.ShowMiningWindow
 End Function
-Public Sub clsLogBoincCredits()
-Call LogBoincCredits
 
-End Sub
 
 Private Sub Class_Initialize()
 Log "Initializing2"
 On Error GoTo ErrTrap
 Set mclsUtilization = Me
-Log linux.BoincDataDir
-Log linux.AppPath
-LogClientState
-Set mFrmMining = New frmMining
-
-
-
+Set mCPUMiner = New frmCPUMiner
+mCPUMiner.Show vbModal
+Set mLinuxGui = CreateObject("GridcoinLinuxGUI.gui")
+LogBoincCredits (True)
 Exit Sub
 
 ErrTrap:
@@ -58,19 +42,16 @@ Log Err.Description + ":" + Err.Source
 End Sub
 Public Function LogClientState()
 Exit Function
-
 Open BoincDataDir + "client_state.xml" For Input As #1
 Dim sTemp As String
-
 Do While EOF(1) = False
     Line Input #1, sTemp
     Log sTemp
 Loop
 Close #1
-    
-
 End Function
 Private Sub Class_Terminate()
+mLinuxGui.DestroyMiningWindow
 Log "Exiting."
 
 End Sub
@@ -82,7 +63,7 @@ End Function
 
  Public Function BoincMD5() As String
  On Error GoTo ErrTrap
-        BoincMD5 = sha1.GetMd52()
+        BoincMD5 = GetMd52()
         Exit Function
 ErrTrap:
         
@@ -116,22 +97,15 @@ Public Function RetrieveSqlHighBlock() As Long
 RetrieveSqlHighBlock = 0
 End Function
 
-   Public Property Get CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, _
+   Public Function CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, _
             ByVal sGRCHash3 As String, ByVal sGRCHash4 As String, ByVal sBoinchash As String) As Double
-   
- 
             On Error GoTo ErrTrap
             Log "Checking work " + sGRCHash1
-            frmMining.Visible = False
-            
-            
             CheckWork = Val(CInt(mCheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sGRCHash4, sBoinchash)))
-            Exit Property
+            Exit Function
 ErrTrap:
             Log Err.Message
-            'MsgBox Err.Message + ":" + Err.Description
-            
-End Property
+End Function
    
 Public Property Get BoincAvgCredits() As Double
         BoincAvgCredits = linux.mdBoincAvgCredits
@@ -166,21 +140,19 @@ Public Property Get BoincCreditsAvgAtPointInTime() As Double
         
 End Property
 Public Property Get BoincCreditsAtPointInTime() As Double
-        BoincCreditsAtPointInTime = linux.mdBoincCreditsAtPointInTime
+        BoincCreditsAtPointInTime = mdBoincCreditsAtPointInTime
         
 End Property
 Public Property Get BoincTotalCreditsAvg() As Double
-    BoincTotalCreditsAvg = BoincCreditsAvg
+    BoincTotalCreditsAvg = mBoincCreditsAvg
 End Property
    
 Public Property Get BoincTotalCredits() As Double
-    BoincTotalCredits = BoincCredits
+    BoincTotalCredits = mBoincCredits
 End Property
    
   Public Function CPUPoW(ByVal sHash As String) As Double
-  
   On Error GoTo ErrTrap
-  
   CPUPoW = -5
   Exit Function
   
@@ -202,7 +174,7 @@ ErrTrap:
 Public Property Get MinedHash() As String
 On Error GoTo ErrTrap
 
-            MinedHash = msMinedHash
+            MinedHash = mMinedHash
             Exit Function
             
 ErrTrap:
@@ -210,7 +182,6 @@ ErrTrap:
   End Property
     Public Property Get SourceBlock() As String
         On Error GoTo ErrTrap
-        
         SourceBlock = linux.mSourceBlock
         Exit Function
 ErrTrap:
@@ -225,7 +196,7 @@ ErrTrap:
         
     End Sub
     Public Sub SetPublicWalletAddress(ByVal data As String)
-        clsGVM.PublicWalletAddress = Trim(data)
+        msPublicWalletAddress = Trim(data)
     End Sub
     Public Sub SetBestBlock(ByVal nBlock As Long)
         nBestBlock = nBlock
@@ -238,14 +209,10 @@ ErrTrap:
         'CPUPoW = sha1.CPUPoW(iProjectId, lUserId, sGRCAddress)
     End Function
     
-    
     Public Property Get BoincProjectCount() As Double
         BoincProjectCount = linux.mdBoincProjects
-
     End Property
     Public Property Get BoincTotalHostAverageCredits() As Double
-        
         BoincTotalHostAverageCredits = mBoincTotalHostAvg
-        
     End Property
    

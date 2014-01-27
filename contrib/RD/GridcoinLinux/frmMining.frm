@@ -3,7 +3,7 @@ Object = "{65E121D4-0C60-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCHRT20.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.1#0"; "mscomctl.OCX"
 Begin VB.Form frmMining 
    BackColor       =   &H00000000&
-   Caption         =   "Gridcoin Mining"
+   Caption         =   "Gridcoin Mining 1.12"
    ClientHeight    =   9645
    ClientLeft      =   120
    ClientTop       =   450
@@ -15,21 +15,10 @@ Begin VB.Form frmMining
    ScaleWidth      =   14175
    StartUpPosition =   3  'Windows Default
    Begin VB.Timer timerCloser 
-      Interval        =   15555
-      Left            =   8760
-      Top             =   4680
-   End
-   Begin VB.CommandButton cmdHide 
-      BackColor       =   &H00404040&
-      Caption         =   "Hide"
-      Height          =   555
-      Left            =   11640
-      MaskColor       =   &H0000FF00&
-      Style           =   1  'Graphical
-      TabIndex        =   4
-      Top             =   4560
-      UseMaskColor    =   -1  'True
-      Width           =   1455
+      Enabled         =   0   'False
+      Interval        =   55555
+      Left            =   12360
+      Top             =   6000
    End
    Begin VB.Timer TimerOneMinute 
       Interval        =   65535
@@ -45,13 +34,13 @@ Begin VB.Form frmMining
       BackColor       =   &H00000000&
       Caption         =   "Test CPUMiner"
       Height          =   195
-      Left            =   12840
+      Left            =   12960
       MaskColor       =   &H0000FF00&
       Style           =   1  'Graphical
       TabIndex        =   3
-      Top             =   3480
+      Top             =   480
       UseMaskColor    =   -1  'True
-      Width           =   375
+      Width           =   135
    End
    Begin MSComctlLib.ProgressBar pbCPUMiner 
       Height          =   75
@@ -95,20 +84,20 @@ Me.Visible = False
 End Sub
 
 Private Sub cmdTestMiner_Click()
-Log "Testing CPU Miner"
 
-linux.LastBlockHash = "ABCDE" + Trim(Math.Round(Rnd(1) * 100000000000#, 0))
+mclsGui.msGuiMessage = "TESTCPUMINER"
+
 
 End Sub
-Public Function Underscribe(data As String, sSuffix As String) As String
+Public Function Scribe(data As String, sSuffix As String) As String
 Dim sName As String
  sName = "lbl" + sSuffix + Replace(data, " ", "_")
- Underscribe = sName
+ Scribe = sName
 End Function
-Public Function DeUnderscribe(data As String) As String
+Public Function UndoScribe(data As String) As String
 Dim sName As String
  sName = Replace(data, "_", " ")
- DeUnderscribe = sName
+ UndoScribe = sName
 End Function
 
 Private Sub Form_Load()
@@ -128,15 +117,12 @@ sLabels = "Version|Boinc Utilization|Boinc Thread Count|Boinc Component A|Boinc 
 & "|Boinc KHPS|Last Block|Last Solved Hash"
 Dim vLabels() As String
 vLabels = Split(sLabels, "|")
-Set mCPUMiner = New frmCPUMiner
-mCPUMiner.Show vbModal
-
-Call GetMd52
+msMD5 = md52
 
 
 For I = 0 To UBound(vLabels)
     Dim L As VB.Label
-    Set L = Controls.Add("VB.Label", Underscribe(vLabels(I), ""), Me)
+    Set L = Controls.Add("VB.Label", Scribe(vLabels(I), ""), Me)
      
 
   Set mLabels(I) = L
@@ -154,7 +140,7 @@ For I = 0 To UBound(vLabels)
     
     
     Dim l1 As VB.Label
-    Set l1 = Controls.Add("VB.Label", Underscribe(vLabels(I), "Value"), Me)
+    Set l1 = Controls.Add("VB.Label", Scribe(vLabels(I), "Value"), Me)
     
     Set mLabelValues(I) = l1
     l1.Caption = ". . . "
@@ -178,7 +164,7 @@ End Sub
 Public Sub SetLabel(sName As String, sValue As String)
 
 Dim sCN As String
-sCN = Underscribe(sName, "Value")
+sCN = Scribe(sName, "Value")
 
 For I = 0 To UBound(mLabelValues)
  If TypeName(mLabelValues(I)) = "Label" Then
@@ -199,19 +185,29 @@ End Sub
 
 Private Sub TimerBoinc_Timer()
 
-Call SetLabel("boinc khps", mCPUMiner.KHPS)
+Call SetLabel("boinc khps", Trim(mclsGui.KHPS))
 
-Call SetLabel("last solved hash", mCPUMiner.MinedHash)
+Call SetLabel("last solved hash", Trim(mclsGui.MinedHash))
 
-Call SetLabel("last block", linux.LastBlockHash)
-If mCPUMiner.myStatus = True Then
- If mCPUMiner.nonce > pbCPUMiner.Max Then pbCPUMiner.Max = mCPUMiner.nonce * 1.5
-    pbCPUMiner.Value = mCPUMiner.nonce
+Call SetLabel("last block", Trim(mclsGui.LastBlockHash))
+If mclsGui.CPUMinerStatus = True Then
+ If mclsGui.CPUMinerNonce > pbCPUMiner.Max Then pbCPUMiner.Max = mclsGui.CPUMinerNonce * 1.5
+    pbCPUMiner.Value = mclsGui.CPUMinerNonce
+    
     pbCPUMiner.Visible = True
     Else
     pbCPUMiner.Visible = False
     
 End If
+
+Call SetLabel("boinc utilization", Trim(mclsGui.BoincUtilization))
+Call SetLabel("boinc project data", Trim(mclsGui.BoincProjectData))
+Call SetLabel("boinc projects", Trim(mclsGui.BoincProjects))
+Call SetLabel("boinc avg credits", GlobalizedDecimal(mclsGui.BoincAvgCredits))
+Call SetLabel("Version", Trim(mclsGui.Version))
+Call SetLabel("Boinc Thread Count", Trim(mclsGui.BoincThreads))
+Call SetLabel("boinc component A", GlobalizedDecimal(mclsGui.mdBoincComponentA))
+Call SetLabel("boinc component B", GlobalizedDecimal(mclsGui.mdBoincComponentB))
 
 End Sub
 Private Function GlobalizedDecimal(data As Variant)
@@ -227,27 +223,16 @@ Me.Hide
 End Sub
 
 Private Sub TimerOneMinute_Timer()
-Log "Calling One Minute Update"
 
-Call LogBoincCredits
-
-
-Call SetLabel("boinc utilization", mclsUtilization.BoincUtilization)
-
-Call SetLabel("boinc project data", mclsUtilization.BoincProjectData)
-
-Call SetLabel("boinc projects", mclsUtilization.BoincProjects)
-
-Call SetLabel("boinc avg credits", GlobalizedDecimal(mclsUtilization.BoincAvgCredits))
-Call SetLabel("Version", Trim(mclsUtilization.Version))
-Call SetLabel("Boinc Thread Count", Trim(mclsUtilization.BoincThreads))
-
-
-Call SetLabel("boinc component A", GlobalizedDecimal(mdBoincComponentA))
-
-Call SetLabel("boinc component B", GlobalizedDecimal(mdBoincComponentB))
-
-Call SetLabel("boinc Md5", linux.msBoincMD5)
+Call SetLabel("boinc utilization", Trim(mclsGui.BoincUtilization))
+Call SetLabel("boinc project data", Trim(mclsGui.BoincProjectData))
+Call SetLabel("boinc projects", Trim(mclsGui.BoincProjects))
+Call SetLabel("boinc avg credits", GlobalizedDecimal(mclsGui.BoincAvgCredits))
+Call SetLabel("Version", Trim(mclsGui.Version))
+Call SetLabel("Boinc Thread Count", Trim(mclsGui.BoincThreads))
+Call SetLabel("boinc component A", GlobalizedDecimal(mclsGui.mdBoincComponentA))
+Call SetLabel("boinc component B", GlobalizedDecimal(mclsGui.mdBoincComponentB))
+Call SetLabel("boinc Md5", GetMd52)
 
 UpdateCharts
 
@@ -256,6 +241,14 @@ End Sub
 Private Sub UpdateCharts()
 
 On Error GoTo ErrTrap
+  Dim sPath As String
+  sPath = BoincDataDir
+  sPath = sPath + "gridcoin.dat"
+  
+  FileCopy sPath, sPath + ".bak"
+  
+          
+
 
 chartCredits.chartType = VtChChartType2dLine
 
@@ -266,17 +259,11 @@ Dim arrValues(1 To 30, 1 To 4)
 
 Dim I As Integer
   
- '    arrValues(Z, 1) = Format(Now - Z, "mm/dd/yyyy") ' Labels
-  '   arrValues(Z, 2) = I * 10 ' Series 1 values.
-   '  arrValues(Z, 3) = I + Z * 10 ' Series 2 values.
-    ' arrValues(Z, 4) = I + Z * 5
-   
-  
-  
-  Dim x As Long
-  Dim xtop As Long
-  xtop = 30
-    Dim lookback As Double
+Dim x As Long
+Dim xtop As Long
+xtop = 30
+    
+Dim lookback As Double
             For x = xtop To 1 Step -1.2
             
                 DoEvents
@@ -286,13 +273,13 @@ Dim I As Integer
                 Dim l1 As Double
                 Dim l2 As Double
                 Dim l3 As Double
-                l1 = mclsUtilization.BoincCreditsAvgAtPointInTime
+                l1 = BoincCreditsAvgAtPointInTime
                 ReturnBoincCreditsAtPointInTime (lookback - (3600# * 24#))
-                l2 = mclsUtilization.BoincCreditsAtPointInTime
+                l2 = BoincCreditsAtPointInTime
                 l3 = Math.Abs(l2 - last_total)
                 last_total = l2
                 If l3 > (l1 * 5) Then l3 = l1
-                dProj = mclsUtilization.BoincProjects
+                dProj = BoincProjects
                 Dim d1 As Date
                 d1 = DateAdd("d", -x, Now)
                 arrValues(x, 1) = Format(d1, "mm/dd/yyyy")
@@ -301,26 +288,22 @@ Dim I As Integer
                
                 arrValues(x, 4) = dProj * (l1 / 10)
               
-              
             Next x
-          
-  
+
   
   
 chartCredits.ChartData = arrValues
-
 chartCredits.Column = 1
 chartCredits.ColumnLabel = "Avg Credits"
 chartCredits.Column = 2
 chartCredits.ColumnLabel = "Daily Credits"
 chartCredits.Column = 3
 chartCredits.ColumnLabel = "Projects"
-
 chartUtilization.Column = 1
-
-chartUtilization.data = linux.mlBoincUtilization
+chartUtilization.data = mclsGui.BoincUtilization
 chartUtilization.Column = 2
-chartUtilization.data = 100 - linux.mlBoincUtilization
+chartUtilization.data = 100 - mclsGui.BoincUtilization
+
 Exit Sub
 
 ErrTrap:

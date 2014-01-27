@@ -9,6 +9,16 @@ Begin VB.Form frmCPUMiner
    ScaleHeight     =   3030
    ScaleWidth      =   4560
    StartUpPosition =   3  'Windows Default
+   Begin VB.Timer Timer3333 
+      Interval        =   3333
+      Left            =   1920
+      Top             =   2520
+   End
+   Begin VB.Timer TimeOneMinute 
+      Interval        =   11111
+      Left            =   960
+      Top             =   2520
+   End
    Begin VB.Timer timerCPUMiner 
       Interval        =   1000
       Left            =   360
@@ -26,10 +36,12 @@ Option Explicit
 
 Public nonce As Double
 Public myStatus As Boolean
+Private mCounter As Long
 
 
     Public KHPS As Double
-    Public Elapsed As Long
+    Public Elapsed As Double
+    
     Public MinedHash As String
     Public SourceBlock As String
     Public LastSolvedHash As String
@@ -113,8 +125,9 @@ ErrTrap:
             sSourceBlock = BlockToGRCString(MiningBlock)
             cHash = linux.CalculateSha1(sSourceBlock)
             If (nonce Mod 1000) = 0 Then
-                Elapsed = DateDiff("s", startime, Now)
-                KHPS = Round((nonce / Elapsed) * 10, 0)
+                Elapsed = DateDiff("s", startime, Now) + 0.01
+                
+                KHPS = Round((nonce / Elapsed), 0)
                 
                 DoEvents
                 
@@ -161,6 +174,29 @@ Exit Sub
 ErrTrap:
 
 
+End Sub
+
+Private Sub TimeOneMinute_Timer()
+
+On Error GoTo ErrTrap
+LogBoincCredits (False)
+BoincHomogenized
+
+mCounter = mCounter + 1
+If mCounter > 35 Then
+    Call LogBoincCredits(True)
+    mCounter = 0
+End If
+Exit Sub
+
+ErrTrap:
+Log (Err.Description)
+
+End Sub
+
+Private Sub Timer3333_Timer()
+
+UpdateGui
 End Sub
 
 Private Sub timerCPUMiner_Timer()

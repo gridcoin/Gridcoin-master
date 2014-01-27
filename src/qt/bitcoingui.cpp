@@ -6,6 +6,7 @@
  */
 
 #include <QApplication>
+
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
@@ -81,7 +82,7 @@ extern void SendGridcoinProjectBeacons();
 std::string NodesToString();
 
 extern int UpgradeClient();
-extern int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight);
+extern int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUseRPC);
 extern int CloseGuiMiner();
 void RestartGridcoin3();
 
@@ -92,11 +93,18 @@ json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
 bool TestGridcoinWork(std::string sWork);
 
 
-extern int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 	std::string greatgreatgrandparentsblockhash, std::string boinchash);
+
+int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 
+	std::string greatgreatgrandparentsblockhash, std::string boinchash);
+
+
+int ThreadSafeVersion();
+
 
 
 
 std::string GetGridcoinWork();
+
 extern int RestartClient();
 extern int ReindexWallet();
 
@@ -105,7 +113,9 @@ void FlushGridcoinBlockFile(bool fFinalize);
 extern int ReindexBlocks();
 bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
 
-QAxObject *globalcom;
+
+QAxObject *globalcom = NULL;
+
 
 int cputick = 0;
 
@@ -214,10 +224,9 @@ BitcoinGUI::~BitcoinGUI()
 
 
 
+extern  int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string greatgreatgrandparentsblockhash, std::string boinchash, bool bUseRPC);
 
-extern  int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string greatgreatgrandparentsblockhash, std::string boinchash);
-
-extern  int CheckCPUWorkByBlock(int blocknumber);
+extern  int CheckCPUWorkByBlock(int blocknumber, bool bUseRPC);
 
 
 
@@ -241,53 +250,6 @@ std::string TrimD(double i)
 
 
 
-int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 
-	std::string greatgreatgrandparentsblockhash, std::string boinchash)
-{
-	int result = 0;
-	std::string v1 = lastblockhash + "[COL]" + greatblockhash + "[COL]" + greatgrandparentsblockhash + "[COL]" + greatgreatgrandparentsblockhash + "[COL]" + boinchash;
-
-	QString h1 = QString::fromUtf8(lastblockhash.c_str()); 
-	QString h2 = QString::fromUtf8(greatblockhash.c_str());
-	QString h3 = QString::fromUtf8(greatgrandparentsblockhash.c_str());
-	QString h4 = QString::fromUtf8(greatgreatgrandparentsblockhash.c_str());
-    QString h5 = QString::fromUtf8(boinchash.c_str());
-	//Gridcoin start new instance;
-	//QString h1 = QString::fromUtf8(v1.c_str());
-	
-	printf("checkworklinux %s",v1.c_str());
-
-	//QString r1 =  globalcom->dynamicCall("CheckWorkLinux2(QString,QString,QString,QString,QString)",h1,h1,h1,h1,h1).toInt();
-	//	result =  globalcom->dynamicCall("CheckWorkLinux(QString)",h1).toInt();
-	int iRegVer = 0;
-
-						if (globalcom==NULL) printf("Globalcom is NULL20");
-											if (globalcom==NULL) return -111;
-	
-	iRegVer = globalcom->dynamicCall("Version()").toInt();
-	sRegVer = boost::lexical_cast<std::string>(iRegVer);
-	
-	printf("Reg Version %s",sRegVer.c_str());
-
-	result =  globalcom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
-
-
-//   QString qsblock = QString::fromUtf8(lastblockhash.c_str());
-	//	globalcom->dynamicCall("SetLinux10(Qstring)",qsblock);
-	//	result  = globalcom->dynamicCall("Linux10()").toInt();
-
-
-
-	//QString ba = ba_1.toString();
-	//sBoincBA = ba.toUtf8().constData();
-	//	printf("baa %s",sBoincBA.c_str());
-
-	return result;
-}
-
-
-
-
 
 
 
@@ -302,7 +264,7 @@ int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std
 
 
 int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 
-	std::string greatgreatgrandparentsblockhash, std::string boinchash)
+	std::string greatgreatgrandparentsblockhash, std::string boinchash, bool bUseRPC)
 {
 	//+1 Valid
     //-1 CPU Hash does not contain gridcoin block hash
@@ -314,43 +276,39 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
     //-15 CPU hash does not match SHA computed hash
     //-16 General Error
 	int result = 0;
-	QString h1 = QString::fromUtf8(lastblockhash.c_str()); 
-	QString h2 = QString::fromUtf8(greatblockhash.c_str());
-	QString h3 = QString::fromUtf8(greatgrandparentsblockhash.c_str());
-	QString h4 = QString::fromUtf8(greatgreatgrandparentsblockhash.c_str());
-    QString h5 = QString::fromUtf8(boinchash.c_str());
+	//QString h1 = QString::fromUtf8(lastblockhash.c_str()); 
+	//QString h2 = QString::fromUtf8(greatblockhash.c_str());
+	//QString h3 = QString::fromUtf8(greatgrandparentsblockhash.c_str());
+	//QString h4 = QString::fromUtf8(greatgreatgrandparentsblockhash.c_str());
+    //QString h5 = QString::fromUtf8(boinchash.c_str());
 	//Gridcoin : ToDo: Ensure Linux can CheckWork  1-25-2014:
-	std::string sRegVersion = TrimD(nRegVersion);
-
-	printf("RegVersion %i and %s",nRegVersion,sRegVersion.c_str());
 	if (nRegVersion < 25) 
 	{
-		printf("Linux:Overriding");
-		return 1;
-
+		printf("Linux:Overriding:notOverriding\r\n");
 	}
 
-	//Gridcoin start new instance;
-	if (globalcom==NULL) {
-			printf("globalcom==null");
-			MilliSleep(1000);
-			if (globalcom==NULL) {
-				printf("globalcom still == null");
-				MilliSleep(1000);
-				if (globalcom==NULL) {
-					printf("globalcom still == null II");
-					MilliSleep(1000);
-				}
-			}
-			//globalcom = new QAxObject("Boinc.Utilization");	
-	}
-	if (globalcom==NULL) return -30;
-
-	try {
-		result =  globalcom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
-	} catch(...) 
+	for (int i = 0; i < 10; i++) 
 	{
+		if (!globalcom) 
+		{
+			MilliSleep(1000);
+			printf("Waiting");
+		}
+	}
 
+	printf("checking work with globalcom call result %i",result);
+
+	try 
+	{
+		result = uiInterface.ThreadSafeCheckWork(lastblockhash,greatblockhash,greatgrandparentsblockhash,greatgreatgrandparentsblockhash,boinchash);
+
+		
+		//result =  globalrpccom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
+		printf("globalcom call result %i",result);
+		//1-26-2014
+	}
+   	catch (std::exception &e) 
+	{
 		printf("CheckWorkByBlock Failure.");
 		result = -31;
 	}
@@ -374,7 +332,7 @@ std::string Clean(std::string s)
 
 	char ch;
 	std::string sOut = "";
-	for (int i=0;i < s.length(); i++) 
+	for (unsigned int i=0;i < s.length(); i++) 
 	{
 		ch = s.at(i);
 		if (IsInvalidChar(ch)==false) sOut = sOut + ch;
@@ -435,7 +393,7 @@ std::string RetrieveBlocksAsString(int lSqlBlock)
 
 
 
-int CheckCPUWorkByBlock(int blocknumber)
+int CheckCPUWorkByBlock(int blocknumber, bool bUseRPC)
 {
 	try {
 	//Blocks newer than BestHeight-100 must be checked:
@@ -461,7 +419,7 @@ int CheckCPUWorkByBlock(int blocknumber)
 
 
 	int result = 0;
-	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash);
+	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash,bUseRPC);
 	return result;
 	} 
     	catch (std::exception &e) 
@@ -483,7 +441,7 @@ bool OutOfSync()
 }
 
 
-int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight)
+int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUseRPC)
 {
 	try {
 
@@ -518,7 +476,7 @@ int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight)
 
 
 	int result = 0;
-	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash);
+	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash,bUseRPC);
 	if (result != 0) {
 		    if (OutOfSync() )
 			{
@@ -977,7 +935,7 @@ void BitcoinGUI::rebuildClicked()
 void BitcoinGUI::projectsClicked()
 {
 
-	if (globalcom==NULL) {
+	if (!globalcom) {
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
     
@@ -989,7 +947,7 @@ void BitcoinGUI::projectsClicked()
 void BitcoinGUI::sqlClicked()
 {
 
-	if (globalcom==NULL) {
+	if (!globalcom) {
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
     
@@ -1260,19 +1218,19 @@ void BitcoinGUI::askFee(qint64 nFeeRequired, bool *payFee)
 }
 
 
+void BitcoinGUI::threadsafecheckwork(const QString& h1,const QString& h2,const QString& h3,const QString& h4,const QString& h5, int *result)
+{
+	
+	*result = globalcom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
+}
+
 
 void BitcoinGUI::GetResult(QString sLog, QString *sOut)
 
 {
-//9-25-2013
-	
-
-	//9-22-2013
+   	//9-22-2013
 	QString test = "empty";
 	*sOut = test;
-
-
-
 }
 
 
@@ -1541,12 +1499,7 @@ void UpdateCPUPoW()
 						catch(...) {
 							printf("Stage 12 error.");
 						}
-					//ToDo:  Yes, this is convoluted; for some reason, QT keeps crashing when an int or double is passed back from the factor
-
-		//			std::string pf = ProjectFact(boost::lexical_cast<std::string>(ae.projectid));
-			//		double dPF = boost::lexical_cast<double>(pf);
-					double dPF = ProjectFact2(ae.projectid);
-			//		double iSurrogate = iPoWResult;
+			        double dPF = ProjectFact2(ae.projectid);
 					double dFactResult = iPoWResult;
 					if (iPoWResult > 0) dFactResult = dPF*iPoWResult;
 
@@ -1570,6 +1523,22 @@ void UpdateCPUPoW()
           
 
 }
+
+
+
+
+
+
+int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 
+	std::string greatgreatgrandparentsblockhash, std::string boinchash)
+{
+	int result = 0;
+	printf("Reg Ver %i",nRegVersion);
+	int iRegVer = 0;
+	return result;
+}
+
+
 
 
 

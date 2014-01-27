@@ -40,13 +40,18 @@ Private Sub Command1_Click(Index As Integer)
 Dim z As Long
 z = x.version
 
-Stop
 
 x.ShowMiningConsole
 
 
 Dim sResult As Long
-sResult = x.CheckWork("1", "2", "3", "4", "555555555")
+Dim sHash As String
+sHash = "17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3"
+Dim sBoinc As String
+sBoinc = "3a94913164b731f5c712e4a7852575a3,1,100,CRD_V,SOLO_MINING,Fv9pvrJ5UPFseMXvfpFFYMHHhnH69nuF2L,48,3357:3125:2826,E2C9999BA1006308E45ED23381C44DF02108D2EF,17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3\\1:3a94913164b731f5c712e4a7852575a3\\100\\3381\\2\\842692\\roset:fight\\1388417242\\2\\322334"
+
+sResult = x.CheckWork(sHash, sHash, sHash, sHash, sBoinc)
+
 
 Debug.Print x.BoincThreads, x.BoincUtilization
 

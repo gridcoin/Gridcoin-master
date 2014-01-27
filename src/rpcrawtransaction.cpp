@@ -16,6 +16,11 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <QAxObject>
+#include <ActiveQt/qaxbase.h>
+#include <ActiveQt/qaxobject.h>
+
+
 using namespace std;
 using namespace boost;
 
@@ -30,20 +35,15 @@ using namespace json_spirit;
 
 std::string BoincProjectAddress(int projectid);
 int BoincProjectId(std::string grc);
-int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string greatgreatgrandparentsblockhash, std::string boinchash);
-int CheckCPUWorkByBlock(int blocknumber);
+int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string greatgreatgrandparentsblockhash, std::string boinchash, bool bUseRPC);
+int CheckCPUWorkByBlock(int blocknumber,bool bUseRPC);
 int UpgradeClient();
-
-
 extern std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& out_amount, int64& out_locktime, int64& out_projectid, std::string& out_projectaddress, std::string& out_comments, std::string& out_grcaddress);
-
 extern double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
-
 extern std::map<std::string, MiningEntry> CalculateCPUMining();
-
 extern void SendGridcoinProjectBeacons();
-
-int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 	std::string greatgreatgrandparentsblockhash, std::string boinchash);
+int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 
+	std::string greatgreatgrandparentsblockhash, std::string boinchash);
 
 
 
@@ -220,7 +220,7 @@ double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address,
 
 
 			 if (grc1==mygrcaddress && bCPUTx) {
-			 	printf("MyGrc Amount %s and suffix %s",sPaid.c_str(),suffix.c_str());
+			 	//printf("MyGrc Amount %s and suffix %s",sPaid.c_str(),suffix.c_str());
 			
 			 }
 
@@ -841,7 +841,7 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 	double iBU = 0;
 	double compensation = 0;
 
-	printf("Reaching calculatecpumining.");
+	//printf("Reaching calculatecpumining.");
 	double total_shares = 0;
 	
 	MiningEntry ae;
@@ -969,26 +969,21 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 					me1.owed = owed;
 
 					me1.approvedtransactions = iapproved;
-					//1-20-2014 Change this to a max of 450 for cpuminer payments:
 					double next_payment_amount = 450/(iapproved+.01);
 					if (next_payment_amount > owed) next_payment_amount = owed;
 					me1.nextpaymentamount = next_payment_amount;
 					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
-				//	if (me1.nextpaymentamount > .05) iApproved2++;
 			}
 
     }
 
 
 
-		//1-23-2014
-
+		
 			for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
 		{
 
 			MiningEntry me1 = cpuminerpaymentsconsolidated[(*ii).first];
-	//		MiningEntry pow = cpupow[ae.homogenizedkey];
-	        // MiningEntry me1 = cpuminerpaymentsconsolidated[ae.strAccount];
 	
 	        if (me1.nextpaymentamount > .05) 
 			{
@@ -1021,12 +1016,10 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 					if (owed > 150) owed=150;
 					me1.owed = owed;
 					me1.approvedtransactions = iApproved2;
-					//1-20-2014 Change this to a max of 450 for cpuminer payments:
 					double next_payment_amount = 450/(iApproved2+.01);
 					if (next_payment_amount > owed) next_payment_amount = owed;
 					me1.nextpaymentamount = next_payment_amount;
 					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
-				//}
 			}
 
     }
@@ -1156,8 +1149,7 @@ std::string ConvBS(std::string s)
 
 Value checkwork(const Array& params, bool fHelp)
 {
-	//RPCcheckwork 1-25-2014
-
+	//RPCcheckwork 1-26-2014
 
 	 if (fHelp)
         throw runtime_error(
@@ -1176,7 +1168,6 @@ Value checkwork(const Array& params, bool fHelp)
 	
 	entry.push_back(Pair("Check Work",1.1));
 	entry.push_back(Pair("Block Number",blocknumber));
-	//11-29-2013
     CBlock block;
 	CBlockIndex* pBlock = FindBlockByHeight(blocknumber);
 	block.ReadFromDisk(pBlock);
@@ -1199,10 +1190,10 @@ Value checkwork(const Array& params, bool fHelp)
 	printf("Lastblockhash %s",blockhash2.c_str());
 	printf("Lastblockhash %s",blockhash3.c_str());
 	printf("Lastblockhash %s",blockhash4.c_str());
-	boinchash = ConvBS(boinchash);
+
+	//boinchash = ConvBS(boinchash);
 	printf("Boinchash %s",boinchash.c_str());
 	
-
 	entry.push_back(Pair("Last Block Hash",blockhash1));
 	entry.push_back(Pair("Prior Block Hash",blockhash2));
 	entry.push_back(Pair("Great Block Hash",blockhash3));
@@ -1210,16 +1201,23 @@ Value checkwork(const Array& params, bool fHelp)
 
 
 	int result = 0;
-	result = CheckCPUWorkLinux(blockhash1,blockhash2,blockhash3,blockhash4,boinchash);
-	printf("Last result %d",result);
+	int resultlinux = 0;
 
+	resultlinux = CheckCPUWorkLinux(blockhash1,blockhash2,blockhash3,blockhash4,boinchash);
+	entry.push_back(Pair("Check Work Linux",resultlinux));
+
+	printf("Check by block");
+	//1-26-2014
+
+	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash,true);
 	entry.push_back(Pair("Check Work Result",result));
-	result = CheckCPUWorkByBlock(blocknumber);
+	result = CheckCPUWorkByBlock(blocknumber,true);
+	
 	entry.push_back(Pair("CheckWorkByBlock", result));
 	}
 	catch (...) {
 		return -20;
-        //throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
 	}
    
 	return entry;

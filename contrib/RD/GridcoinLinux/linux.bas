@@ -1,43 +1,36 @@
 Attribute VB_Name = "linux"
 Option Explicit
-
-
 Public wmi As Object
 Public threads As Long
 Private Declare Sub Sleep Lib "kernel32.dll" (ByVal dwMilliseconds As Long)
-
 Public mclsUtilization As boinc.Utilization
+
+
+Public mLinuxGui As Object
+'Public mLinuxGui As GridcoinLinuxGUI.gui
+
+
 Public msBoincProjectData As String
 Public mdBoincProjects As Double
 Public msBoincMD5 As String
-Public mFrmMining As frmMining
-
-
 Public mMinedHash
-
 Public mdBoincComponentA As Double
 Public mdBoincComponentB As Double
 Public LastBlockHash As String
-
 Public mdBoincCreditsAvgAtPointInTime
 Public mdBoincCreditsAtPointInTime
 Public BlockData As String
 Public mdBoincLockAvg As Double
-
+Public mBoincCreditsAvg As Double
+Public mBoincCredits As Double
 Public mSourceBlock As String
-    
-            
-            
+Public msPublicWalletAddress As String
 Public mCPUMiner As frmCPUMiner
-
-
 Dim dCountersMachine(10) As Double
 Dim dCountersBoinc(10) As Double
-
 Public mlBoincUtilization As Long
 Public mlBoincThreads As Long
 Public mdBoincAvgCredits As Long
-
 
 
 Private lastbu As Long
@@ -62,15 +55,6 @@ Public Declare Function SetTimer Lib "user32" _
      ByVal nIDEvent As Long, _
      ByVal uElapse As Long, _
      ByVal lpTimerFunc As Long) As Long
-
-Private Declare Function GetModuleHandle Lib "kernel32" _
- Alias "GetModuleHandleA" (ByVal lpModuleName As String) _
- As Long
- 
-Declare Function GetProcAddress Lib "kernel32" (ByVal hModule As Long, ByVal lpProcName As String) As Long
-
-
-
 
 
 
@@ -99,15 +83,11 @@ Private Const PROCESS_QUERY_INFORMATION = &H400
  
 Public Declare Function KillTimer Lib "user32" _
     (ByVal hwnd As Long, ByVal nIDEvent As Long) As Long
-Property Get IsWine() As Boolean
-    IsWine = (GetProcAddress(GetModuleHandle("kernel32"), "wine_get_unix_file_name") <> 0)
-End Property
-
+    
 Public Sub Log(sData As String)
 Dim sPath As String
 sPath = linux.AppPath + "debug2.txt"
 Dim ff As Long
-
 ff = FreeFile
 Open sPath For Append As #ff
 Print #ff, Trim(Now) + " - " + Trim(sData)
@@ -117,15 +97,9 @@ End Sub
 Public Function FileExists(sPath As String) As Boolean
 Dim bExists As Boolean
 On Error GoTo ErrTrap
-
 If FileLen(sPath) > 0 Then FileExists = True: Exit Function
-
 Exit Function
-
 ErrTrap:
-
-
-
 End Function
 
 
@@ -138,28 +112,17 @@ Log "CalcBoincA Entry Point"
 
 
     Dim Procs As Object, Proc As Object
-    
-    
-    
     Dim KERNEL As Double
     KERNEL = 10
-   
-   
-   
-   On Error GoTo ErrTrapper
-   
-   
-   Dim Locator As Object
-   
+    On Error GoTo ErrTrapper
+    Dim Locator As Object
     Set Locator = CreateObject("WbemScripting.SWbemLocator")
     Set wmi = Locator.ConnectServer
-
     Dim bBoinc As Boolean
-    
     threads = 0
     Erase dCountersBoinc
     Erase dCountersMachine
-Log "Loading processes"
+    Log "Loading processes"
 
     Set Procs = wmi.InstancesOf("Win32_Process")
     
@@ -214,42 +177,29 @@ End Sub
 
 Private Sub CountTime(Proc As Object, Procs As Object, lOrdinal As Long)
 Dim bBoinc As Boolean
-
-        If Not Proc Is Nothing Then
+       If Not Proc Is Nothing Then
             bBoinc = False
             Dim oDad As Object
             Dim oGrandaddy As Object
             Set oDad = GetAncestor(Procs, Proc)
             Set oGrandaddy = GetAncestor(Procs, oDad)
-        
             If IsBoinc(Proc, True) Or IsBoinc(oDad, False) Or IsBoinc(oGrandaddy, False) Then bBoinc = True
             If LCase(Proc.Name) Like "*boinc*" Then bBoinc = False
-
             If Not bBoinc Then dCountersMachine(lOrdinal) = dCountersMachine(lOrdinal) + Proc.KernelModeTime + Proc.UserModeTime
-        
-        
             DoEvents
-
             If bBoinc Then
                 dCountersBoinc(lOrdinal) = dCountersBoinc(lOrdinal) + Proc.KernelModeTime + Proc.UserModeTime
                 threads = threads + 1
             End If
         End If
-
 End Sub
 Public Function IsBoinc(P As Object, bIsBase As Boolean)
-
 If P Is Nothing Then IsBoinc = False: Exit Function
 Dim sName As String
 sName = LCase(P.Name)
-
 If bIsBase And sName Like "*boinc*" Then IsBoinc = False: Exit Function
-
-
 If sName Like "*boinc*" Then IsBoinc = True: Exit Function
-
 IsBoinc = False
-
 End Function
 
 Public Function GetAncestor(Procs As Object, P As Object) As Object
@@ -265,7 +215,6 @@ If P Is Nothing Then Exit Function
 End Function
 
 Public Function CalculateSha1(sData As String) As String
-
 On Error GoTo ErrHandler
 Dim b() As Byte
 b = StrConv(sData, vbFromUnicode)
@@ -278,45 +227,17 @@ ErrHandler:
 Log Err.Description + Err.Source
 End Function
 
-Public Function BoincDataDir() As String
-'Const ssfCOMMONAPPDATA = &H23
-'Dim strCommonAppData As String
-'Dim oReflection As Object
-'Set oReflection = CreateObject("Shell.Application")
-'strCommonAppData = oReflection.NameSpace(ssfCOMMONAPPDATA).Self.Path
-'Set oReflection = Nothing
-'BoincDataDir = strCommonAppData
-If IsWine() Then
-    BoincDataDir = "/var/lib/boinc-client"
-    BoincDataDir = "z:\var\lib\boinc-client\"
-    Else
-    BoincDataDir = "c:\programdata\boinc\"
-End If
-
-'Log ("boincdatadir:" + BoincDataDir)
-
-
-End Function
-
-
-
 Public Function AppPath() As String
 Dim sOut As String
 sOut = App.Path + "\"
 AppPath = sOut
 End Function
 
-
 Public Function IsProcessRunning(ByVal sProcess As String) As Boolean
    Const MAX_PATH As Long = 260
-
    Dim lProcesses() As Long, lModules() As Long, N As Long, lRet As Long, hProcess As Long
-
    Dim sName As String
-
-
    sProcess = UCase$(sProcess)
-
    ReDim lProcesses(1023) As Long
     If EnumProcesses(lProcesses(0), 1024 * 4, lRet) Then
         For N = 0 To (lRet \ 4) - 1
@@ -345,3 +266,34 @@ Public Function UpdateUtilizationLevels()
 End Function
 
 
+Public Function UpdateGui()
+
+mLinuxGui.SetBoincUtilization = mlBoincUtilization
+mLinuxGui.SetBoincProjectData = msBoincProjectData
+mLinuxGui.BoincProjects = mdBoincProjects
+mLinuxGui.BoincAvgCredits = mdBoincAvgCredits
+mLinuxGui.Version = mclsUtilization.Version
+mLinuxGui.BoincThreads = mlBoincThreads
+mLinuxGui.mdBoincComponentA = mdBoincComponentA
+
+
+mLinuxGui.mdBoincComponentB = mdBoincComponentB
+mLinuxGui.MinedHash = mCPUMiner.MinedHash
+mLinuxGui.KHPS = mCPUMiner.KHPS
+mLinuxGui.CPUMinerNonce = mCPUMiner.nonce
+mLinuxGui.CPUMinerStatus = mCPUMiner.myStatus
+mLinuxGui.LastBlockHash = LastBlockHash
+
+If mLinuxGui.msGuiMessage <> "" Then
+    If mLinuxGui.msGuiMessage = "TESTCPUMINER" Then
+    
+            Log "Testing CPU Miner"
+            LastBlockHash = "ABCDE" + Trim(Math.Round(Rnd(1) * 100000000000#, 0))
+
+    End If
+    
+    mLinuxGui.msGuiMessage = ""
+End If
+
+
+End Function

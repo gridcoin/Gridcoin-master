@@ -99,7 +99,7 @@ std::map<std::string, MiningEntry> cpuminerpaymentsconsolidated;
 
 std::map<int, int> blockcache;
 
-int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight);
+int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUseRPC);
 
   
 bool bPoolMiningMode = false;
@@ -2313,7 +2313,7 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
         nHeight = pindexPrev->nHeight+1;
 
 		//12-1-2013 Gridcoin: Enforce boinchash:
-		int result = CheckCPUWorkByCurrentBlock(hashBoinc.c_str(),nHeight);
+		int result = CheckCPUWorkByCurrentBlock(hashBoinc.c_str(),nHeight,false);
     	printf("ProcessBlock: Current Boinc Hash %s, Result: %d Height: %d",hashBoinc.c_str(),result,nHeight);
 	    if (result != 1) {
             return state.Invalid(error("AcceptBlock() : ProcessBlock() : Failed, Boinchash invalid."));
@@ -2448,7 +2448,7 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
 		printf("ProcessBlock: ORPHAN BLOCK, prev=%s\n", pblock->hashPrevBlock.ToString().c_str());
 	
 		try {
-					int result = CheckCPUWorkByCurrentBlock(pblock->hashBoinc.c_str(), nBestHeight);
+					int result = CheckCPUWorkByCurrentBlock(pblock->hashBoinc.c_str(), nBestHeight, false);
 					if (result != 1) 
 					{
 						printf("invalid hash %s height %d error %d",pblock->hashBoinc.c_str(), nBestHeight,result);

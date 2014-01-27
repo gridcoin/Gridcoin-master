@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module2"
+Attribute VB_Name = "modBoincCredits"
 
 
 Public mBoincTotalHostAvg As Long
@@ -9,10 +9,9 @@ Option Explicit
 
 
 
-    Public Function LogBoincCredits()
+    Public Function LogBoincCredits(bLogToDisk As Boolean)
 
-
-On Error GoTo ErrTrap
+      On Error GoTo ErrTrap
 
 
       Dim sXMLFile As String
@@ -62,7 +61,8 @@ On Error GoTo ErrTrap
                     dCredit = Val(XMLValue(sTemp))
                     dTotalProjects = dTotalProjects + 1
                     totalCredit = totalCredit + dCredit
-                    Call AddCredits(sProject, dCredit, 0, "host_total_credit")
+                    Call AddCredits(sProject, dCredit, 0, "host_total_credit", bLogToDisk)
+                    
                 End If
                 If InStr(1, sTemp, "hostid") > 0 Then
                     sHostId = XMLValue(sTemp)
@@ -78,7 +78,8 @@ On Error GoTo ErrTrap
                        dAvgLockAge = DateDiff("s", Now, dLockTime)
                        dAvgLockCount = dAvgLockCount + 1
                         dTotalHostAvg = dTotalHostAvg + dAvgCredit
-                        Call AddCredits(sProject, dAvgCredit, 0, "host_expavg_credit")
+                        Call AddCredits(sProject, dAvgCredit, 0, "host_expavg_credit", bLogToDisk)
+                        
                     End If
                 End If
             Loop
@@ -93,16 +94,18 @@ On Error GoTo ErrTrap
             If Len(sProjects) > 1 Then sProjects = Left(sProjects, Len(sProjects) - 1)
             If Len(sProjectsExpanded) > 1 Then sProjectsExpanded = Left(sProjectsExpanded, Len(sProjectsExpanded) - 1)
 
-            msBoincProjectData = sProjectsExpanded
-            Call AddCredits("TOTAL", totalCredit, dTotalProjects, "TOTAL")
-            Call AddCredits("AVG", dTotalHostAvg, dTotalProjects, "AVG")
-             Call BoincHomogenized
+          msBoincProjectData = sProjectsExpanded
+          Call AddCredits("TOTAL", totalCredit, dTotalProjects, "TOTAL", bLogToDisk)
+          Call AddCredits("AVG", dTotalHostAvg, dTotalProjects, "AVG", bLogToDisk)
+          
+          Call BoincHomogenized
           mBoincTotalHostAvg = dTotalHostAvg
           Exit Function
           
 ErrTrap:
           
     End Function
+    
     
     Public Function UnixTimeStamp() As Double
         Dim dUnix As Double
@@ -166,73 +169,7 @@ ErrTrap:
     HarvestLockTime = CDate("1-1-1900")
         
     End Function
-    Public Function ReturnBoincCreditsAtPointInTime(ByVal lLookbackSecs) As Double
-       On Error GoTo ErrTrap
-       
-            Dim dtEnd As Date
-            dtEnd = Now
-            Dim dtStart As Date
-            dtStart = DateAdd("s", -lLookbackSecs, dtEnd)
-            Dim sPath As String
-            sPath = linux.BoincDataDir
-            sPath = sPath + "gridcoin.dat"
-            
-            Dim iFF As Integer
-            iFF = FreeFile
-            Open sPath For Input As #iFF
-            Dim sTemp As String
-            Dim dTotalCreditsStart As Double
-            Dim dTotalAvgStart As Double
-            Dim dProjects As Double
-            Dim dtEntry As Date
-            Dim iRows As Long
-            
-            Do While Not EOF(iFF)
-                Line Input #iFF, sTemp
-                
-                sTemp = FromBase64(sTemp)
-                Dim vTemp() As String
-                vTemp = Split(sTemp, ",")
-                iRows = iRows + 1
-                
-                If UBound(vTemp) > 3 Then
-                    If vTemp(1) = "TOTAL" Then
-                        dtEntry = vTemp(0)
-                        If dtEntry > dtStart And dTotalCreditsStart = 0 Then
-                            dTotalCreditsStart = vTemp(2)
-                            dProjects = vTemp(3)
-                        End If
-                    End If
-
-                    If vTemp(1) = "AVG" Then
-                        dtEntry = vTemp(0)
-                        If dtEntry > dtStart And dTotalAvgStart = 0 Then
-                            dTotalAvgStart = vTemp(2)
-                            
-                            
-                        End If
-                    End If
-                    
-                    If dtEntry > dtStart And dTotalAvgStart > 0 And dTotalCreditsStart > 0 Then Exit Do
-                    
-                End If
-                DoEvents
-                
-            Loop
-            Close #iFF
-            
-            mdBoincProjects = dProjects
-            If mdBoincProjects < 0 Then mdBoincProjects = 0
-            mdBoincCreditsAvgAtPointInTime = dTotalAvgStart
-            mdBoincCreditsAtPointInTime = dTotalCreditsStart
-            
-            ReturnBoincCreditsAtPointInTime = dTotalAvgStart
-           
-           Exit Function
-ErrTrap:
-
-           
-    End Function
+  
 
 Public Function StrToByte(sData As String) As Byte()
 
@@ -245,13 +182,6 @@ Public Function ByteToString(b() As Byte) As String
 Dim sOut As String
 sOut = Trim(b)
 ByteToString = sOut
-End Function
-Public Function ToBase64(sData As String) As String
-ToBase64 = Base64Encode(sData)
-End Function
-
-Public Function FromBase64(sData As String) As String
-FromBase64 = Base64Decode(sData)
 End Function
 
       
@@ -284,10 +214,12 @@ End Function
 Public Function BoincHomogenized() As Double
 DoEvents
 
-    Dim dOut As Double
-    dOut = (BoincComponentA + BoincComponentB) / 2
-    BoincHomogenized = dOut
-  linux.mlBoincUtilization = dOut
+  Dim dOut As Double
+  dOut = (BoincComponentA + BoincComponentB) / 2
+  BoincHomogenized = dOut
+  
+  mlBoincUtilization = dOut
+  
     
 End Function
 
@@ -305,26 +237,23 @@ End Function
 
 
 
-Private Function AddCredits(ByVal sName As String, ByVal dCredit As Double, ByVal dProjectCount As Double, ByVal sCounterType As String)
+Private Function AddCredits(ByVal sName As String, ByVal dCredit As Double, ByVal dProjectCount As Double, ByVal sCounterType As String, bLogToDisk As Boolean)
+If Not bLogToDisk Then Exit Function
+
         
     Dim oFF As Integer
     On Error GoTo ErrTrap
     oFF = FreeFile
     
             Dim sPath As String
-            sPath = linux.BoincDataDir + "gridcoin.dat"
-            
-            
-            
+            sPath = BoincDataDir + "gridcoin.dat"
             Open sPath For Append As #oFF
-            
             Dim sRow As String
             sRow = Trim(Now) + "," + sName + "," + Trim(dCredit) + "," + Trim(dProjectCount) + "," + sCounterType
             sRow = ToBase64(sRow)
-          Print #oFF, sRow
+            Print #oFF, sRow
             Close #oFF
         
-
 ErrTrap:
 Close #oFF
 

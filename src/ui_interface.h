@@ -73,8 +73,10 @@ public:
     /** Ask the user whether they want to pay a fee or not. */
     boost::signals2::signal<bool (int64 nFeeRequired), boost::signals2::last_value<bool> > ThreadSafeAskFee;
 
-	/** Communicate with MotherShip **/
-	boost::signals2::signal<std::string (const char* psz)> LogChupe;
+	boost::signals2::signal<int ()> ThreadSafeVersion;
+
+	boost::signals2::signal<int (const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5), boost::signals2::last_value<int> > ThreadSafeCheckWork;
+	//static int ThreadSafeCheckWork(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
 
 
 
