@@ -100,6 +100,39 @@ sudo ./gridcoin-qt
 ###### Step 3:  Wine (TBD):
 
 
+###### Temporary instructions for Wine Alpha testing:
+###### Tested on Ubuntu 12.04
+###### First, install the latest version of wine
+###### Then download gridcoin-qt-wine:
+download:
+http://www.gridcoin.us/download/wine.zip
+Extract into Linux working directory
+## Do the following steps once:
+wine regsvr32 msvbvm60.dll
+wine regsvr32 mschrt20.ocx
+wine regsvr32 mscomctl.ocx
+wine regsvr32 BoincLinux.dll
+wine GridcoinLinuxGUI.exe /regsvr
+cd ..
+chmod 777 gridcoinqtdirectory
+cd gridcoinqtdirectory
+
+## To execute gridcoin-qt wallet in wine:
+wine gridcoin-qt
+
+## There will be 3 debug files written to the app directory
+## Known issues:
+## You must have at least 2 boinc projects running otherwise project information is not gathered
+## You must run the wallet for at least a few minutes before the utilization is gathered
+## If you kill boinc, it takes 10 minutes for gridcoin utilization to go back to zero (it does eventually)
+## Thread count is working on windows in wine, but not in linux - still working on it
+## The tiny button near the pie chart is the cpuminer test - more info coming.
+## The wide chart is working in wine on windows, and still has a problem on linux
+## The md5:PATH_DOES_NOT_EXIST error is still being worked on
+
+
+
+
 
 
 

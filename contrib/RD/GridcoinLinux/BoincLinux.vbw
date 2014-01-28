@@ -1,6 +1,7 @@
 Utilization = 50, 50, 1213, 410, 
 sha1 = 125, 125, 1168, 485, 
 linux = 75, 75, 1238, 435, 
-modBoincCredits = 50, 50, 1499, 474, Z
+modBoincCredits = 50, 50, 1499, 474, 
 frmCPUMiner = 125, 125, 1235, 485, , 150, 150, 1193, 510, C
 modShared = 100, 100, 976, 524, 
+Security = 75, 75, 951, 499, Z

@@ -12,6 +12,7 @@ Option Explicit
     Public Function LogBoincCredits(bLogToDisk As Boolean)
 
       On Error GoTo ErrTrap
+      Log "Logging Boinc Credits"
 
 
       Dim sXMLFile As String
@@ -21,7 +22,6 @@ Option Explicit
       Dim fI As Integer
       fI = FreeFile
       
-      Open sXMLFile For Input As #fI
       
         Dim sTemp As String
         Dim sProject As String
@@ -41,10 +41,31 @@ Option Explicit
             Dim sSmallProj As String
             Dim sSmallProjExpanded As String
             Dim sProjectsExpanded As String
+            Dim sIn As String
+      Open sXMLFile For Input As #fI
+            
             Do While EOF(fI) = False
+                Line Input #fI, sTemp
+                sIn = sIn + sTemp + Chr(10)
+            Loop
+       Close #fI
             
-            Line Input #fI, sTemp
+            Dim vTemp() As String
+            vTemp = Split(sIn, Chr(10))
+            Dim x As Long
+           ' Open sXMLFile + ".dat2" For Output As #fI
+         Open App.Path + "\gridcoin.dat" For Output As #fI
+             Log "Ubound of xml " + Trim(UBound(vTemp))
+                
+            For x = 0 To UBound(vTemp)
+                Print #fI, vTemp(x)
+            Next x
+         Close #fI
+         Open App.Path + "\gridcoin.dat" For Input As #fI
             
+            Do While EOF(fI) = False
+                Line Input #fI, sTemp
+                
                 If InStr(1, sTemp, "<project_name>") > 0 Then
                     sProject = XMLValue(sTemp)
                     sSmallProj = Left(sProject, 5)
@@ -74,6 +95,8 @@ Option Explicit
                     If InStr(1, sProjectsExpanded, sSmallProjExpanded) = 0 And bValidLockTime Then
                         sProjectsExpanded = sProjectsExpanded + sSmallProjExpanded + ":"
                     End If
+                    Log sSmallProjExpanded + "[lol]" + sProjectsExpanded + "[lol]" + Trim(dLockTime)
+                    
                     If bValidLockTime And dAvgCredit > 0 Then
                        dAvgLockAge = DateDiff("s", Now, dLockTime)
                        dAvgLockCount = dAvgLockCount + 1
@@ -82,9 +105,10 @@ Option Explicit
                         
                     End If
                 End If
-            Loop
-            Close #fI
-            
+         Loop
+         
+      Close #fI
+      
         If dAvgLockCount > 0 Then
             dAvgLockAge = dAvgLockAge / dAvgLockCount
         End If
@@ -103,7 +127,9 @@ Option Explicit
           Exit Function
           
 ErrTrap:
-          
+Log "Log boinc credits" + Err.Description
+Close
+
     End Function
     
     
@@ -197,8 +223,9 @@ End Function
 
 Public Function BoincComponentB() As Double
 Dim dCredits As Double
-    ReturnBoincCreditsAtPointInTime (1)
-    dCredits = mclsUtilization.BoincCreditsAvgAtPointInTime
+    ReturnBoincCreditsAtPointInTime (1000)
+    dCredits = mdBoincCreditsAvgAtPointInTime
+        
 Dim dOut As Double
 dOut = dCredits / 10
 If dOut > 100 Then dOut = 100
@@ -212,7 +239,7 @@ End Function
 
 
 Public Function BoincHomogenized() As Double
-DoEvents
+    DoEvents
 
   Dim dOut As Double
   dOut = (BoincComponentA + BoincComponentB) / 2
@@ -222,16 +249,6 @@ DoEvents
   
     
 End Function
-
-
-
-
-
-
-
-
-
-
 
 
 

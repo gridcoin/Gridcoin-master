@@ -336,6 +336,14 @@ bool static InitWarning(const std::string &str)
     return true;
 }
 
+//
+//signal
+//<bool (const std::string& message,
+//const std::string& caption,
+//unsigned int style), boost::signals2::last_value<bool> > ThreadSafeMessageBox;
+
+
+
 bool static Bind(const CService &addr, unsigned int flags) {
     if (!(flags & BF_EXPLICIT) && IsLimited(addr))
         return false;

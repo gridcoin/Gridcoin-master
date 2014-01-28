@@ -85,13 +85,22 @@ Public Declare Function KillTimer Lib "user32" _
     (ByVal hwnd As Long, ByVal nIDEvent As Long) As Long
     
 Public Sub Log(sData As String)
+On Error GoTo ErrTrap
+
+
 Dim sPath As String
-sPath = linux.AppPath + "debug2.txt"
+sPath = App.Path + "\debugLinux.txt"
 Dim ff As Long
 ff = FreeFile
 Open sPath For Append As #ff
 Print #ff, Trim(Now) + " - " + Trim(sData)
 Close #ff
+Exit Sub
+
+
+ErrTrap:
+MsgBox "cannot write to " + sPath
+
 End Sub
 
 Public Function FileExists(sPath As String) As Boolean
@@ -227,10 +236,10 @@ ErrHandler:
 Log Err.Description + Err.Source
 End Function
 
-Public Function AppPath() As String
+Public Function mAppPath() As String
 Dim sOut As String
 sOut = App.Path + "\"
-AppPath = sOut
+mAppPath = sOut
 End Function
 
 Public Function IsProcessRunning(ByVal sProcess As String) As Boolean
@@ -261,9 +270,6 @@ Public Function IsProcessRunning(ByVal sProcess As String) As Boolean
     End If
 End Function
 
-Public Function UpdateUtilizationLevels()
-     
-End Function
 
 
 Public Function UpdateGui()
@@ -275,8 +281,6 @@ mLinuxGui.BoincAvgCredits = mdBoincAvgCredits
 mLinuxGui.Version = mclsUtilization.Version
 mLinuxGui.BoincThreads = mlBoincThreads
 mLinuxGui.mdBoincComponentA = mdBoincComponentA
-
-
 mLinuxGui.mdBoincComponentB = mdBoincComponentB
 mLinuxGui.MinedHash = mCPUMiner.MinedHash
 mLinuxGui.KHPS = mCPUMiner.KHPS

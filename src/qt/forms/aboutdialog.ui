@@ -210,7 +210,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>About Litecoin</string>
+   <string>About Gridcoin</string>
   </property>
   <property name="autoFillBackground">
    <bool>true</bool>

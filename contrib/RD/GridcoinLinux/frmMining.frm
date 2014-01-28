@@ -4,41 +4,41 @@ Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.1#0"; "mscomctl.OCX"
 Begin VB.Form frmMining 
    BackColor       =   &H00000000&
    Caption         =   "Gridcoin Mining 1.12"
-   ClientHeight    =   9645
+   ClientHeight    =   7485
    ClientLeft      =   120
    ClientTop       =   450
-   ClientWidth     =   14175
+   ClientWidth     =   12390
    ForeColor       =   &H0000FF00&
    Icon            =   "frmMining.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   9645
-   ScaleWidth      =   14175
+   ScaleHeight     =   7485
+   ScaleWidth      =   12390
    StartUpPosition =   3  'Windows Default
    Begin VB.Timer timerCloser 
       Enabled         =   0   'False
       Interval        =   55555
-      Left            =   12360
-      Top             =   6000
+      Left            =   5520
+      Top             =   240
    End
    Begin VB.Timer TimerOneMinute 
       Interval        =   65535
-      Left            =   11520
-      Top             =   120
+      Left            =   9000
+      Top             =   240
    End
    Begin VB.Timer TimerBoinc 
       Interval        =   1000
-      Left            =   12480
-      Top             =   0
+      Left            =   9840
+      Top             =   120
    End
    Begin VB.CommandButton cmdTestMiner 
       BackColor       =   &H00000000&
       Caption         =   "Test CPUMiner"
       Height          =   195
-      Left            =   12960
+      Left            =   3120
       MaskColor       =   &H0000FF00&
       Style           =   1  'Graphical
       TabIndex        =   3
-      Top             =   480
+      Top             =   2880
       UseMaskColor    =   -1  'True
       Width           =   135
    End
@@ -47,8 +47,8 @@ Begin VB.Form frmMining
       Left            =   1080
       TabIndex        =   2
       Top             =   3360
-      Width           =   12135
-      _ExtentX        =   21405
+      Width           =   10935
+      _ExtentX        =   19288
       _ExtentY        =   132
       _Version        =   393216
       Appearance      =   0
@@ -59,7 +59,7 @@ Begin VB.Form frmMining
       OleObjectBlob   =   "frmMining.frx":0442
       TabIndex        =   1
       Top             =   480
-      Width           =   9495
+      Width           =   8415
    End
    Begin MSChart20Lib.MSChart chartUtilization 
       Height          =   2535
@@ -77,6 +77,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Private mLabels(20) As Label
 Private mLabelValues(20) As Label
+Private mYPosition As Long
 
 Private Sub cmdHide_Click()
 Me.Visible = False
@@ -99,17 +100,54 @@ Dim sName As String
  sName = Replace(data, "_", " ")
  UndoScribe = sName
 End Function
+Private Sub DrawComposite(sCaption As String, sValue As String, iOrdinal As Long, vLabels() As String, i As Integer)
 
+    Dim lHeight As Long
+    lHeight = 400
+    
+    mYPosition = pbCPUMiner.Top + (iOrdinal * lHeight)
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'Caption
+    
+    Dim L As VB.Label
+    Set L = Controls.Add("VB.Label", sCaption, Me)
+    Set mLabels(i) = L
+    L.Caption = vLabels(i) + ": "
+    L.Visible = True
+    L.Left = Me.pbCPUMiner.Left
+    L.Font.Size = 10
+    L.Font.Name = "Arial"
+    L.BackColor = 0
+    L.ForeColor = &HFF00&
+    L.Top = mYPosition
+    L.Height = lHeight - 50
+    L.Width = 2400
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ''Value:
+    ''''''''
+    Dim l1 As VB.Label
+    Set l1 = Controls.Add("VB.Label", sValue, Me)
+    Set mLabelValues(i) = l1
+    l1.Caption = ". . . "
+    l1.Visible = True
+    l1.Font.Size = 10
+    l1.Font.Name = "Arial"
+    l1.Left = L.Left + L.Width + 3000
+    l1.Top = mYPosition
+    l1.Height = lHeight - 50
+    
+    l1.Width = 5000
+    l1.BackColor = 0
+    l1.ForeColor = &HFF00&
+  
+    Me.Height = l1.Top + 1200
+    
+    
+End Sub
 Private Sub Form_Load()
 
 DoEvents
 
- 
-         '   Dim sPath As String
-         '   sPath = linux.BoincDataDir + "gridcoin.dat"
-         '   Open sPath For Output As #1
-         '   Close #1
-            
    
 'Create the labels
 Dim sLabels As String
@@ -120,42 +158,15 @@ vLabels = Split(sLabels, "|")
 msMD5 = md52
 
 
-For I = 0 To UBound(vLabels)
-    Dim L As VB.Label
-    Set L = Controls.Add("VB.Label", Scribe(vLabels(I), ""), Me)
-     
+For i = 0 To UBound(vLabels)
+    Call DrawComposite(Scribe(vLabels(i), ""), Scribe(vLabels(i), "Value"), i + 1, vLabels, Val(i))
 
-  Set mLabels(I) = L
-    L.Caption = vLabels(I) + ": "
-    L.Visible = True
-    L.Left = Me.pbCPUMiner.Left
-    L.Font.Size = 14
-    L.Font.Name = "Arial"
-    L.BackColor = 0
-    L.ForeColor = &HFF00&
-    
-    
-    L.Top = pbCPUMiner.Top + ((I + 1) * 450)
-    L.Width = 2600
-    
-    
-    Dim l1 As VB.Label
-    Set l1 = Controls.Add("VB.Label", Scribe(vLabels(I), "Value"), Me)
-    
-    Set mLabelValues(I) = l1
-    l1.Caption = ". . . "
-    l1.Visible = True
-    l1.Font.Size = 14
-    l1.Font.Name = "Arial"
-    
-    l1.Left = L.Left + L.Width + 3300
-    l1.Top = pbCPUMiner.Top + ((I + 1) * 450)
-    l1.Width = 7000
-    l1.BackColor = 0
-    l1.ForeColor = &HFF00&
-   
-    
-Next I
+
+  
+  
+  
+  
+Next i
 
 Call TimerOneMinute_Timer
 
@@ -166,14 +177,14 @@ Public Sub SetLabel(sName As String, sValue As String)
 Dim sCN As String
 sCN = Scribe(sName, "Value")
 
-For I = 0 To UBound(mLabelValues)
- If TypeName(mLabelValues(I)) = "Label" Then
-  If LCase(mLabelValues(I).Name) = LCase(sCN) Then
-    mLabelValues(I).Caption = sValue
+For i = 0 To UBound(mLabelValues)
+ If TypeName(mLabelValues(i)) = "Label" Then
+  If LCase(mLabelValues(i).Name) = LCase(sCN) Then
+    mLabelValues(i).Caption = sValue
   End If
   End If
   
-Next I
+Next i
 End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
@@ -245,7 +256,7 @@ On Error GoTo ErrTrap
   sPath = BoincDataDir
   sPath = sPath + "gridcoin.dat"
   
-  FileCopy sPath, sPath + ".bak"
+ ' FileCopy sPath, sPath + ".bak"
   
           
 
@@ -257,7 +268,7 @@ chartCredits.ColumnCount = 3
 Dim arrValues(1 To 30, 1 To 4)
 
 
-Dim I As Integer
+Dim i As Integer
   
 Dim x As Long
 Dim xtop As Long

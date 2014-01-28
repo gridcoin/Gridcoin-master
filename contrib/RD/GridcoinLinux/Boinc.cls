@@ -26,8 +26,10 @@ End Function
 
 
 Private Sub Class_Initialize()
-Log "Initializing2"
 On Error GoTo ErrTrap
+
+
+Log "Initializing2"
 Set mclsUtilization = Me
 Set mCPUMiner = New frmCPUMiner
 mCPUMiner.Show vbModal
@@ -76,12 +78,11 @@ Public Function Linux10() As Double
 Linux10 = -20
 
 End Function
-Public Function CheckWorkLinux(sData As String) As Integer
 
+Public Function CheckWorkLinux(sData As String) As Integer
 Log sData
 CheckWorkLinux = -55
 Exit Function
-
 Dim vData() As String
 vData = Split(sData, "[COL]")
 If UBound(vData) < 4 Then CheckWorkLinux = -50: Exit Function

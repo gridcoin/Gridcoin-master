@@ -29,7 +29,12 @@ Public Function GetMd52() As String
 If Len(msMD5cache) > 0 Then GetMd52 = msMD5cache: Exit Function
 
             Dim sFolder As String: sFolder = GetBoincProgFolder()
-            Dim sPath As String: sPath = sFolder + "boinc.exe"
+            Dim sPath As String:
+            If IsWine Then
+                sPath = sFolder + "boinc"
+                Else
+                sPath = sFolder + "boinc.exe"
+                End If
             GetMd52 = GetMd5(sPath)
  
 End Function
@@ -109,8 +114,7 @@ Public Function GetBoincProgFolder()
 Dim sPath As String
 '1-20-2014
 If IsWine() Then
-    'BoincDataDir = "/var/lib/boinc-client"
-    GetBoincProgFolder = "z:\var\lib\boinc-client\"
+    GetBoincProgFolder = "z:\usr\bin\"
     Else
     GetBoincProgFolder = "c:\program files\boinc\"
 End If

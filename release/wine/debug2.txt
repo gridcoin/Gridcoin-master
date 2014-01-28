@@ -1,0 +1,4 @@
+1/26/2014 8:11:37 PM - Initializing2
+1/26/2014 8:11:37 PM - c:\programdata\boinc\
+1/26/2014 8:11:37 PM - C:\Gridcoin-master\release\wine\
+1/26/2014 8:12:02 PM - Testing CPU Miner

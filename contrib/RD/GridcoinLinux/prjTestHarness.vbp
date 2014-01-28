@@ -1,9 +1,11 @@
 Type=Exe
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\Windows\SysWOW64\stdole2.tlb#OLE Automation
-Reference=*\G{31F03543-2348-4504-BF8B-550FE5893690}#4.0#0#..\..\..\release\BoincLinux.dll#Boinc Linux
+Reference=*\G{31F03543-2348-4504-BF8B-550FE5893690}#c.0#0#..\..\..\release\wine\BoincLinux.dll#Boinc Linux
 Form=frmTestHarness.frm
 Startup="Form1"
 HelpFile=""
+ExeName32="prjTestHarness.exe"
+Path32="..\..\..\release\wine"
 Command32=""
 Name="GridcoinLinuxTestHarness"
 HelpContextID="0"

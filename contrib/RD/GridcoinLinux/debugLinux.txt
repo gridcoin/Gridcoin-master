@@ -1,0 +1,83 @@
+1/26/2014 8:50:50 PM - Initializing2
+1/26/2014 8:50:50 PM - Logging Boinc Credits
+1/26/2014 8:51:04 PM - Checking work 17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3
+1/26/2014 8:51:12 PM - Logging Boinc Credits
+1/26/2014 8:53:48 PM - Initializing2
+1/26/2014 8:53:48 PM - Logging Boinc Credits
+1/26/2014 8:54:02 PM - Checking work 17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3
+1/26/2014 8:54:10 PM - Logging Boinc Credits
+1/26/2014 9:01:30 PM - Initializing2
+1/26/2014 9:01:30 PM - Logging Boinc Credits
+1/26/2014 9:02:03 PM - Initializing2
+1/26/2014 9:02:03 PM - Logging Boinc Credits
+1/26/2014 9:02:28 PM - Checking work 17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3
+1/26/2014 9:02:37 PM - Logging Boinc Credits
+1/26/2014 9:04:06 PM - Initializing2
+1/26/2014 9:04:06 PM - Logging Boinc Credits
+1/26/2014 9:04:20 PM - Checking work 17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3
+1/26/2014 9:04:28 PM - Logging Boinc Credits
+1/26/2014 9:05:47 PM - Initializing2
+1/26/2014 9:05:47 PM - Logging Boinc Credits
+1/26/2014 9:05:59 PM - Checking work 17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3
+1/26/2014 9:06:07 PM - Testing CPU Miner
+1/26/2014 9:06:09 PM - Logging Boinc Credits
+1/26/2014 9:06:29 PM - Logging Boinc Credits
+1/26/2014 9:39:49 PM - Initializing2
+1/26/2014 9:39:49 PM - Logging Boinc Credits
+1/26/2014 9:40:08 PM - Initializing2
+1/26/2014 9:40:08 PM - Logging Boinc Credits
+1/26/2014 9:40:23 PM - Initializing2
+1/26/2014 9:40:23 PM - Logging Boinc Credits
+1/26/2014 9:41:01 PM - Initializing2
+1/26/2014 9:41:02 PM - Logging Boinc Credits
+1/26/2014 9:41:48 PM - Initializing2
+1/26/2014 9:41:48 PM - Logging Boinc Credits
+1/26/2014 9:41:55 PM - Ubound of xml 12032
+1/26/2014 9:42:05 PM - fight_0_25251[lol][lol]1/1/1900
+1/26/2014 9:42:05 PM - malar_909_705879[lol][lol]1/1/1900
+1/26/2014 9:42:05 PM - Leide_546_115841[lol][lol]1/1/1900
+1/26/2014 9:42:05 PM - Docki_1610_189058[lol][lol]1/1/1900
+1/26/2014 9:42:05 PM - World_637_2504147[lol][lol]1/1/1900
+1/26/2014 9:42:05 PM - roset_784_1651516[lol][lol]1/1/1900
+1/26/2014 9:42:05 PM - SETI@_1024_7179401[lol][lol]1/1/1900
+1/26/2014 9:42:21 PM - Logging Boinc Credits
+1/26/2014 9:42:27 PM - Ubound of xml 12032
+1/26/2014 9:42:27 PM - fight_0_25251[lol][lol]1/1/1900
+1/26/2014 9:42:27 PM - malar_909_705879[lol][lol]1/1/1900
+1/26/2014 9:42:27 PM - Leide_546_115841[lol][lol]1/1/1900
+1/26/2014 9:42:27 PM - Docki_1610_189058[lol][lol]1/1/1900
+1/26/2014 9:42:27 PM - World_637_2504147[lol][lol]1/1/1900
+1/26/2014 9:42:27 PM - roset_784_1651516[lol][lol]1/1/1900
+1/26/2014 9:42:27 PM - SETI@_1024_7179401[lol][lol]1/1/1900
+1/26/2014 9:45:20 PM - Initializing2
+1/26/2014 9:45:20 PM - Logging Boinc Credits
+1/26/2014 9:45:26 PM - Ubound of xml 12032
+1/26/2014 9:45:26 PM - fight_0_25251[lol]fight_0_25251:[lol]1/27/2014 3:17:27 AM
+1/26/2014 9:45:26 PM - malar_909_705879[lol]fight_0_25251:malar_909_705879:[lol]1/28/2014 1:15:57 AM
+1/26/2014 9:45:26 PM - Leide_546_115841[lol]fight_0_25251:malar_909_705879:Leide_546_115841:[lol]1/27/2014 3:17:27 AM
+1/26/2014 9:45:26 PM - Docki_1610_189058[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:[lol]1/27/2014 3:17:27 AM
+1/26/2014 9:45:26 PM - World_637_2504147[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:[lol]1/27/2014 3:17:27 AM
+1/26/2014 9:45:26 PM - roset_784_1651516[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:roset_784_1651516:[lol]1/27/2014 3:17:27 AM
+1/26/2014 9:45:26 PM - SETI@_1024_7179401[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:roset_784_1651516:SETI@_1024_7179401:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:30 PM - Initializing2
+1/26/2014 10:04:30 PM - Logging Boinc Credits
+1/26/2014 10:04:36 PM - Ubound of xml 12143
+1/26/2014 10:04:36 PM - fight_0_25251[lol]fight_0_25251:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:36 PM - malar_909_705879[lol]fight_0_25251:malar_909_705879:[lol]1/28/2014 1:15:57 AM
+1/26/2014 10:04:36 PM - Leide_546_115841[lol]fight_0_25251:malar_909_705879:Leide_546_115841:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:36 PM - Docki_1610_189058[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:36 PM - World_637_2504147[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:36 PM - roset_784_1651516[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:roset_784_1651516:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:36 PM - SETI@_1024_7179401[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:roset_784_1651516:SETI@_1024_7179401:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:51 PM - Checking work 17134a21fe25d39dcb6afcf544aab8cc3748c1f1e250efd2acf55738fa6dd3a3
+1/26/2014 10:04:52 PM - Logging Boinc Credits
+1/26/2014 10:04:58 PM - Ubound of xml 12143
+1/26/2014 10:04:58 PM - fight_0_25251[lol]fight_0_25251:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:58 PM - malar_909_705879[lol]fight_0_25251:malar_909_705879:[lol]1/28/2014 1:15:57 AM
+1/26/2014 10:04:58 PM - Leide_546_115841[lol]fight_0_25251:malar_909_705879:Leide_546_115841:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:58 PM - Docki_1610_189058[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:58 PM - World_637_2504147[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:58 PM - roset_784_1651516[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:roset_784_1651516:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:58 PM - SETI@_1024_7179401[lol]fight_0_25251:malar_909_705879:Leide_546_115841:Docki_1610_189058:World_637_2504147:roset_784_1651516:SETI@_1024_7179401:[lol]1/27/2014 3:17:27 AM
+1/26/2014 10:04:58 PM - Testing CPU Miner
+1/26/2014 10:05:02 PM - Testing CPU Miner

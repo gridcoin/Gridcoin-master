@@ -332,7 +332,7 @@ Value getrawtransaction(const Array& params, bool fHelp)
 
 
 	result.push_back(Pair("GRCAddress", grc_address));
-	result.push_back(Pair("GRCAmount",out_amount));
+	//result.push_back(Pair("GRCAmount",out_amount));
 	
 	result.push_back(Pair("Comments",comments));
 	

@@ -99,10 +99,9 @@ static bool ThreadSafeAskFee(int64 nFeeRequired)
     return payFee;
 }
 
-//
-//static int noui_ThreadSafeCheckWork(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
 
-static int ThreadSafeCheckWork(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
+static int ThreadSafeCheckWork(const std::string& h1,
+	                           const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
 {
 	if (!guiref) return -100;
 	//1-26-2014
