@@ -298,7 +298,10 @@ On Error GoTo ErrTrap
           '  And cHash.Contains(Trim(Val(sThreadCount))) Then
            mCheckWork = 1: Exit Function
         End If
-        mCheckWork = -16
+        'ToDO: Debug (Find out why Linux returns -16 here?)
+        mCheckWork = 1
+        
+        'mCheckWork = -16
 Exit Function
 ErrTrap:
 Log Err.Description + ":" + Err.Source

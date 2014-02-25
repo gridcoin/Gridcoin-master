@@ -357,7 +357,9 @@ Module modBoincCredits
         '-3 Cannot connect to Berkeley API
         '-11 Bad or missing ProjectId
         '-12 Invalid UserId
+        '-20 Team Member is not in Team Gridcoin
         'Positive number = User Project Avg Daily Credits
+        sOutStruct = "N/A,-11,N/A"
 
         If lProjectId < 1 Or lProjectId > 70 Or lUserId = 0 Then
             Return -11
@@ -386,9 +388,14 @@ Module modBoincCredits
             End If
             sAvgCred = ExtractXML("user avgcred", "<br/>", sWap, 3)
             sTeam = ExtractXML("team:", "<br/>", sWap, 2)
+            If Len(sTeam) < 1 Then sTeam = ""
             Dim sConcat As String
             sConcat = sWallet + "," + sAvgCred + "," + sTeam
             sOutStruct = sConcat
+
+            If Trim(LCase(sTeam)) <> "gridcoin" Then
+                Return -20
+            End If
             Return Val(sAvgCred) + 0.001
         Catch ex As Exception
             Return -2

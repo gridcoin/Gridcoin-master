@@ -67,7 +67,7 @@ static const int fHaveUPnP = true;
 #else
 static const int fHaveUPnP = false;
 #endif
-static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 454;
+static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 1454;
 
 
 extern CScript COINBASE_FLAGS;
@@ -1281,7 +1281,7 @@ class CBlockHeader
 {
 public:
     // header
-	
+
     static const int CURRENT_VERSION=2;
     int nVersion;
     uint256 hashPrevBlock;
@@ -1344,7 +1344,7 @@ public:
 
     // memory only
     mutable std::vector<uint256> vMerkleTree;
-   
+
 	//10-27-2013
 	std::string hashBoinc;
 
@@ -1365,7 +1365,7 @@ public:
     (
         READWRITE(*(CBlockHeader*)this);
         READWRITE(vtx);
-		try 
+		try
 		{
 			READWRITE(hashBoinc);
 		} catch(std::exception &e) {

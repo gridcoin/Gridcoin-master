@@ -800,7 +800,8 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 	double compensation = 0;
 	printf("Reaching payout CPU to miners.");
 	double total_shares = 0;
-	
+	//1-28-2014
+
 	MiningEntry ae;
     //Iterate through the chain in reverse
 	

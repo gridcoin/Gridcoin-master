@@ -6,7 +6,7 @@ BEGIN
   DataSourceBehavior  = 0  'vbNone
   MTSTransactionMode  = 0  'NotAnMTSObject
 END
-Attribute VB_Name = "Utilization"
+Attribute VB_Name = "LinuxUtilization"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
@@ -17,11 +17,18 @@ Public msLinux10 As String
 Private myTimer As Double
 
 Public Function Version() As Double
-Version = 8
+Version = 9
+
 
 End Function
 Public Function ShowMiningConsole()
+On Error GoTo ErrTrap
+
 mLinuxGui.ShowMiningWindow
+Exit Function
+
+ErrTrap:
+
 End Function
 
 
@@ -29,12 +36,14 @@ Private Sub Class_Initialize()
 On Error GoTo ErrTrap
 
 
-Log "Initializing2"
+Log "Initializing"
 Set mclsUtilization = Me
 Set mCPUMiner = New frmCPUMiner
 mCPUMiner.Show vbModal
 Set mLinuxGui = CreateObject("GridcoinLinuxGUI.gui")
 LogBoincCredits (True)
+Log "Finished Initializing"
+
 Exit Sub
 
 ErrTrap:

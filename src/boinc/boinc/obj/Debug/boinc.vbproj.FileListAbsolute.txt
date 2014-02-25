@@ -38,6 +38,5 @@ C:\Gridcoin-master\src\boinc\boinc\bin\Debug\SQLite.NET.dll
 C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.frmSQL.resources
 C:\Gridcoin-master\src\boinc\boinc\bin\Debug\ICSharpCode.SharpZipLib.dll
 C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.frmLeaderboard.resources
-C:\Gridcoin-master\src\boinc\boinc\obj\Debug\ResolveAssemblyReference.cache
-C:\Gridcoin-master\src\boinc\boinc\obj\Debug\GenerateResource.read.1.tlog
-C:\Gridcoin-master\src\boinc\boinc\obj\Debug\GenerateResource.write.1.tlog
+C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.vbprojResolveAssemblyReference.cache
+C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.vbproj.GenerateResource.Cache

@@ -22,6 +22,11 @@ Partial Class frmProjects
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmProjects))
         Me.txtProject1 = New System.Windows.Forms.TextBox()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.lnkProject5 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject4 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject3 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject2 = New System.Windows.Forms.LinkLabel()
+        Me.lnkProject1 = New System.Windows.Forms.LinkLabel()
         Me.lblCredits5 = New System.Windows.Forms.Label()
         Me.lblCredits4 = New System.Windows.Forms.Label()
         Me.lblCredits3 = New System.Windows.Forms.Label()
@@ -33,11 +38,12 @@ Partial Class frmProjects
         Me.txtProject4 = New System.Windows.Forms.TextBox()
         Me.txtProject3 = New System.Windows.Forms.TextBox()
         Me.txtProject2 = New System.Windows.Forms.TextBox()
-        Me.lnkProject1 = New System.Windows.Forms.LinkLabel()
-        Me.lnkProject2 = New System.Windows.Forms.LinkLabel()
-        Me.lnkProject3 = New System.Windows.Forms.LinkLabel()
-        Me.lnkProject4 = New System.Windows.Forms.LinkLabel()
-        Me.lnkProject5 = New System.Windows.Forms.LinkLabel()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.lblTeam1 = New System.Windows.Forms.Label()
+        Me.lblTeam2 = New System.Windows.Forms.Label()
+        Me.lblTeam3 = New System.Windows.Forms.Label()
+        Me.lblTeam4 = New System.Windows.Forms.Label()
+        Me.lblTeam5 = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -53,6 +59,12 @@ Partial Class frmProjects
         'GroupBox1
         '
         Me.GroupBox1.BackColor = System.Drawing.Color.Black
+        Me.GroupBox1.Controls.Add(Me.lblTeam5)
+        Me.GroupBox1.Controls.Add(Me.lblTeam4)
+        Me.GroupBox1.Controls.Add(Me.lblTeam3)
+        Me.GroupBox1.Controls.Add(Me.lblTeam2)
+        Me.GroupBox1.Controls.Add(Me.lblTeam1)
+        Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Controls.Add(Me.lnkProject5)
         Me.GroupBox1.Controls.Add(Me.lnkProject4)
         Me.GroupBox1.Controls.Add(Me.lnkProject3)
@@ -77,6 +89,61 @@ Partial Class frmProjects
         Me.GroupBox1.TabIndex = 3
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "User ID Management"
+        '
+        'lnkProject5
+        '
+        Me.lnkProject5.AutoSize = True
+        Me.lnkProject5.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject5.Location = New System.Drawing.Point(79, 144)
+        Me.lnkProject5.Name = "lnkProject5"
+        Me.lnkProject5.Size = New System.Drawing.Size(215, 13)
+        Me.lnkProject5.TabIndex = 22
+        Me.lnkProject5.TabStop = True
+        Me.lnkProject5.Text = "5. Milky Way - milkyway.cs.rpi.edu/milkyway"
+        '
+        'lnkProject4
+        '
+        Me.lnkProject4.AutoSize = True
+        Me.lnkProject4.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject4.Location = New System.Drawing.Point(79, 117)
+        Me.lnkProject4.Name = "lnkProject4"
+        Me.lnkProject4.Size = New System.Drawing.Size(205, 13)
+        Me.lnkProject4.TabIndex = 21
+        Me.lnkProject4.TabStop = True
+        Me.lnkProject4.Text = "4. Docking@Home - docking.cis.udel.edu"
+        '
+        'lnkProject3
+        '
+        Me.lnkProject3.AutoSize = True
+        Me.lnkProject3.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject3.Location = New System.Drawing.Point(79, 87)
+        Me.lnkProject3.Name = "lnkProject3"
+        Me.lnkProject3.Size = New System.Drawing.Size(229, 13)
+        Me.lnkProject3.TabIndex = 20
+        Me.lnkProject3.TabStop = True
+        Me.lnkProject3.Text = "3. Rosetta@Home - boinc.bakerlab.org/rosetta"
+        '
+        'lnkProject2
+        '
+        Me.lnkProject2.AutoSize = True
+        Me.lnkProject2.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject2.Location = New System.Drawing.Point(79, 58)
+        Me.lnkProject2.Name = "lnkProject2"
+        Me.lnkProject2.Size = New System.Drawing.Size(209, 13)
+        Me.lnkProject2.TabIndex = 19
+        Me.lnkProject2.TabStop = True
+        Me.lnkProject2.Text = "2. RNA World - www.rnaworld.de/rnaworld"
+        '
+        'lnkProject1
+        '
+        Me.lnkProject1.AutoSize = True
+        Me.lnkProject1.LinkColor = System.Drawing.Color.Lime
+        Me.lnkProject1.Location = New System.Drawing.Point(79, 32)
+        Me.lnkProject1.Name = "lnkProject1"
+        Me.lnkProject1.Size = New System.Drawing.Size(208, 13)
+        Me.lnkProject1.TabIndex = 18
+        Me.lnkProject1.TabStop = True
+        Me.lnkProject1.Text = "1. Malaria Control - www.malariacontrol.net"
         '
         'lblCredits5
         '
@@ -191,60 +258,66 @@ Partial Class frmProjects
         Me.txtProject2.Size = New System.Drawing.Size(171, 20)
         Me.txtProject2.TabIndex = 2
         '
-        'lnkProject1
+        'Label1
         '
-        Me.lnkProject1.AutoSize = True
-        Me.lnkProject1.LinkColor = System.Drawing.Color.Lime
-        Me.lnkProject1.Location = New System.Drawing.Point(79, 32)
-        Me.lnkProject1.Name = "lnkProject1"
-        Me.lnkProject1.Size = New System.Drawing.Size(208, 13)
-        Me.lnkProject1.TabIndex = 18
-        Me.lnkProject1.TabStop = True
-        Me.lnkProject1.Text = "1. Malaria Control - www.malariacontrol.net"
+        Me.Label1.AutoSize = True
+        Me.Label1.BackColor = System.Drawing.Color.Black
+        Me.Label1.ForeColor = System.Drawing.Color.Lime
+        Me.Label1.Location = New System.Drawing.Point(548, 16)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(37, 13)
+        Me.Label1.TabIndex = 23
+        Me.Label1.Text = "Team:"
         '
-        'lnkProject2
+        'lblTeam1
         '
-        Me.lnkProject2.AutoSize = True
-        Me.lnkProject2.LinkColor = System.Drawing.Color.Lime
-        Me.lnkProject2.Location = New System.Drawing.Point(79, 58)
-        Me.lnkProject2.Name = "lnkProject2"
-        Me.lnkProject2.Size = New System.Drawing.Size(209, 13)
-        Me.lnkProject2.TabIndex = 19
-        Me.lnkProject2.TabStop = True
-        Me.lnkProject2.Text = "2. RNA World - www.rnaworld.de/rnaworld"
+        Me.lblTeam1.AutoSize = True
+        Me.lblTeam1.BackColor = System.Drawing.Color.Black
+        Me.lblTeam1.ForeColor = System.Drawing.Color.Lime
+        Me.lblTeam1.Location = New System.Drawing.Point(548, 32)
+        Me.lblTeam1.Name = "lblTeam1"
+        Me.lblTeam1.Size = New System.Drawing.Size(0, 13)
+        Me.lblTeam1.TabIndex = 24
         '
-        'lnkProject3
+        'lblTeam2
         '
-        Me.lnkProject3.AutoSize = True
-        Me.lnkProject3.LinkColor = System.Drawing.Color.Lime
-        Me.lnkProject3.Location = New System.Drawing.Point(79, 87)
-        Me.lnkProject3.Name = "lnkProject3"
-        Me.lnkProject3.Size = New System.Drawing.Size(229, 13)
-        Me.lnkProject3.TabIndex = 20
-        Me.lnkProject3.TabStop = True
-        Me.lnkProject3.Text = "3. Rosetta@Home - boinc.bakerlab.org/rosetta"
+        Me.lblTeam2.AutoSize = True
+        Me.lblTeam2.BackColor = System.Drawing.Color.Black
+        Me.lblTeam2.ForeColor = System.Drawing.Color.Lime
+        Me.lblTeam2.Location = New System.Drawing.Point(548, 58)
+        Me.lblTeam2.Name = "lblTeam2"
+        Me.lblTeam2.Size = New System.Drawing.Size(0, 13)
+        Me.lblTeam2.TabIndex = 25
         '
-        'lnkProject4
+        'lblTeam3
         '
-        Me.lnkProject4.AutoSize = True
-        Me.lnkProject4.LinkColor = System.Drawing.Color.Lime
-        Me.lnkProject4.Location = New System.Drawing.Point(79, 117)
-        Me.lnkProject4.Name = "lnkProject4"
-        Me.lnkProject4.Size = New System.Drawing.Size(205, 13)
-        Me.lnkProject4.TabIndex = 21
-        Me.lnkProject4.TabStop = True
-        Me.lnkProject4.Text = "4. Docking@Home - docking.cis.udel.edu"
+        Me.lblTeam3.AutoSize = True
+        Me.lblTeam3.BackColor = System.Drawing.Color.Black
+        Me.lblTeam3.ForeColor = System.Drawing.Color.Lime
+        Me.lblTeam3.Location = New System.Drawing.Point(548, 87)
+        Me.lblTeam3.Name = "lblTeam3"
+        Me.lblTeam3.Size = New System.Drawing.Size(0, 13)
+        Me.lblTeam3.TabIndex = 26
         '
-        'lnkProject5
+        'lblTeam4
         '
-        Me.lnkProject5.AutoSize = True
-        Me.lnkProject5.LinkColor = System.Drawing.Color.Lime
-        Me.lnkProject5.Location = New System.Drawing.Point(79, 144)
-        Me.lnkProject5.Name = "lnkProject5"
-        Me.lnkProject5.Size = New System.Drawing.Size(215, 13)
-        Me.lnkProject5.TabIndex = 22
-        Me.lnkProject5.TabStop = True
-        Me.lnkProject5.Text = "5. Milky Way - milkyway.cs.rpi.edu/milkyway"
+        Me.lblTeam4.AutoSize = True
+        Me.lblTeam4.BackColor = System.Drawing.Color.Black
+        Me.lblTeam4.ForeColor = System.Drawing.Color.Lime
+        Me.lblTeam4.Location = New System.Drawing.Point(548, 117)
+        Me.lblTeam4.Name = "lblTeam4"
+        Me.lblTeam4.Size = New System.Drawing.Size(0, 13)
+        Me.lblTeam4.TabIndex = 27
+        '
+        'lblTeam5
+        '
+        Me.lblTeam5.AutoSize = True
+        Me.lblTeam5.BackColor = System.Drawing.Color.Black
+        Me.lblTeam5.ForeColor = System.Drawing.Color.Lime
+        Me.lblTeam5.Location = New System.Drawing.Point(548, 144)
+        Me.lblTeam5.Name = "lblTeam5"
+        Me.lblTeam5.Size = New System.Drawing.Size(0, 13)
+        Me.lblTeam5.TabIndex = 28
         '
         'frmProjects
         '
@@ -277,5 +350,11 @@ Partial Class frmProjects
     Friend WithEvents lnkProject3 As System.Windows.Forms.LinkLabel
     Friend WithEvents lnkProject2 As System.Windows.Forms.LinkLabel
     Friend WithEvents lnkProject1 As System.Windows.Forms.LinkLabel
+    Friend WithEvents lblTeam5 As System.Windows.Forms.Label
+    Friend WithEvents lblTeam4 As System.Windows.Forms.Label
+    Friend WithEvents lblTeam3 As System.Windows.Forms.Label
+    Friend WithEvents lblTeam2 As System.Windows.Forms.Label
+    Friend WithEvents lblTeam1 As System.Windows.Forms.Label
+    Friend WithEvents Label1 As System.Windows.Forms.Label
 
 End Class

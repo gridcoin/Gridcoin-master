@@ -12,6 +12,7 @@ extern std::string sSourceBlock;
 
 extern int nRegVersion;
 
+extern bool bDebugMode;
 
 
 extern bool bBoincSubsidyEligible;

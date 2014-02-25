@@ -3,6 +3,5 @@ C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\
 C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Debug\GridcoinVirtualMachine.Resources.resources
 C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Debug\GVM.dll
 C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Debug\GVM.pdb
-C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Debug\ResolveAssemblyReference.cache
-C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Debug\GenerateResource.read.1.tlog
-C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Debug\GenerateResource.write.1.tlog
+C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\bin\Debug\SQLite.NET.dll
+C:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Debug\GridcoinVirtualMachine.vbproj.GenerateResource.Cache

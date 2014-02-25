@@ -122,7 +122,7 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 	int64 project_locktime = 0;
 	int64 projectid = 0;
 	std::string projectaddress = "";
-		std::string strAccount ="";
+	std::string strAccount ="";
     BOOST_FOREACH(const CTransaction&tx, block.vtx)
 	{
 	  std::string txid = tx.GetHash().GetHex().c_str();
@@ -139,8 +139,7 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 	  double blocktotal = 0;
 
 	  blocktotal = TxPaidToCPUMiner(tx, blockindex->nHeight, "", out_total, cpucomments);
-	  
-			
+				
 	
 	  if (grc.length() > 20 && projectid > 0 && project_amount > 0 && projectaddress.length() > 20) {
 			strAccount = RoundToString(projectid,0) + out_grc_address;
@@ -182,6 +181,7 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 					cpume.paid=true;
 					cpupow[strAccount] = cpume;
 			}
+		
 
 	  }
 	  

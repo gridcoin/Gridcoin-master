@@ -101,7 +101,9 @@ std::map<int, int> blockcache;
 
 int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUseRPC);
 
-  
+
+bool bDebugMode = false;
+
 bool bPoolMiningMode = false;
 bool bBoincSubsidyEligible = false;
 bool bCPUMiningMode = false;
@@ -2312,7 +2314,7 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
 
         nHeight = pindexPrev->nHeight+1;
 
-		//12-1-2013 Gridcoin: Enforce boinchash:
+		//Gridcoin: Enforce boinchash:
 		int result = CheckCPUWorkByCurrentBlock(hashBoinc.c_str(),nHeight,false);
     	printf("ProcessBlock: Current Boinc Hash %s, Result: %d Height: %d",hashBoinc.c_str(),result,nHeight);
 	    if (result != 1) {
@@ -2415,7 +2417,7 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
     if (mapOrphanBlocks.count(hash))
         return state.Invalid(error("ProcessBlock() : already have block (orphan) %s", hash.ToString().c_str()));
 
-    // Preliminary checks 12-23-2013
+    // Preliminary checks 
 
     if (!pblock->CheckBlock(state))
         return error("ProcessBlock() : CheckBlock FAILED");
@@ -2439,12 +2441,12 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
         }
     }
 
-	//Gridcoin 12-24-2013
+	//Gridcoin 
 
     // If we don't already have its previous block, shunt it off to holding area until we get it
     if (pblock->hashPrevBlock != 0 && !mapBlockIndex.count(pblock->hashPrevBlock))
     {
-        //Gridcoin 12-24-2013 Test Orphan
+        //Gridcoin Test Orphan
 		printf("ProcessBlock: ORPHAN BLOCK, prev=%s\n", pblock->hashPrevBlock.ToString().c_str());
 	
 		try {
@@ -3385,7 +3387,6 @@ void static ProcessGetData(CNode* pfrom)
 
 
 
-//9-22-2013
 
 
 bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
@@ -3824,7 +3825,7 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (ProcessBlock(state, pfrom, &block))
             mapAlreadyAskedFor.erase(inv);
         int nDoS;
-		//12-26-2013 DoS error
+		//DoS error
 		//Gridcoin - Temporarily disable orphan block - DoS (Peer Is Misbehaving) attack detection:
 		//                     if (state.IsInvalid(nDoS))         pfrom->Misbehaving(nDoS);
 
@@ -4530,18 +4531,31 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 	txNew.vout.resize(1);
 	txNew.vin[0].prevout.SetNull();
     nPoolMiningCounter++;
+
 	//If program has just started or miner is not pool mining:
-	if (!bPoolMiningMode) {
-		txNew.vout.resize(1);
-		return txNew;
+	//Gridcoin - convert all transactions to include CPUMiner payments: 1-29-2014
+
+	//if (!bPoolMiningMode) {
+	//	txNew.vout.resize(1);
+	//	return txNew;
+	//}
+
+	minerstobepaid = 0;
+	if (!bPoolMiningMode) 
+	{
+			minerstobepaid = 1;
 	}
 
+
+	if (bPoolMiningMode) 
+	{
+		if (nMinerPaymentCount > 2) nMinerPaymentCount=0;
+		nMinerPaymentCount++;
+		minerpayments = CalculatePoolMining(true);
 	
-	//   std::map<std::string, MiningEntry> minerpayments;
-	if (nMinerPaymentCount > 2) nMinerPaymentCount=0;
-	nMinerPaymentCount++;
-	minerpayments = CalculatePoolMining(true);
-    minerstobepaid = 0;
+
+    //Pay poolminers:
+
 	for(map<string,MiningEntry>::iterator ii2=minerpayments.begin(); ii2!=minerpayments.end(); ++ii2) 
 	{
 			MiningEntry ae2 = minerpayments[(*ii2).first];
@@ -4551,6 +4565,8 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 				txNew.vout.resize(minerstobepaid);
 			}
     }
+  }
+	//--------------------------------------------------------------------------------------------------
 //-----------------------------Expand txNew.vOut for CPUMiners:
 		for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
 	{
@@ -4570,6 +4586,9 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 	
    //1-14-2014
    //Pay Pool Miners:
+   if (bPoolMiningMode) 
+{
+	
    	for(map<string,MiningEntry>::iterator ii=minerpayments.begin(); ii!=minerpayments.end(); ++ii) 
 	{
 
@@ -4591,9 +4610,19 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 		    }
 
    }
-	
-	    //printf("Grand Total Payments %d",RoundToString(total_payments,6).c_str());
 
+  } else
+   {
+
+	  		    // txNew.vin.resize(1);
+				txNew.vout[inum].nValue = 0;
+				//txNew.vin[0].prevout.SetNull();
+		     	//	txNew.vout[0].nValue=AmountFromValue(5);
+				inum++;
+
+   }
+	
+	
 
 	//Gridcoin -- 1-13-2014 ------------------------------------------- CPUMining -----------------------------------------
 
@@ -4611,15 +4640,8 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 				txNew.vout[inum].scriptPubKey = sftp;
 				//std::string cpu_compensation = RoundToString(compensation2,2);
 				double cpu_compensation = Round(compensation2,2);
-
 				txNew.vout[inum].nValue = AmountFromValue(cpu_compensation) + 000117;  //7900 
-	//			printf("Cpu mining payment generated: to %s for %d",ae.strAccount.c_str(),ae.nextpaymentamount);
-				//Change this to the prod amount:
-			//	txNew.vout[inum].nValue = AmountFromValue(.02) + 000117;  //7900 
-		//		printf("Paying cpu miner %s amt %d for block # %d",ae.strAccount.c_str(),compensation2,nBestHeight);
-
 			    inum++;
-	
 			}
 	}
 
@@ -4689,11 +4711,9 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 
 	CPubKey pubkey;
     if (!reservekey.GetReservedKey(pubkey))       return NULL;
-    if (minerspaid==0) txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
+    if (minerspaid==0 || !bPoolMiningMode) txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
 
-
-
-
+	
 
 
 	try {
@@ -4905,11 +4925,13 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 		// Reward the miner based on Boinc utilization:
 		//************************************************ GRIDCOIN POOL MINING **********************************************
 
-		if (minerspaid==0) {
+		if (minerspaid==0 || !bPoolMiningMode)
+		{
 			pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
 		    pblocktemplate->vTxFees[0] = -nFees;
 
-		} else 
+		}
+		else 
 		{
 			//Add the fees to the block finder in pool mining mode
 			int64 oldvalue = pblock->vtx[0].vout[0].nValue;

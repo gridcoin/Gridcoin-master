@@ -111,7 +111,7 @@ Public Class Sql
                 End Using
             End Using
         Catch ex As Exception
-            Log("Exec: " + Sql + ":" + ex.Message)
+            ' Log("Exec: " + Sql + ":" + ex.Message)
 
         End Try
 

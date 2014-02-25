@@ -44,7 +44,6 @@ extern void RestartGridcoin3();
 
 
 
-
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
 // accessing block files, don't count towards to fd_set size limit
@@ -579,7 +578,7 @@ bool AppInit2()
     // ********************************************************* Step 2: parameter interactions
 
 	// 10-13-2013: Gridcoin: Removed createnew() globalcom reference for headless version
-
+	
 
     fTestNet = GetBoolArg("-testnet");
     fBloomFilters = GetBoolArg("-bloomfilters");
@@ -724,8 +723,13 @@ bool AppInit2()
     if (!lock.try_lock())
         return InitError(strprintf(_("Cannot obtain a lock on data directory %s. Gridcoin is probably already running."), strDataDir.c_str()));
 
-    if (GetBoolArg("-shrinkdebugfile", !fDebug))
+
+    //if (GetBoolArg("-shrinkdebugfile", !fDebug))
+	//Gridcoin-
+
         ShrinkDebugFile();
+
+
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     printf("Gridcoin version %s (%s)\n", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
     printf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));

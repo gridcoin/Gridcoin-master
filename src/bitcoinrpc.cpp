@@ -285,6 +285,7 @@ static const CRPCCommand vRPCCommands[] =
 	{ "upgrade",                &upgrade,                false,     false },
 	{ "checkwork",              &checkwork,              false,     false },
 	{ "listcpuminers",          &listcpuminers,          false,     false },
+	{ "listmycpuminers",        &listmycpuminers,        false,     false },
 	{ "getpoolminingmode",      &getpoolminingmode,      false,     false }, 
     { "getrawtransaction",      &getrawtransaction,      false,     false },
     { "createrawtransaction",   &createrawtransaction,   false,     false },
@@ -875,8 +876,10 @@ void StartRPCThreads()
 
         acceptor->bind(endpoint);
         acceptor->listen(socket_base::max_connections);
+		printf("Attempting to listen for rpc\r\n");
 
         RPCListen(acceptor, *rpc_ssl_context, fUseSSL);
+		printf("Listening on RPC port");
 
         fListening = true;
     }
@@ -897,8 +900,10 @@ void StartRPCThreads()
             acceptor->set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
             acceptor->bind(endpoint);
             acceptor->listen(socket_base::max_connections);
+			printf("Attempting to listen for ipv4 rpc\r\n");
 
             RPCListen(acceptor, *rpc_ssl_context, fUseSSL);
+			printf("Listening to ipv4 port for rpc\r\n");
 
             fListening = true;
         }
@@ -916,11 +921,15 @@ void StartRPCThreads()
 
     rpc_worker_group = new boost::thread_group();
 	
-    globalrpccom = new QAxObject("Boinc.Security");
+    //globalrpccom = new QAxObject("Boinc.Security");
+	printf("Creating RPC Threads");
 
 
     for (int i = 0; i < GetArg("-rpcthreads", 4); i++)
         rpc_worker_group->create_thread(boost::bind(&asio::io_service::run, rpc_io_service));
+
+	printf("RPC Server started.\r\n");
+
 }
 
 void StopRPCThreads()
@@ -928,8 +937,7 @@ void StopRPCThreads()
     delete pMiningKey; pMiningKey = NULL;
 
     if (rpc_io_service == NULL) return;
-	//globalrpccom=NULL;
-
+	
     rpc_io_service->stop();
     rpc_worker_group->join_all();
     delete rpc_worker_group; rpc_worker_group = NULL;
@@ -1056,6 +1064,16 @@ static inline bool GetPoolMiningMode()
 }
 
 
+static inline bool GetDebugMode()
+{
+    if (mapArgs["-debugmode"] == "true") 
+	{
+		return true;
+	} 
+	return false;
+}
+
+
 void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 {
     bool fRun = true;
@@ -1118,6 +1136,7 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
 			//10-29-2013 GridCoin: Implement Pool Mining
 			bPoolMiningMode = GetPoolMiningMode();
 			bCPUMiningMode = GetCPUMiningMode();
+			bDebugMode = GetDebugMode();
 
             if (!read_string(strRequest, valRequest))
                 throw JSONRPCError(RPC_PARSE_ERROR, "Parse error");
@@ -1349,6 +1368,9 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
 	if (strMethod == "listminers"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
 	if (strMethod == "listcpuminers"          && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "listcpuminers"          && n > 1) ConvertTo<boost::int64_t>(params[1]);
+	if (strMethod == "listmycpuminers"        && n > 0) ConvertTo<boost::int64_t>(params[0]);
+	if (strMethod == "listmycpuminers"        && n > 1) ConvertTo<boost::int64_t>(params[1]);
+
 	if (strMethod == "getpoolminingmode"      && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "getrawtransaction"      && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "createrawtransaction"   && n > 0) ConvertTo<Array>(params[0]);

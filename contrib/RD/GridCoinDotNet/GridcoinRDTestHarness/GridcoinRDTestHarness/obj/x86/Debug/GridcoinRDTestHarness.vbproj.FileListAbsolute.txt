@@ -32,6 +32,5 @@ C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTes
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Debug\SQLite.NET.dll
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Debug\ICSharpCode.SharpZipLib.dll
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\bin\Debug\Newtonsoft.Json.dll
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Debug\GenerateResource.read.1.tlog
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Debug\GridcoinRDTestHarness.vbprojResolveAssemblyReference.cache
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Debug\GridcoinRDTestHarness.vbproj.GenerateResource.Cache

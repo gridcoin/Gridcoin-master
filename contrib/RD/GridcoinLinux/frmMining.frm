@@ -7,13 +7,24 @@ Begin VB.Form frmMining
    ClientHeight    =   7485
    ClientLeft      =   120
    ClientTop       =   450
-   ClientWidth     =   12390
+   ClientWidth     =   12885
    ForeColor       =   &H0000FF00&
    Icon            =   "frmMining.frx":0000
    LinkTopic       =   "Form1"
    ScaleHeight     =   7485
-   ScaleWidth      =   12390
+   ScaleWidth      =   12885
    StartUpPosition =   3  'Windows Default
+   Begin VB.CommandButton cmdRefresh 
+      BackColor       =   &H00404040&
+      Caption         =   "Refresh"
+      Height          =   375
+      Left            =   10800
+      MaskColor       =   &H00000000&
+      Style           =   1  'Graphical
+      TabIndex        =   4
+      Top             =   3720
+      Width           =   1215
+   End
    Begin VB.Timer timerCloser 
       Enabled         =   0   'False
       Interval        =   55555
@@ -34,11 +45,11 @@ Begin VB.Form frmMining
       BackColor       =   &H00000000&
       Caption         =   "Test CPUMiner"
       Height          =   195
-      Left            =   3120
+      Left            =   0
       MaskColor       =   &H0000FF00&
       Style           =   1  'Graphical
       TabIndex        =   3
-      Top             =   2880
+      Top             =   0
       UseMaskColor    =   -1  'True
       Width           =   135
    End
@@ -75,12 +86,21 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Option Explicit
+
 Private mLabels(20) As Label
 Private mLabelValues(20) As Label
 Private mYPosition As Long
 
 Private Sub cmdHide_Click()
 Me.Visible = False
+
+End Sub
+
+Private Sub cmdRefresh_Click()
+ Call TimerOneMinute_Timer
+ 
+
 
 End Sub
 
@@ -136,7 +156,7 @@ Private Sub DrawComposite(sCaption As String, sValue As String, iOrdinal As Long
     l1.Top = mYPosition
     l1.Height = lHeight - 50
     
-    l1.Width = 5000
+    l1.Width = 6000
     l1.BackColor = 0
     l1.ForeColor = &HFF00&
   
@@ -155,20 +175,18 @@ sLabels = "Version|Boinc Utilization|Boinc Thread Count|Boinc Component A|Boinc 
 & "|Boinc KHPS|Last Block|Last Solved Hash"
 Dim vLabels() As String
 vLabels = Split(sLabels, "|")
-msMD5 = md52
 
+Dim i As Integer
 
 For i = 0 To UBound(vLabels)
     Call DrawComposite(Scribe(vLabels(i), ""), Scribe(vLabels(i), "Value"), i + 1, vLabels, Val(i))
-
-
-  
-  
-  
-  
 Next i
 
 Call TimerOneMinute_Timer
+Me.Show
+Me.SetFocus
+Me.Refresh
+
 
 End Sub
 
@@ -176,6 +194,7 @@ Public Sub SetLabel(sName As String, sValue As String)
 
 Dim sCN As String
 sCN = Scribe(sName, "Value")
+Dim i As Integer
 
 For i = 0 To UBound(mLabelValues)
  If TypeName(mLabelValues(i)) = "Label" Then
@@ -254,55 +273,54 @@ Private Sub UpdateCharts()
 On Error GoTo ErrTrap
   Dim sPath As String
   sPath = BoincDataDir
-  sPath = sPath + "gridcoin.dat"
-  
- ' FileCopy sPath, sPath + ".bak"
-  
-          
-
-
-chartCredits.chartType = VtChChartType2dLine
-
-chartCredits.ColumnCount = 3
-
-Dim arrValues(1 To 30, 1 To 4)
+  sPath = sPath + "gridcoin2.dat"
+   
+    chartCredits.chartType = VtChChartType2dLine
+    chartCredits.ColumnCount = 3
+    Dim arrValues(1 To 30, 1 To 4)
 
 
 Dim i As Integer
-  
 Dim x As Long
 Dim xtop As Long
 xtop = 30
-    
+Log "Traversing back to n-30"
+Dim last_total As Double
+Dim dProj As Double
+
 Dim lookback As Double
-            For x = xtop To 1 Step -1.2
-            
+            For x = xtop To 1 Step -1
                 DoEvents
-                
                 lookback = x * 3600 * 24
                 ReturnBoincCreditsAtPointInTime (lookback)
                 Dim l1 As Double
                 Dim l2 As Double
                 Dim l3 As Double
-                l1 = BoincCreditsAvgAtPointInTime
+                l1 = mdBoincCreditsAvgAtPointInTime
+                
                 ReturnBoincCreditsAtPointInTime (lookback - (3600# * 24#))
-                l2 = BoincCreditsAtPointInTime
+                l2 = mdBoincCreditsAtPointInTime
+                                
                 l3 = Math.Abs(l2 - last_total)
                 last_total = l2
                 If l3 > (l1 * 5) Then l3 = l1
-                dProj = BoincProjects
+                dProj = mdBoincProjects
+                
                 Dim d1 As Date
                 d1 = DateAdd("d", -x, Now)
+                Log "credits " + Trim(l1) + "," + Trim(l2) + "," + Trim(l3)
+                
+                
                 arrValues(x, 1) = Format(d1, "mm/dd/yyyy")
                 arrValues(x, 2) = l3
                 arrValues(x, 3) = l2
-               
+                Log Trim(dProj)
+                
                 arrValues(x, 4) = dProj * (l1 / 10)
-              
+                Log "Charting " + Trim(x)
             Next x
 
-  
-  
+    
 chartCredits.ChartData = arrValues
 chartCredits.Column = 1
 chartCredits.ColumnLabel = "Avg Credits"
@@ -310,14 +328,21 @@ chartCredits.Column = 2
 chartCredits.ColumnLabel = "Daily Credits"
 chartCredits.Column = 3
 chartCredits.ColumnLabel = "Projects"
+Log "Setting utilization @1"
+
 chartUtilization.Column = 1
+
 chartUtilization.data = mclsGui.BoincUtilization
 chartUtilization.Column = 2
+Log "Updating Utilization 100-bu"
+
 chartUtilization.data = 100 - mclsGui.BoincUtilization
+chartUtilization.Refresh
 
 Exit Sub
 
 ErrTrap:
+Log "Update Charts:" + Err.Description
 End Sub
 
 

@@ -8,6 +8,7 @@ Module modCgMiner
 
     Public mCGMinerHwnd(10) As IntPtr
     Public mCGMinerAPIDown(10) As Double
+    Public mbScryptSleep As Boolean
 
     Public Function StringToByte(value As String) As Byte()
         Dim array() As Byte = System.Text.Encoding.ASCII.GetBytes(value)
@@ -50,6 +51,26 @@ Module modCgMiner
         Dim sOut As String
         sOut = CgSend("gpuintensity|" + Trim(lDevId) + "," + Trim(Intensity), lDevId)
         Return sOut
+    End Function
+    Public Function DisableGPU(lDevId As Long) As String
+        Dim sOut As String
+        sOut = CgSend("gpudisable|" + Trim(lDevId), lDevId)
+        Return sOut
+    End Function
+    Public Function EnableGPU(lDevId As Long) As String
+        Dim sOut As String
+        sOut = CgSend("gpuenable|" + Trim(lDevId), lDevId)
+        Return sOut
+    End Function
+    Public Function EnableAllGPUs()
+        For x = 0 To 4
+            EnableGPU(x)
+        Next
+    End Function
+    Public Function DisableAllGPUs()
+        For x = 0 To 4
+            DisableGPU(x)
+        Next
     End Function
     Private Function CgFieldValue(vFields() As String, sKey As String) As String
         Try
@@ -143,6 +164,46 @@ Module modCgMiner
             Return ex.Message
         End Try
 
+    End Function
+
+    Public Function GetSleepLevelByAddress(sAddress As String, ByRef dScryptSleep As Double, sBlockhash As String, _
+                                            ByRef dNetLevel As Double) As Boolean
+        'Retrieve User level
+        dScryptSleep = 0
+        dNetLevel = 0
+        Try
+            Dim sql As String
+            Dim mData As New Sql("gridcoin_leaderboard")
+            sql = "Select ScryptSleepChance from leaderboard Where Address='" + sAddress + "'"
+            Dim gr As New GridcoinReader
+            gr = mData.GetGridcoinReader(sql)
+            'Dim grr As GridcoinReader.GridcoinRow
+            dScryptSleep = gr.Value(1, "ScryptSleepChance")
+            mData = Nothing
+        Catch ex As Exception
+            Log("GetSleepLevelByAddress: " + ex.Message)
+        End Try
+        If dScryptSleep = 0 Then dScryptSleep = 0.5
+
+        'Calculate Net Level
+        Dim sBlockSuffix As String
+
+        If Len(sBlockhash) > 3 Then
+            sBlockSuffix = Mid(sBlockhash, Len(sBlockhash) - 3, 3)
+        End If
+        Dim dDecSuffix = CDbl("&h" + Trim(sBlockSuffix))
+        Dim dCalc = dDecSuffix / 40.96
+        dCalc = dCalc / 100
+        Dim sSleepStatus As String = "WORK"
+        If dScryptSleep >= dCalc Then sSleepStatus = "WORK" Else sSleepStatus = "SLEEP"
+        dNetLevel = dCalc
+        If sSleepStatus = "SLEEP" Then
+            Return False
+        Else
+            Return True
+        End If
 
     End Function
+
+
 End Module

@@ -1,4 +1,9 @@
-﻿Public Class GVM
+﻿
+
+
+Public Class GVM
+
+    Private lCt As Long = 0
 
     Public CPUMiner As CPUMiner
 
@@ -27,6 +32,7 @@
             Return mdProcNarrComponent1
         End Get
     End Property
+
     Public ReadOnly Property mbunarr2 As Double
         Get
             Return mdProcNarrComponent2
@@ -45,6 +51,22 @@
     End Property
     Public Function BoincCreditsByProject(ByVal projectid As Long, ByVal dUserId As Double) As Double
         Return modBoincCredits.BoincCreditsByProject(projectid, dUserId)
+    End Function
+    Public Function BoincCreditsByProject2(ByVal projectid As Long, ByVal dUserId As Double, ByRef sStruct As String, ByRef sTeam As String) As Double
+        Dim dCredits As Double
+
+        Try
+            dCredits = ExtractCreditsByProject(projectid, dUserId, PublicWalletAddress, sStruct)
+            Dim vStruct() As String
+            vStruct = Split(sStruct, ",")
+            If UBound(vStruct) >= 2 Then
+                sTeam = vStruct(2)
+            End If
+            Return dCredits
+
+        Catch ex As Exception
+
+        End Try
     End Function
     Public Function Des3Encrypt(ByVal s As String) As String
         Return modCryptography.Des3EncryptData(s)
@@ -76,7 +98,7 @@
         dCredits = ExtractCreditsByProject(iProjectId, lUserId, sGRCAddress, sErr)
         Return dCredits
     End Function
-    
+
 
 
     Public Property PublicWalletAddress As String
@@ -87,6 +109,18 @@
             Return modUtilization.PublicWalletAddress
         End Get
     End Property
+    Public Property BestBlock As Long
+        Set(ByVal nBlock As Long)
+            modUtilization.mnBestBlock = nBlock
+            lCt = lCt + 1
+            If lCt = 1 Then Log("Setting GVM best block " + Trim(nBlock))
+
+        End Set
+        Get
+            Return mnBestBlock
+        End Get
+    End Property
+
 
     Public Property LastBlockHash As String
         Set(ByVal value As String)

@@ -48,7 +48,7 @@ End Function
             dtStart = DateAdd("s", -lLookbackSecs, dtEnd)
             Dim sPath As String
             sPath = BoincDataDir
-            sPath = sPath + "gridcoin.dat"
+            sPath = sPath + "gridcoin2.dat"
             
             Dim iFF As Integer
             iFF = FreeFile

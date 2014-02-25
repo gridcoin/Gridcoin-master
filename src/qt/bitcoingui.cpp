@@ -81,6 +81,7 @@ int nRegVersion;
 extern void SendGridcoinProjectBeacons();
 std::string NodesToString();
 
+
 extern int UpgradeClient();
 extern int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUseRPC);
 extern int CloseGuiMiner();
@@ -96,6 +97,11 @@ bool TestGridcoinWork(std::string sWork);
 
 int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 
 	std::string greatgreatgrandparentsblockhash, std::string boinchash);
+
+
+
+extern int CheckCPUWorkByBlockWithBoincHash(int blocknumber, std::string boinchash);
+
 
 
 int ThreadSafeVersion();
@@ -275,6 +281,7 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
     //-14 Rehashed output error
     //-15 CPU hash does not match SHA computed hash
     //-16 General Error
+	//-17 Sleep Error
 	int result = 0;
 	//QString h1 = QString::fromUtf8(lastblockhash.c_str()); 
 	//QString h2 = QString::fromUtf8(greatblockhash.c_str());
@@ -284,7 +291,7 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
 	//Gridcoin : ToDo: Ensure Linux can CheckWork  1-25-2014:
 	if (nRegVersion < 25) 
 	{
-		printf("Linux:Overriding:notOverriding\r\n");
+		//printf("Linux:Overriding:notOverriding\r\n");
 	}
 
 	for (int i = 0; i < 10; i++) 
@@ -296,16 +303,11 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
 		}
 	}
 
-	printf("checking work with globalcom call result %i",result);
-
+	
 	try 
 	{
 		result = uiInterface.ThreadSafeCheckWork(lastblockhash,greatblockhash,greatgrandparentsblockhash,greatgreatgrandparentsblockhash,boinchash);
-
-		
 		//result =  globalrpccom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
-		printf("globalcom call result %i",result);
-		//1-26-2014
 	}
    	catch (std::exception &e) 
 	{
@@ -399,7 +401,8 @@ int CheckCPUWorkByBlock(int blocknumber, bool bUseRPC)
 	//Blocks newer than BestHeight-100 must be checked:
     if (blocknumber < nBestHeight-100) return 1;
 	//Blocks before 26150 (Dec 4, 2013) are grandfathered in (boinchash did not implement CPU mining before this date):
-	if (blocknumber < 42250) return 1;
+	if (!fTestNet && blocknumber < 42250) return 1;
+	if (fTestNet  && blocknumber < 800) return 1;
     CBlock block;
 	CBlockIndex* pBlock = FindBlockByHeight(blocknumber);
 	block.ReadFromDisk(pBlock);
@@ -416,8 +419,6 @@ int CheckCPUWorkByBlock(int blocknumber, bool bUseRPC)
 	pBlock = FindBlockByHeight(blocknumber-4);
 	block.ReadFromDisk(pBlock);
 	std::string blockhash4 = pBlock->phashBlock->GetHex().c_str();
-
-
 	int result = 0;
 	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash,bUseRPC);
 	return result;
@@ -430,10 +431,49 @@ int CheckCPUWorkByBlock(int blocknumber, bool bUseRPC)
 }
 
 
+
+
+
+int CheckCPUWorkByBlockWithBoincHash(int blocknumber, std::string boinchash)
+{
+	try {
+	//Blocks newer than BestHeight-100 must be checked:
+    if (blocknumber < nBestHeight-100) return 1;
+	//Blocks before 26150 (Dec 4, 2013) are grandfathered in (boinchash did not implement CPU mining before this date):
+	if (!fTestNet && blocknumber < 42250) return 1;
+	if (fTestNet  && blocknumber < 800) return 1;
+    CBlock block;
+	CBlockIndex* pBlock = FindBlockByHeight(blocknumber);
+	block.ReadFromDisk(pBlock);
+	pBlock = FindBlockByHeight(blocknumber-1);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash1 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-2);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash2 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-3);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash3 = pBlock->phashBlock->GetHex().c_str();
+	pBlock = FindBlockByHeight(blocknumber-4);
+	block.ReadFromDisk(pBlock);
+	std::string blockhash4 = pBlock->phashBlock->GetHex().c_str();
+	int result = 0;
+	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash,true);
+	return result;
+	} 
+    	catch (std::exception &e) 
+	{
+			return -20; //General Error: CheckCPUWorkByBlock Fails
+    }
+
+}
+
+
+
+
 bool OutOfSync() 
 {
-	//12-25-2013
-
+	
 	if (  (GetNumBlocksOfPeers() > nBestHeight+3)  ||  (nBestHeight > GetNumBlocksOfPeers()+3) ) return true;
 	if ( fReindex || fImporting || IsInitialBlockDownload() ) return true;
 	return false;
@@ -453,7 +493,7 @@ int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUs
     
 	if (nBlockHeight < nBestHeight-100) return 1;
 	//Blocks before 26150 (Dec 4, 2013) are grandfathered in (boinchash did not implement CPU mining before this date):
-	//Adding (12-23-2013) Added AcceptBlock enforcement at block 36850
+	//Adding  AcceptBlock enforcement at block 36850
 	if (!fTestNet && nBlockHeight < 42250) return 1;
     if (fTestNet  && nBlockHeight < 806  ) return 1;
 	  
@@ -1220,16 +1260,16 @@ void BitcoinGUI::askFee(qint64 nFeeRequired, bool *payFee)
 
 void BitcoinGUI::threadsafecheckwork(const QString& h1,const QString& h2,const QString& h3,const QString& h4,const QString& h5, int *result)
 {
-	
+	printf("calling threadsafe checkwork ");
 	*result = globalcom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
 }
+
 
 
 void BitcoinGUI::GetResult(QString sLog, QString *sOut)
 
 {
-   	//9-22-2013
-	QString test = "empty";
+   QString test = "empty";
 	*sOut = test;
 }
 
@@ -1442,12 +1482,12 @@ std::string ProjectFact(std::string pid1)
 double ProjectFact2(int pid) 
 {
    double d1 = 1;
-   if (pid==1) d1=4;    //malariacontrol.net
-   if (pid==2) d1=4;    //rnaworld
-   if (pid==3) d1=2.01;     //rosetta
+   if (pid==1) d1=4;      //malariacontrol.net
+   if (pid==2) d1=4;      //rnaworld
+   if (pid==3) d1=2.01;   //rosetta
    if (pid==4) d1=1.78; 
-   if (pid==5) d1=.27; 
-   printf("ProjFactor2 In %i Out %f",pid,d1);
+   if (pid==5) d1=.27;    //MilkyWay
+   //printf("ProjFactor2 In %i Out %f",pid,d1);
    return d1;
 
 }
@@ -1456,32 +1496,64 @@ double ProjectFact2(int pid)
 void UpdateCPUPoW()
 {
 
+
+	//For CPUMiners or anyone not listening on the rpc port, don't go through the hassle to verify API Credits:
+	std::string rpcallowip = GetArg("-rpcallowip","");
+
+
+	if (rpcallowip.length() < 4) 
+	{
+		//printf("Ignoring cpupow");
+		return;
+	} else
+	{
+		//printf("RPCAllowIP: %s",rpcallowip.c_str());
+	}
+  
+
+
 	int nVerify = rand() % 1000;  
-	if (nVerify < 667) return; 
-	if (!bPoolMiningMode) return;
+	if (nVerify < 100) return; 
+	
 	
 	cputick++;
-	if (cputick > 20) {
+	if (cputick==1) CalculateCPUMining();
+
+	if (cputick > 45) {
 		cputick=0;
-		//ToDo:Enable this for CPU Mining:
-		printf("Checking CPU Miners PoW;");
-		CalculateCPUMining();
 	}
 	
-    	
+
+
+
 	try {
 		//For each CPU miner, verify PoW
 		int inum=0;
-	
+	    int iPos = 0;
+		int vOverride = rand() % 1000;
+
+		int vRetryPosition = rand() % (cpupow.size()+1);
+		int vRetry = rand() % 1000;  //Retry Failed API calls only a small % of the time:
+	    int vMalaria = rand() % 1000; //Don't both with Malaria API most of the time; it is down;
+
+	    printf ("CPU Mining PoW Vector Size: %i",vRetryPosition);
 		for(map<string,MiningEntry>::iterator ii=cpupow.begin(); ii!=cpupow.end(); ++ii) 
 		{
 
 				MiningEntry ae = cpupow[(*ii).first];
-				int vRetry = rand() % 1500;  //Retry Failed API calls only a small % of the time:
 				bool bRetryFailure = false;  
-				if (ae.cpupowverificationresult < 0 && vRetry <= 5) bRetryFailure = true;
-					
-				if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && (ae.cpupowverificationtries==0 || bRetryFailure) ) 
+				iPos++;
+				//Untried && Position Does Not Matter
+				if (vOverride < 10 && ae.cpupowverificationtries == 0) bRetryFailure = true;
+				// Untried & Position Matches
+				if (vRetryPosition == iPos && ae.cpupowverificationtries == 0) bRetryFailure = true;
+				// Failed previously && Position Matches 
+				if (vRetryPosition == iPos && ae.cpupowverificationresult < 0 && vRetry <= 50) bRetryFailure = true;
+				//	printf("Trying %i\r\n",vRetryPosition);
+				// Position Matches, Have not checked, Project is Malaria, ignoring Malaria most of the time:
+				if (vRetryPosition == iPos && ae.cpupowverificationtries == 0 && ae.projectid==1 && vMalaria < 750) bRetryFailure = false;
+
+				if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && bRetryFailure ) 
 				{
 					inum++;
 					int iRegVer = 0;
@@ -1506,7 +1578,7 @@ void UpdateCPUPoW()
 					ae.cpupowverificationresult = dFactResult;
 					
 					std::string S1 = boost::lexical_cast<std::string>(dFactResult);
-					printf("Cpu Verification Result %s, Amount %f",S1.c_str(),dFactResult);
+					//printf("Cpu Verification Result %s, Amount %f",S1.c_str(),dFactResult);
 					ae.cpupowverificationtries++;
 					ae.cpupowhash = sCPUPoW;
 					cpupow[ae.homogenizedkey] = ae;
@@ -1550,9 +1622,24 @@ void BitcoinGUI::timerfire()
 	if (globalcom==NULL) {
 		//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
 		//issue the command: lodctr /r (to rebuild the performance counters in the registry)
-		globalcom = new QAxObject("Boinc.Utilization");
-		globalcom->dynamicCall("ShowMiningConsole()");
-		printf("Instantiating globalcom");
+		//2-9-2014: Add QAxObject for Linux:
+		std::string os = GetArg("-os", "windows");
+       
+		if (os == "linux" || os == "mac")
+		{
+				printf("Instantiating globalcom for Linux");			
+			globalcom = new QAxObject("Boinc.LinuxUtilization");
+						
+		}
+		else
+		{
+						globalcom = new QAxObject("Boinc.Utilization");
+							printf("Instantiating globalcom for Windows");
+		}
+		
+							globalcom->dynamicCall("ShowMiningConsole()");
+		
+		printf("Showing Mining Console");
 	}
 
 	
@@ -1634,11 +1721,11 @@ void BitcoinGUI::timerfire()
 
 
 	nTick2++;
-	if (nTick2 > 400) 
+	if (nTick2 > 6520) 
 	{
 		nTick2=0;
 		cpupow.clear();
-		//Clear the cpu verification map every 5 hours.	
+		//Clear the cpu verification map every 16 hours.
 
 	}
 

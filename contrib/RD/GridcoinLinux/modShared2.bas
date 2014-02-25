@@ -35,7 +35,19 @@ If Len(msMd5cache) > 0 Then GetMd52 = msMd5cache: Exit Function
             GetMd52 = GetMd5(sPath)
  
 End Function
+Public Function FileExists(sPath) As Boolean
+On Error GoTo FileTrap
+Dim i As Long
+i = FileLen(sPath)
+If i > 1 Then FileExists = True
+Exit Function
 
+FileTrap:
+FileExists = False
+
+
+
+End Function
   Public Function ReturnBoincCreditsAtPointInTime(ByVal lLookbackSecs) As Double
        On Error GoTo ErrTrap
        
@@ -45,8 +57,11 @@ End Function
             dtStart = DateAdd("s", -lLookbackSecs, dtEnd)
             Dim sPath As String
             sPath = BoincDataDir
-            sPath = sPath + "gridcoin.dat"
-            sPath = App.Path + "\gridcoin.dat"
+            sPath = sPath + "gridcoin2.dat"
+           ' sPath = App.Path + "\gridcoin2.dat"
+            
+            If FileExists(sPath) = False Then Exit Function
+            
             
             Dim iFF As Integer
             iFF = FreeFile

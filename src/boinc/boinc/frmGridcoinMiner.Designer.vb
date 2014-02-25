@@ -30,6 +30,7 @@ Partial Class frmGridcoinMiner
         Me.Label4 = New System.Windows.Forms.Label()
         Me.btnSave = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.btnCreateCgminerInstance = New System.Windows.Forms.Button()
         Me.txt_enabled = New System.Windows.Forms.CheckBox()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.cmbDefaults = New System.Windows.Forms.ComboBox()
@@ -38,7 +39,7 @@ Partial Class frmGridcoinMiner
         Me.cmbDeviceID = New System.Windows.Forms.ComboBox()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
-        Me.btnCreateCgminerInstance = New System.Windows.Forms.Button()
+        Me.btnDownloadCgminer = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -136,6 +137,7 @@ Partial Class frmGridcoinMiner
         'GroupBox1
         '
         Me.GroupBox1.BackColor = System.Drawing.Color.Black
+        Me.GroupBox1.Controls.Add(Me.btnDownloadCgminer)
         Me.GroupBox1.Controls.Add(Me.btnCreateCgminerInstance)
         Me.GroupBox1.Controls.Add(Me.txt_enabled)
         Me.GroupBox1.Controls.Add(Me.Label7)
@@ -161,6 +163,17 @@ Partial Class frmGridcoinMiner
         Me.GroupBox1.TabIndex = 3
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Miner Settings"
+        '
+        'btnCreateCgminerInstance
+        '
+        Me.btnCreateCgminerInstance.BackColor = System.Drawing.Color.Black
+        Me.btnCreateCgminerInstance.ForeColor = System.Drawing.Color.Lime
+        Me.btnCreateCgminerInstance.Location = New System.Drawing.Point(544, 285)
+        Me.btnCreateCgminerInstance.Name = "btnCreateCgminerInstance"
+        Me.btnCreateCgminerInstance.Size = New System.Drawing.Size(140, 32)
+        Me.btnCreateCgminerInstance.TabIndex = 19
+        Me.btnCreateCgminerInstance.Text = "Create CG Miner Instance"
+        Me.btnCreateCgminerInstance.UseVisualStyleBackColor = False
         '
         'txt_enabled
         '
@@ -247,16 +260,16 @@ Partial Class frmGridcoinMiner
         Me.Label5.TabIndex = 11
         Me.Label5.Text = "Device ID:"
         '
-        'btnCreateCgminerInstance
+        'btnDownloadCgminer
         '
-        Me.btnCreateCgminerInstance.BackColor = System.Drawing.Color.Black
-        Me.btnCreateCgminerInstance.ForeColor = System.Drawing.Color.Lime
-        Me.btnCreateCgminerInstance.Location = New System.Drawing.Point(464, 285)
-        Me.btnCreateCgminerInstance.Name = "btnCreateCgminerInstance"
-        Me.btnCreateCgminerInstance.Size = New System.Drawing.Size(140, 32)
-        Me.btnCreateCgminerInstance.TabIndex = 19
-        Me.btnCreateCgminerInstance.Text = "Create CG Miner Instance"
-        Me.btnCreateCgminerInstance.UseVisualStyleBackColor = False
+        Me.btnDownloadCgminer.BackColor = System.Drawing.Color.Black
+        Me.btnDownloadCgminer.ForeColor = System.Drawing.Color.Lime
+        Me.btnDownloadCgminer.Location = New System.Drawing.Point(389, 285)
+        Me.btnDownloadCgminer.Name = "btnDownloadCgminer"
+        Me.btnDownloadCgminer.Size = New System.Drawing.Size(140, 32)
+        Me.btnDownloadCgminer.TabIndex = 20
+        Me.btnDownloadCgminer.Text = "Download CG Miner 3.4.0"
+        Me.btnDownloadCgminer.UseVisualStyleBackColor = False
         '
         'frmGridcoinMiner
         '
@@ -265,7 +278,7 @@ Partial Class frmGridcoinMiner
         Me.Controls.Add(Me.GroupBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "frmGridcoinMiner"
-        Me.Text = "Gridcoin Miner Settings"
+        Me.Text = "Gridcoin GPU Configuration Management"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
         Me.ResumeLayout(False)
@@ -290,5 +303,6 @@ Partial Class frmGridcoinMiner
     Friend WithEvents cmbDefaults As System.Windows.Forms.ComboBox
     Friend WithEvents txt_enabled As System.Windows.Forms.CheckBox
     Friend WithEvents btnCreateCgminerInstance As System.Windows.Forms.Button
+    Friend WithEvents btnDownloadCgminer As System.Windows.Forms.Button
 
 End Class

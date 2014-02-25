@@ -34,6 +34,7 @@ Public Class frmMining
     Private miInitCounter As Long
     Private msLastBlockHash As String
     Private mlElapsedTime As Long
+    Private msLastSleepStatus As String
 
     Public Sub SetClsUtilization(c As Utilization)
         clsUtilization = c
@@ -66,8 +67,7 @@ Public Class frmMining
             lblRestartMiner.Text = Trim(dCountdown)
             If dCountdown <= 0 Then
                     Refresh2(True)
-                   
-            End If
+                End If
         End If
 
         lMinSetting = Val(KeyValue("RestartWallet"))
@@ -86,12 +86,9 @@ Public Class frmMining
             'Update Scrypt Sleep
             '1-15-2014
             lblScryptSleep.Text = String.Format("{0:p}", Val(mdScryptSleep))
-
             lblLeaderboardPosition.Text = Trim(mlLeaderboardPosition)
             CalculateScryptSleep()
-
             lblSleepLevel.Text = String.Format("{0:p}", Val(mdBlockSleepLevel))
-
             lblStatus.Text = msSleepStatus
 
         Catch exx As Exception
@@ -107,28 +104,56 @@ Public Class frmMining
                 msBlockSuffix = Mid(clsGVM.LastBlockHash, Len(clsGVM.LastBlockHash) - 3, 3)
                 lblBlockSuffix.Text = msBlockSuffix
             End If
-
-
             Dim dDecSuffix = CDbl("&h" + Trim(msBlockSuffix))
             Dim dCalc = dDecSuffix / 40.96
             'Globalization
             dCalc = dCalc / 100
-
             msSleepStatus = "WORK"
             If mdScryptSleep >= dCalc Then msSleepStatus = "WORK" Else msSleepStatus = "SLEEP"
             If dDecSuffix = 0 Then msSleepStatus = "WORK(-1)"
             If mdScryptSleep < 0.5 Or mdScryptSleep > 1.0 Then msSleepStatus = "WORK(-2)"
             'Globalization
-
             mdBlockSleepLevel = dCalc
+            If msLastSleepStatus <> msSleepStatus Then
+                DirectGPUSleepStatus()
+            End If
+            msLastSleepStatus = msSleepStatus
             Return dCalc
-
         Catch ex As Exception
-
             msSleepStatus = "WORK(-3)"
         End Try
     End Function
+    Public Sub LogSleepStatus(sStatus As String)
+        Try
+            Dim sPath As String
+            sPath = GetGridFolder() + "status.txt"
+            Dim sData As String
+            If LCase(sStatus) = "sleep" Then
+                sData = "sleep"
+            Else
+                sData = "work"
 
+            End If
+            Dim sw As New System.IO.StreamWriter(sPath, False)
+
+            sw.WriteLine(sData)
+            sw.Close()
+        Catch ex As Exception
+        End Try
+
+    End Sub
+    Private Sub DirectGPUSleepStatus()
+        'Per S4mmy, write the Sleep Status to a file:
+        LogSleepStatus(msSleepStatus)
+
+        If nBestBlock < 74000 Then Exit Sub
+
+        If msSleepStatus = "SLEEP" Then
+            DisableAllGPUs()
+        Else
+            EnableAllGPUs()
+        End If
+    End Sub
     Public Sub Refresh2(ByVal bStatsOnly As Boolean)
         bCharting = False
         updateGh()
@@ -554,6 +579,7 @@ Public Class frmMining
             lblStale.Text = Trim(dStalesTotal(0))
             lblInvalid.Text = Trim(dInvalidTotal(0))
 
+            msBlockHeight.Text = Trim(nBestBlock)
 
             If LastMHRate = lblGPUMhs.Text Then lMHRateCounter = lMHRateCounter + 1
             If lMHRateCounter > 2 Then
@@ -575,7 +601,7 @@ Public Class frmMining
             lblAvgCredits.Text = Trim(clsUtilization.BoincTotalCreditsAvg)
             lblMD5.Text = Trim(clsUtilization.BoincMD5)
             Dim sNarr As String
-            sNarr = "Breakdown: " + Trim(Math.Round(clsGVM.mbunarr1, 0)) + "," + Trim(Math.Round(clsGVM.mbunarr2, 0))
+            sNarr = "Components: " + Trim(Math.Round(clsGVM.mbunarr1, 0)) + "," + Trim(Math.Round(clsGVM.mbunarr2, 0))
             lblProcNarr.Text = sNarr
             If clsUtilization.BoincUtilization < 51 Then
                 lblWarning.Text = "Boinc Utilization Low"
@@ -618,11 +644,17 @@ Public Class frmMining
             End If
             RefreshGPUList()
 
+            UpdateIntensity()
+
         Catch ex As Exception
         End Try
     End Sub
     Private Sub InitializeFormMining()
         ReStartMiners()
+
+        clsUtilization.AuthenticateToPool()
+
+
 
     End Sub
     Private Sub timerReaper_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles timerReaper.Tick
@@ -632,6 +664,7 @@ Public Class frmMining
             updateGh()
             Call ChartBoincUtilization()
             Call UpdateChartHashRate()
+            If miInitCounter = 50 Then Call UpdateIntensity()
 
         Catch ex As Exception
 
@@ -845,39 +878,34 @@ Public Class frmMining
         If lDevId > -1 Then ShowWindow(mCGMinerHwnd(lDevId), 0)
 
     End Sub
+
     Private Sub RefreshLeaderboardPosition()
         Try
-
-        Dim sql As String
+            Dim sql As String
             Dim mData As New Sql("gridcoin_leaderboard")
             sql = "Select avg(credits*projectcount) Credits, avg(credits*factor*projectcount) as [Adjusted Credits], avg(projectcount) as [Projects], ScryptSleepChance, Address from leaderboard group by Address order by avg(credits*factor*projectcount) desc "
-        Dim gr As New GridcoinReader
-        gr = mData.GetGridcoinReader(sql)
-        If Len(clsGVM.PublicWalletAddress) < 10 Then Exit Sub
-        Dim grr As GridcoinReader.GridcoinRow
+            Dim gr As New GridcoinReader
+            gr = mData.GetGridcoinReader(sql)
+            If Len(clsGVM.PublicWalletAddress) < 10 Then Exit Sub
+            Dim grr As GridcoinReader.GridcoinRow
             Dim sGRCAddress As String
-
             For y = 1 To gr.Rows
                 sGRCAddress = gr.Value(y, "Address")
-
                 If Trim(sGRCAddress) = Trim(clsGVM.PublicWalletAddress) Then
                     mlLeaderboardPosition = y
                     mdScryptSleep = gr.Value(y, "ScryptSleepChance")
-
                 End If
             Next
-
-        mData = Nothing
+            mData = Nothing
         Catch ex As Exception
             Log("RefreshLeaderboardPosition: " + ex.Message)
         End Try
-
         If mdScryptSleep = 0 Then mdScryptSleep = 0.5
-
     End Sub
     Private Sub TimerCGMonitor_Tick(sender As System.Object, e As System.EventArgs) Handles TimerCGMonitor.Tick
         RefreshLeaderboardPosition()
-
+        'Scrypt Sleep : if we are sleeping, don't bother monitoring the GPUs:
+        If msSleepStatus = "SLEEP" Then Exit Sub
 
         'For each enabled CGMiner, restart if down:
         If chkCGMonitor.Checked = False Then Exit Sub
@@ -905,12 +933,36 @@ Public Class frmMining
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
-
+        Dim sMessage1 As String
+        sMessage1 = KeyValue("CPUMessage")
+        If sMessage1 = "" Then
+            Dim sMsg As String = "Note: If you are CPUMining, we recently added a requirement to be a member of Team 'Gridcoin'.  " _
+                                 & "Please click on Projects, and verify that you are a member of Team Gridcoin for each project you participating in.  " _
+                                 & "Thank you for supporting Gridcoin.  This message will not be displayed again."
+            MsgBox(sMsg, MsgBoxStyle.Critical, "Gridcoin Network Message")
+            UpdateKey("CPUMessage", "Notified")
+        End If
     End Sub
 
     Private Sub chkCGMonitor_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkCGMonitor.CheckedChanged
 
 
         PersistCheckboxes()
+    End Sub
+
+    Private Sub PoolsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles PoolsToolStripMenuItem.Click
+        Dim p As New frmPools
+        p.Show()
+
+    End Sub
+
+    Private Sub timerPoolAuthenticator_Tick(sender As System.Object, e As System.EventArgs) Handles timerPoolAuthenticator.Tick
+        mclsUtilization.AuthenticateToPool()
+
+    End Sub
+
+    Private Sub btnReauthenticate_Click(sender As System.Object, e As System.EventArgs) Handles btnReauthenticate.Click
+        Call clsUtilization.AuthenticateToPool()
+
     End Sub
 End Class

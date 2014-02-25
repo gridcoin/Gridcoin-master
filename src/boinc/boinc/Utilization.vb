@@ -37,7 +37,12 @@ Public Class Utilization
         Catch ex As Exception
             Log("New:" + ex.Message)
         End Try
-        If clsGVM Is Nothing Then clsGVM = New GridcoinVirtualMachine.GVM
+        If clsGVM Is Nothing Then
+            clsGVM = New GridcoinVirtualMachine.GVM
+
+        End If
+        mclsUtilization = Me
+
     End Sub
     Sub New(bLoadMiningConsole As Boolean)
         If clsGVM Is Nothing Then clsGVM = New GridcoinVirtualMachine.GVM
@@ -48,8 +53,7 @@ Public Class Utilization
     End Function
     Public ReadOnly Property Version As Double
         Get
-            Return 71
-
+            Return 80
 
         End Get
     End Property
@@ -58,7 +62,15 @@ Public Class Utilization
             Return Trim(clsGVM.CalcApiUrl(lProj, sUserId))
         End Get
     End Property
+    Public Function GetGRCSleepStatus(sAddress As String, sBlockhash As String) As Boolean
+        Dim bSL As Boolean = False
+        Dim dGRCSleepLevel As Double = 0
+        Dim dNetLevel As Double = 0
+        bSL = GetSleepLevelByAddress(sAddress, dGRCSleepLevel, sBlockhash, dNetLevel)
+        Log("Checking sleep level for " + Trim(sAddress) + " level = " + Trim(dGRCSleepLevel) + ", blockhash " + Trim(sBlockhash) + " net level " + Trim(dNetLevel))
 
+        Return bSL
+    End Function
     Public Sub RestartWallet()
         Call RestartWallet1("")
     End Sub
@@ -93,13 +105,79 @@ Public Class Utilization
             Return clsGVM.CheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sGRCHash4, sBoinchash)
         End Get
     End Property
+    Public ReadOnly Property RetrieveWin32BoincHash() As String
+        Get
+            Dim sHash As String
+            sHash = Trim(BoincMD5) + ",CRD_win32," + PoolMode() + "," + clsGVM.PublicWalletAddress + "," _
+                + Trim(Val(Version)) _
+                + "," + clsGVM.BoincDeltaOverTime + "," + ("" & clsGVM.MinedHash) _
+                + "," + Trim("" & clsGVM.SourceBlock) + "," + ("" & Val(clsGVM.BoincProjects)) + "," + Trim(Val(clsGVM.BoincTotalHostAvg))
+            Return sHash
+        End Get
+    End Property
+    Public Function AuthenticateToPool() As Boolean
+        Dim bResult As Boolean
+        Try
+
+            Dim sPoolURL As String = KeyValue("poolurl")
+
+
+            Dim sPoolUser As String = KeyValue("pooluser")
+            Dim sPoolPass As String = KeyValue("poolpassword")
+
+            If Len(sPoolURL) < 6 Then Return False
+            If Len(sPoolUser) = 0 Or Len(sPoolPass) = 0 Then Return False
+
+        bResult = ValidatePoolURL(sPoolURL)
+        bResult = True
+
+        If bResult = False Then
+            Log("Pool " + sPoolURL + " site certificate invalid.")
+            Return False
+        End If
+        'Authenticate
+        Dim sURL As String = sPoolURL
+        If Mid(sURL, Len(sURL), 1) <> "/" Then sURL = sURL + "/"
+            sURL = sURL + "Getwork.aspx?authenticate=true"
+            '2-23-2014
+            Using wc As New MyWebClient
+
+            wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded")
+            ' Upload the input string using the HTTP 1.0 POST method.
+            Dim PostData As String
+            PostData = "user=" + Trim(sPoolUser) + "&pass=" + Trim(sPoolPass) + "&boinchash=" + Trim(RetrieveWin32BoincHash)
+
+            Dim byteArray As Byte() = System.Text.Encoding.ASCII.GetBytes(PostData)
+            Dim byteResult As Byte() = wc.UploadData(sURL, "POST", byteArray)
+            Dim sResult As String = System.Text.Encoding.ASCII.GetString(byteResult)
+                If LCase(sResult) = "true" Then
+                    Log("Authenticate to Pool: Success")
+                    Return True
+
+                End If
+        End Using
+
+            Log("Authenticate to Pool: Fail - Username or Password invalid.")
+
+        Return False
+        Exit Function
+
+        Catch ex As Exception
+            Log("AuthenticateToPool Error: " + ex.Message)
+            Return False
+        End Try
+
+    End Function
+    Public Function PoolMode() As String
+        Dim sPool As String = KeyValue("poolmining")
+        Dim sCPU As String = KeyValue("cpumining")
+        If LCase(sPool) = "true" Then PoolMode = "POOL_MINING" Else PoolMode = "SOLO_MINING"
+    End Function
     Public ReadOnly Property RetrieveSqlHighBlock As Double
         Get
             Dim lBlock As Long = 0
             If KeyValue("disablesql") = "true" Then Return 10
-
             If KeyValue("UpdatingLeaderboard") = "true" Then Return mlSqlBestBlock
-
 
             Try
                 Dim data As New Sql
@@ -225,16 +303,28 @@ Public Class Utilization
         Call UpdateKey(sKey, sValue)
     End Function
     Public Sub SetSqlBlock(ByVal data As String)
-        If KeyValue("disablesql") = "true" Then Exit Sub
-
-        If KeyValue("UpdatingLeaderboard") = "true" Then Exit Sub
-
         
+        Try
+
+            'Log("Updating Leaderboard: " & Trim(KeyValue("UpdatingLeaderboard")) & ", Sql in sync " + Trim(SQLInSync) + " outdated " + Trim(Outdated(KeyValue("UpdatedLeaderboard"), 90)))
+
+
+
+        If ("" & KeyValue("disablesql")) = "true" Then Exit Sub
+       
+        If ("" & KeyValue("UpdatingLeaderboard")) = "true" Then Exit Sub
+
+        Catch ex As Exception
+            Log("SetSqlBlockError:" + Err.Description + ":" + Err.Source)
+
+        End Try
+
+
         If SQLInSync() And Outdated(KeyValue("UpdatedLeaderboard"), 90) Then
             Log("In sync and outdated, updating leaderboard")
             UpdateLeaderBoard() : Exit Sub
         End If
-        
+
 
         Dim s As New Sql
 
@@ -251,21 +341,15 @@ Public Class Utilization
             End Try
         End Try
     End Sub
-
     Public Sub UpdateLeaderBoard()
         If KeyValue("disablesql") = "true" Then Exit Sub
-
         Try
             Dim thUpdateLeaderboard As New System.Threading.Thread(AddressOf modBoincLeaderboard.RefreshLeaderboard)
             Log("Starting background update leaderboard thread.")
-
             thUpdateLeaderboard.IsBackground = False
-
             thUpdateLeaderboard.Start()
-
         Catch ex As Exception
             Log("UpdateLeaderboard:" + ex.Message)
-          
         End Try
     End Sub
     Public Sub SetLastBlockHash(ByVal data As String)
@@ -274,13 +358,21 @@ Public Class Utilization
     Public Sub SetPublicWalletAddress(ByVal data As String)
         clsGVM.PublicWalletAddress = Trim(data)
     End Sub
-    Public Sub SetBestBlock(ByVal nBlock As Long)
+    Public Sub SetBestBlock(ByVal nBlock As Integer)
+
+        Try
+
         _nBestBlock = nBlock
         nBestBlock = nBlock
-        'Log("Best block height " + Trim(nBestBlock))
+        clsGVM.BestBlock = nBlock
+        Catch ex As Exception
+            Log("Error setting Best block height " + Trim(nBlock) + " " + ex.Message)
 
+
+        End Try
 
     End Sub
+
 
     Public Function CPUPoW(ByVal iProjectId As Integer, ByVal lUserId As Long, ByVal sGRCAddress As String) As Double
         Return clsGVM.CPUPoW(iProjectId, lUserId, sGRCAddress)

@@ -3,7 +3,7 @@ Option Explicit
 Public wmi As Object
 Public threads As Long
 Private Declare Sub Sleep Lib "kernel32.dll" (ByVal dwMilliseconds As Long)
-Public mclsUtilization As boinc.Utilization
+Public mclsUtilization As boinc.LinuxUtilization
 
 
 Public mLinuxGui As Object

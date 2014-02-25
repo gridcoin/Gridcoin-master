@@ -84,7 +84,6 @@ Public Module modCryptography
     Public Function modBoincMD5() As String
         If Len(_BoincMD5) > 0 Then Return _BoincMD5
         Dim sPath As String = GetBoincProgFolder()
-
         Dim sMD5 As String
         Dim sFilePath As String = sPath & "boinc.exe"
         sMD5 = GetMd5(sFilePath)
@@ -220,6 +219,8 @@ Public Module modCryptography
                 End If
             Loop
             sr.Close()
+            Return ""
+
         Catch ex As Exception
             Return ""
         End Try
@@ -232,7 +233,8 @@ Public Module modCryptography
     End Function
 
     Public Function CheckWork(ByVal sGridBlockHash1 As String, ByVal sGridBlockHash2 As String, _
-                              ByVal sGridBlockHash3 As String, sGridBlockHash4 As String, ByVal sBoincHash As String) As Double
+                              ByVal sGridBlockHash3 As String, sGridBlockHash4 As String, _
+                              ByVal sBoincHash As String) As Double
         'CheckWorkResultCodes
 
         '+1 Valid
@@ -244,60 +246,126 @@ Public Module modCryptography
         '-14 Rehashed output error
         '-15 CPU hash does not match SHA computed hash
         '-16 General Error
+        '-17 ScryptSleep Exception
 
-        If Len(sBoincHash) < 80 Then Return -10
-        Dim vBoincHash() As String
-        vBoincHash = Split(sBoincHash, ",")
-        If UBound(vBoincHash) < 8 Then Return -11 'Invalid Boinc Hash
-        Dim sCPUSourceHash As String
-        Dim sCPUHash As String
+        Try
 
-        sCPUSourceHash = vBoincHash(9)
-        sCPUHash = vBoincHash(8)
-        Dim sMD5 As String
-        sMD5 = vBoincHash(0)
-        If Len(sMD5) < 7 Then Return -12 'MD5 Error
 
-        'Verify CPUSourceHash contains Gridcoin block hash
-        If (Not sCPUSourceHash.Contains(sGridBlockHash1) And Not sCPUSourceHash.Contains(sGridBlockHash2) And Not sCPUSourceHash.Contains(sGridBlockHash3) And Not sCPUSourceHash.Contains(sGridBlockHash4)) Then
-            Return -1 'CPU Hash does not contain Gridcoin block hash
-        End If
-        'Extract MD5 from Source Hash
-        Dim vCPUSourceHash() As String
-        sCPUSourceHash = Replace(sCPUSourceHash, "\\", "\")
+            If Len(sBoincHash) < 80 Then Return -10
+            Dim vBoincHash() As String
+            vBoincHash = Split(sBoincHash, ",")
+            If UBound(vBoincHash) < 8 Then Return -11 'Invalid Boinc Hash
+            Dim sCPUSourceHash As String
+            Dim sCPUHash As String
 
-        vCPUSourceHash = Split(sCPUSourceHash, "\")
-        If UBound(vCPUSourceHash) < 7 Then Return -2 'CPU Source Hash Invalid
-        Dim bHash() As Byte
-        Dim cHash As String
+            sCPUSourceHash = vBoincHash(9)
+            sCPUHash = vBoincHash(8)
+            Dim sMD5 As String
+            sMD5 = vBoincHash(0)
+            If Len(sMD5) < 7 Then Return -12 'MD5 Error
 
-        'ReHash the Source Hash
-        bHash = System.Text.Encoding.ASCII.GetBytes(sCPUSourceHash)
-        Dim objSHA1 As New SHA1CryptoServiceProvider()
 
-        cHash = Replace(BitConverter.ToString(objSHA1.ComputeHash(bHash)), "-", "")
-        'Extract difficulty
-        Dim diff As String
-        Dim targetms As Long = 10000 'This will change as soon as we implement the Moore's Law equation
-        diff = Trim(Math.Round(targetms / 5000, 0))
-        Dim sBoincAvgCredits As String
-        Dim sCPUUtilization As String
-        sCPUUtilization = vCPUSourceHash(2)
-        sBoincAvgCredits = vCPUSourceHash(3)
-        Dim sThreadCount As String
-        sThreadCount = vCPUSourceHash(4)
-        If Len(cHash) < 10 Then Return -14
-        If cHash <> sCPUHash Then Return -15
-        'Check Work
 
-        If cHash.Contains(Trim(diff)) And cHash.Contains(String.Format("{0:000}", sCPUUtilization)) _
-            And cHash.Contains(Trim(Val(sBoincAvgCredits))) _
-            And cHash.Contains(Trim(Val(sThreadCount))) Then
-            Return 1
-        End If
+            'Pool Operator  2-20-2014
+            If InStr(1, sBoincHash, "pool_operatorx") > 0 Then
+                'Return 1
+            End If
 
-        Return -16
+
+
+            'Verify CPUSourceHash contains Gridcoin block hash
+            If (Not sCPUSourceHash.Contains(sGridBlockHash1) And Not sCPUSourceHash.Contains(sGridBlockHash2) And Not sCPUSourceHash.Contains(sGridBlockHash3) And Not sCPUSourceHash.Contains(sGridBlockHash4)) Then
+                Return -1 'CPU Hash does not contain Gridcoin block hash
+            End If
+            'Extract MD5 from Source Hash
+            Dim vCPUSourceHash() As String
+            sCPUSourceHash = Replace(sCPUSourceHash, "\\", "\")
+
+            vCPUSourceHash = Split(sCPUSourceHash, "\")
+            If UBound(vCPUSourceHash) < 7 Then Return -2 'CPU Source Hash Invalid
+            Dim bHash() As Byte
+            Dim cHash As String
+            'Retrieve solvers GRC address
+            Dim sGRCAddress As String
+            If UBound(vBoincHash) > 4 Then sGRCAddress = vBoincHash(5) '
+
+            ''Retrieve solved blockhash
+            Dim sOriginalBlockHash As String
+            If UBound(vCPUSourceHash) > 0 Then sOriginalBlockHash = vCPUSourceHash(0)
+
+            'Verify sleep level
+            Dim bSleepVerification As Boolean
+            Dim dSLL As Double = 0
+            Dim dNL As Double = 0
+            '    Log("Calling Get sleep level by address for " + Trim(sGRCAddress) + " " + Trim(dSLL) + " " + sOriginalBlockHash)
+            '     Log("CHECKWORK: Sleep Level for " + Trim(sGRCAddress) + " = " & Trim(dSLL) & " for blockhash " & sOriginalBlockHash & " " + Trim(dNL))
+
+            If mnBestBlock > 74000 Then
+                If sGridBlockHash4 = "SCRYPT_SLEEP" Then
+                    bSleepVerification = GetSleepLevelByAddress(sGRCAddress, dSLL, sOriginalBlockHash, dNL)
+                    If bSleepVerification = False Then
+                        Return -17
+                    End If
+                End If
+            End If
+          
+
+            'ReHash the Source Hash
+            bHash = System.Text.Encoding.ASCII.GetBytes(sCPUSourceHash)
+            Dim objSHA1 As New SHA1CryptoServiceProvider()
+
+            cHash = Replace(BitConverter.ToString(objSHA1.ComputeHash(bHash)), "-", "")
+            'Extract difficulty
+            Dim diff As String
+            Dim targetms As Long = 10000 'This will change as soon as we implement the Moore's Law equation
+            diff = Trim(Math.Round(targetms / 5000, 0))
+            Dim sBoincAvgCredits As String
+            Dim sCPUUtilization As String
+            sCPUUtilization = vCPUSourceHash(2)
+            sBoincAvgCredits = vCPUSourceHash(3)
+            Dim sThreadCount As String
+            sThreadCount = vCPUSourceHash(4)
+            If Len(cHash) < 10 Then Return -14
+            If cHash <> sCPUHash Then Return -15
+            'Check Work
+
+            If cHash.Contains(Trim(diff)) And cHash.Contains(String.Format("{0:000}", sCPUUtilization)) _
+                And cHash.Contains(Trim(Val(sBoincAvgCredits))) _
+                And cHash.Contains(Trim(Val(sThreadCount))) Then
+                Return 1
+            End If
+
+            Return -16
+
+
+
+        Catch ex As Exception
+            Log("CheckWork(Cryptography): " + ex.Message + ":" + ex.Source)
+
+            Return -18
+        End Try
+
 
     End Function
+
+    Public Sub Log(sData As String)
+        Try
+            Dim sPath As String
+            sPath = GetGridFolder() + "debugGVM.log"
+            Dim sw As New System.IO.StreamWriter(sPath, True)
+            sw.WriteLine(Trim(Now) + ", " + sData)
+            sw.Close()
+        Catch ex As Exception
+        End Try
+
+    End Sub
+   
+
+    Public Function GetGridFolder() As String
+        Dim sTemp As String
+        sTemp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\Gridcoin\"
+        Return sTemp
+    End Function
+
 
 End Module

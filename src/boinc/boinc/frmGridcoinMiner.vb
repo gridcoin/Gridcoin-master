@@ -259,4 +259,43 @@ Public Class frmGridcoinMiner
     End Sub
 
 
+    Private Sub btnDownloadCgminer_Click(sender As System.Object, e As System.EventArgs) Handles btnDownloadCgminer.Click
+        '     If Not System.IO.Directory.Exists(sPath) Then MkDir(sPath)
+        Dim sSourcePath As String = GetGRCAppDir() + "\"
+
+   
+        Dim sBase64File As String = sSourcePath + "cgminer_base64.zip"
+
+        If System.IO.File.Exists(sBase64File) Then
+            '            MsgBox("File Exists", MsgBoxStyle.Critical)
+
+        End If
+        'Download
+        Try
+
+            DownloadFile("cgminer_base64.zip")
+
+        Catch ex As Exception
+            MsgBox("Download failed " + ex.Message, MsgBoxStyle.Critical)
+            Exit Sub
+
+        End Try
+        MsgBox("Download successful.", vbInformation)
+
+
+    End Sub
+    Private Function DownloadFile(ByVal sFile As String)
+        Dim sLocalPath As String = GetGRCAppDir()
+        Dim sLocalFile As String = sFile
+        Dim sLocalPathFile As String = sLocalPath + "\" + sLocalFile
+        Try
+            Kill(sLocalPathFile)
+        Catch ex As Exception
+        End Try
+        Dim sURL As String = "http://www.gridcoin.us/download/" + sFile
+        Dim myWebClient As New MyWebClient()
+        myWebClient.DownloadFile(sURL, sLocalPathFile)
+        Me.Refresh()
+        System.Threading.Thread.Sleep(500)
+    End Function
 End Class

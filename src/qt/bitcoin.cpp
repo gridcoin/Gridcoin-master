@@ -104,16 +104,19 @@ static int ThreadSafeCheckWork(const std::string& h1,
 	                           const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
 {
 	if (!guiref) return -100;
-	//1-26-2014
+	
 	int result = -50;
-
-	QMetaObject::invokeMethod(guiref, "threadsafecheckwork", GUIUtil::blockingGUIThreadConnection(),
+	//Qt::QueuedConnection
+	//GUIUtil::blockingGUIThreadConnection(),
+	QMetaObject::invokeMethod(guiref, "threadsafecheckwork",
+	GUIUtil::blockingGUIThreadConnection(),
 			Q_ARG(QString, QString::fromStdString(h1)),
 			Q_ARG(QString, QString::fromStdString(h2)),
 			Q_ARG(QString, QString::fromStdString(h3)),
 			Q_ARG(QString, QString::fromStdString(h4)),
 			Q_ARG(QString, QString::fromStdString(h5)),
 			Q_ARG(int*, &result));
+	
 	return result;
 }
 
@@ -187,6 +190,15 @@ static void handleRunawayException(std::exception *e)
 
 
 
+
+static inline bool GetDebugMode()
+{
+    if (mapArgs["-debugmode"] == "true") 
+	{
+		return true;
+	} 
+	return false;
+}
 
 
 
@@ -316,7 +328,7 @@ int main(int argc, char *argv[])
 
 	/////////////////////////////////////////// Start Gridcoin ActiveX Server
    
-   // QAxFactory::startServer();
+    // QAxFactory::startServer();
 	
 	
 	////////////////////////////////////////////// End of ActiveX - Start Gridcoin
@@ -342,10 +354,12 @@ int main(int argc, char *argv[])
         QObject::connect(pollShutdownTimer, SIGNAL(timeout()), guiref, SLOT(detectShutdown()));
         pollShutdownTimer->start(300);
 
-		
+		bDebugMode = GetDebugMode();
+		printf("DebugMode %d",bDebugMode);
+
 	 	QTimer *timer = new QTimer(guiref);
 		QObject::connect(timer, SIGNAL(timeout()), guiref, SLOT(timerfire()));
-		timer->start(10000);
+	//	timer->start(10000);
 	  
 
         if(AppInit2())
@@ -376,6 +390,8 @@ int main(int argc, char *argv[])
                     window.show();
                 }
 
+				timer->start(10000);
+	
                 // Now that initialization/startup is done, process any command-line
                 // bitcoin: URIs
                 QObject::connect(paymentServer, SIGNAL(receivedURI(QString)), &window, SLOT(handleURI(QString)));

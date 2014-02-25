@@ -18,6 +18,9 @@ using namespace std;
 extern std::string GetGridcoinWork();
 bool TestGridcoinWork(std::string sWork);
 
+int CheckCPUWorkByBlockWithBoincHash(int blocknumber, std::string boinchash);
+
+
 
 // Return average network hashes per second based on the last 'lookup' blocks,
 // or from the last difficulty change if 'lookup' is nonpositive.
@@ -90,6 +93,25 @@ Value getmininginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("testnet",       fTestNet));
     return obj;
 }
+
+
+
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    split(s, delim, elems);
+    return elems;
+}
+
 
 
 Value getworkex(const Array& params, bool fHelp)
@@ -239,11 +261,12 @@ Value getworkex(const Array& params, bool fHelp)
     }
 }
 
-//Standard Getwork - Gridcoin
+//Standard Getwork - Gridcoin - 2-23-2014
+
 
 Value getwork(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 2)
         throw runtime_error(
             "getwork [data]\n"
             "If [data] is not specified, returns formatted hash data to work on:\n"
@@ -335,6 +358,15 @@ Value getwork(const Array& params, bool fHelp)
         vector<unsigned char> vchData = ParseHex(params[0].get_str());
         if (vchData.size() != 128)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter");
+
+
+		std::string boinc_data="";
+		if (params.size() > 1) {
+			boinc_data = params[1].get_str();
+		}
+
+		printf("boinc_data %s",boinc_data.c_str());
+
         CBlock* pdata = (CBlock*)&vchData[0];
 
         // Byte reverse
@@ -346,17 +378,69 @@ Value getwork(const Array& params, bool fHelp)
             return false;
         CBlock* pblock = mapNewBlock[pdata->hashMerkleRoot].first;
 
-        pblock->nTime = pdata->nTime;
+		//2-20-2014 Write proper boinchash
+		//std::string boinc_authenticity = BoincAuthenticity();
+	
+
+		//boinc_authenticity = boinc_authenticity + "123,pool_operator";
+
+		if (true) 
+		{
+			std::string pool_op = GetArg("-pooloperator", "false");
+			if (pool_op=="true") 
+			{
+				std::string newboinc = pblock->hashBoinc + "," + boinc_data;
+			    pblock->hashBoinc = newboinc;
+			}
+		}
+
+
+	    pblock->nTime = pdata->nTime;
         pblock->nNonce = pdata->nNonce;
         pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
 		printf("created new gridcoin block in getwork with update");
+		//2-1-2014 
+		//std::string sGRCAddress = DefaultWalletAddress();
+		std::string CBH = hashBestChain.ToString();
+		//Verify sleep level
+
+		//bool NSS = globalcom->dynamicCall("GetGRCSleepStatus(QString,RetrieveSqlHighBlock()").toInt();
+		printf("Checking ScryptSleep for %s and %s",CBH.c_str(),pblock->hashBoinc.c_str());
+		//2-2-2014
+		int NSR = 0;
+		if (pblock->hashBoinc.length() > 100) {
+			std::string sDelim = ",";
+			char cDelim = sDelim[0];
+			std::vector<std::string> vOrigBlockHash = split(pblock->hashBoinc, cDelim);
+			if (vOrigBlockHash.size() > 8) {
+				sDelim = "\\";
+				cDelim = sDelim[0];
+				std::vector<std::string> bh2 = split(vOrigBlockHash[9], cDelim);
+				printf("sleep bh1.8: %s",vOrigBlockHash[8].c_str());
+		
+				if (bh2.size() > 4) {
+					std::string bh3 = bh2[0];
+					printf("Checking sleep for blockhash %s",bh3.c_str());
+					NSR = uiInterface.ThreadSafeCheckWork(bh3,CBH,bh3,"SCRYPT_SLEEP",pblock->hashBoinc);
+				}
+			}
+		}
+
+		//(NSR!=-217 && !bDebugMode) printf "Feature implemented.";
+		printf("Scrypt Sleep Result %i",NSR);
+
+		if (NSR == -17) {
+			printf("Block rejected due to Sleep Violation.\r\n");
+			return false;
+		}
+
+		if (NSR > 0) printf("Block accepted - scrypt sleep \r\n");
+
+
 		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
 		if (status) {
-				if (bPoolMiningMode) {
-				//Pay the pool miners:
-				}
-
+			
 		}
 
 		return status;
@@ -366,8 +450,6 @@ Value getwork(const Array& params, bool fHelp)
 
 
 
-
-//Standard Getwork - Gridcoin
 
 std::string GetGridcoinWork()
 {

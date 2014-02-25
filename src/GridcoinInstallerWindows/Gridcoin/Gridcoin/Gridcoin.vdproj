@@ -27,6 +27,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_1815C3BDB5D64559807BDE9A53416307"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_20B3A9D4AE984BCEA9D4706628A9CB96"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -40,12 +46,6 @@
         "Entry"
         {
         "MsmKey" = "8:_31B02414684F4875B85F10492DF8A8C3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_37F6B65813F044C7BE5EFB3E20D848DA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -87,14 +87,32 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_70623124DBA5BD1CEF0F65A8A439E9F2"
-        "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
+        "MsmKey" = "8:_6A6CAC3D79DB411090D5421BF7648C90"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6D558AE937A34577B627E85A41629149"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7042CE587CBC41B4A2D53BCF260AF06C"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_70623124DBA5BD1CEF0F65A8A439E9F2"
         "OwnerKey" = "8:_C2CDFD985257421D838A2EDDA0C74E9E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_70623124DBA5BD1CEF0F65A8A439E9F2"
+        "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -183,6 +201,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BF625D7E01814B7182F0D745FC2C4335"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C1F2611FD9F245698383BF023ACB031F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -196,13 +220,31 @@
         "Entry"
         {
         "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
-        "OwnerKey" = "8:_C2CDFD985257421D838A2EDDA0C74E9E"
+        "OwnerKey" = "8:_4B7BB1B6765F44E18E088666CE7461AD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
+        "OwnerKey" = "8:_EDC8FF33DEA84EC0BB3664CD1C316318"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
         "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
+        "OwnerKey" = "8:_C2CDFD985257421D838A2EDDA0C74E9E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
+        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -298,12 +340,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_E4D4AFD809204DAA8C02FD65E7D9CE6A"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -335,6 +371,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_4B7BB1B6765F44E18E088666CE7461AD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -473,6 +515,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1815C3BDB5D64559807BDE9A53416307"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\release\\BoincLinux.dll"
+            "TargetName" = "8:BoincLinux.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:4"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20B3A9D4AE984BCEA9D4706628A9CB96"
             {
             "SourcePath" = "8:..\\..\\..\\..\\release\\cgminer_base64.zip"
@@ -528,26 +590,6 @@
             {
             "SourcePath" = "8:..\\..\\..\\..\\release\\regtlibv12.exe"
             "TargetName" = "8:regtlibv12.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_37F6B65813F044C7BE5EFB3E20D848DA"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\release\\cgminer.exe"
-            "TargetName" = "8:cgminer.exe"
             "Tag" = "8:"
             "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
             "Condition" = "8:"
@@ -662,6 +704,66 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A6CAC3D79DB411090D5421BF7648C90"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\release\\GridcoinLinuxGUI.exe"
+            "TargetName" = "8:GridcoinLinuxGUI.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:4"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6D558AE937A34577B627E85A41629149"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\release\\mschrt20.ocx"
+            "TargetName" = "8:mschrt20.ocx"
+            "Tag" = "8:"
+            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:4"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7042CE587CBC41B4A2D53BCF260AF06C"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\release\\MSVBVM60.DLL"
+            "TargetName" = "8:MSVBVM60.DLL"
+            "Tag" = "8:"
+            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:4"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
@@ -959,6 +1061,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF625D7E01814B7182F0D745FC2C4335"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\release\\mscomctl.ocx"
+            "TargetName" = "8:mscomctl.ocx"
+            "Tag" = "8:"
+            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:4"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1F2611FD9F245698383BF023ACB031F"
             {
             "SourcePath" = "8:..\\..\\..\\..\\release\\libgcc_s_dw2-1.dll"
@@ -1240,16 +1362,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Gridcoin 7.78"
-        "ProductCode" = "8:{0CADA3DF-51EC-4A19-BC4D-CD6E37A240C9}"
-        "PackageCode" = "8:{8AE8819A-C59F-4C83-ABE1-E12D3F063642}"
+        "ProductName" = "8:Gridcoin 8.5"
+        "ProductCode" = "8:{86122217-F2C9-45BE-82C3-3AEEB0982A37}"
+        "PackageCode" = "8:{5D641A46-E58E-48A8-807C-692CFAFC2AA4}"
         "UpgradeCode" = "8:{9617E9EA-252F-43CE-B53E-B48C85F71192}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:7.78"
+        "ProductVersion" = "8:8.5"
         "Manufacturer" = "8:Gridcoin"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

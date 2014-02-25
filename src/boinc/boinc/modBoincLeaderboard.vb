@@ -18,8 +18,8 @@
 
     Public vProj() As String
     Public Function SQLInSync() As Boolean
-        If mlSqlBestBlock < 40000 Then Return False
-        If nBestBlock < 40000 Then Return False
+        If mlSqlBestBlock < 800 Then Return False
+        If nBestBlock < 800 Then Return False
 
         If mlSqlBestBlock > nBestBlock - 6 Then Return True
         Return False
@@ -214,8 +214,8 @@
             d.CreateLeaderboardTable()
 
             Dim dBlock As Double = d.HighBlockNumber
-            Dim lBlock As Double = dBlock - 11520 '20 days back
-            If lBlock < 1 Then lBlock = 1
+            Dim lBlock As Double = dBlock - 8640 '15 days back
+            If lBlock < 101 Then lBlock = 101
           
             sql = "Delete from Leaderboard" 'Truncate Table
             d.Exec(sql)

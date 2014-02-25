@@ -54,14 +54,16 @@ Option Explicit
             vTemp = Split(sIn, Chr(10))
             Dim x As Long
            ' Open sXMLFile + ".dat2" For Output As #fI
-         Open App.Path + "\gridcoin.dat" For Output As #fI
+         Open App.Path + "\gridcoin2.dat" For Output As #fI
              Log "Ubound of xml " + Trim(UBound(vTemp))
                 
             For x = 0 To UBound(vTemp)
                 Print #fI, vTemp(x)
             Next x
          Close #fI
-         Open App.Path + "\gridcoin.dat" For Input As #fI
+         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+         
+         Open App.Path + "\gridcoin2.dat" For Input As #fI
             
             Do While EOF(fI) = False
                 Line Input #fI, sTemp
@@ -263,7 +265,7 @@ If Not bLogToDisk Then Exit Function
     oFF = FreeFile
     
             Dim sPath As String
-            sPath = BoincDataDir + "gridcoin.dat"
+            sPath = BoincDataDir + "gridcoin2.dat"
             Open sPath For Append As #oFF
             Dim sRow As String
             sRow = Trim(Now) + "," + sName + "," + Trim(dCredit) + "," + Trim(dProjectCount) + "," + sCounterType
@@ -273,6 +275,7 @@ If Not bLogToDisk Then Exit Function
         
 ErrTrap:
 Close #oFF
+Log "Unable to Add Credits: " + Err.Description
 
     End Function
     

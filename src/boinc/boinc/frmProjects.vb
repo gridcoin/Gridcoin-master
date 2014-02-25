@@ -52,6 +52,14 @@
         Return txt
     End Function
 
+    Private Function GetProjLabel(lProjectId As Long, sName As String) As System.Windows.Forms.Label
+        Dim c() As Windows.Forms.Control
+        c = Me.Controls.Find(sName + Trim(lProjectId), True)
+        Dim txt As System.Windows.Forms.Label
+        txt = DirectCast(c(0), System.Windows.Forms.Label)
+        Return txt
+    End Function
+
     Private Function UserId(lProject As Long) As Double
         Dim sUserId As String
         Dim txt As System.Windows.Forms.TextBox = GetProjTextBox(lProject)
@@ -65,13 +73,22 @@
             sUserId = KeyValue("Project" + Trim(x))
 
             Dim dCredits As Double
-            dCredits = clsGVM.BoincCreditsByProject(x, Val(sUserId))
+            Dim sTeam As String
+            Dim sStruct As String
+            sTeam = "N/A"
+
+
+
+            dCredits = clsGVM.BoincCreditsByProject2(x, Val(sUserId), sStruct, sTeam)
 
             Windows.Forms.Application.DoEvents()
             System.Threading.Thread.Sleep(100)
             Dim txt As System.Windows.Forms.Label = GetProjResultsLabel(x)
 
             txt.Text = Trim(dCredits)
+            Dim txtTeam As System.Windows.Forms.Label = GetProjLabel(x, "lblTeam")
+
+            txtTeam.Text = Trim(sTeam)
 
         Next
     End Sub

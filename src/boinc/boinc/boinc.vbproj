@@ -91,6 +91,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsMailFunctions.vb" />
+    <Compile Include="frmPools.Designer.vb">
+      <DependentUpon>frmPools.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmPools.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmLeaderboard.Designer.vb">
       <DependentUpon>frmLeaderboard.vb</DependentUpon>
     </Compile>
@@ -160,6 +166,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmPools.resx">
+      <DependentUpon>frmPools.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmLeaderboard.resx">
       <DependentUpon>frmLeaderboard.vb</DependentUpon>
     </EmbeddedResource>
