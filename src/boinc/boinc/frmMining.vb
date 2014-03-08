@@ -123,8 +123,72 @@ Public Class frmMining
             msSleepStatus = "WORK(-3)"
         End Try
     End Function
+    Public Function GetBoincProgFolder() As String
+        Dim sAppDir As String
+        sAppDir = KeyValue("boincappfolder")
+        If Len(sAppDir) > 0 Then Return sAppDir
+        Dim bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9 As String
+        bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
+
+        bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9 = Trim(Replace(bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9, "(x86)", ""))
+        bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9 = bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9 + "\Boinc\"
+        If Not System.IO.Directory.Exists(bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9) Then
+            bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + mclsUtilization.Des3Decrypt("sEl7B/roaQaNGPo+ckyQBA==")
+        End If
+        Return bigtime3f7o6l0daedrf4597acff2affbb5ed209f439aFroBearden0edd44ae1167a1e9be6eeb5cc2acd9c9
+    End Function
+
+    Public Function ForceBoincToUseGPUs(sSleepDirective As String)
+        Try
+
+        Dim sFolder As String = GetBoincProgFolder()
+        Dim sPath As String = sFolder & "boinccmd.exe"
+        Dim sBinary As String
+            If sSleepDirective = "sleep" Then sBinary = "1" Else sBinary = "0"
+            Dim sOverFn As String = GetBoincDataFolder() + "global_prefs_override.xml"
+            Dim sr As New StreamReader(sOverFn)
+        Dim sOut As String
+            Dim sXML As String
+        While sr.EndOfStream = False
+            sXML = sr.ReadLine()
+            If InStr(1, sXML, "<run_gpu_if_user_active>") > 0 Then
+                sXML = "<run_gpu_if_user_active>" + Trim(sBinary) + "</run_gpu_if_user_active>"
+
+            End If
+            sOut += sXML + vbCrLf
+        End While
+        sr.Close()
+        Dim sw As New StreamWriter(sOverFn)
+        sw.Write(sOut)
+        sw.Close()
+
+        Try
+            Dim p As Process = New Process()
+            Dim pi As ProcessStartInfo = New ProcessStartInfo()
+            pi.WorkingDirectory = GetBoincProgFolder()
+                pi.UseShellExecute = True
+                pi.WindowStyle = ProcessWindowStyle.Hidden
+
+            pi.FileName = "boinccmd.exe"
+            pi.Arguments = "--read_global_prefs_override"
+
+            p.StartInfo = pi
+            p.Start()
+        Catch ex As Exception
+            Log("Error updating boinc overrides" + ex.Message)
+        End Try
+
+        Catch ex As Exception
+            Log("Error updating boinc overrides(b):" + ex.Message)
+
+        End Try
+
+    End Function
+
     Public Sub LogSleepStatus(sStatus As String)
         Try
+
+
             Dim sPath As String
             sPath = GetGridFolder() + "status.txt"
             Dim sData As String
@@ -134,6 +198,7 @@ Public Class frmMining
                 sData = "work"
 
             End If
+            ForceBoincToUseGPUs(sData)
             Dim sw As New System.IO.StreamWriter(sPath, False)
 
             sw.WriteLine(sData)
@@ -146,7 +211,8 @@ Public Class frmMining
         'Per S4mmy, write the Sleep Status to a file:
         LogSleepStatus(msSleepStatus)
 
-        If nBestBlock < 74000 Then Exit Sub
+        'SCRYPT_SLEEP:
+        If nBestBlock < 99999 Then Exit Sub
 
         If msSleepStatus = "SLEEP" Then
             DisableAllGPUs()
@@ -226,7 +292,7 @@ Public Class frmMining
         
             Dim dProj As Double
             Dim lookback As Double
-            For x = 30 To 0.5 Step -1.5
+            For x = 30 To 0.5 Step -6
                 lookback = x * 3600 * 24
                 clsGVM.ReturnBoincCreditsAtPointInTime(lookback)
                 Dim l1 As Double
@@ -624,12 +690,23 @@ Public Class frmMining
 
     End Function
     Public Sub ReStartMiners()
+
+        If KeyValue("suppressminingconsole") = "true" Then Exit Sub
+
         Log("Restarting all miners.")
 
         Try
             KillGuiMiner()
             RestartedMinerAt = Now
-            Me.Visible = True
+
+
+            Try
+                Call clsUtilization.AuthenticateToPool()
+
+            Catch ex As Exception
+
+            End Try
+
             ReStartGuiMiner_Old()
             Dim sEnabled As String
             Dim bEnabled As Boolean
@@ -639,6 +716,11 @@ Public Class frmMining
                     bEnabled = IsGPUEnabled(x)
                     If bEnabled Then
                         BootGridcoinMiner(x)
+                    End If
+                    Dim lWaitDelay As Long
+                    lWaitDelay = Val(KeyValue("RestartMinersWaitDelay"))
+                    If lWaitDelay > 0 Then
+                        System.Threading.Thread.Sleep(lWaitDelay)
                     End If
                 Next
             End If
@@ -660,7 +742,10 @@ Public Class frmMining
     Private Sub timerReaper_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles timerReaper.Tick
         Try
             miInitCounter = miInitCounter + 1
-            If miInitCounter = 7 Then Call InitializeFormMining()
+            If miInitCounter = 7 Then
+                Call InitializeFormMining()
+
+            End If
             updateGh()
             Call ChartBoincUtilization()
             Call UpdateChartHashRate()
@@ -732,10 +817,10 @@ Public Class frmMining
     End Sub
     Private Sub frmMining_Load(sender As Object, e As System.EventArgs) Handles Me.Load
     
-        For x = 1 To 70
-            Application.DoEvents()
-            System.Threading.Thread.Sleep(100)
-        Next
+        '   For x = 1 To 70
+        'Application.DoEvents()
+        'System.Threading.Thread.Sleep(100)
+        'Next
 
         RestartedWalletAt = Now
         'Set the defaults for the checkboxes
@@ -743,6 +828,7 @@ Public Class frmMining
         chkMiningEnabled.Checked = cBOO(KeyValue("chkMiningEnabled"))
         chkCGMonitor.Checked = cBOO(KeyValue("chkCGMonitor"))
         bSuccessfullyLoaded = True
+        If KeyValue("suppressminingconsole") = "true" Then Exit Sub
 
         Call OneMinuteUpdate()
         RefreshGPUList()
@@ -879,14 +965,19 @@ Public Class frmMining
 
     End Sub
 
-    Private Sub RefreshLeaderboardPosition()
+    Public Sub RefreshLeaderboardPosition()
         Try
             Dim sql As String
             Dim mData As New Sql("gridcoin_leaderboard")
             sql = "Select avg(credits*projectcount) Credits, avg(credits*factor*projectcount) as [Adjusted Credits], avg(projectcount) as [Projects], ScryptSleepChance, Address from leaderboard group by Address order by avg(credits*factor*projectcount) desc "
             Dim gr As New GridcoinReader
             gr = mData.GetGridcoinReader(sql)
-            If Len(clsGVM.PublicWalletAddress) < 10 Then Exit Sub
+            If Len(clsGVM.PublicWalletAddress) < 10 Then
+                mdScryptSleep = NewbieSleepLevel()
+
+                Exit Sub
+
+            End If
             Dim grr As GridcoinReader.GridcoinRow
             Dim sGRCAddress As String
             For y = 1 To gr.Rows
@@ -900,6 +991,10 @@ Public Class frmMining
         Catch ex As Exception
             Log("RefreshLeaderboardPosition: " + ex.Message)
         End Try
+
+        If mdScryptSleep = 0 Then
+            mdScryptSleep = NewbieSleepLevel()
+        End If
         If mdScryptSleep = 0 Then mdScryptSleep = 0.5
     End Sub
     Private Sub TimerCGMonitor_Tick(sender As System.Object, e As System.EventArgs) Handles TimerCGMonitor.Tick

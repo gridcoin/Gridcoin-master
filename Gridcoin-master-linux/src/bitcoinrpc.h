@@ -200,8 +200,11 @@ extern json_spirit::Value sendtoself(const json_spirit::Array& params, bool fHel
 extern json_spirit::Value checkwork(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value listcpuminers(const json_spirit::Array& params, bool fHelp);
+
+extern json_spirit::Value listmycpuminers(const json_spirit::Array& params, bool fHelp);
+
 extern std::string RoundToString(double d, int place);
-extern std::map<std::string, MiningEntry> CalculatePoolMining();
+extern std::map<std::string, MiningEntry> CalculatePoolMining(bool bPayDuringWalletHour);
 
 
 extern json_spirit::Value getpoolminingmode(const json_spirit::Array& params, bool fHelp);
@@ -218,8 +221,12 @@ extern json_spirit::Value settxfee(const json_spirit::Array& params, bool fHelp)
 extern json_spirit::Value setmininput(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getrawmempool(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getblockhash(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value listitem(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value execute(const json_spirit::Array& params, bool fHelp);
+
 extern json_spirit::Value getblock(const json_spirit::Array& params, bool fHelp);
-extern json_spirit::Value getblockbyhash(const json_spirit::Array& params, bool fHelp);
+
+extern json_spirit::Value getblockbynumber(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value gettxoutsetinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value gettxout(const json_spirit::Array& params, bool fHelp);

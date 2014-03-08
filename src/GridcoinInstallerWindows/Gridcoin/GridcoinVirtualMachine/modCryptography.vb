@@ -300,7 +300,7 @@ Public Module modCryptography
             '    Log("Calling Get sleep level by address for " + Trim(sGRCAddress) + " " + Trim(dSLL) + " " + sOriginalBlockHash)
             '     Log("CHECKWORK: Sleep Level for " + Trim(sGRCAddress) + " = " & Trim(dSLL) & " for blockhash " & sOriginalBlockHash & " " + Trim(dNL))
 
-            If mnBestBlock > 74000 Then
+            If mnBestBlock > 99999 Then
                 If sGridBlockHash4 = "SCRYPT_SLEEP" Then
                     bSleepVerification = GetSleepLevelByAddress(sGRCAddress, dSLL, sOriginalBlockHash, dNL)
                     If bSleepVerification = False Then

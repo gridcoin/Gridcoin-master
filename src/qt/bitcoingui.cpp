@@ -81,14 +81,18 @@ int nRegVersion;
 extern void SendGridcoinProjectBeacons();
 std::string NodesToString();
 
+std::string GetHttpPage(std::string cpid);
 
 extern int UpgradeClient();
 extern int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUseRPC);
 extern int CloseGuiMiner();
+
 void RestartGridcoin3();
 
 std::map<std::string, MiningEntry> CalculateCPUMining();
 
+
+std::string RetrieveMd5(std::string s1);
 
 json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
 bool TestGridcoinWork(std::string sWork);
@@ -307,7 +311,6 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
 	try 
 	{
 		result = uiInterface.ThreadSafeCheckWork(lastblockhash,greatblockhash,greatgrandparentsblockhash,greatgreatgrandparentsblockhash,boinchash);
-		//result =  globalrpccom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
 	}
    	catch (std::exception &e) 
 	{
@@ -487,7 +490,7 @@ int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUs
 
 		if (OutOfSync() )
 		{
-			printf("Checkcpuworkbycurrentblock:OutOfSync=true best height %d   numofblocks %d",nBestHeight,GetNumBlocksOfPeers());
+			//printf("Checkcpuworkbycurrentblock:OutOfSync=true best height %d   numofblocks %d",nBestHeight,GetNumBlocksOfPeers());
 			return 1;
     	}
     
@@ -1513,11 +1516,15 @@ void UpdateCPUPoW()
 
 
 	int nVerify = rand() % 1000;  
-	if (nVerify < 100) return; 
+	if (nVerify < 333) return; 
 	
 	
 	cputick++;
-	if (cputick==1) CalculateCPUMining();
+	if (cputick==30) 
+		{
+		//	CalculateCPUMining();
+
+	}
 
 	if (cputick > 45) {
 		cputick=0;
@@ -1536,7 +1543,7 @@ void UpdateCPUPoW()
 		int vRetry = rand() % 1000;  //Retry Failed API calls only a small % of the time:
 	    int vMalaria = rand() % 1000; //Don't both with Malaria API most of the time; it is down;
 
-	    printf ("CPU Mining PoW Vector Size: %i",vRetryPosition);
+	   // printf ("CPU Mining PoW Vector Size: %i",vRetryPosition);
 		for(map<string,MiningEntry>::iterator ii=cpupow.begin(); ii!=cpupow.end(); ++ii) 
 		{
 
@@ -1605,7 +1612,7 @@ int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std
 	std::string greatgreatgrandparentsblockhash, std::string boinchash)
 {
 	int result = 0;
-	printf("Reg Ver %i",nRegVersion);
+	//printf("Reg Ver %i",nRegVersion);
 	int iRegVer = 0;
 	return result;
 }
@@ -1627,17 +1634,17 @@ void BitcoinGUI::timerfire()
        
 		if (os == "linux" || os == "mac")
 		{
-				printf("Instantiating globalcom for Linux");			
+			printf("Instantiating globalcom for Linux");			
 			globalcom = new QAxObject("Boinc.LinuxUtilization");
 						
 		}
 		else
 		{
 						globalcom = new QAxObject("Boinc.Utilization");
-							printf("Instantiating globalcom for Windows");
+						printf("Instantiating globalcom for Windows");
 		}
 		
-							globalcom->dynamicCall("ShowMiningConsole()");
+						globalcom->dynamicCall("ShowMiningConsole()");
 		
 		printf("Showing Mining Console");
 	}
@@ -1649,6 +1656,7 @@ void BitcoinGUI::timerfire()
 	utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
 	if (globalcom==NULL) printf("Globalcom is NULL1");
 	
+
 	int thread_count = 0;
 	thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
@@ -1664,13 +1672,11 @@ void BitcoinGUI::timerfire()
 	QString minedHash = minedHash_1.toString();
 	sMinedHash = minedHash.toUtf8().constData();
 	QVariant sourceBlock_1 = globalcom->dynamicCall("SourceBlock()");
-	if (globalcom==NULL) printf("Globalcom is NULL4");
 	
 	QString sourceBlock = sourceBlock_1.toString();
 	sSourceBlock = sourceBlock.toUtf8().constData();
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
 	QVariant bdot_1 = globalcom->dynamicCall("BoincDeltaOverTime()");
-	if (globalcom==NULL) printf("Globalcom is NULL5");
 	
 	QString bdot = bdot_1.toString();
 	sBoincDeltaOverTime = bdot.toUtf8().constData();
@@ -1678,19 +1684,11 @@ void BitcoinGUI::timerfire()
     nRegVersion = globalcom->dynamicCall("Version()").toInt();
 	sRegVer = boost::lexical_cast<std::string>(nRegVersion);
 
-	printf("Reg Version %s",sRegVer.c_str());
-
-
-	//Gather the authenticity level:
-	//1.  Retrieve the Boinc MD5 Hash
-	//2.  Verify the boinc.exe contains the Berkeley source libraries
-	//3.  Verify the exe is an official release
-	//4.  Verify the size of the exe is above the threshhold
+	///////////////////////////////////////////////////////////////
 
 	QVariant ba_1 = globalcom->dynamicCall("BoincAuthenticityString()");
 	QString ba = ba_1.toString();
 	sBoincBA = ba.toUtf8().constData();
-	if (globalcom==NULL) printf("Globalcom is NULL6");
 	
 	// -1 = Invalid Executable
 	// -2 = Failed Authenticity Check
@@ -1701,7 +1699,7 @@ void BitcoinGUI::timerfire()
 
 	nTick++;
 	//15mins
-	if (nTick > 155) 
+	if (false && nTick > 155) 
 	{
 
 		printf("Boinc Utilization: %d, Thread Count: %d",utilization, thread_count);
@@ -1721,10 +1719,10 @@ void BitcoinGUI::timerfire()
 
 
 	nTick2++;
-	if (nTick2 > 6520) 
+	if (false && nTick2 > 6520) 
 	{
 		nTick2=0;
-		cpupow.clear();
+		//cpupow.clear();
 		//Clear the cpu verification map every 16 hours.
 
 	}
@@ -1749,36 +1747,24 @@ void BitcoinGUI::timerfire()
 	QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
     globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
 	nBlockCount++;
-	if (globalcom==NULL) printf("Globalcom is NULL7");
 	
 
 	if (nBlockCount > 1)
 	{
 		nBlockCount=0;
 		//Retrieve SQL high block number:
-		//RetrieveSqlHighBlock
-		printf("Stage 7");
 
 		int iSqlBlock = 0;
 		iSqlBlock = globalcom->dynamicCall("RetrieveSqlHighBlock()").toInt();
-		if (globalcom==NULL) printf("Globalcom is NULL8");
-	
-		//printf("sql high block %d", iSqlBlock);
-		//Send Gridcoin block to SQL:
-	
+     		    //Send Gridcoin block to SQL:
 				QString qsblock = QString::fromUtf8(RetrieveBlocksAsString(iSqlBlock).c_str());
 				globalcom->dynamicCall("SetSqlBlock(Qstring)",qsblock);
-				if (globalcom==NULL) printf("Globalcom is NULL9");
 	
-
 	}
 
-		//Set Public Wallet Address
-		QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
-		if (globalcom==NULL) printf("Globalcom is NULL10");
-	
-
-		globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
+	//Set Public Wallet Address
+	QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
+	globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
 
 		//Set Best Block
 		if (globalcom==NULL) printf("Globalcom is NULL11");
@@ -1789,42 +1775,6 @@ void BitcoinGUI::timerfire()
 	
 
 
-	if (1==0) {
-			//////////////////////////////////////////////// OUTBOUND GETWORK
-			//If user is Gridcoin mining, send getwork
-			std::string gridwork = "";
-			//If GridMiner GetWork is empty, execute getwork():
-			QVariant gw_1 = globalcom->dynamicCall("GetWork()");
-			QString gw_2 = gw_1.toString();
-			gridwork = gw_2.toUtf8().constData();
-			printf("Gridwork %s",gridwork.c_str());
-			if (gridwork.length() == 0) {
-				gridwork = GetGridcoinWork();
-				printf("gridwork2: %s",gridwork.c_str());
-				QString qsGridwork = QString::fromUtf8(gridwork.c_str());
-				globalcom->dynamicCall("SetWork(QString)",qsGridwork);
-			}
-
-			try {
-				///////////////////////////////////////////// INBOUND GETWORK
-				QString sbd_1 = globalcom->dynamicCall("RetrieveSolvedBlockData()").toString();
-				std::string sbd = sbd_1.toUtf8().constData();
-				printf("Solvedblockdata %s",sbd.c_str());
-				if (sbd.length() > 0)
-				{
-				 	bool result = TestGridcoinWork(sbd);
-					QString callback = "FALSE";
-					if (result) callback="TRUE";
-					globalcom->dynamicCall("SolvedBlockDataCallback(QString)",callback);
-					std::string sCallback = callback.toUtf8().constData();
-					printf("Solvedblockdata callback %s",sCallback.c_str());
-				}
-			}
-			catch (...)
-			{  		}
-			
-
-		}
 	
 	}
 	catch (...)
@@ -1833,9 +1783,8 @@ void BitcoinGUI::timerfire()
 
 
 		try {
-			//printf("Stage 11");
+				if (false) 	UpdateCPUPoW();
 
-			UpdateCPUPoW();
 		}
 		catch (std::exception& e)
 		{    		}

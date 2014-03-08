@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = gridcoin-qt
 macx:TARGET = "Gridcoin-Qt"
-VERSION = 0.7.7.2
+VERSION = 0.7.7.5
 INCLUDEPATH += src src/json src/qt
 INCLUDEPATH += tmp/moc/release_shared 
 QT += core gui network
@@ -63,11 +63,13 @@ contains(USE_QRCODE, 1) {
     message(Building with QRCode support)
     DEFINES += USE_QRCODE
     LIBS += -lqrencode
+    LIBS += -md5
     } else
     {
     message(Building with QRCode support)
     DEFINES += USE_QRCODE
     LIBS += -lqrencode
+    LIBS += -md5
     
 }
 
@@ -155,8 +157,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
     src/qt/miningdialog.h \
-	src/qt/gridcoin.h \
-    src/qt/editaddressdialog.h \
+    src/qt/gridcoin.h \
+       src/qt/editaddressdialog.h \
     src/qt/bitcoinaddressvalidator.h \
     src/alert.h \
     src/addrman.h \
@@ -243,7 +245,7 @@ SOURCES += src/qt/bitcoin.cpp \
     src/qt/aboutdialog.cpp \
     src/qt/miningdialog.cpp \
     src/qt/genesisgenerator.cpp \
-	src/gridcoin.cpp \
+    src/gridcoin.cpp \
     src/qt/editaddressdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
     src/alert.cpp \

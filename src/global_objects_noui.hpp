@@ -58,24 +58,16 @@ extern double MEGAHASH_VIOLATION_COUNT_THRESHHOLD;
 		double credits;
 		double lastpaid;
 		double lastpaiddate;
-	
-
 		double totalpayments;
-
-
 		double networkcredits;
 		double compensation;
 	    double owed;
 	    double approvedtransactions;
 	    double nextpaymentamount;
-
 		double cputotalpayments;
-
-	
 		double dummy1;
 		double dummy2;
 		double dummy3;
-
 		bool approved;
 
 
@@ -83,13 +75,36 @@ extern double MEGAHASH_VIOLATION_COUNT_THRESHHOLD;
 
 
 
+	
+    struct StructCPID {
+		std::string cpid;
+		std::string emailhash;
+		std::string cpidhash;
+		std::string projectname;
+		bool initialized;
+		double rac;
+		double utc;
+	    double rectime;
+		double age;
+		std::string team;
+		bool activeproject;
+		double verifiedrac;
+		double verifiedutc;
+		std::string verifiedteam;
+		double verifiedrectime;
+		double verifiedage;
+	};
+
 
 extern std::map<std::string, MiningEntry> minerpayments;
 extern std::map<std::string, MiningEntry> cpuminerpayments;
 extern std::map<std::string, MiningEntry> cpupow;
 extern std::map<std::string, MiningEntry> cpuminerpaymentsconsolidated;
-
 extern std::map<int, int> blockcache;
+extern std::map<std::string, StructCPID> mvCPIDs;
+extern std::map<std::string, StructCPID> mvCreditNode;
+
+
 
 
 

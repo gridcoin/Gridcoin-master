@@ -1138,10 +1138,21 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
 
 int64 static MaxBlockValue(int nHeight, int64 nFees)
 {
+	//Rob Halford - 1/6/2014 - Adding the ability to pay CPU Miners up to Half of a block for CPU+Boinc mining:
+
 	//GridCoin - return the maximum value a miner can be paid based on full boinc utilization
-       int64 nSubsidy = (150 + CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT) * COIN;
-       // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
-       nSubsidy >>= (nHeight / 840000); // Gridcoin: 840k blocks in ~4 years
+    // int64 nSubsidy = 150 * COIN;  Decommissioning as of 1-6-2014
+	int64 nSubsidy = 0;
+	if (nHeight <= 77000) 
+	{
+		nSubsidy = (150 + CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT) * COIN;
+	} else 
+	{
+		nSubsidy = (155) * COIN;
+	}
+
+    // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
+    nSubsidy >>= (nHeight / 840000); // Gridcoin: 840k blocks in ~4 years
 	//10-30-2013 (Allowing for inflation feature)
 	int64 totalfees = nFees * 3;
     return nSubsidy + totalfees;

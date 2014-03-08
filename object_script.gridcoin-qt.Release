@@ -26,6 +26,7 @@ INPUT(
 ./build/net.o
 ./build/bloom.o
 ./build/checkpoints.o
+./build/md5.o
 ./build/addrman.o
 ./build/db.o
 ./build/walletdb.o

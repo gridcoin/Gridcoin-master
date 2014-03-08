@@ -63,6 +63,7 @@ static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20
 /** Maximum number of script-checking threads allowed */
 //1450 + up to 4 for transaction fees
 static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 1454;
+//was 1454
 
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 #ifdef USE_UPNP
@@ -79,6 +80,9 @@ extern std::map<uint256, CBlockIndex*> mapBlockIndex;
 extern std::set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexValid;
 
 extern std::string BoincAuthenticity();
+
+std::string GetHttpPage(std::string cpid);
+
 
 extern uint256 hashGenesisBlock;
 extern CBlockIndex* pindexGenesisBlock;

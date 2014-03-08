@@ -195,8 +195,11 @@ Module modBoincCredits
 
     Public Function Housecleaning() As Double
 
+        Randomize()
 
-        Dim r As Long = Rnd(1) * 100 : If r < 70 Then Exit Function
+        Dim r As Long = Rnd(1) * 100 : If r < 75 Then Return 0
+
+
 
 
         Try
@@ -347,6 +350,25 @@ Module modBoincCredits
         Catch ex As Exception
 
         End Try
+
+    End Function
+
+    Public Function NewbieSleepLevel() As Double
+        'Used when a new user starts Gridcoin, has high RAC, and is not yet on the leaderboard
+        Dim lRac As Long
+        lRac = BoincCreditsAvg
+
+
+        Dim ss As Double
+        ss = 50
+        'Range 1000 = 51, 99 = 10000 per leaderboard snapshot 3-2-2014
+
+        If lRac > 1000 Then
+            ss = (0.00556 * lRac) + 50
+            If ss > 100 Then ss = 100
+        End If
+
+        Return ss
 
     End Function
 
