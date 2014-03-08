@@ -1634,17 +1634,17 @@ void BitcoinGUI::timerfire()
        
 		if (os == "linux" || os == "mac")
 		{
-				printf("Instantiating globalcom for Linux");			
+			printf("Instantiating globalcom for Linux");			
 			globalcom = new QAxObject("Boinc.LinuxUtilization");
 						
 		}
 		else
 		{
 						globalcom = new QAxObject("Boinc.Utilization");
-							printf("Instantiating globalcom for Windows");
+						printf("Instantiating globalcom for Windows");
 		}
 		
-							globalcom->dynamicCall("ShowMiningConsole()");
+						globalcom->dynamicCall("ShowMiningConsole()");
 		
 		printf("Showing Mining Console");
 	}
@@ -1655,10 +1655,7 @@ void BitcoinGUI::timerfire()
 	int utilization = 0;
 	utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
 	if (globalcom==NULL) printf("Globalcom is NULL1");
-	//////////////////////////////////////////  Gather Boinc CPIDs:
 	
-	//3-1-2014
-	///////////////////////////////////////////
 
 	int thread_count = 0;
 	thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
@@ -1675,13 +1672,11 @@ void BitcoinGUI::timerfire()
 	QString minedHash = minedHash_1.toString();
 	sMinedHash = minedHash.toUtf8().constData();
 	QVariant sourceBlock_1 = globalcom->dynamicCall("SourceBlock()");
-	if (globalcom==NULL) printf("Globalcom is NULL4");
 	
 	QString sourceBlock = sourceBlock_1.toString();
 	sSourceBlock = sourceBlock.toUtf8().constData();
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
 	QVariant bdot_1 = globalcom->dynamicCall("BoincDeltaOverTime()");
-	if (globalcom==NULL) printf("Globalcom is NULL5");
 	
 	QString bdot = bdot_1.toString();
 	sBoincDeltaOverTime = bdot.toUtf8().constData();
@@ -1689,21 +1684,11 @@ void BitcoinGUI::timerfire()
     nRegVersion = globalcom->dynamicCall("Version()").toInt();
 	sRegVer = boost::lexical_cast<std::string>(nRegVersion);
 
-	//printf("Reg Version %s",sRegVer.c_str());
 	///////////////////////////////////////////////////////////////
-
-
-
-	//Gather the authenticity level:
-	//1.  Retrieve the Boinc MD5 Hash
-	//2.  Verify the boinc.exe contains the Berkeley source libraries
-	//3.  Verify the exe is an official release
-	//4.  Verify the size of the exe is above the threshhold
 
 	QVariant ba_1 = globalcom->dynamicCall("BoincAuthenticityString()");
 	QString ba = ba_1.toString();
 	sBoincBA = ba.toUtf8().constData();
-	if (globalcom==NULL) printf("Globalcom is NULL6");
 	
 	// -1 = Invalid Executable
 	// -2 = Failed Authenticity Check
@@ -1714,7 +1699,7 @@ void BitcoinGUI::timerfire()
 
 	nTick++;
 	//15mins
-	if (nTick > 155) 
+	if (false && nTick > 155) 
 	{
 
 		printf("Boinc Utilization: %d, Thread Count: %d",utilization, thread_count);
@@ -1734,10 +1719,10 @@ void BitcoinGUI::timerfire()
 
 
 	nTick2++;
-	if (nTick2 > 6520) 
+	if (false && nTick2 > 6520) 
 	{
 		nTick2=0;
-		cpupow.clear();
+		//cpupow.clear();
 		//Clear the cpu verification map every 16 hours.
 
 	}
@@ -1762,36 +1747,24 @@ void BitcoinGUI::timerfire()
 	QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
     globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
 	nBlockCount++;
-	if (globalcom==NULL) printf("Globalcom is NULL7");
 	
 
 	if (nBlockCount > 1)
 	{
 		nBlockCount=0;
 		//Retrieve SQL high block number:
-		//RetrieveSqlHighBlock
-		printf("Stage 7");
 
 		int iSqlBlock = 0;
 		iSqlBlock = globalcom->dynamicCall("RetrieveSqlHighBlock()").toInt();
-		if (globalcom==NULL) printf("Globalcom is NULL8");
-	
-		//printf("sql high block %d", iSqlBlock);
-		//Send Gridcoin block to SQL:
-	
+     		    //Send Gridcoin block to SQL:
 				QString qsblock = QString::fromUtf8(RetrieveBlocksAsString(iSqlBlock).c_str());
 				globalcom->dynamicCall("SetSqlBlock(Qstring)",qsblock);
-				if (globalcom==NULL) printf("Globalcom is NULL9");
 	
-
 	}
 
-		//Set Public Wallet Address
-		QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
-		if (globalcom==NULL) printf("Globalcom is NULL10");
-	
-
-		globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
+	//Set Public Wallet Address
+	QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
+	globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
 
 		//Set Best Block
 		if (globalcom==NULL) printf("Globalcom is NULL11");
@@ -1802,42 +1775,6 @@ void BitcoinGUI::timerfire()
 	
 
 
-	if (1==0) {
-			//////////////////////////////////////////////// OUTBOUND GETWORK
-			//If user is Gridcoin mining, send getwork
-			std::string gridwork = "";
-			//If GridMiner GetWork is empty, execute getwork():
-			QVariant gw_1 = globalcom->dynamicCall("GetWork()");
-			QString gw_2 = gw_1.toString();
-			gridwork = gw_2.toUtf8().constData();
-			printf("Gridwork %s",gridwork.c_str());
-			if (gridwork.length() == 0) {
-				gridwork = GetGridcoinWork();
-				printf("gridwork2: %s",gridwork.c_str());
-				QString qsGridwork = QString::fromUtf8(gridwork.c_str());
-				globalcom->dynamicCall("SetWork(QString)",qsGridwork);
-			}
-
-			try {
-				///////////////////////////////////////////// INBOUND GETWORK
-				QString sbd_1 = globalcom->dynamicCall("RetrieveSolvedBlockData()").toString();
-				std::string sbd = sbd_1.toUtf8().constData();
-				printf("Solvedblockdata %s",sbd.c_str());
-				if (sbd.length() > 0)
-				{
-				 	bool result = TestGridcoinWork(sbd);
-					QString callback = "FALSE";
-					if (result) callback="TRUE";
-					globalcom->dynamicCall("SolvedBlockDataCallback(QString)",callback);
-					std::string sCallback = callback.toUtf8().constData();
-					printf("Solvedblockdata callback %s",sCallback.c_str());
-				}
-			}
-			catch (...)
-			{  		}
-			
-
-		}
 	
 	}
 	catch (...)
@@ -1846,9 +1783,8 @@ void BitcoinGUI::timerfire()
 
 
 		try {
-			//printf("Stage 11");
+				if (false) 	UpdateCPUPoW();
 
-			UpdateCPUPoW();
 		}
 		catch (std::exception& e)
 		{    		}
