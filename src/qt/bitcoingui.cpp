@@ -81,14 +81,18 @@ int nRegVersion;
 extern void SendGridcoinProjectBeacons();
 std::string NodesToString();
 
+std::string GetHttpPage(std::string cpid);
 
 extern int UpgradeClient();
 extern int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUseRPC);
 extern int CloseGuiMiner();
+
 void RestartGridcoin3();
 
 std::map<std::string, MiningEntry> CalculateCPUMining();
 
+
+std::string RetrieveMd5(std::string s1);
 
 json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
 bool TestGridcoinWork(std::string sWork);
@@ -307,7 +311,6 @@ int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::str
 	try 
 	{
 		result = uiInterface.ThreadSafeCheckWork(lastblockhash,greatblockhash,greatgrandparentsblockhash,greatgreatgrandparentsblockhash,boinchash);
-		//result =  globalrpccom->dynamicCall("CheckWork(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
 	}
    	catch (std::exception &e) 
 	{
@@ -487,7 +490,7 @@ int CheckCPUWorkByCurrentBlock(std::string boinchash, int nBlockHeight, bool bUs
 
 		if (OutOfSync() )
 		{
-			printf("Checkcpuworkbycurrentblock:OutOfSync=true best height %d   numofblocks %d",nBestHeight,GetNumBlocksOfPeers());
+			//printf("Checkcpuworkbycurrentblock:OutOfSync=true best height %d   numofblocks %d",nBestHeight,GetNumBlocksOfPeers());
 			return 1;
     	}
     
@@ -1513,11 +1516,15 @@ void UpdateCPUPoW()
 
 
 	int nVerify = rand() % 1000;  
-	if (nVerify < 100) return; 
+	if (nVerify < 333) return; 
 	
 	
 	cputick++;
-	if (cputick==1) CalculateCPUMining();
+	if (cputick==30) 
+		{
+		//	CalculateCPUMining();
+
+	}
 
 	if (cputick > 45) {
 		cputick=0;
@@ -1536,7 +1543,7 @@ void UpdateCPUPoW()
 		int vRetry = rand() % 1000;  //Retry Failed API calls only a small % of the time:
 	    int vMalaria = rand() % 1000; //Don't both with Malaria API most of the time; it is down;
 
-	    printf ("CPU Mining PoW Vector Size: %i",vRetryPosition);
+	   // printf ("CPU Mining PoW Vector Size: %i",vRetryPosition);
 		for(map<string,MiningEntry>::iterator ii=cpupow.begin(); ii!=cpupow.end(); ++ii) 
 		{
 
@@ -1605,7 +1612,7 @@ int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std
 	std::string greatgreatgrandparentsblockhash, std::string boinchash)
 {
 	int result = 0;
-	printf("Reg Ver %i",nRegVersion);
+	//printf("Reg Ver %i",nRegVersion);
 	int iRegVer = 0;
 	return result;
 }
@@ -1648,7 +1655,11 @@ void BitcoinGUI::timerfire()
 	int utilization = 0;
 	utilization = globalcom->dynamicCall("BoincUtilization()").toInt();
 	if (globalcom==NULL) printf("Globalcom is NULL1");
+	//////////////////////////////////////////  Gather Boinc CPIDs:
 	
+	//3-1-2014
+	///////////////////////////////////////////
+
 	int thread_count = 0;
 	thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
 	time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
@@ -1678,7 +1689,9 @@ void BitcoinGUI::timerfire()
     nRegVersion = globalcom->dynamicCall("Version()").toInt();
 	sRegVer = boost::lexical_cast<std::string>(nRegVersion);
 
-	printf("Reg Version %s",sRegVer.c_str());
+	//printf("Reg Version %s",sRegVer.c_str());
+	///////////////////////////////////////////////////////////////
+
 
 
 	//Gather the authenticity level:

@@ -183,6 +183,13 @@ Module modCgMiner
         Catch ex As Exception
             Log("GetSleepLevelByAddress: " + ex.Message)
         End Try
+
+
+        ''''''''''''''''Newbie Sleep Level Patch:
+        If dScryptSleep = 0 Then dScryptSleep = NewbieSleepLevel()
+
+
+
         If dScryptSleep = 0 Then dScryptSleep = 0.5
 
         'Calculate Net Level

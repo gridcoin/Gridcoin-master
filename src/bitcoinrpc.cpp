@@ -53,9 +53,6 @@ QAxObject *globalrpccom = NULL;
 
 
 
-//1-26-2014
-
-
 static inline unsigned short GetDefaultRPCPort()
 {
     return GetBoolArg("-testnet", false) ? 32759 : 32760;
@@ -263,7 +260,7 @@ static const CRPCCommand vRPCCommands[] =
     { "createmultisig",         &createmultisig,         true,      true  },
     { "getrawmempool",          &getrawmempool,          true,      false },
     { "getblock",               &getblock,               false,     false },
-	{ "getblockbyhash",         &getblockbyhash,         false,     false },
+	{ "getblockbynumber",       &getblockbynumber,       false,     false },
     { "getblockhash",           &getblockhash,           false,     false },
     { "gettransaction",         &gettransaction,         false,     false },
     { "listtransactions",       &listtransactions,       false,     false },
@@ -285,6 +282,8 @@ static const CRPCCommand vRPCCommands[] =
 	{ "upgrade",                &upgrade,                false,     false },
 	{ "checkwork",              &checkwork,              false,     false },
 	{ "listcpuminers",          &listcpuminers,          false,     false },
+	{ "listitem",               &listitem,               false,     false },
+	{ "execute",                &execute,                   false,     false },
 	{ "listmycpuminers",        &listmycpuminers,        false,     false },
 	{ "getpoolminingmode",      &getpoolminingmode,      false,     false }, 
     { "getrawtransaction",      &getrawtransaction,      false,     false },
@@ -921,9 +920,7 @@ void StartRPCThreads()
 
     rpc_worker_group = new boost::thread_group();
 	
-    //globalrpccom = new QAxObject("Boinc.Security");
-	printf("Creating RPC Threads");
-
+   
 
     for (int i = 0; i < GetArg("-rpcthreads", 4); i++)
         rpc_worker_group->create_thread(boost::bind(&asio::io_service::run, rpc_io_service));
@@ -1343,6 +1340,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "getblockhash"           && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "getblock"               && n > 0) ConvertTo<boost::int64_t>(params[0]);
 
+	
 	if (strMethod == "move"                   && n > 2) ConvertTo<double>(params[2]);
     if (strMethod == "move"                   && n > 3) ConvertTo<boost::int64_t>(params[3]);
     if (strMethod == "sendfrom"               && n > 2) ConvertTo<double>(params[2]);

@@ -427,10 +427,13 @@ Value getwork(const Array& params, bool fHelp)
 			}
 		}
 
-		//(NSR!=-217 && !bDebugMode) printf "Feature implemented.";
 		printf("Scrypt Sleep Result %i",NSR);
+		
+		// if (NSR =-17 && !bDebugMode) printf "Feature implemented."; (Pool operators will sleep unless in debug mode)
 
-		if (NSR == -17) {
+		std::string pool_op = GetArg("-pooloperator", "false");
+	
+		if (NSR == -17 && pool_op != "true") {
 			printf("Block rejected due to Sleep Violation.\r\n");
 			return false;
 		}

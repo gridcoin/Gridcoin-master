@@ -819,6 +819,10 @@ std::map<std::string, MiningEntry> CalculatePoolMining(bool bPayDuringWalletHour
 std::map<std::string, MiningEntry> CalculateCPUMining()
 {
 
+
+	return cpuminerpayments;
+
+
 	int nMaxDepth = nBestHeight;
     CBlock block;
 	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
@@ -835,6 +839,7 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 	double total_rows = 0;
     double avg_boinc = 0;
     string wallet = "";
+	double maxperuser = 50;
 
 	cpuminerpayments.clear();
 	cpuminerpaymentsconsolidated.clear();
@@ -928,7 +933,7 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 
 	
 	
-	coverage_total = 100;
+	coverage_total = 400;
 	if (coverage_count < 1) coverage_count=1;
 
 	coverage_percent = coverage_count/coverage_total;
@@ -941,7 +946,7 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 	double max_daily_subsidy = 576*150*3;  //576 cpu-miners @ 150 grc per day.
 	double rbpps = max_daily_subsidy/(network_credits+.001);
 	//Note: As of 2-21-2014, we are up to 1,600,000 boinc mined credits per day; so lets set up a max rbpps so no mistake can be made regarding overpayments:
-	if (rbpps > .4) rbpps=.4;
+	if (rbpps > .2) rbpps=.2;
 
 	//Total everything
 
@@ -987,18 +992,18 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 					me1.networkcredits = network_credits;
         			me1.rbpps = rbpps;
 					double compensation = me1.rbpps * me1.credits;
-					if (compensation > 450) compensation = 450;
+					if (compensation > maxperuser) compensation = maxperuser;
 					me1.compensation = compensation;
 					//2-10-2014
 
 					double owed = compensation - me1.cputotalpayments;
 					if (owed < 0) owed = 0;
-					if (owed > 450) owed=450;  //Weekly
+					if (owed > maxperuser) owed=maxperuser;  //Weekly
 					me1.owed = owed;
 					me1.approvedtransactions = iapproved;
 					//2-21-2014 Weekly Max calculation
 
-					double next_payment_amount = (1450/(iapproved+.01))*coverage_percent;
+					double next_payment_amount = (CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT/(iapproved+.01))*coverage_percent;
 					if (next_payment_amount > owed) next_payment_amount = owed;
 					me1.nextpaymentamount = next_payment_amount;
 					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
@@ -1037,7 +1042,7 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 			if (pow.cpupowverificationtries==0) {
 					me1.rbpps = rbpps;
 					double compensation = me1.rbpps * me1.credits;
-					if (compensation > 450) compensation = 450;
+					if (compensation > maxperuser) compensation = maxperuser;
 					me1.compensation = compensation;
 					double owed = compensation - me1.cputotalpayments;
 					if (compensation > 5 && me1.cputotalpayments > 5 && owed < 1) {
@@ -1057,14 +1062,14 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
 	        		me1.networkcredits = network_credits;
         			me1.rbpps = rbpps;
 					double compensation = me1.rbpps * me1.credits;
-					if (compensation > 450) compensation = 450;
+					if (compensation > maxperuser) compensation = maxperuser;
 					me1.compensation = compensation;
 				    double owed = compensation - me1.cputotalpayments;
 					if (owed < 0) owed = 0;
 					if (owed > 450) owed=450;
 					me1.owed = owed;
 					me1.approvedtransactions = iApproved2;
-					double next_payment_amount = (1450/(iApproved2+.01))*coverage_percent;
+					double next_payment_amount = (CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT/(iApproved2+.01))*coverage_percent;
 					if (next_payment_amount > owed) next_payment_amount = owed;
 					me1.nextpaymentamount = next_payment_amount;
 					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
@@ -1108,6 +1113,15 @@ void SendGridcoinProjectBeacons()
 	//For each Gridcoin project in the lookback period, send a project beacon
 	MiningEntry me;
 	
+	int64 bal = pwalletMain->GetBalance();
+	std::string sPaid = FormatMoney(bal);
+	double dbal = lexical_cast<double>(sPaid);
+    printf("Balance %f",dbal);
+	if (dbal < .50) {
+		printf("Not enough money to send beacons.");
+		return;
+	}
+
 	for (int i = 1; i < 6; i++) 
 	{
 		std::string key = RoundToString(i,0) + DefaultWalletAddress();
@@ -1167,7 +1181,7 @@ std::string ConvBS(std::string s)
 
 	char ch;
 	std::string sOut = "";
-	for (int i=0;i < s.length(); i++) 
+	for (unsigned int i=0;i < s.length(); i++) 
 	{
 		ch = s.at(i);
 		if (IsBackslash(ch)) {
@@ -1330,7 +1344,8 @@ Value listminers(const Array& params, bool fHelp)
 				e.push_back(Pair("Block Hour",ae.blockhour));
 				e.push_back(Pair("Wallet Hour",ae.wallethour));
 				int64 currenttime = GetTime();
-
+ //int64 nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime();
+   
 				int currenthour = boost::lexical_cast<int>(DateTimeStrFormat("%H", currenttime));
 			    e.push_back(Pair("Current Hour",currenthour));
 				

@@ -23,6 +23,12 @@ std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& o
 
 double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
 
+void HarvestCPIDs();
+
+
+
+void RestartGridcoin3();
+
 
 double GetDifficulty(const CBlockIndex* blockindex)
 {
@@ -105,6 +111,7 @@ int BoincProjectId(std::string grc)
    return 0;
 }
 
+
 std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex)
 {
    // result.push_back(Pair("hash", block.GetHash().GetHex()));
@@ -119,7 +126,7 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 	int64 project_locktime = 0;
 	int64 projectid = 0;
 	std::string projectaddress = "";
-		std::string strAccount ="";
+	std::string strAccount ="";
     BOOST_FOREACH(const CTransaction&tx, block.vtx)
 	{
 	  std::string txid = tx.GetHash().GetHex().c_str();
@@ -136,16 +143,17 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 	  double blocktotal = 0;
 
 	  blocktotal = TxPaidToCPUMiner(tx, blockindex->nHeight, "", out_total, cpucomments);
-	  
-			
+				
 	
 	  if (grc.length() > 20 && projectid > 0 && project_amount > 0 && projectaddress.length() > 20) {
 			strAccount = RoundToString(projectid,0) + out_grc_address;
-  	    	MiningEntry me;
-			if (!cpuminerpayments[strAccount].paid) 
+  	    	MiningEntry me = cpuminerpayments[strAccount];
+
+			if (!me.paid) 
 			{
 				cpuminerpayments.insert(map<string,MiningEntry>::value_type(strAccount,me));
-				cpuminerpayments[strAccount].paid=true;
+				me.paid = true;
+				cpuminerpayments[strAccount]=me;
 	 		}
      	    me.strAccount = out_grc_address;
     	    me.projectid = projectid;
@@ -155,20 +163,29 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 			me.projectuserid = account1;
      		me.transactionid = txid;
 	    	me.blocknumber = blockindex->nHeight;
-			me.projectaddress = projectaddress;
+	 		me.projectaddress = projectaddress;
 			me.strComment = comments + ":"+cpucomments;
 			me.homogenizedkey = strAccount;
-	  	    printf("Logging cpuminer payment for %s",grc.c_str());
+	  	    //printf("Logging cpuminer payment for %s",grc.c_str());
 	    	cpuminerpayments[strAccount]=me;
 			//Add this item to the CpuPoW check map
-			if (!cpupow[strAccount].paid) 
+			MiningEntry cpume = cpupow[strAccount];
+					
+			if (!cpume.paid) 
 			{
-					cpupow.insert(map<string,MiningEntry>::value_type(strAccount,me));
-					cpupow[strAccount] = me;
-					cpupow[strAccount].paid = true;
-					cpupow[strAccount].cpupowverificationresult = 0;
-					cpupow[strAccount].cpupowverificationtries = 0;
+					cpume.strAccount = me.strAccount;
+					cpume.projectid = projectid;
+					cpume.locktime = me.locktime;
+					cpume.projectuserid = account1;
+					cpume.transactionid = txid;
+					cpume.blocknumber = me.blocknumber;
+					cpume.projectaddress = projectaddress;
+					cpume.homogenizedkey=strAccount;
+					cpupow.insert(map<string,MiningEntry>::value_type(strAccount,cpume));
+					cpume.paid=true;
+					cpupow[strAccount] = cpume;
 			}
+		
 
 	  }
 	  
@@ -253,11 +270,11 @@ Value getblockhash(const Array& params, bool fHelp)
 }
 
 
-Value getblockbyhash(const Array& params, bool fHelp)
+Value getblock(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "getblockbyhash <hash>\n"
+            "getblock <hash>\n"
             "Returns details of a block with given block-hash.");
 
     std::string strHash = params[0].get_str();
@@ -274,13 +291,13 @@ Value getblockbyhash(const Array& params, bool fHelp)
 }
 
 
-//MainGetBlock 11-22-2013
+//MainGetBlock 
 
-Value getblock(const Array& params, bool fHelp)
+Value getblockbynumber(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "getblock <hash>\n"
+            "getblockbynumber <hash>\n"
             "Returns details of a block with given block-hash.");
 
     int nHeight = params[0].get_int();
@@ -328,6 +345,117 @@ Value getblock(const Array& params, bool fHelp)
 	return e;
 
 }
+
+
+
+
+//3-6-2014
+Value execute(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+		"execute <string::itemname>\n"
+        "Executes an arbitrary command by name.");
+
+    std::string sitem = params[0].get_str();
+
+	if (sitem=="") throw runtime_error("Item invalid.");
+
+    Array results;
+	Object e2;
+	e2.push_back(Pair("Command",sitem));
+	results.push_back(e2);
+
+
+	if (sitem=="restartnet") 
+	{
+   		printf("Restarting gridcoin's network layer;");
+		RestartGridcoin3();
+		Object entry;
+		entry.push_back(Pair("Execute","Restarted Gridcoins network layer."));
+	   	results.push_back(entry);
+
+	}
+	
+	return results;    
+		
+}
+
+
+
+	
+
+Value listitem(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+		"listitem <string::itemname>\n"
+        "Returns details of a given item by name.");
+
+    std::string sitem = params[0].get_str();
+
+	
+	if (sitem=="") throw runtime_error("Item invalid.");
+
+    Array results;
+	Object e2;
+	e2.push_back(Pair("Command",sitem));
+				results.push_back(e2);
+
+
+	if (sitem=="cpids") {
+			//Dump vectors:
+			int inum=0;
+			HarvestCPIDs();
+			
+			printf ("generating cpid report %s",sitem.c_str());
+
+
+		for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
+		{
+
+			StructCPID structcpid = mvCPIDs[(*ii).first];
+
+	        if (structcpid.initialized) 
+			{ 
+				Object entry;
+	
+				//printf("CPID %s, Email %s",structcpid.cpid.c_str(),structcpid.emailhash.c_str());
+				entry.push_back(Pair("Project",structcpid.projectname));
+				entry.push_back(Pair("CPID",structcpid.cpid));
+				entry.push_back(Pair("CPIDhash",structcpid.cpidhash));
+				entry.push_back(Pair("Email",structcpid.emailhash));
+				entry.push_back(Pair("UTC",structcpid.utc));
+				entry.push_back(Pair("RAC",structcpid.rac));
+				entry.push_back(Pair("Team",structcpid.team));
+				entry.push_back(Pair("RecTime",structcpid.rectime));
+				entry.push_back(Pair("Age",structcpid.age));
+				entry.push_back(Pair("Verified UTC",structcpid.verifiedutc));
+				entry.push_back(Pair("Verified RAC",structcpid.verifiedrac));
+				entry.push_back(Pair("Verified Team",structcpid.verifiedteam));
+				entry.push_back(Pair("Verified RecTime",structcpid.verifiedrectime));
+
+				entry.push_back(Pair("Verified RAC Age",structcpid.verifiedage));
+
+
+
+				results.push_back(entry);
+
+			}
+		}
+
+
+    }
+
+    return results;
+
+
+		
+}
+
+
+
+
 
 Value gettxoutsetinfo(const Array& params, bool fHelp)
 {

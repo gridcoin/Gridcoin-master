@@ -104,45 +104,48 @@ Public Class Form1
 
 
         Dim bResult As Boolean
+        '2-28-2014 md5 hash cpid + email
 
-      
+
         Dim z As New Utilization
-        bResult = z.AuthenticateToPool()
-        z.SetPublicWalletAddress("G8RB55CKWM88MdrakzfVHZ6vLYVKK4sffS")
 
-        Dim xxxx As New frmProjects
-        xxxx.Show()
+        Stop
+
+
+        z.ShowMiningConsole()
+        Stop
+
+
+
+        z.mForceBoincToUseGpus("work")
+
+        Stop
+        z.mForceBoincToUseGpus("sleep")
+
+        Stop
+
+
         Exit Sub
 
 
 
-        '       Dim sSource As String = "706\-2:1236112FF1236112\100\490\7\0\fight_0_25251:malar_909_705879:Leide_515_115841:World_615_2504147:Docki_1558_189058:roset_728_1651516:SETI@_576_7179401\1390603039\2\17546"
-        Dim sSource As String = "ABCDE70554751158\-2:1236112FF1236112\100\490\7\0\fight_0_25251:malar_909_705879:Leide_515_115841:World_615_2504147:Docki_1558_189058:roset_728_1651516:SETI@_576_7179401\1390605012\2\6847"
-        Dim sResult As String = "1BEE2141A100B82305FED972572AF4904908E061"
-        'Test scrypt Sleep :
-
-        Dim xx As New Utilization
-
-        Dim bSleep As Boolean
-        Dim sHash As String = "bcec2c1f3992d2e3f7830c09ba8e5b275b0bf47785596a2138b2d79b309e394f"
-        sSource = "MD5Error,-10,100,CRD_V,SOLO_MINING,GALhXkBBmdj3nSrWQxk63FzbYfnk4fFHG4,66,2551:1202:0,B60D642601582C48D6F3355DAABE2BBB2439C100,bcec2c1f3992d2e3f7830c09ba8e5b275b0bf47785596a2138b2d79b309e394f\\-10:MD5Error\\100\\2601\\4\\0\\roset_284_1676042:SETI@_283_7181864:Aster_1817_68523:Milky_569_555009\\1390018096\\2\\279885"
-
-        bSleep = xx.GetGRCSleepStatus("G3FtGSH7Zf77MwjwsoQJjeEB2djRxgw8XA", "c2b800b9bc269127df7fea820b8d6dd7e99d67cdf0ce6b93d975a48fabfe7107")
-        Dim l As Long
-        l = xx.CheckWork(sHash, sHash, sHash, sHash, sSource)
 
 
 
-        Dim lResult As Long
-        Dim bHash() As Byte
-        Dim cHash As String
 
-        bHash = System.Text.Encoding.ASCII.GetBytes(sSource)
 
-        Dim objSHA1 As New SHA1CryptoServiceProvider()
+        Dim sMd5 As String
+        Dim sCPID As String = "6f7c93b51ccf55e4e0529e7e5f6fdcfa"
+        Dim sEM As String = "940ce591b1c7fa43c86ac2578825499b"
+        sMd5 = z.StrToMd5Hash(sCPID + "," + sEM)
 
-        cHash = Replace(BitConverter.ToString(objSHA1.ComputeHash(bHash)), "-", "")
+        sMd5 = z.StrToMd5Hash(sCPID + "rachalupa@yahoo.com")
 
+
+        Stop
+
+
+        
 
     End Sub
     Public Sub Log(sData As String)

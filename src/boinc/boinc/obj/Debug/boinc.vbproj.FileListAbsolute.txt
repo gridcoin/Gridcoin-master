@@ -40,3 +40,4 @@ C:\Gridcoin-master\src\boinc\boinc\bin\Debug\ICSharpCode.SharpZipLib.dll
 C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.frmLeaderboard.resources
 C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.vbprojResolveAssemblyReference.cache
 C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.vbproj.GenerateResource.Cache
+C:\Gridcoin-master\src\boinc\boinc\obj\Debug\boinc.frmPools.resources

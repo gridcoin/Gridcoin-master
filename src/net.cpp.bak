@@ -31,7 +31,7 @@ using namespace boost;
 
 //boost::thread_group threadGroup;
 
-
+extern std::string GetHttpPage(std::string cpid);
 
 
 
@@ -179,6 +179,60 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer)
     }
     return ret;
 }
+
+
+
+bool RecvLine2(SOCKET hSocket, string& strLine)
+{
+    strLine = "";
+    loop
+    {
+        char c;
+        int nBytes = recv(hSocket, &c, 1, 0);
+        if (nBytes > 0)
+        {
+            if (c == '\n')
+                continue;
+            if (c == '\r')
+                return true;
+            strLine += c;
+            if (strLine.size() >= 39000)
+                return true;
+        }
+        else if (nBytes <= 0)
+        {
+            boost::this_thread::interruption_point();
+            if (nBytes < 0)
+            {
+                int nErr = WSAGetLastError();
+                if (nErr == WSAEMSGSIZE)
+                    continue;
+                if (nErr == WSAEWOULDBLOCK || nErr == WSAEINTR || nErr == WSAEINPROGRESS)
+                {
+                    MilliSleep(50);
+                    continue;
+                }
+            }
+            if (!strLine.empty())
+                return true;
+            if (nBytes == 0)
+            {
+                // socket closed
+                printf("socket closed\n");
+                return false;
+            }
+            else
+            {
+                // socket error
+                int nErr = WSAGetLastError();
+                printf("recv failed: %d\n", nErr);
+                return false;
+            }
+        }
+    }
+}
+
+
 
 bool RecvLine(SOCKET hSocket, string& strLine)
 {
@@ -342,6 +396,125 @@ bool IsReachable(const CNetAddr& addr)
     return vfReachable[net] && !vfLimited[net];
 }
 
+
+
+void StringToChar(std::string s, char* a) 
+{
+//	char *a=new char[s.size()+1];
+	a=new char[s.size()+1];
+
+	a[s.size()]=0;
+	memcpy(a,s.c_str(),s.size());
+	//outChar = a;
+
+}
+
+
+
+std::string GetHttpContent(const CService& addrConnect, std::string getdata)
+{
+
+
+
+	//char *pszGet;
+	//StringToChar(getdata,pszGet);
+
+	char *pszGet = (char*)getdata.c_str();
+
+
+    SOCKET hSocket;
+    if (!ConnectSocket(addrConnect, hSocket))
+	{
+        return "GetHttpContent() : connection to failed";
+	}
+
+	printf("Trying %s",getdata.c_str());
+
+    send(hSocket, pszGet, strlen(pszGet), MSG_NOSIGNAL);
+
+    string strLine;
+	std::string strOut="null";
+
+	MilliSleep(111);
+
+    while (RecvLine2(hSocket, strLine))
+    {
+
+		   //      if (!RecvLine(hSocket, strLine)) {
+			//		 break;
+				// }
+    
+	            strOut = strOut + strLine + "\r\n";
+					
+       //         if (!RecvLine(hSocket, strLine))
+        //        {
+         //           closesocket(hSocket);
+          //          break;
+           //     }
+				MilliSleep(222);
+
+    }
+            closesocket(hSocket);
+         //   if (strLine.find("<") != string::npos)
+         //       strLine = strLine.substr(0, strLine.find("<"));
+         //   strLine = strLine.substr(strspn(strLine.c_str(), " \t\n\r"));
+         //   while (strLine.size() > 0 && isspace(strLine[strLine.size()-1]))
+          //      strLine.resize(strLine.size()-1);
+           // CService addr(strLine,0,true);
+          //  printf("GetMyExternalIP() received [%s] %s\n", strLine.c_str(), addr.ToString().c_str());
+           // if (!addr.IsValid() || !addr.IsRoutable())
+           //     return false;
+          //  ipRet.SetIP(addr);
+
+			return strOut;
+
+}
+
+
+
+
+
+
+
+
+
+std::string GetHttpPage(std::string cpid)
+{
+
+		CService addrConnect;
+   		std::string url = "http://boinc.netsoft-online.com/get_user.php?cpid=ca895b47aacffbdbf906201821af2f9f";
+		std::string url2 = "216.165.179.26";
+		std::string url3 = "boinc.netsoft-online.com";
+		std::string url4 = "get_user.php?cpid=" + cpid;
+		printf("Getting HTTP Request\r\n %s",url4.c_str());
+		CService addrIP(url3, 80, true);
+        if (addrIP.IsValid()) 
+			{
+				addrConnect = addrIP;
+				printf("Querying address\r\n %s",url4.c_str());
+		    }
+        
+  	    addrConnect = CService("216.165.179.26", 80); 
+		std::string getdata = "GET /" + url4 + " HTTP/1.1\r\n"
+                     "Host: boinc.netsoft-online.com\r\n"
+  				     "User-Agent: Mozilla/4.0\r\n"
+                     "\r\n";
+             
+		printf("querying getdata %s",getdata.c_str());
+		std::string http = GetHttpContent(addrConnect,getdata);
+	    printf("http: %s",http.c_str());
+		return http;
+		
+}
+
+
+
+
+
+
+
+
+
 bool GetMyExternalIP2(const CService& addrConnect, const char* pszGet, const char* pszKeyword, CNetAddr& ipRet)
 {
     SOCKET hSocket;
@@ -387,6 +560,8 @@ bool GetMyExternalIP2(const CService& addrConnect, const char* pszGet, const cha
     closesocket(hSocket);
     return error("GetMyExternalIP() : connection closed");
 }
+//3-1-2014
+
 
 bool GetMyExternalIP(CNetAddr& ipRet)
 {
@@ -520,9 +695,8 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest)
 
 
     
-    printf("trying connection %s lastseen=%.1fhrs\n",
-        pszDest ? pszDest : addrConnect.ToString().c_str(),
-        pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
+   // printf("trying connection %s lastseen=%.1fhrs\n",        pszDest ? pszDest : addrConnect.ToString().c_str(),        pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
+
 
     // Connect
     SOCKET hSocket;

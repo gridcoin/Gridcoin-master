@@ -204,6 +204,10 @@ uint256 GetRandHash()
 
 
 
+extern std::string GetBoincDataDir();
+
+
+
 
 //
 // OutputDebugStringF (aka printf -- there is a #define that we really
@@ -1071,12 +1075,32 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
     }
     if (fNetSpecific && GetBoolArg("-testnet", false))
         path /= "testnet";
-
     fs::create_directory(path);
 
     fCachedPath[fNetSpecific] = true;
     return path;
 }
+
+
+std::string GetBoincDataDir()
+{
+	std::string path = "";
+
+    if (mapArgs.count("-boincdatadir")) 
+	{
+        path = mapArgs["-boincdatadir"];
+		if (path.length() > 0) return path;
+    } 
+	else 
+	{
+        path = "c:\\programdata\\";
+    }
+    return path;
+}
+
+
+
+
 
 boost::filesystem::path GetConfigFile()
 {

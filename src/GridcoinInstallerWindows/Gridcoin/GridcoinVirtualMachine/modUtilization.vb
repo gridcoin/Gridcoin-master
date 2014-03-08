@@ -69,7 +69,7 @@ Module modUtilization
             _timerBoincCredits = New System.Timers.Timer(300000)
             AddHandler _timerBoincCredits.Elapsed, New ElapsedEventHandler(AddressOf BoincCreditsElapsed)
             _timerBoincCredits.Enabled = True
-            BoincCreditsElapsed()
+            'BoincCreditsElapsed()
 
         End If
 
@@ -291,6 +291,10 @@ CalculateUsage:
         Catch ex As Exception
             Log("GetSleepLevelByAddress: " + ex.Message)
         End Try
+
+        ''''''''''''''''Newbie Sleep Level Patch:
+        If dScryptSleep = 0 Then dScryptSleep = NewbieSleepLevel()
+
         If dScryptSleep = 0 Then dScryptSleep = 0.5
 
 

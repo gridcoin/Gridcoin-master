@@ -136,13 +136,17 @@
                 sForwardHost = gr1.Value(y1 + 1, "Host")
                 If sForwardHost = sHost And gr1.Value(y1, "Address") <> gr1.Value(y1 + 1, "Address") Then
                     'This host changed GRC address during the month! Purge older records:
-                    sql = "Delete from Leaderboard where id = '" + Trim(gr1.Value(y1, "id")) + "'"
+                    sql = "Delete from Leaderboard where Address = '" + Trim(gr1.Value(y1, "Address")) + "'"
+                    Log(sql)
+
+                    Log("Purging " + gr1.Value(y1, "Address"))
+
                     lPurged = lPurged + 1
                     d.Exec(sql)
                 End If
 
             Next y1
-            Log("Purged " + Trim(lPurged) + "records.")
+            Log("Purged(b) " + Trim(lPurged) + " records.")
 
             ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -254,11 +258,23 @@
 
                 sHash = dr.Value(y, "boinchash")
 
+
+
+
                 vHash = Split(sHash, ",")
                 Dim sSourceBlock As String
                 Dim vSourceBlock() As String
                 If UBound(vHash) >= 9 Then
+
+
                     sSourceBlock = vHash(9)
+
+                    If UBound(vHash) > 17 Then
+                        If InStr(1, vHash(17), "\") > 0 Then
+                            sSourceBlock = vHash(17) 'Support for Pools
+                        End If
+                    End If
+
                     vSourceBlock = Split(sSourceBlock, "\")
                     Dim sExpandedProjects As String
                     Dim vExpandedProjects() As String
@@ -300,16 +316,37 @@
                                     dCredits = Val(vProjData(1))
                                     Dim sGRCAddress As String
                                     sGRCAddress = vHash(5)
+                                    '''' If InStr(1, sHash, "FupazJkUW4bP3JJgHPkh4JvM8kA33ztHRj") Then 
+
+
+
+                                    If UBound(vHash) > 17 Then
+                                        If InStr(1, vHash(17), "\") > 0 Then
+                                            If Len(vHash(13)) > 0 Then
+                                                sGRCAddress = vHash(13) 'Pool Support
+                                                'select * from leaderboard where address='FupazJkUW4bP3JJgHPkh4JvM8kA33ztHRj'
+
+                                            End If
+
+                                        End If
+                                    End If
+
                                     Dim bp As New BoincProject
                                     bp = CodeToProject(sProject)
                                     If Len(bp.URL) > 1 Then
                                         If dCredits > 0 Then
                                             ' ProjectCount integer, Factor numeric(12,2), AdjCredits
-                                            sbi.AppendLine("Insert into LeaderBoard (Added, Address, Host, Project, Credits, ProjectName, ProjectURL, ProjectCount, Factor, AdjCredits) VALUES " _
+                                            Dim sSql As String
+                                            sSql = "Insert into LeaderBoard (Added, Address, Host, Project, Credits, ProjectName, ProjectURL, ProjectCount, Factor, AdjCredits) VALUES " _
                                                               & "(date('now'),'" + sGRCAddress + "','" + sHost + "','" + sProject + "','" _
                                                               + GlobalizedDecimal(dCredits) + "','" + bp.Name _
-                                                              + "','" + bp.URL + "'," + GlobalizedDecimal(lProjCount) + ",'0','0');")
-                                           
+                                                              + "','" + bp.URL + "'," + GlobalizedDecimal(lProjCount) + ",'0','0');"
+                                            sbi.AppendLine(sSql)
+
+
+                                            If InStr(1, sHash, "FupazJkUW4bP3JJgHPkh4JvM8kA33ztHRj") Then Log("Adding " + sSql)
+
+
                                         End If
 
                                     End If

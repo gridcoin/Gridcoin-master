@@ -33,12 +33,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_20B3A9D4AE984BCEA9D4706628A9CB96"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_25A4E53EA1A4409E8C576940B5725709"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -226,13 +220,7 @@
         "Entry"
         {
         "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
-        "OwnerKey" = "8:_EDC8FF33DEA84EC0BB3664CD1C316318"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
-        "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
+        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -244,7 +232,13 @@
         "Entry"
         {
         "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
-        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
+        "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
+        "OwnerKey" = "8:_EDC8FF33DEA84EC0BB3664CD1C316318"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -304,67 +298,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_EDC8FF33DEA84EC0BB3664CD1C316318"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D0966638AB084779AFD69795C33FC8EB"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7CE8624EED6946C58F3C2CCFECC7904E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5C4890F09F604F53A4442AAFD98D6197"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C2CDFD985257421D838A2EDDA0C74E9E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E4D4AFD809204DAA8C02FD65E7D9CE6A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_463632BA3613CAC595BB60644F74EBBE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D18C400D595978B6B53CE9C4887DE8D9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7CC43F7B541D9A11D6D1FAA3749F0305"
+        "OwnerKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -376,7 +310,67 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CEE60B854AD77545A6F2D9447C0F2BC5"
+        "OwnerKey" = "8:_7CC43F7B541D9A11D6D1FAA3749F0305"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_D18C400D595978B6B53CE9C4887DE8D9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0179F9F0597CFE4067E057C726E59E07"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_463632BA3613CAC595BB60644F74EBBE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E4D4AFD809204DAA8C02FD65E7D9CE6A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_C2CDFD985257421D838A2EDDA0C74E9E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5C4890F09F604F53A4442AAFD98D6197"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7CE8624EED6946C58F3C2CCFECC7904E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_D0966638AB084779AFD69795C33FC8EB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_EDC8FF33DEA84EC0BB3664CD1C316318"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -491,11 +485,6 @@
             "AssemblyAsmDisplayName" = "8:GVM, Version=1.0.1.7, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
-                    "_0179F9F0597CFE4067E057C726E59E07"
-                    {
-                    "Name" = "8:GVM.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:GVM.dll"
             "TargetName" = "8:"
@@ -531,26 +520,6 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:4"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20B3A9D4AE984BCEA9D4706628A9CB96"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\release\\cgminer_base64.zip"
-            "TargetName" = "8:cgminer_base64.zip"
-            "Tag" = "8:"
-            "Folder" = "8:_A31B68165F144F3EBC3FF86D68C9E31B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
@@ -613,11 +582,6 @@
             "AssemblyAsmDisplayName" = "8:ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73"
                 "ScatterAssemblies"
                 {
-                    "_463632BA3613CAC595BB60644F74EBBE"
-                    {
-                    "Name" = "8:ICSharpCode.SharpZipLib.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:ICSharpCode.SharpZipLib.dll"
             "TargetName" = "8:"
@@ -835,11 +799,6 @@
             "AssemblyAsmDisplayName" = "8:OpenCL.Net, Version=2.2.9.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_7CC43F7B541D9A11D6D1FAA3749F0305"
-                    {
-                    "Name" = "8:OpenCL.Net.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:OpenCL.Net.dll"
             "TargetName" = "8:"
@@ -1108,11 +1067,6 @@
             "AssemblyAsmDisplayName" = "8:SQLite.NET, Version=0.21.1869.3794, Culture=neutral, PublicKeyToken=c273bd375e695f9c"
                 "ScatterAssemblies"
                 {
-                    "_CEE60B854AD77545A6F2D9447C0F2BC5"
-                    {
-                    "Name" = "8:SQLite.NET.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:SQLite.NET.dll"
             "TargetName" = "8:"
@@ -1170,11 +1124,6 @@
             "AssemblyAsmDisplayName" = "8:GPUEnumerator, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
-                    "_D18C400D595978B6B53CE9C4887DE8D9"
-                    {
-                    "Name" = "8:GPUEnumerator.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:GPUEnumerator.dll"
             "TargetName" = "8:"
@@ -1221,11 +1170,6 @@
             "AssemblyAsmDisplayName" = "8:OpenPop, Version=2.0.5.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E4D4AFD809204DAA8C02FD65E7D9CE6A"
-                    {
-                    "Name" = "8:OpenPop.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:OpenPop.dll"
             "TargetName" = "8:"
@@ -1362,16 +1306,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Gridcoin 8.5"
-        "ProductCode" = "8:{86122217-F2C9-45BE-82C3-3AEEB0982A37}"
-        "PackageCode" = "8:{5D641A46-E58E-48A8-807C-692CFAFC2AA4}"
+        "ProductName" = "8:Gridcoin 8.88"
+        "ProductCode" = "8:{C1824D7C-F36B-49BF-AE4F-967D390D1E64}"
+        "PackageCode" = "8:{A9ABF5A9-4731-44D4-8727-7EC3E4BC161F}"
         "UpgradeCode" = "8:{9617E9EA-252F-43CE-B53E-B48C85F71192}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:8.5"
+        "ProductVersion" = "8:8.88"
         "Manufacturer" = "8:Gridcoin"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

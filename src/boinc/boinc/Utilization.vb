@@ -53,7 +53,7 @@ Public Class Utilization
     End Function
     Public ReadOnly Property Version As Double
         Get
-            Return 80
+            Return 88
 
         End Get
     End Property
@@ -67,9 +67,14 @@ Public Class Utilization
         Dim dGRCSleepLevel As Double = 0
         Dim dNetLevel As Double = 0
         bSL = GetSleepLevelByAddress(sAddress, dGRCSleepLevel, sBlockhash, dNetLevel)
-        Log("Checking sleep level for " + Trim(sAddress) + " level = " + Trim(dGRCSleepLevel) + ", blockhash " + Trim(sBlockhash) + " net level " + Trim(dNetLevel))
+        Log("Checking sleep level for " + Trim(sAddress) + " level = " + Trim(dGRCSleepLevel) + ", blockhash " + Trim(sBlockhash) _
+            + " net level " + Trim(dNetLevel))
 
         Return bSL
+    End Function
+    Public Function RefLeaderPos()
+        Call mfrmMining.RefreshLeaderboardPosition()
+
     End Function
     Public Sub RestartWallet()
         Call RestartWallet1("")
@@ -100,6 +105,9 @@ Public Class Utilization
             Return clsGVM.BoincMD5()
         End Get
     End Property
+    Public Function StrToMd5Hash(s As String) As String
+        Return CalcMd5(s)
+    End Function
     Public ReadOnly Property CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, ByVal sGRCHash3 As String, ByVal sGRCHash4 As String, ByVal sBoinchash As String) As Double
         Get
             Return clsGVM.CheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sGRCHash4, sBoinchash)
@@ -223,6 +231,9 @@ Public Class Utilization
     Public Function Des3Decrypt(ByVal sData As String) As String
         Return clsGVM.Des3Decrypt(sData)
     End Function
+    Public Function mForceBoincToUseGpus(sSleepDirective As String)
+        mfrmMining.ForceBoincToUseGPUs(sSleepDirective)
+    End Function
     Public Function ShowProjects()
         If mfrmProjects Is Nothing Then
             mfrmProjects = New frmProjects
@@ -260,16 +271,23 @@ Public Class Utilization
                 Try
                     mfrmMining = New frmMining
                     mfrmMining.SetClsUtilization(Me)
-                    mfrmMining.Show()
-                    mfrmMining.Refresh2(False)
+                    'suppressminingconsole=true
+                    If KeyValue("suppressminingconsole") <> "true" Then
+                        mfrmMining.Show()
+                        mfrmMining.Refresh2(False)
+                    End If
 
                 Catch ex As Exception
                 End Try
             Else
-                mfrmMining.Show()
-                mfrmMining.BringToFront()
-                mfrmMining.Focus()
-            End If
+                If KeyValue("suppressminingconsole") <> "true" Then
+
+                    mfrmMining.Show()
+                    mfrmMining.BringToFront()
+                    mfrmMining.Focus()
+                End If
+
+                End If
         Catch ex As Exception
         End Try
     End Function
