@@ -562,7 +562,7 @@ std::string SendMultiProngedTransaction(int projectid, std::string userid)
      std::string strFailReason;
      LOCK2(cs_main, pwalletMain->cs_wallet);
 
-     bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, strFailReason);
+     pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, strFailReason);
 
      if(!pwalletMain->CommitTransaction(wtx, keyChange))
        {
@@ -694,10 +694,7 @@ std::map<std::string, MiningEntry> CalculatePoolMining(bool bPayDuringWalletHour
 
 	double compensated_rows = 0;
 	string last_wallet = "";
-	double total_payment = 0;
 	double iBU = 0;
-	double compensation = 0;
-//	printf("Reaching payout to miners.");
 	double total_shares = 0;
 
 	MiningEntry ae;
@@ -838,23 +835,15 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
     double lookback = 24 * 60 * 60 * 3;
 	//Gridcoin: 2-21-2014 : Changing lookback to 7 days:
 
-	double total_utilization = 0;
-	double total_rows = 0;
-    double avg_boinc = 0;
-    string wallet = "";
+	string wallet = "";
 	double maxperuser = 50;
 
 	cpuminerpayments.clear();
 	cpuminerpaymentsconsolidated.clear();
 
-	double compensated_rows = 0;
 	string last_wallet = "";
-	double total_payment = 0;
-	double iBU = 0;
-	double compensation = 0;
 
-	//printf("Reaching calculatecpumining.");
-	double total_shares = 0;
+
 	
 	MiningEntry ae;
     //Iterate through the chain in reverse
@@ -878,8 +867,7 @@ std::map<std::string, MiningEntry> CalculateCPUMining()
     {
      	CBlockIndex* pblockindex = FindBlockByHeight(i);
 		block.ReadFromDisk(pblockindex);
-	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
-        cpuminerpayments = BlockToCPUMinerPayments(block,pblockindex);
+	    cpuminerpayments = BlockToCPUMinerPayments(block,pblockindex);
 		MiningEntry me;
     	me.lookback = lookback;
 		me.difficulty  = diff;
@@ -1373,8 +1361,7 @@ Value listcpuminers(const Array& params, bool fHelp)
     int inum = 0;
    
     double rbpps = cpuminerpayments["totals"].rbpps;
-    double total_payments = 0;
-	Object entry;
+   Object entry;
 	
 	entry.push_back(Pair("CPU Credit Details Report Version",1.03));
 	entry.push_back(Pair("Difficulty",cpuminerpayments["totals"].difficulty));
@@ -1453,8 +1440,7 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5 && ae.nextpaymentamount > .99) 
 			{ 
-				double compensation = ae.shares*rbpps;
-	     		Object e3;
+				Object e3;
 				inum++;
 				e3.push_back(Pair("CPU Miner #",inum));
 				e3.push_back(Pair("Payment Comment",ae.strComment));
@@ -1545,8 +1531,7 @@ Value listmycpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && ae.strAccount==mygrcaddress) 
 			{
-				double compensation = ae.shares*rbpps;
-	     		Object e;
+				Object e;
 				inum++;
 				e.push_back(Pair("CPU Miner #",inum));
 				e.push_back(Pair("Payment Comment",ae.strComment));
@@ -1558,7 +1543,6 @@ Value listmycpuminers(const Array& params, bool fHelp)
 				e.push_back(Pair("CPU Daily Avg Credits Earned",CPU.cpupowverificationresult));
 				e.push_back(Pair("CPU Verification Tries",CPU.cpupowverificationtries));
 				e.push_back(Pair("CPU Verification GRC Address",CPU.strAccount));
-
 				e.push_back(Pair("CPU PoW Key",CPU.cpupowhash));
 				e.push_back(Pair("Total Payments",ae.cputotalpayments));
 			
