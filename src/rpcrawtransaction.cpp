@@ -373,7 +373,7 @@ Value getrawtransaction(const Array& params, bool fHelp)
 	std::string grc_address = "";
 	std::string o1 = TxToString(tx, hashBlock, out_amount, out_locktime, nProjId, sProjectAddress, comments, grc_address);
 	result.push_back(Pair("GRCAddress", grc_address));
-	result.push_back(Pair("GRCAmount",out_amount));
+	
 	result.push_back(Pair("Comments",comments));
 	//////////////////////////////////////////////////////////////////////////////
 	}
@@ -1360,8 +1360,8 @@ Value listcpuminers(const Array& params, bool fHelp)
 	    
     int inum = 0;
    
-    double rbpps = cpuminerpayments["totals"].rbpps;
-   Object entry;
+ 
+	Object entry;
 	
 	entry.push_back(Pair("CPU Credit Details Report Version",1.03));
 	entry.push_back(Pair("Difficulty",cpuminerpayments["totals"].difficulty));
@@ -1576,8 +1576,8 @@ Value listmycpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5 && ae.strAccount==mygrcaddress) 
 			{ 
-				double compensation = ae.shares*rbpps;
-	     		Object e33;
+	
+				Object e33;
 				inum++;
 				e33.push_back(Pair("CPU Miner #",inum));
 				e33.push_back(Pair("Payment Comment",ae.strComment));
