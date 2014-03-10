@@ -150,14 +150,14 @@ void Shutdown()
 
 //void DetectShutdownThread(hread_group* thrgroup)
 //
-void DetectShutdownThread()
+void DetectShutdownThread(boost::thread_group* threadGroup)
 {
-   
+    // Tell the main threads to shutdown.
     while (!fRequestShutdown)
     {
         MilliSleep(200);
-        if (fRequestShutdown) 
-			threadGroup.interrupt_all();
+        if (fRequestShutdown)
+            threadGroup->interrupt_all();
     }
 }
 
@@ -266,10 +266,9 @@ bool AppInit(int argc, char* argv[])
         }
 #endif
 
-        //detectShutdownThread = new boost::thread(boost::bind(&DetectShutdownThread, threadGroup));
-		threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "detectshutdown", &DetectShutdownThread));
+        detectShutdownThread = new boost::thread(boost::bind(&DetectShutdownThread, &threadGroup));
+		//threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "detectshutdown", &DetectShutdownThread));
 		
-
         fRet = AppInit2();
     }
     catch (std::exception& e) {

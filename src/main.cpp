@@ -634,7 +634,6 @@ void HarvestCPIDs()
     std::string sout = "";
     sout = getfilecontents(sourcefile);
 	mvCPIDs.clear();
-	//			extern std::map<std::string, StructCPID> mvCPIDs;
 	std::string email = "";
 
 	if (mapArgs.count("-email"))
@@ -660,7 +659,6 @@ void HarvestCPIDs()
 			std::string rectime = ExtractXML(vCPID[i],"<rec_time>","</rec_time>");
 			//		   std::string minrectime = ExtractXML(vCPID[i],"<rec_time>","</rec_time>");
 			if (proj=="Docking") proj="Docking@Home";  //CCNode has a different name for some projects
-
 
 
 			if (cpid_hash.length() > 5 && proj.length() > 3) 
@@ -4284,18 +4282,13 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 	    CBlock block;
         vRecv >> block;
         printf("received block %s\n", block.GetHash().ToString().c_str());
-        // block.print();
         CInv inv(MSG_BLOCK, block.GetHash());
         pfrom->AddInventoryKnown(inv);
         CValidationState state;
         if (ProcessBlock(state, pfrom, &block))
             mapAlreadyAskedFor.erase(inv);
         int nDoS;
-		//DoS error
-		//Gridcoin - Temporarily disable orphan block - DoS (Peer Is Misbehaving) attack detection:
-		//                     if (state.IsInvalid(nDoS))         pfrom->Misbehaving(nDoS);
-
-
+		if (state.IsInvalid(nDoS))         pfrom->Misbehaving(nDoS);
     }
 
 
@@ -4888,7 +4881,6 @@ std::string DefaultWalletAddress()
 	if (sDefaultWalletAddress.length() > 0) return sDefaultWalletAddress;
 
     string strAccount;
-	int i = 0;
 	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
     {
     	 const CBitcoinAddress& address = item.first;
