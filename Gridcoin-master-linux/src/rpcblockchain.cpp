@@ -403,50 +403,8 @@ Value listitem(const Array& params, bool fHelp)
 				results.push_back(e2);
 
 
-	if (sitem=="cpids") {
-			//Dump vectors:
-			int inum=0;
-			HarvestCPIDs();
-			
-			printf ("generating cpid report %s",sitem.c_str());
-
-
-		for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
-		{
-
-			StructCPID structcpid = mvCPIDs[(*ii).first];
-
-	        if (structcpid.initialized) 
-			{ 
-				Object entry;
 	
-				//printf("CPID %s, Email %s",structcpid.cpid.c_str(),structcpid.emailhash.c_str());
-				entry.push_back(Pair("Project",structcpid.projectname));
-				entry.push_back(Pair("CPID",structcpid.cpid));
-				entry.push_back(Pair("CPIDhash",structcpid.cpidhash));
-				entry.push_back(Pair("Email",structcpid.emailhash));
-				entry.push_back(Pair("UTC",structcpid.utc));
-				entry.push_back(Pair("RAC",structcpid.rac));
-				entry.push_back(Pair("Team",structcpid.team));
-				entry.push_back(Pair("RecTime",structcpid.rectime));
-				entry.push_back(Pair("Age",structcpid.age));
-				entry.push_back(Pair("Verified UTC",structcpid.verifiedutc));
-				entry.push_back(Pair("Verified RAC",structcpid.verifiedrac));
-				entry.push_back(Pair("Verified Team",structcpid.verifiedteam));
-				entry.push_back(Pair("Verified RecTime",structcpid.verifiedrectime));
-
-				entry.push_back(Pair("Verified RAC Age",structcpid.verifiedage));
-
-
-
-				results.push_back(entry);
-
-			}
-		}
-
-
-    }
-
+    
     return results;
 
 

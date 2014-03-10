@@ -50,7 +50,7 @@ double nPoolMiningCounter = 0;
 
 extern bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
 
-extern void HarvestCPIDs();
+
 
 
 
@@ -636,106 +636,6 @@ void CreditCheck(std::string cpid)
 
 	
 }
-
-void HarvestCPIDs()
-{
-	//3-7-2014
-	std::string sourcefile = GetBoincDataDir() + "boinc\\client_state.xml";
-    std::string sout = "";
-    sout = getfilecontents(sourcefile);
-	mvCPIDs.clear();
-	//			extern std::map<std::string, StructCPID> mvCPIDs;
-	std::string email = "";
-
-	if (mapArgs.count("-email"))
-    {
-        email = GetArg("-email", "");
-	}
-   
-	mvCreditNode.clear();
-	int iRow = 0;
-	std::vector<std::string> vCPID = split(sout.c_str(),"<project>");
-	if (vCPID.size() > 1)
-	{
-		//   <email_hash>940ce591b1c7fa43c86ac2578825499b</email_hash>
-        //   <cross_project_id>6f7c93b51ccf55e4e0529e7e5f6fdcfa</cross_project_id>
- 	    for (unsigned int i = 0; i < vCPID.size(); i++)
-		{
-			std::string email_hash = ExtractXML(vCPID[i],"<email_hash>","</email_hash>");
-			std::string cpid_hash = ExtractXML(vCPID[i],"<cross_project_id>","</cross_project_id>");
-			std::string utc=ExtractXML(vCPID[i],"<user_total_credit>","</user_total_credit>");
-			std::string rac=ExtractXML(vCPID[i],"<user_expavg_credit>","</user_expavg_credit>");
-			std::string proj=ExtractXML(vCPID[i],"<project_name>","</project_name>");
-			std::string team=ExtractXML(vCPID[i],"<team_name>","</team_name>");
-			std::string rectime = ExtractXML(vCPID[i],"<rec_time>","</rec_time>");
-			//		   std::string minrectime = ExtractXML(vCPID[i],"<rec_time>","</rec_time>");
-			if (proj=="Docking") proj="Docking@Home";  //CCNode has a different name for some projects
-
-
-
-			if (cpid_hash.length() > 5 && proj.length() > 3) 
-			{
-				std::string cpid_non = cpid_hash+email;
-				std::string cpid = RetrieveMd5(cpid_non.c_str());
-				StructCPID structcpid;
-				structcpid = mvCPIDs[proj];
-				iRow++;
-				if (!structcpid.initialized) 
-				{
-					structcpid.initialized = true;
-					mvCPIDs.insert(map<string,StructCPID>::value_type(proj,structcpid));
-				} 
-											
-				structcpid.cpid = cpid;
-				structcpid.emailhash = email_hash;
-				structcpid.cpidhash = cpid_hash;
-				structcpid.projectname = proj;
-				structcpid.utc = cdbl(utc,0);
-				structcpid.rac = cdbl(rac,0);
-				structcpid.team = team;
-				structcpid.rectime = cdbl(rectime,0);
-
-				double currenttime = GetTime();
-				double nActualTimespan = currenttime - structcpid.rectime;
-				structcpid.age = nActualTimespan;
-				// Call out to credit check node:
-				if (iRow==1) CreditCheck(cpid);
-				StructCPID structcc;
-				structcc = mvCreditNode[proj];
-				if (structcc.initialized) 
-				{
-					structcpid.verifiedutc     = structcc.verifiedutc;
-					structcpid.verifiedrac     = structcc.verifiedrac;
-					structcpid.verifiedteam    = structcc.verifiedteam;
-					structcpid.verifiedrectime = structcc.verifiedrectime;
-					structcpid.verifiedage     = structcc.verifiedage;
-				}
-				mvCPIDs[proj] = structcpid;						
-				printf("Adding %s",cpid.c_str());
-			}
-
-		}
-
-
-	}
-	//Dump vectors:
-	int inum=0;
-	for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
-	{
-
-		 StructCPID structcpid = mvCPIDs[(*ii).first];
-
-	        if (structcpid.initialized) 
-			{ 
-				//printf("CPID %s, Email %s",structcpid.cpid.c_str(),structcpid.emailhash.c_str());
-
-			}
-	}
-
-
-}
-
-
 
 
 
