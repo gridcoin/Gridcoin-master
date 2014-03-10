@@ -17,7 +17,9 @@ std::string HelpMessage();
 std::string LogSomething();
 
 //Commenting
-extern boost::thread_group threadGroup;
 
+#ifdef WIN32
+extern boost::thread_group threadGroup;
+#endif
 
 #endif

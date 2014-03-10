@@ -1,2 +1,0 @@
-obj/scrypt.o: scrypt.cpp scrypt.h
-scrypt.cpp scrypt.h :

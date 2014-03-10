@@ -18,9 +18,10 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <openssl/crypto.h>
 
-//Adding
-//extern boost::thread_group threadGroup;
 
+#ifndef WIN32
+extern boost::thread_group threadGroup;
+#endif
 
 
 #include "global_objects_noui.hpp"
@@ -38,9 +39,6 @@ CClientUIInterface uiInterface;
 int CloseGuiMiner();
 
 extern void RestartGridcoin3();
-
-
-
 
 
 
@@ -119,7 +117,10 @@ void Shutdown()
     TRY_LOCK(cs_Shutdown, lockShutdown);
     if (!lockShutdown) return;
 	
+#if WIN32
 	CloseGuiMiner();
+#endif
+
 
     RenameThread("bitcoin-shutoff");
     nTransactionsUpdated++;
@@ -1004,7 +1005,7 @@ bool AppInit2()
                 bool fRet = uiInterface.ThreadSafeMessageBox(
                     strLoadError + ".\n\n" + _("Do you want to rebuild the block database now?"),
                     "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
-                if (1==1) {
+                if (fRet) {
                     fReindex = true;
                     fRequestShutdown = false;
                 } else {

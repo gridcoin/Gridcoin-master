@@ -12,7 +12,13 @@
 using namespace json_spirit;
 using namespace std;
 
+#ifdef WIN32
 #include "io.h"
+#else
+#include <sys/io.h>
+#endif
+
+
 
 
 extern std::string GetGridcoinWork();

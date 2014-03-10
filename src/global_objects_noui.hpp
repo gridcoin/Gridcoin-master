@@ -106,8 +106,6 @@ extern std::map<std::string, StructCPID> mvCreditNode;
 
 
 
-
-
 extern double nMinerPaymentCount;
 
 

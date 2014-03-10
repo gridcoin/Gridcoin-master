@@ -140,10 +140,7 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
 	  std::string cpucomments = "";
 	  std::string out_grc_address = "";
       grc = TxToString(tx, 0, project_amount, project_locktime, projectid, projectaddress, comments, out_grc_address);
-	  double blocktotal = 0;
-
-	  blocktotal = TxPaidToCPUMiner(tx, blockindex->nHeight, "", out_total, cpucomments);
-				
+	  TxPaidToCPUMiner(tx, blockindex->nHeight, "", out_total, cpucomments);
 	
 	  if (grc.length() > 20 && projectid > 0 && project_amount > 0 && projectaddress.length() > 20) {
 			strAccount = RoundToString(projectid,0) + out_grc_address;
@@ -158,7 +155,6 @@ std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const 
      	    me.strAccount = out_grc_address;
     	    me.projectid = projectid;
 		    me.locktime = blockindex->GetBlockTime();
-		
 			std::string account1 = RoundToString(project_amount,0);
 			me.projectuserid = account1;
      		me.transactionid = txid;

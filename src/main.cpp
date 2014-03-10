@@ -466,32 +466,22 @@ std::string ExtractXML(std::string XMLdata, std::string key, std::string key_end
 
 std::string RetrieveMd5(std::string s1)
 {
-
-
-	///////////////////////////Now try s1
-	//const char *c1;
+    ///////////////////////////s1:
 	const char* test = s1.c_str();
-
-   // c1 = s1.c_str();
 	unsigned char digest2[16];
-    const unsigned char * pszBlah = reinterpret_cast<const unsigned char *> (s1.c_str());
+    //const unsigned char * pszBlah = reinterpret_cast<const unsigned char *> (s1.c_str());
 	MD5((unsigned char*)test, strlen(test), (unsigned char*)&digest2);    
-    
     char mdString2[33];
     for(int i = 0; i < 16; i++) sprintf(&mdString2[i*2], "%02x", (unsigned int)digest2[i]);
- 	std::string lol3(mdString2);
-//	printf("md52 %s for %s",s1.c_str(),lol3.c_str());
-		return lol3;
+ 	std::string xmd5(mdString2);
+	return xmd5;
 
 	/////////////////////////////s2:
-	//std::string sCPID = "6f7c93b51ccf55e4e0529e7e5f6fdcfa.com";
 	if (false) {
 		unsigned char digest[16];
 		char s[] = "6f7c93b51ccf55e4e0529e7e5f6fdcfa.com";
-		//char pszGet = (char)s1.c_str();
 		MD5((unsigned char*)&s, strlen(s), (unsigned char*)&digest);    
-		// const unsigned char * pszGet = reinterpret_cast<const unsigned char *> (s1.c_str());
-		 char mdString[33];
+		char mdString[33];
 		for(int i = 0; i < 16; i++) sprintf(&mdString[i*2], "%02x", (unsigned int)digest[i]);
  		std::string lol2(mdString);
 		printf("md51 %s",lol2.c_str());
@@ -2783,8 +2773,12 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
         nHeight = pindexPrev->nHeight+1;
 
 		//Gridcoin: Enforce boinchash:
-		int result = CheckCPUWorkByCurrentBlock(hashBoinc.c_str(),nHeight,false);
-   // 	printf("ProcessBlock: Current Boinc Hash %s, Result: %d Height: %d",hashBoinc.c_str(),result,nHeight);
+		int result = 1;
+
+#ifdef WIN32
+		result = CheckCPUWorkByCurrentBlock(hashBoinc.c_str(),nHeight,false);
+#endif
+
 
 	    if (result != 1) {
             return state.Invalid(error("AcceptBlock() : ProcessBlock() : Failed, Boinchash invalid."));
@@ -2919,12 +2913,15 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
 		printf("ProcessBlock: ORPHAN BLOCK, prev=%s\n", pblock->hashPrevBlock.ToString().c_str());
 	
 		try {
-					int result = CheckCPUWorkByCurrentBlock(pblock->hashBoinc.c_str(), nBestHeight, false);
-					if (result != 1) 
-					{
+			int result = 1;
+#ifdef WIN32
+			result = CheckCPUWorkByCurrentBlock(pblock->hashBoinc.c_str(), nBestHeight, false);
+#endif
+			if (result != 1) 
+			{
 						printf("invalid hash %s height %d error %d",pblock->hashBoinc.c_str(), nBestHeight,result);
 						return state.Invalid(error("ProcessBlock() : Failed, Boinchash invalid"));
- 					}
+ 			}
 		}
         catch(...) 
 		{
@@ -5672,15 +5669,11 @@ CBlockTemplate* CreateNewBlock_Old(CReserveKey& reservekey)
 			oldvalue = oldvalue + (nFees*2);
 			pblocktemplate->vTxFees[0]=-nFees;
 			pblock->vtx[0].vout[0].nValue = oldvalue;
-			double test = pblock->vtx[0].vout[0].nValue;
-			//printf("PAYMENT AMOUNT %.8g",test);
 		}
-
 
 		//Gridcoin: 10-30-2013: Construct the authenticity packet
 		std::string boinc_authenticity = BoincAuthenticity();
 	    pblock->hashBoinc = boinc_authenticity;
-		
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
         pblock->UpdateTime(pindexPrev);

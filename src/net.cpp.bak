@@ -29,7 +29,11 @@
 using namespace std;
 using namespace boost;
 
-//boost::thread_group threadGroup;
+
+#ifndef WIN32
+ boost::thread_group threadGroup;
+#endif
+
 
 extern std::string GetHttpPage(std::string cpid);
 

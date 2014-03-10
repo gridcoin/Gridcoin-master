@@ -1,15 +1,13 @@
 ########################### Linux Instructions: #####################################################################
 # Released 1-25-2014 - Gridcoin
+# Updated 3-10-2014 - Gridcoin - Merged linux source into master
 #
-# Short term plan:  Release 3 linux versions:
 # This guide is broken up into 3 versions.
 #   
 # 1. Native Headless Daemon that will work as a coin client (mining disabled)
 # 2. Native Gridcoin-qt GUI Wallet that will work as a coin client (mining disabled)
 # 3. Wine version of Gridcoin-qt GUI that will mine and will run on linux, mac and windows
 #
-# Long term plan:
-# Consolidate all code into one codebase that will compile on windows and will run with wine on Linux & Mac
 # 
 # Section 1: Compiling native linux headless daemon:
 # -Tested on Ubuntu 12.04
@@ -28,8 +26,7 @@ sudo apt-get install qt-sdk
 cd ~
 sudo git clone https://github.com/gridcoin/Gridcoin-master
 
-###Note: Gridcoin-master/src is currently for windows, Gridcoin-master/Gridcoin-master-linux/src is for Linux (until we merge them)
-cd ~/Gridcoin-master/Gridcoin-master-linux/src 
+cd ~/Gridcoin-master/src
 
 sudo rm obj/*.o 
 sudo cp net_daemon.cpp net.cpp
@@ -45,6 +42,7 @@ sudo chmod 755 gridcoind
 sudo cp gridcoind /usr/bin/gridcoind 
 sudo mkdir ~/.gridcoin
 cd ~/.gridcoin
+
 
 #### SSL: 
 #ROO's optional comments for Setting up gridcoind for ssl 

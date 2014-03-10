@@ -16,9 +16,12 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
+
+#ifdef WIN32
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
+#endif
 
 
 using namespace std;
@@ -1242,28 +1245,12 @@ Value checkwork(const Array& params, bool fHelp)
 	printf("Lastblockhash %s",blockhash2.c_str());
 	printf("Lastblockhash %s",blockhash3.c_str());
 	printf("Lastblockhash %s",blockhash4.c_str());
-
-	//boinchash = ConvBS(boinchash);
-	printf("Boinchash %s",boinchash.c_str());
-	
+    printf("Boinchash %s",boinchash.c_str());
 	entry.push_back(Pair("Last Block Hash",blockhash1));
 	entry.push_back(Pair("Prior Block Hash",blockhash2));
 	entry.push_back(Pair("Great Block Hash",blockhash3));
 	entry.push_back(Pair("Great Great Block Hash",blockhash4));
 
-
-	int result = 0;
-	int resultlinux = 0;
-
-	resultlinux = CheckCPUWorkLinux(blockhash1,blockhash2,blockhash3,blockhash4,boinchash);
-	entry.push_back(Pair("Check Work Linux",resultlinux));
-	printf("Check by block");
-
-	result = CheckCPUWork(blockhash1,blockhash2,blockhash3,blockhash4,boinchash,true);
-	entry.push_back(Pair("Check Work Result",result));
-	result = CheckCPUWorkByBlock(blocknumber,true);
-	
-	entry.push_back(Pair("CheckWorkByBlock", result));
 	}
 	catch (...) {
 		return -20;
@@ -1289,7 +1276,9 @@ Value upgrade(const Array& params, bool fHelp)
 		Object entry;
 		entry.push_back(Pair("Upgrading Wallet Version",1.0));
 		int result = 0;
+#ifdef WIN32
 		result = UpgradeClient();
+#endif
      	entry.push_back(Pair("Result",result));
 		return result;
 }
@@ -1314,9 +1303,7 @@ Value listminers(const Array& params, bool fHelp)
     int inum = 0;
    
     double rbpps = minerpayments["totals"].rbpps;
-    double total_payments = 0;
-	Object entry;
-	
+    Object entry;
 	entry.push_back(Pair("Mining Report Version",1.3));
 	std::string boinc_authenticity = BoincAuthenticity();
 	entry.push_back(Pair("Boinc Version",boinc_authenticity));
@@ -1328,7 +1315,7 @@ Value listminers(const Array& params, bool fHelp)
 	entry.push_back(Pair("Lookback Period",minerpayments["totals"].lookback));
 
 	results.push_back(entry);
-
+    double total_payments=0;
 	for(map<string,MiningEntry>::iterator ii=minerpayments.begin(); ii!=minerpayments.end(); ++ii) 
 	{
 
@@ -1344,13 +1331,9 @@ Value listminers(const Array& params, bool fHelp)
 				e.push_back(Pair("Block Hour",ae.blockhour));
 				e.push_back(Pair("Wallet Hour",ae.wallethour));
 				int64 currenttime = GetTime();
- //int64 nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime();
-   
 				int currenthour = boost::lexical_cast<int>(DateTimeStrFormat("%H", currenttime));
 			    e.push_back(Pair("Current Hour",currenthour));
-				
 				e.push_back(Pair("Boinc Hash",ae.boinchash));
-				
 				e.push_back(Pair("Shares", RoundToString(ae.shares,2)));
 				e.push_back(Pair("Account",ae.strAccount));
 				e.push_back(Pair("Payments",ae.payments));
@@ -1409,24 +1392,12 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2) 
 			{
-				double compensation = ae.shares*rbpps;
-	     		//Object e;
-				inum++;
-				//2-23-2014
+		 		inum++;
 				MiningEntry CPU = cpupow[ae.homogenizedkey];
-				
 				row = RoundToString(inum,0) + "," + ae.strAccount + ", " + RoundToString(ae.projectid,0) + ", " 
 					+ RoundToString(CPU.cpupowverificationresult,0) + ", " 
 					+ RoundToString(CPU.cpupowverificationtries,0) + ", " + RoundToString(ae.cputotalpayments,2);
-				//
-				//e.push_back(Pair("CPU Miner #",inum));
-				//e.push_back(Pair("GRC Address",ae.strAccount));
-				//e.push_back(Pair("ProjectId",ae.projectid));
-				//e.push_back(Pair("Project UserId",ae.projectuserid));
-				//e.push_back(Pair("CPU Daily Avg Credits Earned",CPU.cpupowverificationresult));
-				//e.push_back(Pair("CPU Verification Tries",CPU.cpupowverificationtries));
-				//e.push_back(Pair("Total Payments",ae.cputotalpayments));
-	
+		
 	     		results.push_back(row);
 			}
 
@@ -1454,7 +1425,6 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5) 
 			{ 
-				double compensation = ae.shares*rbpps;
 	      		inum++;
 				gtp=gtp+ae.compensation;
 				
@@ -1462,10 +1432,6 @@ Value listcpuminers(const Array& params, bool fHelp)
 					+ RoundToString(ae.cputotalpayments,2) + ", " 
 					+ RoundToString(ae.compensation,2) + ", " + RoundToString(ae.networkcredits,2) + ", " + RoundToString(ae.rbpps,4) 
 					+ ", " + RoundToString(ae.owed,4) + ", " + RoundToString(ae.nextpaymentamount,2);
-
-				//				e33.push_back(Pair("#" + RoundToString(inum,0),row));
-
-								//				e33.push_back(Pair("CPU Miner #",inum));
 	     		results.push_back(row);
 			}
 

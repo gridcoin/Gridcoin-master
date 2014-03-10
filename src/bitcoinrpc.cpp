@@ -11,10 +11,12 @@
 #include "bitcoinrpc.h"
 #include "db.h"
 
+
+#ifdef WIN32
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
-
+#endif
 
 #include <boost/asio.hpp>
 #include <boost/asio/ip/v6_only.hpp>
@@ -48,7 +50,9 @@ static ssl::context* rpc_ssl_context = NULL;
 static boost::thread_group* rpc_worker_group = NULL;
 
 
+#ifdef WIN32
 QAxObject *globalrpccom = NULL;
+#endif
 
 
 
