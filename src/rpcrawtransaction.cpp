@@ -1528,8 +1528,7 @@ Value listmycpuminers(const Array& params, bool fHelp)
     int inum = 0;
    
     double rbpps = cpuminerpayments["totals"].rbpps;
-    double total_payments = 0;
-	Object entry;
+    Object entry;
 	
 	entry.push_back(Pair("CPU Credit Details Report Version",1.02));
 	entry.push_back(Pair("Difficulty",cpuminerpayments["totals"].difficulty));
@@ -1635,8 +1634,7 @@ Value listmycpuminers(const Array& params, bool fHelp)
 
 	        if (ae.strAccount.length() > 5 && ae.nextpaymentamount > .05 && ae.strAccount==mygrcaddress) 
 			{ 
-				double compensation = ae.shares*rbpps;
-	     		Object e3;
+				Object e3;
 				inum++;
 				e3.push_back(Pair("CPU Miner #",inum));
 				e3.push_back(Pair("Payment Comment",ae.strComment));
