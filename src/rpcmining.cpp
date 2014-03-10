@@ -90,12 +90,12 @@ Value getmininginfo(const Array& params, bool fHelp)
 
     Object obj;
     obj.push_back(Pair("blocks",        (int)nBestHeight));
-    obj.push_back(Pair("currentblocksize",(uint64_t)nLastBlockSize));
-    obj.push_back(Pair("currentblocktx",(uint64_t)nLastBlockTx));
+    obj.push_back(Pair("currentblocksize",(boost::uint64_t)nLastBlockSize));
+    obj.push_back(Pair("currentblocktx",(boost::uint64_t)nLastBlockTx));
     obj.push_back(Pair("difficulty",    (double)GetDifficulty()));
     obj.push_back(Pair("errors",        GetWarnings("statusbar")));
     obj.push_back(Pair("networkhashps", getnetworkhashps(params, false)));
-    obj.push_back(Pair("pooledtx",      (uint64_t)mempool.size()));
+    obj.push_back(Pair("pooledtx",      (boost::uint64_t)mempool.size()));
     obj.push_back(Pair("testnet",       fTestNet));
     return obj;
 }
