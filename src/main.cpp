@@ -21,7 +21,6 @@
 #include <boost/lexical_cast.hpp>
 #include "global_objects_noui.hpp"
 #include "bitcoinrpc.h"
-//#include "rpcrawtransaction.cpp"
 
 
 using namespace std;
@@ -1514,7 +1513,9 @@ int64 static MaxBlockValue(int nHeight, int64 nFees)
 	//GridCoin - return the maximum value a miner can be paid based on full boinc utilization
     // int64 nSubsidy = 150 * COIN;  Decommissioning as of 1-6-2014
 	int64 nSubsidy = 0;
-	if (nHeight <= 77000) 
+	//77000 here
+
+	if (nHeight <= 76956) 
 	{
 		nSubsidy = (150 + CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT) * COIN;
 	} else 
@@ -1589,7 +1590,6 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
         bnResult = bnProofOfWorkLimit;
     return bnResult.GetCompact();
 }
-
 
 
 
@@ -1730,7 +1730,7 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
 {
 
 
-	    if (pindexLast->nHeight >= 77000)
+	    if (pindexLast->nHeight >= 77000 && pindexLast->nHeight <= 77350)
 		{
 			 //Kimoto's Gravity Well:
 			 return GetNextWorkRequired_V2(pindexLast, pblock); 
@@ -4604,10 +4604,6 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
             return true;
 
 
-		
-
-
-
 
         // Keep-alive ping. We send a nonce of zero because we don't use it anywhere
         // right now.
@@ -4885,7 +4881,6 @@ std::string GRCDefaultPubKeyHex(CReserveKey& reservekey)
     if (!reservekey.GetReservedKey(pubkey)) return NULL;
 	string pubkeystep1 = HexStr(pubkey.begin(),pubkey.end());
 	return pubkeystep1;
-	//txNew.vout[2].scriptPubKey = CScript() << ParseHex("037ded09cb54f523f083c5e5154aeba18558d9f87ca5f48a2198fabfc95d42ae95") << OP_CHECKSIG;
 
 }
 
@@ -4990,11 +4985,6 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 
 	//If program has just started or miner is not pool mining:
 	//Gridcoin - convert all transactions to include CPUMiner payments: 1-29-2014
-
-	//if (!bPoolMiningMode) {
-	//	txNew.vout.resize(1);
-	//	return txNew;
-	//}
 
 	minerstobepaid = 0;
 	if (!bPoolMiningMode) 
@@ -5126,9 +5116,6 @@ CTransaction CreatePoolMiningTransactions(double& minerstobepaid)
 
 
 
-
-
-
 CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 {
 
@@ -5141,34 +5128,18 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 	
 	// Create coinbase tx
 	
-	/*
     CTransaction txNew;
-    txNew.vin.resize(1);
-    txNew.vout.resize(2);
-    txNew.vin[0].prevout.SetNull();
-    txNew.vin[1].prevout.SetNull();
-    */
-    double minerspaid = 0;
-	CTransaction txNew;
+	txNew.vin.resize(1);
+	txNew.vout.resize(1);
+	txNew.vin[0].prevout.SetNull();
+	txNew.vout[0].nValue=AmountFromValue(5);
 
-	try 
-	{
-		txNew = CreatePoolMiningTransactions(minerspaid);
-	} 
-	catch(std::runtime_error &e)
-	{
-		minerspaid=0;
-		txNew.vin.resize(1);
-		txNew.vout.resize(1);
-		txNew.vin[0].prevout.SetNull();
-		txNew.vout[0].nValue=AmountFromValue(5);
-	}
+
 
 	CPubKey pubkey;
-    if (!reservekey.GetReservedKey(pubkey))       return NULL;
-    if (minerspaid==0) txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
-
-
+    
+	if (!reservekey.GetReservedKey(pubkey))       return NULL;
+    txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
 	
 
 	try {
@@ -5380,21 +5351,18 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 		// Reward the miner based on Boinc utilization:
 		//************************************************ GRIDCOIN POOL MINING **********************************************
 
-		if (!bPoolMiningMode || minerspaid==0) {
-			pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
-		    pblocktemplate->vTxFees[0] = -nFees;
+		// Standard subsidy:
+    	pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
+	    pblocktemplate->vTxFees[0] = -nFees;
 
-		} else 
-		{
 			//Add the fees to the block finder in pool mining mode
-			int64 oldvalue = pblock->vtx[0].vout[0].nValue;
-			oldvalue = oldvalue + (nFees*2);
-			pblocktemplate->vTxFees[0]=-nFees;
-			pblock->vtx[0].vout[0].nValue = oldvalue;
-			double test = pblock->vtx[0].vout[0].nValue;
-			//printf("PAYMENT AMOUNT %.8g",test);
-		}
-
+			if (false) {
+				int64 oldvalue = pblock->vtx[0].vout[0].nValue;
+				oldvalue = oldvalue + (nFees*2);
+				pblocktemplate->vTxFees[0]=-nFees;
+				pblock->vtx[0].vout[0].nValue = oldvalue;
+			}
+	
 
 		//Gridcoin: 10-30-2013: Construct the authenticity packet
 		std::string boinc_authenticity = BoincAuthenticity();
@@ -5421,16 +5389,16 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 			printf("CreateNewBlock() Gridcoin : Connect Block Failed!");
 			return pblocktemplate.release();
 
-
-
 		}
 
 		//End of Try-Catch
-		}
-		 catch (std::exception& e)
-		 {
+	}
 
-		 }
+	 catch (std::exception& e)
+	 {
+
+	
+	 }
 
 	 ////////////////////////////////////////////////////////////////////////////// PblockTemplate.release() ///////////////////////////////////////////////////////////////////////
     

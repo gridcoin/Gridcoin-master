@@ -25,6 +25,7 @@ Module modUtilization
     Public Function NtQueryInformationProcess(ByVal handle As IntPtr, ByVal processinformationclass As UInteger, ByRef ProcessInformation As Process_Basic_Information, ByVal ProcessInformationLength As Integer, ByRef ReturnLength As UInteger) As Integer
     End Function
 
+    Private mBCE As Long = 0
 
     Public Const PROCESSBASICINFORMATION As UInteger = 0
     Public LastBlockHash As String = ""
@@ -69,7 +70,7 @@ Module modUtilization
             _timerBoincCredits = New System.Timers.Timer(300000)
             AddHandler _timerBoincCredits.Elapsed, New ElapsedEventHandler(AddressOf BoincCreditsElapsed)
             _timerBoincCredits.Enabled = True
-            'BoincCreditsElapsed()
+            BoincCreditsElapsed()
 
         End If
 
@@ -84,12 +85,11 @@ Module modUtilization
     End Sub
     Private Sub BoincCreditsElapsed()
         Try
-            LogBoincCredits()
+            mBCE = mBCE + 1
+            If mBCE > 1 Then LogBoincCredits()
             ReturnBoincCreditsAtPointInTime(86400 / 2)
             modBoincCredits.BoincCredits = BoincCreditsAtPointInTime
-
             modBoincCredits.BoincCreditsAvg = BoincCreditsAvgAtPointInTime
-
 
         Catch ex As Exception
         End Try

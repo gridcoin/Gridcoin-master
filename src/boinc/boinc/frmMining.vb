@@ -1029,14 +1029,19 @@ Public Class frmMining
 
         ' Add any initialization after the InitializeComponent() call.
         Dim sMessage1 As String
-        sMessage1 = KeyValue("CPUMessage")
+        sMessage1 = KeyValue("CPUMessage2")
         If sMessage1 = "" Then
             Dim sMsg As String = "Note: If you are CPUMining, we recently added a requirement to be a member of Team 'Gridcoin'.  " _
                                  & "Please click on Projects, and verify that you are a member of Team Gridcoin for each project you participating in.  " _
                                  & "Thank you for supporting Gridcoin.  This message will not be displayed again."
+
+            sMsg = "Note: Due to a security flaw that was discovered in the CPUMiner Payment System, the CPUMiner payment system had to be shut down.  GPU mining works with Gridcoin as previously designed.  Please read the forums at CryptoCoinTalk for any updates."
+
             MsgBox(sMsg, MsgBoxStyle.Critical, "Gridcoin Network Message")
-            UpdateKey("CPUMessage", "Notified")
+            UpdateKey("CPUMessage2", "Notified")
         End If
+
+
     End Sub
 
     Private Sub chkCGMonitor_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkCGMonitor.CheckedChanged

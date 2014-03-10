@@ -53,7 +53,8 @@ Public Class Utilization
     End Function
     Public ReadOnly Property Version As Double
         Get
-            Return 88
+            Return 89
+
 
         End Get
     End Property
@@ -267,27 +268,21 @@ Public Class Utilization
         Try
 
             lfrmMiningCounter = lfrmMiningCounter + 1
-            If mfrmMining Is Nothing Or lfrmMiningCounter = 1 Then
-                Try
-                    mfrmMining = New frmMining
-                    mfrmMining.SetClsUtilization(Me)
-                    'suppressminingconsole=true
-                    If KeyValue("suppressminingconsole") <> "true" Then
-                        mfrmMining.Show()
-                        mfrmMining.Refresh2(False)
-                    End If
 
-                Catch ex As Exception
-                End Try
-            Else
-                If KeyValue("suppressminingconsole") <> "true" Then
+            If mfrmMining Is Nothing Then
+                mfrmMining = New frmMining
+                mfrmMining.SetClsUtilization(Me)
 
-                    mfrmMining.Show()
-                    mfrmMining.BringToFront()
-                    mfrmMining.Focus()
-                End If
+            End If
+           
+            If lfrmMiningCounter = 1 Then
+                If KeyValue("suppressminingconsole") = "true" Then Exit Function
+                mfrmMining.Show()
+                mfrmMining.Refresh2(False)
+            End If
 
-                End If
+
+          
         Catch ex As Exception
         End Try
     End Function
