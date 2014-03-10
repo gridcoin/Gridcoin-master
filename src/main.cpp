@@ -1515,7 +1515,7 @@ int64 static MaxBlockValue(int nHeight, int64 nFees)
 	int64 nSubsidy = 0;
 	//77000 here
 
-	if (nHeight <= 76956) 
+	if (nHeight <= 77000) 
 	{
 		nSubsidy = (150 + CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT) * COIN;
 	} else 

@@ -36,6 +36,7 @@ static const int CADDR_TIME_VERSION = 40000;
 
 // only request blocks from nodes outside this range of versions
 static const int NOBLKS_VERSION_START = 32000;
+
 static const int NOBLKS_VERSION_END = 32400;
 
 // BIP 0031, pong message, is enabled for all versions AFTER this one
