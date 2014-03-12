@@ -14,8 +14,10 @@ What is Gridcoin?
 Gridcoin:
 Algorithm: scrypt
 Re-target: 3.5 days - with 2.5 min block targets
-Block reward: 5-150, 5 if you mine with a miner like cgminer without Boinc running on the machine, 6-150 if you mine with boinc running, you receive a calculated subsidy based on boinc utilization.
-Total coins: 84 million (like litecoin)
+Block reward: 5-150, 5 if you mine with a miner like cgminer without Boinc running on the machine, 
+6-150 if you mine with boinc running, you receive a calculated subsidy based on boinc utilization.
+
+Total coins: Est.: 168 million - 300 million (the former with GPU miners, the latter with GPU miners + CPU miners)
 
 
 License
