@@ -59,19 +59,18 @@ win32:QMAKE_LFLAGS *= -Wl,--large-address-aware
 
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
-contains(USE_QRCODE, 1) {
+contains(USE_QRCODE, 1) 
+{
     message(Building with QRCode support)
-    DEFINES += USE_QRCODE
-    LIBS += -lqrencode
-    LIBS += -md5
-    } else
-    {
+    #DEFINES += USE_QRCODE
+    # LIBS += -lqrencode
+    # LIBS += -md5
+} else {
     message(Building with QRCode support)
-    DEFINES += USE_QRCODE
-    LIBS += -lqrencode
-    LIBS += -md5
-    
-}
+    #DEFINES += USE_QRCODEx
+    #LIBS += -lqrencode
+    #LIBS += -md5
+ }
 
 # use: qmake "USE_UPNP=1" ( enabled by default; default)
 #  or: qmake "USE_UPNP=0" (disabled by default)
@@ -157,8 +156,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
     src/qt/miningdialog.h \
-    src/qt/gridcoin.h \
-       src/qt/editaddressdialog.h \
+    #src/qt/gridcoin.h \
+    src/qt/editaddressdialog.h \
     src/qt/bitcoinaddressvalidator.h \
     src/alert.h \
     src/addrman.h \

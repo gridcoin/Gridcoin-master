@@ -126,6 +126,9 @@ void Shutdown()
     nTransactionsUpdated++;
     StopRPCThreads();
     bitdb.Flush(false);
+	//	GenerateBitcoins(false, NULL);
+
+    
     StopNode();
     {
         LOCK(cs_main);
@@ -617,6 +620,24 @@ bool AppInit2()
         // Rewrite just private keys: rescan to find transactions
         SoftSetBoolArg("-rescan", true);
     }
+
+
+	 // Algo
+    std::string strAlgo = GetArg("-algo", "sha256d");
+    transform(strAlgo.begin(),strAlgo.end(),strAlgo.begin(),::tolower);
+    if (strAlgo == "sha" || strAlgo == "sha256" || strAlgo == "sha256d")
+        miningAlgo = ALGO_SHA256D;
+    else if (strAlgo == "scrypt")
+        miningAlgo = ALGO_SCRYPT;
+    else if (strAlgo == "groestl" || strAlgo == "groestlsha2")
+        miningAlgo = ALGO_GROESTL;
+    else if (strAlgo == "skein" || strAlgo == "skeinsha2")
+        miningAlgo = ALGO_SKEIN;
+    else if (strAlgo == "q2c" || strAlgo == "qubit")
+        miningAlgo = ALGO_QUBIT;
+    else
+        miningAlgo = ALGO_SHA256D;
+    
 
     // Make sure enough file descriptors are available
     int nBind = std::max((int)mapArgs.count("-bind"), 1);
@@ -1200,6 +1221,11 @@ bool AppInit2()
 
     if (fServer)
         StartRPCThreads();
+
+	
+    // Generate coins in the background
+	//       GenerateBitcoins(GetBoolArg("-gen", false), pwalletMain);
+
 
     // ********************************************************* Step 12: finished
     uiInterface.InitMessage(_("Done loading"));

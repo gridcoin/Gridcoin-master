@@ -11,6 +11,11 @@
 #include "script.h"
 #include "scrypt.h"
 
+
+#include "hashgroestl.h"
+#include "hashskein.h"
+#include "hashqubit.h"
+
 #include <list>
 
 #include "global_objects_noui.hpp"
@@ -25,6 +30,75 @@ class CReserveKey;
 class CAddress;
 class CInv;
 class CNode;
+
+extern int miningAlgo;
+
+
+
+enum { 
+    ALGO_SHA256D = 0, 
+    ALGO_SCRYPT  = 1, 
+    ALGO_GROESTL = 2,
+    ALGO_SKEIN   = 3,
+    ALGO_QUBIT   = 4,
+    NUM_ALGOS };
+
+enum
+{
+    // primary version
+    BLOCK_VERSION_DEFAULT        = 2,
+
+    // algo
+    BLOCK_VERSION_ALGO           = (7 << 9),
+    BLOCK_VERSION_SCRYPT         = (1 << 9),
+    BLOCK_VERSION_GROESTL        = (2 << 9),
+    BLOCK_VERSION_SKEIN          = (3 << 9),
+    BLOCK_VERSION_QUBIT          = (4 << 9),
+};
+
+inline int GetAlgo(int nVersion)
+{
+    switch (nVersion & BLOCK_VERSION_ALGO)
+    {
+        case 0:
+            return ALGO_SHA256D;
+        case BLOCK_VERSION_SCRYPT:
+            return ALGO_SCRYPT;
+        case BLOCK_VERSION_GROESTL:
+            return ALGO_GROESTL;
+        case BLOCK_VERSION_SKEIN:
+            return ALGO_SKEIN;
+        case BLOCK_VERSION_QUBIT:
+            return ALGO_QUBIT;
+    }
+    return ALGO_SHA256D;
+}
+
+inline std::string GetAlgoName(int Algo)
+{
+    switch (Algo)
+    {
+        case ALGO_SHA256D:
+            return std::string("sha256d");
+        case ALGO_SCRYPT:
+            return std::string("scrypt");
+        case ALGO_GROESTL:
+            return std::string("groestl");
+        case ALGO_SKEIN:
+            return std::string("skein");
+        case ALGO_QUBIT:
+            return std::string("qubit");
+    }
+    return std::string("unknown");       
+}
+
+
+
+
+
+
+
+
 
 
 struct CBlockIndexWorkComparator;
@@ -63,7 +137,10 @@ static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20
 /** Maximum number of script-checking threads allowed */
 //1450 + up to 4 for transaction fees
 static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 1454;
-//was 1454
+
+/** Default amount of block size reserved for high-priority transactions (in bytes) */
+static const int DEFAULT_BLOCK_PRIORITY_SIZE = 27000;
+
 
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 #ifdef USE_UPNP
@@ -441,6 +518,16 @@ public:
         return SerializeHash(*this);
     }
 
+
+
+
+
+
+
+
+
+
+
     friend bool operator==(const CTxOut& a, const CTxOut& b)
     {
         return (a.nValue       == b.nValue &&
@@ -599,7 +686,20 @@ public:
         @param[in] mapInputs	Map of previous transactions that have outputs we're spending
         @return maximum number of sigops required to validate this transaction's inputs
      */
+
+
+
+
+
+
     unsigned int GetP2SHSigOpCount(CCoinsViewCache& mapInputs) const;
+
+
+	
+bool IsStandardTx(const CTransaction& tx, std::string& reason);
+
+bool IsFinalTx(const CTransaction &tx, int nBlockHeight = 0, int64 nBlockTime = 0);
+
 
     /** Amount of bitcoins spent by this transaction.
         @return sum of all outputs (note: does not include fees)
@@ -990,7 +1090,7 @@ public:
         nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
         return nSize;
     }
-
+	 //
     template<typename Stream>
     void Serialize(Stream &s, int nType, int nVersion) const {
         unsigned int nMaskSize = 0, nMaskCode = 0;
@@ -1302,6 +1402,9 @@ public:
         SetNull();
     }
 
+	 int GetAlgo() const { return ::GetAlgo(nVersion); }
+   
+
     IMPLEMENT_SERIALIZE
     (
         READWRITE(this->nVersion);
@@ -1332,6 +1435,35 @@ public:
     {
         return Hash(BEGIN(nVersion), END(nNonce));
     }
+
+	
+
+
+	 uint256 GetPoWHash(int algo) const
+    {
+        switch (algo)
+        {
+            case ALGO_SHA256D:
+                return GetHash();
+            case ALGO_SCRYPT:
+            {
+                uint256 thash;
+                // Caution: scrypt_1024_1_1_256 assumes fixed length of 80 bytes
+                scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
+                return thash;
+            }
+            case ALGO_GROESTL:
+                return HashGroestl(BEGIN(nVersion), END(nNonce));
+            case ALGO_SKEIN:
+                return HashSkein(BEGIN(nVersion), END(nNonce));
+            case ALGO_QUBIT:
+                return HashQubit(BEGIN(nVersion), END(nNonce));
+        }
+        return GetHash();
+    }
+
+
+
 
     int64 GetBlockTime() const
     {
@@ -1736,6 +1868,10 @@ public:
         nNonce         = block.nNonce;
     }
 
+	
+    int GetAlgo() const { return ::GetAlgo(nVersion); }
+
+
     CDiskBlockPos GetBlockPos() const {
         CDiskBlockPos ret;
         if (nStatus & BLOCK_HAVE_DATA) {
@@ -1859,6 +1995,82 @@ struct CBlockIndexWorkComparator
         return false; // identical blocks
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class CChainParams
+{
+public:
+    enum Network {
+        MAIN,
+        TESTNET,
+        REGTEST,
+    };
+
+    enum Base58Type {
+        PUBKEY_ADDRESS,
+        SCRIPT_ADDRESS,
+        SECRET_KEY,
+
+        MAX_BASE58_TYPES
+    };
+
+    const uint256& HashGenesisBlock() const { return hashGenesisBlock; }
+    const CBigNum& ProofOfWorkLimit(int algo) const { return bnProofOfWorkLimit[algo]; }
+    virtual Network NetworkID() const = 0;
+protected:
+    CChainParams() {};
+
+    CBigNum bnProofOfWorkLimit[NUM_ALGOS];
+};
+
+/**
+ * Return the currently selected parameters. This won't change after app startup
+ * outside of the unit tests.
+ */
+const CChainParams &Params();
+/** Sets the params returned by Params() to those for the given network. */
+void SelectParams(CChainParams::Network network);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2246,6 +2458,21 @@ public:
 
     // Calculate the size of the cache (in number of transactions)
     unsigned int GetCacheSize();
+
+	 /** Amount of bitcoins coming in to a transaction
+        Note that lightweight clients may not know anything besides the hash of previous transactions,
+        so may not be able to calculate this.
+
+        @param[in] tx	transaction for which we are checking input total
+        @return	Sum of value of all inputs (scriptSigs)
+        @see CTransaction::FetchInputs
+     */
+    int64 GetValueIn(const CTransaction& tx);
+    
+    // Check whether all prevouts of the transaction are present in the UTXO set represented by this view
+    bool HaveInputs(const CTransaction& tx);
+
+    const CTxOut &GetOutputFor(const CTxIn& input);
 
 private:
     std::map<uint256,CCoins>::iterator FetchCoins(const uint256 &txid);

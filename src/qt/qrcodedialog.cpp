@@ -11,7 +11,9 @@
 #include <QUrl>
 #endif
 
+#if BUILDWITHQR
 #include <qrencode.h>
+#endif
 
 QRCodeDialog::QRCodeDialog(const QString &addr, const QString &label, bool enableReq, QWidget *parent) :
     QDialog(parent),
@@ -58,6 +60,7 @@ void QRCodeDialog::genCode()
     {
         ui->lblQRCode->setText("");
 
+#ifdef BUILDWITHQR
         QRcode *code = QRcode_encodeString(uri.toUtf8().constData(), 0, QR_ECLEVEL_L, QR_MODE_8, 1);
         if (!code)
         {
@@ -80,6 +83,7 @@ void QRCodeDialog::genCode()
         ui->lblQRCode->setPixmap(QPixmap::fromImage(myImage).scaled(300, 300));
 
         ui->outUri->setPlainText(uri);
+        #endif
     }
 }
 

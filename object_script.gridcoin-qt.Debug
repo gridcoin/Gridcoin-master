@@ -70,6 +70,7 @@ INPUT(
 ./build/leveldb.o
 ./build/txdb.o
 ./build/splashscreen.o
+./build/qrcodedialog.o
 ./build/moc_bitcoingui.o
 ./build/moc_transactiontablemodel.o
 ./build/moc_addresstablemodel.o
@@ -106,5 +107,6 @@ INPUT(
 ./build/moc_rpcconsole.o
 ./build/moc_macnotificationhandler.o
 ./build/moc_splashscreen.o
+./build/moc_qrcodedialog.o
 ./build/qrc_bitcoin.o
 );

@@ -268,13 +268,19 @@ Value getblockhash(const Array& params, bool fHelp)
 
 Value getblock(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "getblock <hash>\n"
-            "Returns details of a block with given block-hash.");
+            "getblock <hash> [verbose=true]\n"
+            "If verbose is false, returns a string that is serialized, hex-encoded data for block <hash>.\n"
+            "If verbose is true, returns an Object with information about block <hash>."
+        );
 
     std::string strHash = params[0].get_str();
     uint256 hash(strHash);
+
+    bool fVerbose = true;
+    if (params.size() > 1)
+        fVerbose = params[1].get_bool();
 
     if (mapBlockIndex.count(hash) == 0)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
@@ -283,11 +289,19 @@ Value getblock(const Array& params, bool fHelp)
     CBlockIndex* pblockindex = mapBlockIndex[hash];
     block.ReadFromDisk(pblockindex);
 
+    if (!fVerbose)
+    {
+        CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION);
+        ssBlock << block;
+        std::string strHex = HexStr(ssBlock.begin(), ssBlock.end());
+        return strHex;
+    }
+
     return blockToJSON(block, pblockindex);
 }
 
 
-//MainGetBlock 
+//Main GetBlock 
 
 Value getblockbynumber(const Array& params, bool fHelp)
 {
@@ -303,41 +317,8 @@ Value getblockbynumber(const Array& params, bool fHelp)
     CBlockIndex* pblockindex = FindBlockByHeight(nHeight);
 	CBlock block;
 
-
-	printf("preparing cpulist");
-
     block.ReadFromDisk(pblockindex);
-    
 	Object e= blockToJSON(block, pblockindex);
-	cpuminerpayments.clear();
-
-    cpuminerpayments = BlockToCPUMinerPayments(block,pblockindex);
-
-	int inum=0;
-				e.push_back(Pair("Report Version",1.7));
-	
-	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpayments[(*ii).first];
-
-	        if (ae.strAccount.length() > 5) 
-			{
-				inum++;
-				e.push_back(Pair("Payment #",inum));
-				e.push_back(Pair("Payment Comment", ae.strComment));
-				e.push_back(Pair("Project UserID", ae.projectuserid));
-				e.push_back(Pair("Address", ae.strAccount));
-				e.push_back(Pair("Project ID", ae.projectid));
-				e.push_back(Pair("Project Address", ae.projectaddress));
-				e.push_back(Pair("Tx Id", ae.transactionid));
-				//printf("Writing cpumining entry # %d",inum);
-
-			}
-	}
-
-
-
 	return e;
 
 }
