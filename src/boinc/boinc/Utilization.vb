@@ -53,7 +53,8 @@ Public Class Utilization
     End Function
     Public ReadOnly Property Version As Double
         Get
-            Return 89
+            Return 90
+
 
 
         End Get
@@ -281,6 +282,11 @@ Public Class Utilization
                 mfrmMining.Refresh2(False)
             End If
 
+            If KeyValue("suppressminingconsole") <> "true" Then
+                mfrmMining.Visible = True
+
+
+            End If
 
           
         Catch ex As Exception

@@ -180,6 +180,7 @@ public:
     CService addrLocal;
     int nVersion;
     std::string strSubVer;
+	std::string boinchash;
     bool fOneShot;
     bool fClient;
     bool fInbound;

@@ -21,6 +21,8 @@
 #include <boost/lexical_cast.hpp>
 #include "global_objects_noui.hpp"
 #include "bitcoinrpc.h"
+#include "hashgroestl.h"
+
 
 
 using namespace std;
@@ -38,6 +40,8 @@ CClientUIInterface uiDog;
 // 10-16-2013: Implemented MegaHash violation protection
 //
 
+std::string DefaultBoincHashArgs(int copylocal);
+
 double MEGAHASH_VIOLATION_COUNT = 0;
 double MEGAHASH_VIOLATION_COUNT_THRESHHOLD = 6;
 
@@ -54,9 +58,10 @@ extern bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned i
 
 extern void HarvestCPIDs();
 
+bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& out_errors);
 
 
-
+	
 std::string md4(std::string hi);
 
 extern  std::string RetrieveMd5(std::string s1);
@@ -76,6 +81,8 @@ map<uint256, CBlockIndex*> mapBlockIndex;
 uint256 hashGenesisBlock("0x2e463ddc588a5900589c75234510c536ce58ec94dafd07157c4be0b3bb9f1f0a");
 
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // Gridcoin: starting difficulty is 1 / 2^12
+
+
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 int nBestAccepted = -1;
@@ -112,6 +119,8 @@ std::map<std::string, MiningEntry> cpupow;
 std::map<std::string, MiningEntry> cpuminerpaymentsconsolidated;
 std::map<std::string, StructCPID> mvCPIDs;
 std::map<std::string, StructCPID> mvCreditNode;
+
+extern CBigNum ReturnProofOfWorkLimit(int algo);
 
 
 
@@ -176,22 +185,14 @@ double nMegaHashProtection = 0;
 
 
 
+ CBigNum ReturnProofOfWorkLimit(int algo)
+ {
+	 
+	//CBigNum bn(~uint256(0) >> 20); // Gridcoin: starting difficulty is 1 / 2^12
 
-//        bnProofOfWorkLimit[ALGO_SHA256D] = CBigNum(~uint256(0) >> 20);
- //       bnProofOfWorkLimit[ALGO_SCRYPT]  = CBigNum(~uint256(0) >> 20);
-  //      bnProofOfWorkLimit[ALGO_GROESTL] = CBigNum(~uint256(0) >> 20);
-   //     bnProofOfWorkLimit[ALGO_SKEIN]   = CBigNum(~uint256(0) >> 20);
-    //    bnProofOfWorkLimit[ALGO_QUBIT]   = CBigNum(~uint256(0) >> 20);
-
-
-
-
-
-
-
-
-
-
+	 return bnProof[algo]; 
+ }
+   
 
 
 
@@ -1514,8 +1515,12 @@ bool CWalletTx::AcceptWalletTransaction(bool fCheckInputs)
 
 
 // Return transaction in tx, and if it was found inside a block, its hash is placed in hashBlock
-bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock, bool fAllowSlow)
+
+bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock, bool fAllowSlow, std::string& sOutNarr)
 {
+	sOutNarr="";
+	std::string sHash = hash.GetHex();
+
     CBlockIndex *pindexSlow = NULL;
     {
         LOCK(cs_main);
@@ -1528,7 +1533,11 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock
             }
         }
 
-        if (fTxIndex) {
+		sOutNarr = "Not in memory pool; ";
+
+
+        if (fTxIndex) 
+		{
             CDiskTxPos postx;
             if (pblocktree->ReadTxIndex(hash, postx)) {
                 CAutoFile file(OpenBlockFile(postx, true), SER_DISK, CLIENT_VERSION);
@@ -1547,7 +1556,10 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock
             }
         }
 
-        if (fAllowSlow) { // use coin database to locate block that contains transaction, and scan it
+		sOutNarr = sOutNarr + "Not in index; ";
+
+        if (fAllowSlow) 
+		{ // use coin database to locate block that contains transaction, and scan it
             int nHeight = -1;
             {
                 CCoinsViewCache &view = *pcoinsTip;
@@ -1560,7 +1572,10 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock
         }
     }
 
-    if (pindexSlow) {
+	if (!pindexSlow) sOutNarr = sOutNarr + "Not in block; ";
+
+    if (pindexSlow) 
+	{
         CBlock block;
         if (block.ReadFromDisk(pindexSlow)) {
             BOOST_FOREACH(const CTransaction &tx, block.vtx) {
@@ -1571,9 +1586,18 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock
                 }
             }
         }
-    }
+		sOutNarr  = sOutNarr + "In block but hash not on file; ";
 
-    return false;
+    }
+	
+	// Scan chain slow:
+	std::string out_errors = "";
+
+	bool result = FindTransactionSlow(hash, txOut,out_errors);
+
+	sOutNarr = sOutNarr + out_errors;
+    return result;
+
 }
 
 
@@ -1712,6 +1736,13 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 
 
 
+const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, int algo)
+{
+    while (pindex && pindex->pprev && (pindex->GetAlgo() != algo))
+        pindex = pindex->pprev;
+    return pindex;
+}
+
 
 
 
@@ -1768,10 +1799,9 @@ static const int64 nMaxActualTimespan = nAveragingTargetTimespan * (100 + nMaxAd
     
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, int algo)
 {
-   // unsigned int nProofOfWorkLimit = Ps().ProofOfWorkLimit(algo).GetCompact();
-//	unsigned int nProofOfWorkLimit = 
+    unsigned int nProofOfWorkLimit = bnProof[algo].GetCompact();
+	//    unsigned int nProofOfWorkLimit = bnProofOfWorkLimit.GetCompact();
 
-    unsigned int nProofOfWorkLimit = bnProofOfWorkLimit.GetCompact();
 
     // Genesis block
     if (pindexLast == NULL)
@@ -1823,12 +1853,10 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
     bnNew *= nActualTimespan;
     bnNew /= nAveragingTargetTimespan;
 
-	//    if (bnNew > Pms().ProofOfWorkLimit(algo))        bnNew = Pms().ProofOfWorkLimit(algo);
-	if (bnNew >  bnProofOfWorkLimit) bnNew = bnProofOfWorkLimit;
+	if (bnNew > bnProof[algo])        bnNew = bnProof[algo];
+	//	if (bnNew >  bnProofOfWorkLimit) bnNew = bnProofOfWorkLimit;
 
-
-
-
+	
     /// debug print
     printf("GetNextWorkRequired RETARGET\n");
     printf("nTargetTimespan = %"PRI64d"    nActualTimespan = %"PRI64d"\n", nAveragingTargetTimespan, nActualTimespan);
@@ -2302,10 +2330,8 @@ int64 GetValueOut(const CTransaction& tx)
 
 
 
-
-
-
-bool CheckInputs2(const CTransaction& tx, CValidationState &state, CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputsSkein(const CTransaction& tx, 
+	CValidationState &state, CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, std::vector<CScriptCheck> *pvChecks)
 {
     if (!tx.IsCoinBase())
     {
@@ -2994,6 +3020,25 @@ bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAdd
     return true;
 }
 
+
+
+bool CheckProofOfWorkSkein(uint256 hash, unsigned int nBits, int algo)
+{
+    CBigNum bnTarget;
+    bnTarget.SetCompact(nBits);
+
+    // Check range
+    if (bnTarget <= 0 || bnTarget > bnProof[algo])
+        return error("CheckProofOfWorkSkein(algo=%d) : nBits below minimum work", algo);
+
+    // Check proof of work matches claimed amount
+    if (hash > bnTarget.getuint256())
+        return error("CheckProofOfWorkSkein(algo=%d) : hash doesn't match nBits", algo);
+
+    return true;
+}
+
+
 bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigned int nAddSize)
 {
     pos.nFile = nFile;
@@ -3041,8 +3086,7 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
     // that can be verified before saving an orphan block.
 
     // Size limits
-    //if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)        return state.DoS(100, error("CheckBlock() : size limits failed"));
-
+    
 	// Size limits
     if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
         return state.DoS(100, error("CheckBlock() : size limits failed"));
@@ -3249,6 +3293,8 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
         return error("ProcessBlock() : CheckBlock FAILED");
 
     CBlockIndex* pcheckpoint = Checkpoints::GetLastCheckpoint(mapBlockIndex);
+	printf("Gridcoin ProcessBlock Check #1\r\n");
+
     if (pcheckpoint && pblock->hashPrevBlock != hashBestChain)
     {
         // Extra checks to prevent "fill up memory by spamming with bogus blocks"
@@ -3745,6 +3791,8 @@ bool LoadBlockIndex()
 
 
 bool InitBlockIndex() {
+     printf("Setting Scrypt to %s",bnProof[ALGO_SCRYPT].ToString().c_str());
+
     // Check whether we're already initialized
     if (pindexGenesisBlock != NULL)
         return true;
@@ -3753,6 +3801,9 @@ bool InitBlockIndex() {
     fTxIndex = GetBoolArg("-txindex", false);
     pblocktree->WriteFlag("txindex", fTxIndex);
     printf("Initializing databases...\n");
+
+
+	  
 
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)
     if (!fReindex) {
@@ -4246,13 +4297,26 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrMe;
         CAddress addrFrom;
         uint64 nNonce = 1;
-        vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
+
+        //vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
+        vRecv >> pfrom->nVersion >> pfrom->boinchash >> pfrom->nServices >> nTime >> addrMe;
         
 		if (pfrom->nVersion < MIN_PROTO_VERSION)
         {
             // Since February 20, 2012, the protocol is initiated at version 209,
             // and earlier versions are no longer supported
             printf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
+            pfrom->fDisconnect = true;
+            return false;
+        }
+
+		//3-16-2014
+		std::string sdefaultboinchashargs = DefaultBoincHashArgs(3);
+		printf("Using default boinc hash %s",sdefaultboinchashargs.c_str());
+
+		if (pfrom->boinchash != sdefaultboinchashargs || sdefaultboinchashargs.length() < 30 || pfrom->boinchash.length() < 30)
+		{
+		    printf("boinchash invalid-reconnect %s %i: \n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
             pfrom->fDisconnect = true;
             return false;
         }
@@ -4503,7 +4567,7 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (pindex)
             pindex = pindex->pnext;
         int nLimit = 500;
-        printf("getblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().c_str(), nLimit);
+        //printf("getblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().c_str(), nLimit);
 
 		try {
 
@@ -4665,6 +4729,10 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             pfrom->PushAddress(addr);
     }
 
+	else if (strCommand == "getboinchash")
+	{
+	
+	}
 
     else if (strCommand == "mempool")
     {
@@ -5323,7 +5391,6 @@ std::string BoincAuthenticity()
 		//Gridcoin - record Boinc Authenticity information:
 		boinc_authenticity = sBoincMD5 +"," + sBoincBA + "," + boost::lexical_cast<std::string>(nBoincUtilization);
 		if (sSourceBlock.length() < 10) sSourceBlock = "?";
-
 		boinc_authenticity = boinc_authenticity + ",CRD_V," + pool_mode + "," + DefaultWalletAddress() + "," + sRegVer + "," + sBoincDeltaOverTime + "," + sMinedHash + "," + sSourceBlock;
 		printf("ba %s",boinc_authenticity.c_str());
 		//hexpubkey reserved for future use
@@ -6203,7 +6270,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 
     printf("GridCoin RPCMiner:\n");
     pblock->print();
-    //printf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue).c_str());
+	printf("Coinbase generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue).c_str());
 
     // Found a solution
     {
@@ -6357,6 +6424,57 @@ void UpdateCoins(const CTransaction& tx, CValidationState &state, CCoinsViewCach
 }
 
 
+
+
+bool CheckTransactionSkein(const CTransaction& tx, CValidationState &state)
+{
+    // Basic checks that don't depend on any context
+    if (tx.vin.empty())
+        return state.DoS(10, error("CheckTransaction() : vin empty"));
+    if (tx.vout.empty())
+        return state.DoS(10, error("CheckTransaction() : vout empty"));
+    // Size limits
+    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
+        return state.DoS(100, error("CTransaction::CheckTransaction() : size limits failed"));
+
+    // Check for negative or overflow output values
+    int64 nValueOut = 0;
+    BOOST_FOREACH(const CTxOut& txout, tx.vout)
+    {
+        if (txout.nValue < 0)
+            return state.DoS(100, error("CheckTransaction() : txout.nValue negative"));
+        if (txout.nValue > MAX_MONEY)
+            return state.DoS(100, error("CheckTransaction() : txout.nValue too high"));
+        nValueOut += txout.nValue;
+        if (!MoneyRange(nValueOut))
+            return state.DoS(100, error("CTransaction::CheckTransaction() : txout total out of range"));
+    }
+
+    // Check for duplicate inputs
+    set<COutPoint> vInOutPoints;
+    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    {
+        if (vInOutPoints.count(txin.prevout))
+            return state.DoS(100, error("CTransaction::CheckTransaction() : duplicate inputs"));
+        vInOutPoints.insert(txin.prevout);
+    }
+
+    if (tx.IsCoinBase())
+    {
+        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
+            return state.DoS(100, error("CheckTransaction() : coinbase script size"));
+    }
+    else
+    {
+        BOOST_FOREACH(const CTxIn& txin, tx.vin)
+            if (txin.prevout.IsNull())
+                return state.DoS(10, error("CheckTransaction() : prevout is null"));
+    }
+
+    return true;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////// Gridcoin Generic Miners - 03-13-2014
 
 
@@ -6371,7 +6489,225 @@ void UpdateTime(CBlockHeader& block, const CBlockIndex* pindexPrev)
 
 
 
-CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int algo)
+
+bool CheckBlockSkein(const CBlock& block, CValidationState& state, bool fCheckPOW, bool fCheckMerkleRoot)
+{
+    // These are checks that are independent of context
+    // that can be verified before saving an orphan block.
+
+    // Size limits
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
+        return state.DoS(100, error("CheckBlock() : size limits failed"));
+
+    // Check proof of work matches claimed amount
+    if (fCheckPOW && !CheckProofOfWorkSkein(block.GetPoWHashSkein(block.GetAlgo()), block.nBits, block.GetAlgo()))
+	{
+		printf("CheckBlockSkein Proof Of Work Failed.\r\n");
+        return state.DoS(50, error("CheckBlock() : proof of work failed"));
+	}
+
+    // Check timestamp
+    if (block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
+        return state.Invalid(error("CheckBlock() : block timestamp too far in the future"));
+
+    // First transaction must be coinbase, the rest must not be
+    if (block.vtx.empty() || !block.vtx[0].IsCoinBase())
+        return state.DoS(100, error("CheckBlock() : first tx is not coinbase"));
+    for (unsigned int i = 1; i < block.vtx.size(); i++)
+        if (block.vtx[i].IsCoinBase())
+            return state.DoS(100, error("CheckBlock() : more than one coinbase"));
+
+    // Check transactions
+    BOOST_FOREACH(const CTransaction& tx, block.vtx)
+        if (!CheckTransactionSkein(tx, state))
+            return error("CheckBlock() : CheckTransaction failed");
+
+    // Build the merkle tree already. We need it anyway later, and it makes the
+    // block cache the transaction hashes, which means they don't need to be
+    // recalculated many times during this block's validation.
+    block.BuildMerkleTree();
+
+    // Check for duplicate txids. This is caught by ConnectInputs(),
+    // but catching it earlier avoids a potential DoS attack:
+    set<uint256> uniqueTx;
+    for (unsigned int i = 0; i < block.vtx.size(); i++) {
+        uniqueTx.insert(block.GetTxHash(i));
+    }
+    if (uniqueTx.size() != block.vtx.size())
+        return state.DoS(100, error("CheckBlock() : duplicate transaction"));
+
+    unsigned int nSigOps = 0;
+    BOOST_FOREACH(const CTransaction& tx, block.vtx)
+    {
+        nSigOps += GetLegacySigOpCount(tx);
+    }
+    if (nSigOps > MAX_BLOCK_SIGOPS)
+        return state.DoS(100, error("CheckBlock() : out-of-bounds SigOpCount"));
+
+    // Check merkle root
+    if (fCheckMerkleRoot && block.hashMerkleRoot != block.BuildMerkleTree())
+        return state.DoS(100, error("CheckBlock() : hashMerkleRoot mismatch"));
+
+    return true;
+}
+
+
+
+
+
+bool ConnectBlockSkein(CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck)
+{
+    // Check it again in case a previous version let a bad block in
+    if (!CheckBlockSkein(block, state, !fJustCheck, !fJustCheck))
+        return false;
+
+    // verify that the view's current state corresponds to the previous block
+    assert(pindex->pprev == view.GetBestBlock());
+
+    // Special case for the genesis block, skipping connection of its transactions
+    // (its coinbase is unspendable)
+	//3-15-
+
+	if (block.GetHash() == hashGenesisBlock) {
+        view.SetBestBlock(pindex);
+        pindexGenesisBlock = pindex;
+        return true;
+    }
+    
+    bool fScriptChecks = pindex->nHeight >= Checkpoints::GetTotalBlocksEstimate();
+
+    // Do not allow blocks that contain transactions which 'overwrite' older transactions,
+    // unless those are already completely spent.
+    // If such overwrites are allowed, coinbases and transactions depending upon those
+    // can be duplicated to remove the ability to spend the first instance -- even after
+    // being sent to another address.
+    // See BIP30 and http://r6.ca/blog/20120206T005236Z.html for more information.
+    // This logic is not necessary for memory pool transactions, as AcceptToMemoryPool
+    // already refuses previously-known transaction ids entirely.
+    // This rule was originally applied all blocks whose timestamp was after March 15, 2012, 0:00 UTC.
+    // Now that the whole chain is irreversibly beyond that time it is applied to all blocks except the
+    // two in the chain that violate it. This prevents exploiting the issue against nodes in their
+    // initial block download.
+    for (unsigned int i = 0; i < block.vtx.size(); i++) {
+        uint256 hash = block.GetTxHash(i);
+        if (view.HaveCoins(hash) && !view.GetCoins(hash).IsPruned())
+            return state.DoS(100, error("ConnectBlock() : tried to overwrite transaction"));
+    }
+
+    // BIP16 didn't become active until Apr 1 2012
+    int64 nBIP16SwitchTime = 1333238400;
+    bool fStrictPayToScriptHash = (pindex->nTime >= nBIP16SwitchTime);
+
+    unsigned int flags = SCRIPT_VERIFY_NOCACHE |
+                         (fStrictPayToScriptHash ? SCRIPT_VERIFY_P2SH : SCRIPT_VERIFY_NONE);
+
+    CBlockUndo blockundo;
+
+    CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
+
+    int64 nStart = GetTimeMicros();
+    int64 nFees = 0;
+    int nInputs = 0;
+    unsigned int nSigOps = 0;
+    CDiskTxPos pos(pindex->GetBlockPos(), GetSizeOfCompactSize(block.vtx.size()));
+    std::vector<std::pair<uint256, CDiskTxPos> > vPos;
+    vPos.reserve(block.vtx.size());
+    for (unsigned int i = 0; i < block.vtx.size(); i++)
+    {
+        const CTransaction &tx = block.vtx[i];
+
+        nInputs += tx.vin.size();
+        nSigOps += GetLegacySigOpCount(tx);
+        if (nSigOps > MAX_BLOCK_SIGOPS)
+            return state.DoS(100, error("ConnectBlock() : too many sigops"));
+
+        if (!tx.IsCoinBase())
+        {
+            if (!view.HaveInputs(tx))
+                return state.DoS(100, error("ConnectBlock() : inputs missing/spent"));
+
+            if (fStrictPayToScriptHash)
+            {
+                // Add in sigops done by pay-to-script-hash inputs;
+                // this is to prevent a "rogue miner" from creating
+                // an incredibly-expensive-to-validate block.
+                nSigOps += GetP2SHSigOpCount(tx, view);
+                if (nSigOps > MAX_BLOCK_SIGOPS)
+                     return state.DoS(100, error("ConnectBlock() : too many sigops"));
+            }
+
+            nFees += view.GetValueIn(tx)-GetValueOut(tx);
+
+            std::vector<CScriptCheck> vChecks;
+            if (!CheckInputsSkein(tx, state, view, fScriptChecks, flags, nScriptCheckThreads ? &vChecks : NULL))
+                return false;
+            control.Add(vChecks);
+        }
+
+        CTxUndo txundo;
+        UpdateCoins(tx, state, view, txundo, pindex->nHeight, block.GetTxHash(i));
+        if (!tx.IsCoinBase())
+            blockundo.vtxundo.push_back(txundo);
+
+        vPos.push_back(std::make_pair(block.GetTxHash(i), pos));
+        pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
+    }
+    int64 nTime = GetTimeMicros() - nStart;
+    if (fBenchmark)
+        printf("- Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin)\n", (unsigned)block.vtx.size(), 0.001 * nTime, 0.001 * nTime / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * nTime / (nInputs-1));
+
+    if (GetValueOut(block.vtx[0]) > GetBlockValue(pindex->nHeight, nFees))
+        return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", GetValueOut(block.vtx[0]), GetBlockValue(pindex->nHeight, nFees)));
+
+    if (!control.Wait())
+        return state.DoS(100, false);
+    int64 nTime2 = GetTimeMicros() - nStart;
+    if (fBenchmark)
+        printf("- Verify %u txins: %.2fms (%.3fms/txin)\n", nInputs - 1, 0.001 * nTime2, nInputs <= 1 ? 0 : 0.001 * nTime2 / (nInputs-1));
+
+    if (fJustCheck)
+        return true;
+
+    // Write undo information to disk
+    if (pindex->GetUndoPos().IsNull() || (pindex->nStatus & BLOCK_VALID_MASK) < BLOCK_VALID_SCRIPTS)
+    {
+        if (pindex->GetUndoPos().IsNull()) {
+            CDiskBlockPos pos;
+            if (!FindUndoPos(state, pindex->nFile, pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 40))
+                return error("ConnectBlock() : FindUndoPos failed");
+            if (!blockundo.WriteToDisk(pos, pindex->pprev->GetBlockHash()))
+                return state.Abort(_("Failed to write undo data"));
+
+            // update nUndoPos in block index
+            pindex->nUndoPos = pos.nPos;
+            pindex->nStatus |= BLOCK_HAVE_UNDO;
+        }
+
+        pindex->nStatus = (pindex->nStatus & ~BLOCK_VALID_MASK) | BLOCK_VALID_SCRIPTS;
+
+        CDiskBlockIndex blockindex(pindex);
+        if (!pblocktree->WriteBlockIndex(blockindex))
+            return state.Abort(_("Failed to write block index"));
+    }
+
+    if (fTxIndex)
+        if (!pblocktree->WriteTxIndex(vPos))
+            return state.Abort(_("Failed to write transaction index"));
+
+    // add this block to the view's block chain
+    assert(view.SetBestBlock(pindex));
+
+    // Watch for transactions paying to me
+    for (unsigned int i = 0; i < block.vtx.size(); i++)
+        SyncWithWallets(block.GetTxHash(i), block.vtx[i], &block, true);
+
+    return true;
+}
+
+
+
+
+CBlockTemplate* CreateNewBlockSkein(CReserveKey& reservekey, int algo)
 {
     // Create new block
     auto_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
@@ -6571,8 +6907,8 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int algo)
             CValidationState state;
 			//too few inputs;
 
-          //  if (!CheckInputs2(tx, state, view, true, SCRIPT_VERIFY_P2SH))
-			if (true)                 continue;
+            if (!CheckInputsSkein(tx, state, view, true, SCRIPT_VERIFY_P2SH, NULL)) continue;
+			 
 
 
             CTxUndo txundo;
@@ -6633,8 +6969,16 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int algo)
         CCoinsViewCache viewNew(*pcoinsTip, true);
         CValidationState state;
 					
-   //     if (!ConnectBlock2(*pblock, state, &indexDummy, viewNew, true))
-		if (true)             throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
+        if (!ConnectBlockSkein(*pblock, state, &indexDummy, viewNew, true))
+		{
+			//throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
+			printf("CreateNewBlockSkein() : ConnectBlock failed\r\n");
+	
+		} else
+		{
+			printf("CreateNewBlockSkein() : Succeeded\r\n");
+		
+		}
     }
 
     return pblocktemplate.release();
@@ -6682,7 +7026,7 @@ void static BitcoinMiner(CWallet *pwallet)
         unsigned int nTransactionsUpdatedLast = nTransactionsUpdated;
         CBlockIndex* pindexPrev = pindexBest;
 
-        auto_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(reservekey, ALGO_SHA256D));
+        auto_ptr<CBlockTemplate> pblocktemplate(CreateNewBlockSkein(reservekey, ALGO_SHA256D));
         if (!pblocktemplate.get())
             return;
         CBlock *pblock = &pblocktemplate->block;
@@ -6734,7 +7078,7 @@ void static BitcoinMiner(CWallet *pwallet)
                     assert(hash == pblock->GetHash());
 
                     SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                    CheckWork(pblock, *pwalletMain, reservekey);
+                    CheckWorkSkein(pblock, *pwalletMain, reservekey);
                     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
                     // In regression test mode, stop mining after a block is found. This
@@ -6817,7 +7161,7 @@ void static ScryptMiner(CWallet *pwallet)
         unsigned int nTransactionsUpdatedLast = nTransactionsUpdated;
         CBlockIndex* pindexPrev = pindexBest;
 
-        auto_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(reservekey, ALGO_SCRYPT));
+        auto_ptr<CBlockTemplate> pblocktemplate(CreateNewBlockSkein(reservekey, ALGO_SCRYPT));
         if (!pblocktemplate.get())
             return;
         CBlock *pblock = &pblocktemplate->block;
@@ -6864,8 +7208,11 @@ void static ScryptMiner(CWallet *pwallet)
                 if (thash <= hashTarget)
                 {
                     // Found a solution
+					printf("Scrypt miner found a solution....\r\n");
+
                     SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                    CheckWork(pblock, *pwalletMain, reservekey);
+                    
+					CheckWorkSkein(pblock, *pwalletMain, reservekey);
                     SetThreadPriority(THREAD_PRIORITY_LOWEST);
                     break;
                 }
@@ -6936,29 +7283,14 @@ void static ScryptMiner(CWallet *pwallet)
 
 
 
-
-
-
-bool CheckWork2(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
+bool CheckWorkSkein(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 {
-    //printf("CheckWork:\n");
     int algo = pblock->GetAlgo();
-    //printf("Algo=%d\n", algo);
-
-	//ToDo:
-	uint256 hashPoW = 0;
-	//    uint256 hashPoW = pblock->GetPoWHash(algo);
+	uint256 hashPoW = pblock->GetPoWHashSkein(algo);
     uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
-    //printf("pow-hash: %s\n  target: %s\n", 
-    //    hashPoW.GetHex().c_str(), 
-    //    hashTarget.GetHex().c_str());
-     
     if (hashPoW > hashTarget)
         return false;
-        
     uint256 hashBlock = pblock->GetHash();
-
-    //// debug print
     printf("MyriadcoinMiner:\n");
     printf("proof-of-work found\n  block-hash: %s\n  pow-hash: %s\n  target: %s\n", 
         hashBlock.GetHex().c_str(), 
@@ -6972,10 +7304,8 @@ bool CheckWork2(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
         LOCK(cs_main);
         if (pblock->hashPrevBlock != hashBestChain)
             return error("MyriadcoinMiner : generated block is stale");
-
         // Remove key from key pool
         reservekey.KeepKey();
-
         // Track how many getdata requests this block gets
         {
             LOCK(wallet.cs_wallet);
@@ -7011,7 +7341,7 @@ void static GenericMiner(CWallet *pwallet, int algo)
         unsigned int nTransactionsUpdatedLast = nTransactionsUpdated;
         CBlockIndex* pindexPrev = pindexBest;
 
-        auto_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(reservekey, algo));
+        auto_ptr<CBlockTemplate> pblocktemplate(CreateNewBlockSkein(reservekey, algo));
         if (!pblocktemplate.get())
             return;
         CBlock *pblock = &pblocktemplate->block;
@@ -7030,8 +7360,8 @@ void static GenericMiner(CWallet *pwallet, int algo)
         uint256 hash;
         loop
         {
-            //hash = pblock->GetPoWHash(algo);
-			hash = 9999990;
+            hash = pblock->GetPoWHashSkein(algo);
+			//hash = 9999990;
 
             if (hash <= hashTarget){
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
@@ -7039,7 +7369,7 @@ void static GenericMiner(CWallet *pwallet, int algo)
                 printf("proof-of-work found  \n  hash: %s  \ntarget: %s\n", hash.GetHex().c_str(), hashTarget.GetHex().c_str());
                 pblock->print();
 
-                CheckWork(pblock, *pwalletMain, reservekey);
+                CheckWorkSkein(pblock, *pwalletMain, reservekey);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
                 break;
             }
@@ -7107,8 +7437,10 @@ void static GenericMiner(CWallet *pwallet, int algo)
 
 void static ThreadBitcoinMiner(CWallet *pwallet)
 {
-    printf("Gridcoin miner started\n");
+	
+    printf("Gridcoin miner started\r\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
+	
     RenameThread("gridcoin-miner");
     
     try 
@@ -7116,18 +7448,23 @@ void static ThreadBitcoinMiner(CWallet *pwallet)
         switch (miningAlgo)
         {
             case ALGO_SHA256D:
+				printf("Starting sha miner\n");
                 BitcoinMiner(pwallet);
                 break;
             case ALGO_SCRYPT:
+				printf("Starting scrypt miner\n");
                 ScryptMiner(pwallet);
                 break;
             case ALGO_GROESTL:
+				printf("Starting Groestl miner\n");
                 GenericMiner(pwallet, ALGO_GROESTL);
                 break;
             case ALGO_SKEIN:
+				printf("Starting Skein miner\n");
                 GenericMiner(pwallet, ALGO_SKEIN);
                 break;
             case ALGO_QUBIT:
+				printf("starting qubit miner\n");
                 GenericMiner(pwallet, ALGO_QUBIT);
                 break;
         }
@@ -7152,21 +7489,34 @@ void GenerateBitcoins(bool fGenerate, CWallet* pwallet)
             nThreads = boost::thread::hardware_concurrency();
     }
 
+	//3-15-2014
+	if (fGenerate==false) {
+		printf("Generate set to false \r\n");
+	}
 	printf("Num of gridcoin miner threads %d",nThreads);
 
     if (minerThreads != NULL)
     {
+		
+	printf("Interrupting Boost Threads %d",nThreads);
         minerThreads->interrupt_all();
         delete minerThreads;
         minerThreads = NULL;
     }
 
+	
+	printf("Ready to Generate %d",nThreads);
     if (nThreads == 0 || !fGenerate)
         return;
 
+	printf("Starting gridcoin internal miner\r\n");
+
     minerThreads = new boost::thread_group();
     for (int i = 0; i < nThreads; i++)
+	{
         minerThreads->create_thread(boost::bind(&ThreadBitcoinMiner, pwallet));
+		printf("Starting thread %d\r\n",i);
+	}
 }
 
 

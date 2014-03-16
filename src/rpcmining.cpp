@@ -81,24 +81,54 @@ Value getnetworkhashps(const Array& params, bool fHelp)
     return GetNetworkHashPS(params.size() > 0 ? params[0].get_int() : 120, params.size() > 1 ? params[1].get_int() : -1);
 }
 
-Value getmininginfo(const Array& params, bool fHelp)
+
+
+Value gethashespersec(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "gethashespersec\n"
+            "Returns a recent hashes per second performance measurement while generating.");
+
+    if (GetTimeMillis() - nHPSTimerStart > 8000)
+        return (boost::int64_t)0;
+    return (boost::int64_t)dHashesPerSec;
+}
+
+
+
+
+Value getmininginfo(const Array& params, bool fHelp)
+{
+
+	   if (fHelp || params.size() != 0)
         throw runtime_error(
             "getmininginfo\n"
             "Returns an object containing mining-related information.");
 
     Object obj;
     obj.push_back(Pair("blocks",        (int)nBestHeight));
-    obj.push_back(Pair("currentblocksize",(boost::uint64_t)nLastBlockSize));
-    obj.push_back(Pair("currentblocktx",(boost::uint64_t)nLastBlockTx));
+    obj.push_back(Pair("currentblocksize",(uint64_t)nLastBlockSize));
+    obj.push_back(Pair("currentblocktx",(uint64_t)nLastBlockTx));
     obj.push_back(Pair("difficulty",    (double)GetDifficulty()));
     obj.push_back(Pair("errors",        GetWarnings("statusbar")));
     obj.push_back(Pair("networkhashps", getnetworkhashps(params, false)));
-    obj.push_back(Pair("pooledtx",      (boost::uint64_t)mempool.size()));
+    obj.push_back(Pair("pooledtx",      (uint64_t)mempool.size()));
     obj.push_back(Pair("testnet",       fTestNet));
+	obj.push_back(Pair("pow_algo_id",        miningAlgo));
+    obj.push_back(Pair("pow_algo",           GetAlgoName(miningAlgo)));
+    obj.push_back(Pair("difficulty_scrypt",  (double)GetDifficulty(NULL, ALGO_SCRYPT)));
+    obj.push_back(Pair("difficulty_groestl", (double)GetDifficulty(NULL, ALGO_GROESTL)));
+    obj.push_back(Pair("difficulty_skein",   (double)GetDifficulty(NULL, ALGO_SKEIN)));
+    obj.push_back(Pair("difficulty_qubit",   (double)GetDifficulty(NULL, ALGO_QUBIT)));
+    obj.push_back(Pair("errors",             GetWarnings("statusbar")));
+    obj.push_back(Pair("generate coins",           GetBoolArg("-gen", false)));
+    obj.push_back(Pair("gen thread limit ",       (int)GetArg("-genproclimit", -1)));
+    obj.push_back(Pair("hashespersec",       gethashespersec(params, false)));
     return obj;
 }
+
+   
 
 
 
@@ -256,12 +286,6 @@ Value getworkex(const Array& params, bool fHelp)
 		printf("End of getworkEx Gridcoin");
 		
 		bool status = CheckWork(pblock, *pwalletMain, reservekey);
-		if (status) {
-				if (bPoolMiningMode) {
-				//Pay the pool miners:
-				}
-
-		}
 
 		return status;
     }
@@ -413,8 +437,10 @@ Value getwork(const Array& params, bool fHelp)
 
 		//bool NSS = globalcom->dynamicCall("GetGRCSleepStatus(QString,RetrieveSqlHighBlock()").toInt();
 		printf("Checking ScryptSleep for %s and %s",CBH.c_str(),pblock->hashBoinc.c_str());
-		//2-2-2014
 		int NSR = 0;
+		
+		if (false) 
+		{
 		if (pblock->hashBoinc.length() > 100) {
 			std::string sDelim = ",";
 			char cDelim = sDelim[0];
@@ -432,26 +458,14 @@ Value getwork(const Array& params, bool fHelp)
 				}
 			}
 		}
+		}
+
 
 		printf("Scrypt Sleep Result %i",NSR);
-		
-		// if (NSR =-17 && !bDebugMode) printf "Feature implemented."; (Pool operators will sleep unless in debug mode)
-
-		std::string pool_op = GetArg("-pooloperator", "false");
-	
-		if (NSR == -17 && pool_op != "true") {
-			printf("Block rejected due to Sleep Violation.\r\n");
-			return false;
-		}
-
-		if (NSR > 0) printf("Block accepted - scrypt sleep \r\n");
-
+			
 
 		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
-		if (status) {
-			
-		}
-
+		
 		return status;
 
     }

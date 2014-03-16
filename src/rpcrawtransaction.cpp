@@ -134,7 +134,7 @@ std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& o
 		std::string& out_projectaddress, std::string& out_comments, std::string& out_grcaddress)
 {
 	//Returns project information and user public wallet address that initiated the project
-
+	
 	int64 locktime = (boost::int64_t)tx.nLockTime;
 	int64 amountproject  = 0;
 	std::string grc1 = "";
@@ -348,8 +348,14 @@ Value getrawtransaction(const Array& params, bool fHelp)
 
     CTransaction tx;
     uint256 hashBlock = 0;
-    if (!GetTransaction(hash, tx, hashBlock, true))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+	std::string error_code = "";
+    if (!GetTransaction(hash, tx, hashBlock, true, error_code))
+	{
+        //throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+		Object result1;
+		result1.push_back(Pair("Error", error_code));
+		return result1;
+	}
 
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << tx;
@@ -373,7 +379,6 @@ Value getrawtransaction(const Array& params, bool fHelp)
 	std::string grc_address = "";
 	std::string o1 = TxToString(tx, hashBlock, out_amount, out_locktime, nProjId, sProjectAddress, comments, grc_address);
 	result.push_back(Pair("GRCAddress", grc_address));
-	
 	result.push_back(Pair("Comments",comments));
 	//////////////////////////////////////////////////////////////////////////////
 	}

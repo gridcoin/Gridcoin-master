@@ -140,6 +140,8 @@ extern json_spirit::Value ValueFromAmount(int64 amount);
 extern double DoubleFromAmount(int64 amount);
 
 extern double GetDifficulty(const CBlockIndex* blockindex = NULL);
+extern double GetDifficulty(const CBlockIndex* blockindex, int algo);
+
 extern std::string HexBits(unsigned int nBits);
 extern std::string HelpRequiringPassphrase();
 extern void EnsureWalletIsUnlocked();
@@ -225,7 +227,6 @@ extern json_spirit::Value listitem(const json_spirit::Array& params, bool fHelp)
 extern json_spirit::Value execute(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value getblock(const json_spirit::Array& params, bool fHelp);
-
 extern json_spirit::Value getblockbynumber(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value gettxoutsetinfo(const json_spirit::Array& params, bool fHelp);

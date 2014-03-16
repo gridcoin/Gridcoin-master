@@ -344,7 +344,7 @@
                                             sbi.AppendLine(sSql)
 
 
-                                            If InStr(1, sHash, "FupazJkUW4bP3JJgHPkh4JvM8kA33ztHRj") Then Log("Adding " + sSql)
+                                            'If InStr(1, sHash, "FupazJkUW4bP3JJgHPkh4JvM8kA33ztHRj") Then Log("Adding " + sSql)
 
 
                                         End If

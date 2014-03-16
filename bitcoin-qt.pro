@@ -231,6 +231,16 @@ HEADERS += src/qt/bitcoingui.h \
     src/limitedmap.h \
     src/qt/macnotificationhandler.h \
     src/qt/splashscreen.h \
+    src/sph_blake.h \
+      src/sph_groestl.h \
+      src/sph_keccak.h \
+      src/sph_bmw.h \
+      src/sph_jh.h \
+      src/sph_skein.h \
+      src/sph_types.h \
+      src/sph_luffa.h \
+      src/sph_cubehash.h \
+      src/sph_shavite.h \
   
  
 SOURCES += src/qt/bitcoin.cpp \
@@ -255,7 +265,6 @@ SOURCES += src/qt/bitcoin.cpp \
     src/netbase.cpp \
     src/key.cpp \
     src/script.cpp \
-    src/main.cpp \
     src/init.cpp \
     src/net.cpp \
     src/bloom.cpp \
@@ -304,6 +313,18 @@ SOURCES += src/qt/bitcoin.cpp \
     src/leveldb.cpp \
     src/txdb.cpp \
     src/qt/splashscreen.cpp
+    src/main.cpp \
+     src/skein.c \
+     src/luffa.c \
+     src/cubehash.c \
+     src/shavite.c \
+     src/echo.c \
+     src/simd.c
+
+    
+  
+  
+
 
 ##
 #RC_FILE  = qaxserver.rc

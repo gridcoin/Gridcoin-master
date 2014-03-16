@@ -38,6 +38,9 @@ using namespace boost;
 extern std::string GetHttpPage(std::string cpid);
 
 
+extern std::string DefaultBoincHashArgs(int copylocal);
+
+
 
 static const int MAX_OUTBOUND_CONNECTIONS = 16;
 
@@ -327,7 +330,7 @@ bool AddLocal(const CService& addr, int nScore)
     if (IsLimited(addr))
         return false;
 
-    printf("AddLocal(%s,%i)\n", addr.ToString().c_str(), nScore);
+   // printf("AddLocal(%s,%i)\n", addr.ToString().c_str(), nScore);
 
     {
         LOCK(cs_mapLocalHost);
@@ -465,7 +468,6 @@ std::string GetHttpContent(const CService& addrConnect, std::string getdata)
          //   while (strLine.size() > 0 && isspace(strLine[strLine.size()-1]))
           //      strLine.resize(strLine.size()-1);
            // CService addr(strLine,0,true);
-          //  printf("GetMyExternalIP() received [%s] %s\n", strLine.c_str(), addr.ToString().c_str());
            // if (!addr.IsValid() || !addr.IsRoutable())
            //     return false;
           //  ipRet.SetIP(addr);
@@ -554,7 +556,7 @@ bool GetMyExternalIP2(const CService& addrConnect, const char* pszGet, const cha
             while (strLine.size() > 0 && isspace(strLine[strLine.size()-1]))
                 strLine.resize(strLine.size()-1);
             CService addr(strLine,0,true);
-            printf("GetMyExternalIP() received [%s] %s\n", strLine.c_str(), addr.ToString().c_str());
+            //printf("GetMyExternalIP() received [%s] %s\n", strLine.c_str(), addr.ToString().c_str());
             if (!addr.IsValid() || !addr.IsRoutable())
                 return false;
             ipRet.SetIP(addr);
@@ -635,7 +637,7 @@ void ThreadGetMyExternalIP(void* parg)
     CNetAddr addrLocalHost;
     if (GetMyExternalIP(addrLocalHost))
     {
-        printf("GetMyExternalIP() returned %s\n", addrLocalHost.ToStringIP().c_str());
+        //printf("GetMyExternalIP() returned %s\n", addrLocalHost.ToStringIP().c_str());
         AddLocal(addrLocalHost, LOCAL_HTTP);
     }
 }
@@ -763,6 +765,38 @@ void CNode::Cleanup()
 {
 }
 
+std::string DefaultBoincHashArgs(int copylocal)
+{
+	//3-16-2014 (Gridcoin), add support for ProofOfBoinc Node Relay support when local miner is using PoB Skein CPU Mining:
+	std::string sboinchashargs = GetArg("-boinchash", "boinchashargs");
+	std::string boincAuth = BoincAuthenticity();
+	std::string mygrcaddress = DefaultWalletAddress();
+	uint256 boincHashRandNonce = GetRandHash();
+    std::string sboinchashmerkleroot = BoincHashMerkleRoot;
+    std::string nonce = boincHashRandNonce.GetHex();
+	if (sboinchashargs != "boinchashargs") return sboinchashargs;
+	if (copylocal==1) {
+		sboinchashargs = boincAuth;
+	}
+
+	if (copylocal==2) {
+		sboinchashargs = boincAuth + mygrcaddress;
+	}
+
+	if (copylocal==3) {
+		sboinchashargs = boincAuth + mygrcaddress + nonce;
+		if (sboinchashmerkleroot.length() > 30)
+		{ 
+			return sboinchashmerkleroot;
+		}
+		else
+		{ 
+			return sboinchashargs;
+		}
+	}
+	
+	return sboinchashargs;
+}
 
 void CNode::PushVersion()
 {
@@ -772,14 +806,11 @@ void CNode::PushVersion()
     CAddress addrMe = GetLocalAddress(&addr);
     RAND_bytes((unsigned char*)&nLocalHostNonce, sizeof(nLocalHostNonce));
     printf("send version message: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", PROTOCOL_VERSION, nBestHeight, addrMe.ToString().c_str(), addrYou.ToString().c_str(), addr.ToString().c_str());
-    PushMessage("version", PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
+	std::string sboinchashargs = DefaultBoincHashArgs(3);
+    PushMessage("version", PROTOCOL_VERSION, sboinchashargs, nLocalServices, nTime, addrYou, addrMe,
                 nLocalHostNonce, FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>()), nBestHeight);
-
-   
-   
-
+	
 }
-
 
 
 
@@ -1358,10 +1389,14 @@ void ThreadMapPort()
 #endif
 
                 if(r!=UPNPCOMMAND_SUCCESS)
+				{
                     printf("AddPortMapping(%s, %s, %s) failed with code %d (%s)\n",
                         port.c_str(), port.c_str(), lanaddr, r, strupnperror(r));
+				}
                 else
-                    printf("UPnP Port Mapping successful.\n");;
+				{
+                  //  printf("UPnP Port Mapping successful.\n");
+				}
 
                 MilliSleep(20*60*1000); // Refresh every 20 minutes
             }
@@ -1949,7 +1984,7 @@ void static Discover()
                 struct sockaddr_in* s4 = (struct sockaddr_in*)(ifa->ifa_addr);
                 CNetAddr addr(s4->sin_addr);
                 if (AddLocal(addr, LOCAL_IF))
-                    printf("IPv4 %s: %s\n", ifa->ifa_name, addr.ToString().c_str());
+                    //printf("IPv4 %s: %s\n", ifa->ifa_name, addr.ToString().c_str());
             }
 #ifdef USE_IPV6
             else if (ifa->ifa_addr->sa_family == AF_INET6)
@@ -1957,7 +1992,7 @@ void static Discover()
                 struct sockaddr_in6* s6 = (struct sockaddr_in6*)(ifa->ifa_addr);
                 CNetAddr addr(s6->sin6_addr);
                 if (AddLocal(addr, LOCAL_IF))
-                    printf("IPv6 %s: %s\n", ifa->ifa_name, addr.ToString().c_str());
+                    //printf("IPv6 %s: %s\n", ifa->ifa_name, addr.ToString().c_str());
             }
 #endif
         }

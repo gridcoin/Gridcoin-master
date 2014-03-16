@@ -13,12 +13,17 @@ using namespace std;
 
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
 
+CBigNum ReturnProofOfWorkLimit(int algo);
 
 extern std::string SendMultiProngedTransaction(int projectid, std::string userid);
 
 extern std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex);
 
 std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& out_amount, int64& out_locktime, int64& out_projectid, std::string& out_projectaddress, std::string& comments, std::string& out_grcaddress);
+extern bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& out_errors);
+
+
+
 
 
 double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
@@ -28,6 +33,54 @@ void HarvestCPIDs();
 
 
 void RestartGridcoin3();
+
+
+
+
+
+
+double GetDifficulty(const CBlockIndex* blockindex, int algo)
+{
+    unsigned int nBits;
+    
+    // Floating point number that is a multiple of the minimum difficulty,
+    // minimum difficulty = 1.0.
+    if (blockindex == NULL)
+    {
+        if (pindexBest == NULL)
+            nBits = bnProof[ALGO_SHA256D].GetCompact();
+        else
+        {
+            blockindex = GetLastBlockIndexForAlgo(pindexBest, algo);
+            if (blockindex == NULL)
+                nBits = bnProof[algo].GetCompact();
+            else
+                nBits = blockindex->nBits;
+        }
+    }
+    else
+        nBits = blockindex->nBits;
+
+    int nShift = (nBits >> 24) & 0xff;
+
+    double dDiff =
+        (double)0x0000ffff / (double)(nBits & 0x00ffffff);
+
+    while (nShift < 29)
+    {
+        dDiff *= 256.0;
+        nShift++;
+    }
+    while (nShift > 29)
+    {
+        dDiff /= 256.0;
+        nShift--;
+    }
+
+    return dDiff;
+}
+
+
 
 
 double GetDifficulty(const CBlockIndex* blockindex)
@@ -110,6 +163,59 @@ int BoincProjectId(std::string grc)
    if (grc=="FvDfoheNe74JcUp6uf3N8cPeU4KeUsxPq7") return 5; //http://milkyway.cs.rpi.edu/milkyway
    return 0;
 }
+
+
+
+bool RetrieveTxFromBlock(const CBlock& block, const CBlockIndex* blockindex, uint256 txhashin, CTransaction& txout)
+{
+    CMerkleTx txGen(block.vtx[0]);
+    txGen.SetMerkleBranch(&block);
+    BOOST_FOREACH(const CTransaction&tx, block.vtx)
+	{
+	
+	  if (tx.GetHash() == txhashin) 
+	  {   
+		  txout = tx;
+		  return true;
+	  }
+	}
+	return false;	
+}
+
+
+
+
+
+
+bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& out_errors)
+{
+	
+	int nMaxDepth = nBestHeight;
+    CBlock block;
+	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
+	block.ReadFromDisk(pLastBlock);
+	int64 LastBlockTime = pLastBlock->GetBlockTime();
+	
+	int istart = 0;
+	out_errors = "Scanning blockchain slow; ";
+
+    for (int ii = nMaxDepth; ii > 1; ii--)
+    {
+     	CBlockIndex* pblockindex = FindBlockByHeight(ii);
+		block.ReadFromDisk(pblockindex);
+		bool result = RetrieveTxFromBlock(block,pblockindex,txhashin,txout);
+		if (result) return true;
+
+    }
+	out_errors = out_errors + "Not found; ";
+
+	return false;
+	
+}
+
+
+
+
 
 
 std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex)

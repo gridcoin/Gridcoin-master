@@ -10,6 +10,7 @@
 #include "net.h"
 #include "script.h"
 #include "scrypt.h"
+#include "uint256.h"
 
 
 #include "hashgroestl.h"
@@ -97,6 +98,21 @@ inline std::string GetAlgoName(int Algo)
 
 
 
+const CBigNum bnProof[5] = {	
+	CBigNum(~uint256(0) >> 20),
+	CBigNum(~uint256(0) >> 20), 
+	CBigNum(~uint256(0) >> 20),
+	CBigNum(~uint256(0) >> 20),
+	CBigNum(~uint256(0) >> 20)};
+
+
+
+
+/** Run the miner threads */
+void GenerateBitcoins(bool fGenerate, CWallet* pwallet);
+const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, int algo);
+const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, int algo);
+
 
 
 
@@ -137,11 +153,11 @@ static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20
 /** Maximum number of script-checking threads allowed */
 //1450 + up to 4 for transaction fees
 static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 1454;
-
 /** Default amount of block size reserved for high-priority transactions (in bytes) */
 static const int DEFAULT_BLOCK_PRIORITY_SIZE = 27000;
-
-
+// Boinc hash merkle root
+static const std::string BoincHashMerkleRoot = "PUrMgXr9kgcqiuehEJ1Tq1dovW";
+// Script check threads
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 #ifdef USE_UPNP
 static const int fHaveUPnP = true;
@@ -244,12 +260,17 @@ bool SendMessages(CNode* pto, bool fSendTrickle);
 void ThreadScriptCheck();
 /** Generate a new block, without valid proof-of-work */
 CBlockTemplate* CreateNewBlock(CReserveKey& reservekey);
+CBlockTemplate* CreateNewBlockSkein(CReserveKey& reservekey, int algo);
+
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
 /** Do mining precalculation */
 void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash1);
 /** Check mined block */
-bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
+
+bool CheckWorkSkein(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
+
+     bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
 /** Check whether a block hash satisfies the proof-of-work requirement specified by nBits */
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 /** Calculate the minimum amount of work a received block needs, without knowing its direct parent */
@@ -263,7 +284,8 @@ std::string GetWarnings(std::string strFor);
 /** Return the Default Gridcoin Address */
 std::string DefaultWalletAddress();
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock, bool fAllowSlow = false);
+bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock, bool fAllowSlow, std::string& error_code);
+
 /** Connect/disconnect blocks until pindexNew is the new tip of the active block chain */
 bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew);
 /** Find the best known block, and make it the tip of the block chain */
@@ -776,9 +798,17 @@ bool IsFinalTx(const CTransaction &tx, int nBlockHeight = 0, int64 nBlockTime = 
     // Check whether all inputs of this transaction are valid (no double spends, scripts & sigs, amounts)
     // This does not modify the UTXO set. If pvChecks is not NULL, script checks are pushed onto it
     // instead of being performed inline.
-    bool CheckInputs(CValidationState &state, CCoinsViewCache &view, bool fScriptChecks = true,
+    
+	bool CheckInputs(CValidationState &state, CCoinsViewCache &view, bool fScriptChecks = true,
                      unsigned int flags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC,
                      std::vector<CScriptCheck> *pvChecks = NULL) const;
+
+	
+	
+	bool CheckInputsSkein(const CTransaction& tx, CValidationState &state, CCoinsViewCache &view, bool fScriptChecks = true,
+                 unsigned int flags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC,
+                 std::vector<CScriptCheck> *pvChecks = NULL);
+
 
     // Apply the effects of this transaction on the UTXO set represented by view
     void UpdateCoins(CValidationState &state, CCoinsViewCache &view, CTxUndo &txundo, int nHeight, const uint256 &txhash) const;
@@ -1431,15 +1461,14 @@ public:
         return (nBits == 0);
     }
 
-    uint256 GetHash() const
+
+	uint256 GetHash() const
     {
         return Hash(BEGIN(nVersion), END(nNonce));
     }
 
-	
 
-
-	 uint256 GetPoWHash(int algo) const
+	uint256 GetPoWHashSkein(int algo) const
     {
         switch (algo)
         {
@@ -1449,16 +1478,22 @@ public:
             {
                 uint256 thash;
                 // Caution: scrypt_1024_1_1_256 assumes fixed length of 80 bytes
-                scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
-                return thash;
+                //scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
+						       return GetHash();
             }
             case ALGO_GROESTL:
-                return HashGroestl(BEGIN(nVersion), END(nNonce));
+              //       return HashGroestl(BEGIN(nVersion), END(nNonce));
+				       return GetHash();
+         
             case ALGO_SKEIN:
-                return HashSkein(BEGIN(nVersion), END(nNonce));
+         //       return HashSkein(BEGIN(nVersion), END(nNonce));
+				       return GetHash();
+         
             case ALGO_QUBIT:
-                return HashQubit(BEGIN(nVersion), END(nNonce));
-        }
+         //       return HashQubit(BEGIN(nVersion), END(nNonce));
+				return GetHash();
+         
+		}
         return GetHash();
     }
 
@@ -1518,12 +1553,17 @@ public:
         vMerkleTree.clear();
     }
 
+
+	
     uint256 GetPoWHash() const
     {
         uint256 thash;
         scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
         return thash;
     }
+
+
+
 
     CBlockHeader GetBlockHeader() const
     {
@@ -2038,12 +2078,12 @@ public:
     };
 
     const uint256& HashGenesisBlock() const { return hashGenesisBlock; }
-    const CBigNum& ProofOfWorkLimit(int algo) const { return bnProofOfWorkLimit[algo]; }
+    const CBigNum& ReturnProofOfWorkLimit(int algo) const { return bnProof2[algo]; }
     virtual Network NetworkID() const = 0;
 protected:
     CChainParams() {};
 
-    CBigNum bnProofOfWorkLimit[NUM_ALGOS];
+    CBigNum bnProof2[NUM_ALGOS];
 };
 
 /**

@@ -126,7 +126,7 @@ void Shutdown()
     nTransactionsUpdated++;
     StopRPCThreads();
     bitdb.Flush(false);
-	//	GenerateBitcoins(false, NULL);
+	GenerateBitcoins(false, NULL);
 
     
     StopNode();
@@ -624,6 +624,8 @@ bool AppInit2()
 
 	 // Algo
     std::string strAlgo = GetArg("-algo", "sha256d");
+	printf("Chosen Algo %s\n", strAlgo.c_str());
+
     transform(strAlgo.begin(),strAlgo.end(),strAlgo.begin(),::tolower);
     if (strAlgo == "sha" || strAlgo == "sha256" || strAlgo == "sha256d")
         miningAlgo = ALGO_SHA256D;
@@ -638,6 +640,8 @@ bool AppInit2()
     else
         miningAlgo = ALGO_SHA256D;
     
+	printf("Mining Algo %s\n",strAlgo.c_str());
+
 
     // Make sure enough file descriptors are available
     int nBind = std::max((int)mapArgs.count("-bind"), 1);
@@ -1224,7 +1228,14 @@ bool AppInit2()
 
 	
     // Generate coins in the background
-	//       GenerateBitcoins(GetBoolArg("-gen", false), pwalletMain);
+
+	//bool fGenerate = false;
+	//std::string sGen = GetArg("-gen", "false");
+	//if (sGen=="true") fGenerate = true;
+	//  Internal future miner:
+	// 	GenerateBitcoins(fGenerate, pwalletMain);
+
+
 
 
     // ********************************************************* Step 12: finished
