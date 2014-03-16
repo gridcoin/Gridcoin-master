@@ -5347,7 +5347,7 @@ std::string DefaultWalletAddress()
 	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
     {
     	 const CBitcoinAddress& address = item.first;
-		 //const std::string& strName = item.second;
+		 const std::string& strName = item.second;
 		 bool fMine = IsMine(*pwalletMain, address.Get());
 		 if (fMine && strName == "Default") {
 			 sDefaultWalletAddress=CBitcoinAddress(address).ToString();
@@ -5361,7 +5361,7 @@ std::string DefaultWalletAddress()
 	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
     {
     	 const CBitcoinAddress& address = item.first;
-		 const std::string& strName = item.second;
+		 //const std::string& strName = item.second;
 		 bool fMine = IsMine(*pwalletMain, address.Get());
 		 if (fMine) {
 			 sDefaultWalletAddress=CBitcoinAddress(address).ToString();
