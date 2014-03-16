@@ -194,9 +194,9 @@ bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& ou
     CBlock block;
 	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
 	block.ReadFromDisk(pLastBlock);
-	int64 LastBlockTime = pLastBlock->GetBlockTime();
-	
-	int istart = 0;
+	//int64 LastBlockTime = pLastBlock->GetBlockTime();
+	//	int istart = 0;
+
 	out_errors = "Scanning blockchain slow; ";
 
     for (int ii = nMaxDepth; ii > 1; ii--)
