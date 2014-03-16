@@ -488,9 +488,7 @@ Value listitem(const Array& params, bool fHelp)
 
 	if (sitem=="cpids") {
 			//Dump vectors:
-			int inum=0;
 			HarvestCPIDs();
-			
 			printf ("generating cpid report %s",sitem.c_str());
 
 
