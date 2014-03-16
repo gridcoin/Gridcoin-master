@@ -1491,14 +1491,6 @@ Value listcpuminers(const Array& params, bool fHelp)
 
 
 
-
-
-
-
-
-
-
-
 Value listmycpuminers(const Array& params, bool fHelp)
 {
 
@@ -1518,7 +1510,6 @@ Value listmycpuminers(const Array& params, bool fHelp)
 	    
     int inum = 0;
    
-    double rbpps = cpuminerpayments["totals"].rbpps;
     Object entry;
 	
 	entry.push_back(Pair("CPU Credit Details Report Version",1.02));
