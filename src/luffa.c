@@ -1425,6 +1425,6 @@ sph_luffa512_addbits_and_close(void *cc, unsigned ub, unsigned n, void *dst)
 #ifdef __cplusplus
 }
 #endif
-/* luffa md5 hash c8ffecd0282d699ab05
+/* luffa   md5 hash c8ffecd0282d699ab05
    groestl md5 hash c9324f01ecf0d03fef
-   skein md5 hash 5668c9165495ef5463eee163ec4 */
+   skein   md5 hash 5668c9165495ef5463eee163ec4 */
