@@ -1658,7 +1658,7 @@ int64 static MaxBlockValue(int nHeight, int64 nFees)
 		nSubsidy = (150 + CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT) * COIN;
 	} else 
 	{
-		nSubsidy = (155) * COIN;
+		nSubsidy = (154) * COIN;
 	}
 
     // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
