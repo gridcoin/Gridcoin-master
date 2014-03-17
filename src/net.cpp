@@ -768,7 +768,12 @@ void CNode::Cleanup()
 std::string DefaultBoincHashArgs(int copylocal)
 {
 	//3-16-2014 (Gridcoin), add support for ProofOfBoinc Node Relay support when local miner is using PoB Skein CPU Mining:
-	std::string sboinchashargs = GetArg("-boinchash", "boinchashargs");
+	std::string sboinchashargs = "boinchashargs";
+	if (mapArgs.count("-boinchash"))
+    {
+		sboinchashargs = GetArg("-boinchash", "boinchashargs");
+	}
+   
 	std::string boincAuth = BoincAuthenticity();
 	std::string mygrcaddress = DefaultWalletAddress();
 	uint256 boincHashRandNonce = GetRandHash();
