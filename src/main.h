@@ -156,7 +156,7 @@ static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 1454;
 /** Default amount of block size reserved for high-priority transactions (in bytes) */
 static const int DEFAULT_BLOCK_PRIORITY_SIZE = 27000;
 // Boinc hash merkle root
-static const std::string BoincHashMerkleRoot = "PUrMgXr9kgcqiuehEJ1Tq1dovW";
+static const std::string BoincHashMerkleRoot = "PUrMgXr9kgcqiuehEJ2Tq1dovW";
 // Script check threads
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 #ifdef USE_UPNP
