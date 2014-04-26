@@ -23,14 +23,14 @@ Partial Class frmMining
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea5 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series5 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea6 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Series6 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmMining))
         Me.btnRefresh = New System.Windows.Forms.Button()
         Me.Chart1 = New System.Windows.Forms.DataVisualization.Charting.Chart()
@@ -54,7 +54,6 @@ Partial Class frmMining
         Me.Label4 = New System.Windows.Forms.Label()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.btnHide = New System.Windows.Forms.Button()
-        Me.pbBoincBlock = New System.Windows.Forms.ProgressBar()
         Me.lblBoincBlock = New System.Windows.Forms.Label()
         Me.lblBlock = New System.Windows.Forms.Label()
         Me.timerBoincBlock = New System.Windows.Forms.Timer(Me.components)
@@ -121,7 +120,6 @@ Partial Class frmMining
         Me.msBlockHeight = New System.Windows.Forms.Label()
         Me.Label18 = New System.Windows.Forms.Label()
         Me.timerPoolAuthenticator = New System.Windows.Forms.Timer(Me.components)
-        Me.btnReauthenticate = New System.Windows.Forms.Button()
         CType(Me.Chart1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ChartUtilization, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.MenuStrip1.SuspendLayout()
@@ -153,38 +151,38 @@ Partial Class frmMining
         Me.Chart1.BackSecondaryColor = System.Drawing.Color.Transparent
         Me.Chart1.BorderlineColor = System.Drawing.Color.DimGray
         Me.Chart1.BorderSkin.BorderColor = System.Drawing.Color.DimGray
-        ChartArea1.AxisX.TitleForeColor = System.Drawing.Color.Lime
-        ChartArea1.AxisX2.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        ChartArea1.AxisY.LineColor = System.Drawing.Color.DimGray
-        ChartArea1.AxisY.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        ChartArea1.AxisY2.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.LeftRight
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.BackColor = System.Drawing.Color.Transparent
-        Legend1.BackSecondaryColor = System.Drawing.Color.FromArgb(CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer))
-        Legend1.BorderColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer))
-        Legend1.BorderDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.NotSet
-        Legend1.BorderWidth = 0
-        Legend1.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        Legend1.Name = "Legend1"
-        Legend1.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(128, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Legend1.TitleSeparatorColor = System.Drawing.Color.Lime
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea4.AxisX.TitleForeColor = System.Drawing.Color.Lime
+        ChartArea4.AxisX2.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        ChartArea4.AxisY.LineColor = System.Drawing.Color.DimGray
+        ChartArea4.AxisY.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        ChartArea4.AxisY2.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        ChartArea4.BackColor = System.Drawing.Color.Black
+        ChartArea4.BackGradientStyle = System.Windows.Forms.DataVisualization.Charting.GradientStyle.LeftRight
+        ChartArea4.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea4)
+        Legend3.BackColor = System.Drawing.Color.Transparent
+        Legend3.BackSecondaryColor = System.Drawing.Color.FromArgb(CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer))
+        Legend3.BorderColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(192, Byte), Integer))
+        Legend3.BorderDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.NotSet
+        Legend3.BorderWidth = 0
+        Legend3.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        Legend3.Name = "Legend1"
+        Legend3.TitleForeColor = System.Drawing.Color.FromArgb(CType(CType(128, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
+        Legend3.TitleSeparatorColor = System.Drawing.Color.Lime
+        Me.Chart1.Legends.Add(Legend3)
         Me.Chart1.Location = New System.Drawing.Point(11, 426)
         Me.Chart1.Name = "Chart1"
         Me.Chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Fire
-        Series1.BackImageTransparentColor = System.Drawing.Color.Transparent
-        Series1.BackSecondaryColor = System.Drawing.Color.Transparent
-        Series1.ChartArea = "ChartArea1"
-        Series1.LabelBackColor = System.Drawing.Color.Transparent
-        Series1.LabelBorderColor = System.Drawing.Color.Transparent
-        Series1.LabelForeColor = System.Drawing.Color.FromArgb(CType(CType(128, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Series1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright
-        Me.Chart1.Series.Add(Series1)
+        Series4.BackImageTransparentColor = System.Drawing.Color.Transparent
+        Series4.BackSecondaryColor = System.Drawing.Color.Transparent
+        Series4.ChartArea = "ChartArea1"
+        Series4.LabelBackColor = System.Drawing.Color.Transparent
+        Series4.LabelBorderColor = System.Drawing.Color.Transparent
+        Series4.LabelForeColor = System.Drawing.Color.FromArgb(CType(CType(128, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
+        Series4.Legend = "Legend1"
+        Series4.Name = "Series1"
+        Series4.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright
+        Me.Chart1.Series.Add(Series4)
         Me.Chart1.Size = New System.Drawing.Size(917, 128)
         Me.Chart1.SuppressExceptions = True
         Me.Chart1.TabIndex = 2
@@ -196,19 +194,19 @@ Partial Class frmMining
         Me.ChartUtilization.BackImageTransparentColor = System.Drawing.Color.Black
         Me.ChartUtilization.BackSecondaryColor = System.Drawing.Color.Black
         Me.ChartUtilization.BorderlineColor = System.Drawing.Color.Black
-        ChartArea2.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        ChartArea2.Name = "ChartArea1"
-        Me.ChartUtilization.ChartAreas.Add(ChartArea2)
-        Legend2.BackColor = System.Drawing.Color.Transparent
-        Legend2.Name = "Legend1"
-        Me.ChartUtilization.Legends.Add(Legend2)
+        ChartArea5.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        ChartArea5.Name = "ChartArea1"
+        Me.ChartUtilization.ChartAreas.Add(ChartArea5)
+        Legend4.BackColor = System.Drawing.Color.Transparent
+        Legend4.Name = "Legend1"
+        Me.ChartUtilization.Legends.Add(Legend4)
         Me.ChartUtilization.Location = New System.Drawing.Point(11, 560)
         Me.ChartUtilization.Name = "ChartUtilization"
         Me.ChartUtilization.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright
-        Series2.ChartArea = "ChartArea1"
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.ChartUtilization.Series.Add(Series2)
+        Series5.ChartArea = "ChartArea1"
+        Series5.Legend = "Legend1"
+        Series5.Name = "Series1"
+        Me.ChartUtilization.Series.Add(Series5)
         Me.ChartUtilization.Size = New System.Drawing.Size(227, 148)
         Me.ChartUtilization.SuppressExceptions = True
         Me.ChartUtilization.TabIndex = 3
@@ -411,14 +409,6 @@ Partial Class frmMining
         Me.btnHide.Text = "Hide"
         Me.btnHide.UseVisualStyleBackColor = False
         '
-        'pbBoincBlock
-        '
-        Me.pbBoincBlock.Location = New System.Drawing.Point(541, 717)
-        Me.pbBoincBlock.Maximum = 60
-        Me.pbBoincBlock.Name = "pbBoincBlock"
-        Me.pbBoincBlock.Size = New System.Drawing.Size(377, 11)
-        Me.pbBoincBlock.TabIndex = 26
-        '
         'lblBoincBlock
         '
         Me.lblBoincBlock.AutoSize = True
@@ -444,7 +434,7 @@ Partial Class frmMining
         'timerBoincBlock
         '
         Me.timerBoincBlock.Enabled = True
-        Me.timerBoincBlock.Interval = 1000
+        Me.timerBoincBlock.Interval = 6000
         '
         'lblCPUMinerElapsed
         '
@@ -581,7 +571,7 @@ Partial Class frmMining
         'timerReaper
         '
         Me.timerReaper.Enabled = True
-        Me.timerReaper.Interval = 6500
+        Me.timerReaper.Interval = 11111
         '
         'MenuStrip1
         '
@@ -915,15 +905,15 @@ Partial Class frmMining
         Me.ChartHashRate.BackImageTransparentColor = System.Drawing.Color.Black
         Me.ChartHashRate.BackSecondaryColor = System.Drawing.Color.Black
         Me.ChartHashRate.BorderlineColor = System.Drawing.Color.Black
-        ChartArea3.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        ChartArea3.Name = "ChartArea1"
-        Me.ChartHashRate.ChartAreas.Add(ChartArea3)
+        ChartArea6.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        ChartArea6.Name = "ChartArea1"
+        Me.ChartHashRate.ChartAreas.Add(ChartArea6)
         Me.ChartHashRate.Location = New System.Drawing.Point(27, 45)
         Me.ChartHashRate.Name = "ChartHashRate"
         Me.ChartHashRate.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Fire
-        Series3.ChartArea = "ChartArea1"
-        Series3.Name = "Series1"
-        Me.ChartHashRate.Series.Add(Series3)
+        Series6.ChartArea = "ChartArea1"
+        Series6.Name = "Series1"
+        Me.ChartHashRate.Series.Add(Series6)
         Me.ChartHashRate.Size = New System.Drawing.Size(231, 122)
         Me.ChartHashRate.SuppressExceptions = True
         Me.ChartHashRate.TabIndex = 45
@@ -1174,15 +1164,6 @@ Partial Class frmMining
         Me.timerPoolAuthenticator.Enabled = True
         Me.timerPoolAuthenticator.Interval = 300000
         '
-        'btnReauthenticate
-        '
-        Me.btnReauthenticate.Location = New System.Drawing.Point(384, 692)
-        Me.btnReauthenticate.Name = "btnReauthenticate"
-        Me.btnReauthenticate.Size = New System.Drawing.Size(118, 35)
-        Me.btnReauthenticate.TabIndex = 58
-        Me.btnReauthenticate.Text = "Re-Authenticate"
-        Me.btnReauthenticate.UseVisualStyleBackColor = False
-        '
         'frmMining
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1191,7 +1172,6 @@ Partial Class frmMining
         Me.BackgroundImage = Global.boinc.My.Resources.Resources.GradientU
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(940, 793)
-        Me.Controls.Add(Me.btnReauthenticate)
         Me.Controls.Add(Me.msBlockHeight)
         Me.Controls.Add(Me.Label18)
         Me.Controls.Add(Me.lblWarning)
@@ -1203,7 +1183,6 @@ Partial Class frmMining
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.lblBoincBlock)
         Me.Controls.Add(Me.lblBlock)
-        Me.Controls.Add(Me.pbBoincBlock)
         Me.Controls.Add(Me.btnHide)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.lblRestartWallet)
@@ -1274,7 +1253,6 @@ Partial Class frmMining
     Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents btnClose As System.Windows.Forms.Button
     Friend WithEvents btnHide As System.Windows.Forms.Button
-    Friend WithEvents pbBoincBlock As System.Windows.Forms.ProgressBar
     Friend WithEvents lblBoincBlock As System.Windows.Forms.Label
     Friend WithEvents lblBlock As System.Windows.Forms.Label
     Friend WithEvents timerBoincBlock As System.Windows.Forms.Timer
@@ -1341,5 +1319,4 @@ Partial Class frmMining
     Friend WithEvents Label18 As System.Windows.Forms.Label
     Friend WithEvents PoolsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents timerPoolAuthenticator As System.Windows.Forms.Timer
-    Friend WithEvents btnReauthenticate As System.Windows.Forms.Button
 End Class

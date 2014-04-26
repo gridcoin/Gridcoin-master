@@ -15,11 +15,7 @@ void Shutdown();
 bool AppInit2();
 std::string HelpMessage();
 std::string LogSomething();
-
-//Commenting
-
-#ifdef WIN32
 extern boost::thread_group threadGroup;
-#endif
+
 
 #endif

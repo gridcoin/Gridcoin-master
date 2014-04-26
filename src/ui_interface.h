@@ -79,10 +79,7 @@ public:
 		                         const std::string& h2,
 								 const std::string& h3,
 								 const std::string& h4,
-								 const std::string& h5), boost::signals2::last_value<int> > ThreadSafeCheckWork;
-	//static int ThreadSafeCheckWork(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
-
-
+								 const std::string& h5), boost::signals2::last_value<int> > ThreadSafeWin32Call;
 
 
     /** Handle a URL passed at the command line. */

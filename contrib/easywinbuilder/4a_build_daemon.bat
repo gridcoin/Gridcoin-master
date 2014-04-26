@@ -7,6 +7,7 @@
 @set PARAMS=BOOST_SUFFIX=%BOOSTSUFFIX%
 @set PARAMS=%PARAMS% INCLUDEPATHS="
 @rem set PARAMS=%PARAMS%-I'../src'
+@set PARAMS=%PARAMS% -I'../src/skein.c'
 @set PARAMS=%PARAMS% -I'../%EWBLIBS%/%BOOST%'
 @set PARAMS=%PARAMS% -I'../%EWBLIBS%/%OPENSSL%/include'
 @set PARAMS=%PARAMS% -I'../%EWBLIBS%/%BERKELEYDB%/build_unix'

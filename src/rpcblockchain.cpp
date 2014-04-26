@@ -6,7 +6,11 @@
 #include "main.h"
 #include "bitcoinrpc.h"
 
+#include "init.h" // for pwalletMain
+
 #include <boost/lexical_cast.hpp>
+
+#include <boost/algorithm/string/case_conv.hpp> // for to_lower()
 
 using namespace json_spirit;
 using namespace std;
@@ -15,69 +19,138 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
 
 CBigNum ReturnProofOfWorkLimit(int algo);
 
-extern std::string SendMultiProngedTransaction(int projectid, std::string userid);
+void ResendWalletTransactions2();
+		
+bool AESSkeinHash(unsigned int diffbytes, double rac, uint256 scrypthash, std::string& out_skein, std::string& out_aes512);
+std::string aes_complex_hash(uint256 scrypt_hash);
+std::vector<std::string> split(std::string s, std::string delim);
 
-extern std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex);
+int TestAESHash(double rac, unsigned int diffbytes, uint256 scrypt_hash, std::string aeshash);
+
+extern std::string SendMultiProngedTransaction(int projectid, std::string userid);
 
 std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& out_amount, int64& out_locktime, int64& out_projectid, std::string& out_projectaddress, std::string& comments, std::string& out_grcaddress);
 extern bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& out_errors);
 
+bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
+
+extern double GetPoBDifficulty();
+bool IsCPIDValid(std::string cpid, std::string ENCboincpubkey);
+
+std::string RetrieveMd5(std::string s1);
 
 
+std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, uint256 blockhash, 
+	 double subsidy, double nonce, int height);
+
+std::string getfilecontents(std::string filename);
 
 
-double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
+MiningCPID DeserializeBoincBlock(std::string block);
 
-void HarvestCPIDs();
+	
+
+std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string urlPage, bool bUseDNS);
 
 
+std::string RacStringFromDiff(double RAC, unsigned int diffbytes);
+
+void PobSleep(int milliseconds);
+
+extern double GetNetworkAvgByProject(std::string projectname);
+
+extern bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjectName, double pobdiff, bool bCreditNodeVerification, std::string& out_errors, int& out_position);
+
+
+void HarvestCPIDs(bool cleardata);
+
+bool TallyNetworkAverages();
 
 void RestartGridcoin3();
 
+std::string GetHttpPage(std::string cpid);
+
+
+bool GridDecrypt(const std::vector<unsigned char>& vchCiphertext,std::vector<unsigned char>& vchPlaintext);
+	
+bool GridEncrypt(std::vector<unsigned char> vchPlaintext, std::vector<unsigned char> &vchCiphertext);
 
 
 
 
 
-double GetDifficulty(const CBlockIndex* blockindex, int algo)
+double GetPoBDifficulty()
 {
-    unsigned int nBits;
-    
-    // Floating point number that is a multiple of the minimum difficulty,
-    // minimum difficulty = 1.0.
-    if (blockindex == NULL)
-    {
-        if (pindexBest == NULL)
-            nBits = bnProof[ALGO_SHA256D].GetCompact();
-        else
-        {
-            blockindex = GetLastBlockIndexForAlgo(pindexBest, algo);
-            if (blockindex == NULL)
-                nBits = bnProof[algo].GetCompact();
-            else
-                nBits = blockindex->nBits;
-        }
-    }
-    else
-        nBits = blockindex->nBits;
 
-    int nShift = (nBits >> 24) & 0xff;
+	if (mvNetwork.size() < 1) 	
+	{
+			PobSleep(1000);
+			TallyNetworkAverages();
+	}
 
-    double dDiff =
-        (double)0x0000ffff / (double)(nBits & 0x00ffffff);
+	try 
+	{
+		static CCriticalSection criticalGetDiff;
+		{
+ 
+				LOCK(criticalGetDiff);
+	
+				StructCPID structcpid = mvNetwork["NETWORK"];
+				if (!structcpid.initialized) 
+				{
+					return 9999;
+				}
+				double networkrac = structcpid.rac;
+				double networkavgrac = structcpid.AverageRAC;
+				double networkprojects = structcpid.NetworkProjects;
+				//During 14 day lookback, calculate day-blocks
+				if (networkprojects == 0) networkprojects=1;
+				double dayblocks = networkprojects/576;
+				if (dayblocks > 14)   dayblocks=14;
+				if (dayblocks < .005) dayblocks=.005;
+				//CRITICAL: REMOVE THIS FOR PRODUCTION
+				dayblocks=dayblocks/2;
+				mdLastPoBDifficulty = dayblocks;
 
-    while (nShift < 29)
-    {
-        dDiff *= 256.0;
-        nShift++;
-    }
-    while (nShift > 29)
-    {
-        dDiff /= 256.0;
-        nShift--;
-    }
+				return dayblocks;
+		}
+	}
+	catch (std::exception& e)
+	{
+			printf("Error retrieving PoB\r\n");
+			return 9999;
+	}
 
-    return dDiff;
+}
+
+
+
+double GetNetworkAvgByProject(std::string projectname)
+{
+	try 
+	{
+		if (mvNetwork.size() < 1)
+		{
+			return 9999;
+			//Would rather prevent errors before initialization than risk re-tallying while 
+			//CreateBlock() is in an unsafe threadstate.
+		}
+	
+		StructCPID structcpid = mvNetwork[projectname];
+		if (!structcpid.initialized) return 9999;
+
+		double networkrac = structcpid.rac;
+		double networkavgrac = structcpid.AverageRAC;
+		double networkprojects = structcpid.NetworkProjects;
+		return networkavgrac;
+	}
+	catch (std::exception& e)
+	{
+			printf("Error retrieving Network Avg\r\n");
+			return 9999;
+	}
+
+
 }
 
 
@@ -90,9 +163,14 @@ double GetDifficulty(const CBlockIndex* blockindex)
     if (blockindex == NULL)
     {
         if (pindexBest == NULL)
+		{
+			mdLastDifficulty = 1;
             return 1.0;
+		}
         else
+		{
             blockindex = pindexBest;
+		}
     }
 
     int nShift = (blockindex->nBits >> 24) & 0xff;
@@ -110,9 +188,11 @@ double GetDifficulty(const CBlockIndex* blockindex)
         dDiff /= 256.0;
         nShift--;
     }
-
+	mdLastDifficulty = dDiff;
     return dDiff;
 }
+
+
 
 
 Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
@@ -134,8 +214,46 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
     result.push_back(Pair("nonce", (boost::uint64_t)block.nNonce));
     result.push_back(Pair("bits", HexBits(block.nBits)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
+	
 	result.push_back(Pair("boinchash", block.hashBoinc));
+	//Extract hashboinc
 
+	
+    MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
+
+
+	uint256 blockhash = block.GetPoWHash();
+	
+	std::string sblockhash = blockhash.GetHex();
+	result.push_back(Pair("Block Type", block.BlockType));
+	result.push_back(Pair("CPID", bb.cpid));
+
+	result.push_back(Pair("Project Name", bb.projectname));
+
+	result.push_back(Pair("Block Diff Bytes", (double)bb.diffbytes));
+	result.push_back(Pair("Block RAC", bb.rac));
+	
+	result.push_back(Pair("PoB Difficulty", bb.pobdifficulty));
+
+	result.push_back(Pair("AES512 Block Skein Hash", bb.aesskein));
+
+//4-23-2014
+	std::string skein2 = aes_complex_hash(blockhash);
+	result.push_back(Pair("AES Calc Hash",skein2));
+	int iav  = TestAESHash(bb.rac, (unsigned int)bb.diffbytes, blockhash, bb.aesskein);
+	result.push_back(Pair("AES512 Valid",iav));
+	
+
+	std::string hbd = AdvancedDecrypt(bb.enccpid);
+	bool IsCpidValid = IsCPIDValid(bb.cpid, bb.enccpid);
+
+	result.push_back(Pair("IsCPIDValid?",IsCpidValid));
+
+	
+	result.push_back(Pair("BlockPoWHash ",blockhash.GetHex()));
+
+ //	uint256 hashPoB = GridcoinMultipleAlgoHash(BEGIN(blockhash2), END(blockhash2));
+	//result.push_back(Pair("PoB calculated hash ",hashPoB.GetHex()));
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
     if (blockindex->pnext)
@@ -143,16 +261,6 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
     return result;
 }
 
-
-std::string BoincProjectAddress(int projectid) 
-{
-   if (projectid == 1) return "FufdrPKUXNMrSFNMky6u18F6r6rwUmnAbb";
-   if (projectid == 2) return "G3HA4ouWr1zbhKd7jUU5ZRqR8sPsYdYmYb"; //http://www.rnaworld.de/rnaworld
-   if (projectid == 3) return "G1dUDVaFG8HmxuzRyCHhqU5k7eQied1nWx"; //http://boinc.bakerlab.org/rosetta
-   if (projectid == 4) return "G6RdibWpbYQgvvcTThx6NG2vHdBK1a51eE"; //http://docking.cis.udel.edu
-   if (projectid == 5) return "FvDfoheNe74JcUp6uf3N8cPeU4KeUsxPq7"; //http://milkyway.cs.rpi.edu/milkyway
-   return "";
-}
 
 int BoincProjectId(std::string grc) 
 {
@@ -187,6 +295,127 @@ bool RetrieveTxFromBlock(const CBlock& block, const CBlockIndex* blockindex, uin
 
 
 
+
+
+
+bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjectName, double pobdiff, bool bCreditNodeVerification, std::string& out_errors, int& out_position)
+{
+
+	try 
+	{
+			static CCriticalSection criticalFindRac;
+			{
+ 
+					LOCK(criticalFindRac);
+		
+
+					//Gridcoin; Find CPID+Project+RAC in chain
+					int nMaxDepth = nBestHeight-3;
+
+					if (nMaxDepth < 3) nMaxDepth=3;
+
+					double pobdifficulty;
+					if (bCreditNodeVerification)
+					{
+							pobdifficulty=14;
+					}
+					else
+					{
+							pobdifficulty = pobdiff;
+					}
+
+	
+
+					if (pobdifficulty < .002) pobdifficulty=.002;
+					int nLookback = 576*pobdifficulty; //Daily block count * Lookback in days
+					int nMinDepth = nMaxDepth - nLookback;
+					if (nMinDepth < 2) nMinDepth = 2;
+					out_position = 0;
+
+	
+					////////////////////////////
+					if (CheckingWork) nMinDepth=nMinDepth+10;
+					if (nMinDepth > nBestHeight) nMinDepth=nBestHeight-1;
+
+					////////////////////////////
+					if (nMinDepth > nMaxDepth) 
+					{
+						nMinDepth = nMaxDepth-2;
+					}
+	
+					if (nMaxDepth < 5 || nMinDepth < 5) return false;
+	
+	
+
+					//Check the cache first:
+					StructCPIDCache cache;
+					std::string sKey = TargetCPID + ":" + TargetProjectName;
+					cache = mvCPIDCache[sKey]; 
+					double cachedblocknumber = 0;
+					if (cache.initialized)
+					{
+						cachedblocknumber=cache.blocknumber;
+					}
+					if (cachedblocknumber > 0 && cachedblocknumber >= nMinDepth && cachedblocknumber <= nMaxDepth && cache.cpidproject==sKey) 
+					{
+	
+						out_position = cache.blocknumber;
+							if (CheckingWork) printf("Project %s  found at position %i   PoBLevel %f    Start depth %i     end depth %i   \r\n",
+							TargetProjectName.c_str(),out_position,pobdifficulty,nMaxDepth,nMinDepth);
+
+						return true;
+					}
+	
+					CBlock block;
+					CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
+					block.ReadFromDisk(pLastBlock);
+					out_errors = "";
+
+					for (int ii = nMaxDepth; ii > nMinDepth; ii--)
+					{
+     					CBlockIndex* pblockindex = FindBlockByHeight(ii);
+						block.ReadFromDisk(pblockindex);
+
+		
+
+					MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
+        
+						if (bb.cpid==TargetCPID && bb.projectname==TargetProjectName && block.BlockType==2)
+						{
+							out_position = ii;
+							//Cache this:
+							cache = mvCPIDCache[sKey]; 
+							if (!cache.initialized)
+								{
+									cache.initialized = true;
+									mvCPIDCache.insert(map<string,StructCPIDCache>::value_type(sKey, cache));
+								}
+							cache.cpid = TargetCPID;
+							cache.cpidproject = sKey;
+							cache.blocknumber = ii;
+							if (CheckingWork) printf("Project %s  found at position %i   PoBLevel %f    Start depth %i     end depth %i   \r\n",TargetProjectName.c_str(),ii,pobdifficulty,nMaxDepth,nMinDepth);
+
+    						mvCPIDCache[sKey]=cache;
+							return true;
+						}
+
+					}
+
+					printf("Start depth %i end depth %i",nMaxDepth,nMinDepth);
+					out_errors = out_errors + "Start depth " + RoundToString(nMaxDepth,0) + "; ";
+					out_errors = out_errors + "Not found; ";
+					return false;
+			}
+	}
+	catch (std::exception& e)
+	{
+		return false;
+	}
+	
+}
+
+
+
 bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& out_errors)
 {
 	
@@ -194,9 +423,6 @@ bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& ou
     CBlock block;
 	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
 	block.ReadFromDisk(pLastBlock);
-	//int64 LastBlockTime = pLastBlock->GetBlockTime();
-	//	int istart = 0;
-
 	out_errors = "Scanning blockchain slow; ";
 
     for (int ii = nMaxDepth; ii > 1; ii--)
@@ -217,84 +443,6 @@ bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& ou
 
 
 
-
-std::map<string,MiningEntry> BlockToCPUMinerPayments(const CBlock& block, const CBlockIndex* blockindex)
-{
-   // result.push_back(Pair("hash", block.GetHash().GetHex()));
-    CMerkleTx txGen(block.vtx[0]);
-    txGen.SetMerkleBranch(&block);
-    //result.push_back(Pair("size", (int)::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)));
-    //result.push_back(Pair("version", block.nVersion));
-    //result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
-	std::string grcout = "";
-	std::string grc = "";
-	int64 project_amount = 0;
-	int64 project_locktime = 0;
-	int64 projectid = 0;
-	std::string projectaddress = "";
-	std::string strAccount ="";
-    BOOST_FOREACH(const CTransaction&tx, block.vtx)
-	{
-	  std::string txid = tx.GetHash().GetHex().c_str();
-	  projectaddress="";
-	  projectid=0;
-	  project_amount = 0;
-	  project_locktime=0;
-	  double out_total=0;
-	  strAccount="";
-	  std::string comments = "";
-	  std::string cpucomments = "";
-	  std::string out_grc_address = "";
-      grc = TxToString(tx, 0, project_amount, project_locktime, projectid, projectaddress, comments, out_grc_address);
-	  TxPaidToCPUMiner(tx, blockindex->nHeight, "", out_total, cpucomments);
-	
-	  if (grc.length() > 20 && projectid > 0 && project_amount > 0 && projectaddress.length() > 20) {
-			strAccount = RoundToString(projectid,0) + out_grc_address;
-  	    	MiningEntry me = cpuminerpayments[strAccount];
-
-			if (!me.paid) 
-			{
-				cpuminerpayments.insert(map<string,MiningEntry>::value_type(strAccount,me));
-				me.paid = true;
-				cpuminerpayments[strAccount]=me;
-	 		}
-     	    me.strAccount = out_grc_address;
-    	    me.projectid = projectid;
-		    me.locktime = blockindex->GetBlockTime();
-			std::string account1 = RoundToString(project_amount,0);
-			me.projectuserid = account1;
-     		me.transactionid = txid;
-	    	me.blocknumber = blockindex->nHeight;
-	 		me.projectaddress = projectaddress;
-			me.strComment = comments + ":"+cpucomments;
-			me.homogenizedkey = strAccount;
-	  	    //printf("Logging cpuminer payment for %s",grc.c_str());
-	    	cpuminerpayments[strAccount]=me;
-			//Add this item to the CpuPoW check map
-			MiningEntry cpume = cpupow[strAccount];
-					
-			if (!cpume.paid) 
-			{
-					cpume.strAccount = me.strAccount;
-					cpume.projectid = projectid;
-					cpume.locktime = me.locktime;
-					cpume.projectuserid = account1;
-					cpume.transactionid = txid;
-					cpume.blocknumber = me.blocknumber;
-					cpume.projectaddress = projectaddress;
-					cpume.homogenizedkey=strAccount;
-					cpupow.insert(map<string,MiningEntry>::value_type(strAccount,cpume));
-					cpume.paid=true;
-					cpupow[strAccount] = cpume;
-			}
-		
-
-	  }
-	  
-	}
-    
-    return cpuminerpayments;
-}
 
 
 
@@ -432,7 +580,142 @@ Value getblockbynumber(const Array& params, bool fHelp)
 
 
 
-//3-6-2014
+
+
+
+
+
+	
+std::string BackupGridcoinWallet()
+{
+	//4-26-2014
+
+	boost::filesystem::path path = GetDataDir() / "walletbackups" / "backup.dat";
+
+    boost::filesystem::create_directories(path.parent_path());
+  
+	ofstream myBackup;
+	myBackup.open (path.string().c_str());
+	std::string errors = "";
+
+    string strAccount;
+	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
+    {
+    	 const CBitcoinAddress& address = item.first;
+		 const std::string& strName = item.second;
+		 bool fMine = IsMine(*pwalletMain, address.Get());
+		 if (fMine) 
+		 {
+			std::string strAddress=CBitcoinAddress(address).ToString();
+			//CBitcoinAddress address;
+
+			CKeyID keyID;
+			if (!address.GetKeyID(keyID))   
+			{
+				errors = errors + "During wallet backup, Address does not refer to a key"+ "\r\n";
+
+			}
+			else
+			{
+				CKey vchSecret;
+				if (!pwalletMain->GetKey(keyID, vchSecret))
+				{
+					errors = errors + "During Wallet Bacckup, Private key for address is not known " + strAddress + "\r\n";
+				}
+				else
+				{
+					std::string private_key = CBitcoinSecret(vchSecret).ToString();
+					//Append to file
+					myBackup << private_key << "<KEY>";
+				}
+			}
+
+		 }
+    }
+	myBackup.close();
+	return errors;
+
+
+}
+
+
+
+
+
+std::string RestoreGridcoinBackupWallet()
+{
+	//AdvancedBackup
+	//AdvancedSalvage
+	//4-26-2014
+
+	boost::filesystem::path path = GetDataDir() / "walletbackups" / "backup.dat";
+	std::string errors = "";
+	std::string sWallet = getfilecontents(path.string().c_str());
+	if (sWallet == "-1") return "Unable to open backup file.";
+		
+    string strSecret = "from file";
+    string strLabel = "";
+
+	std::vector<std::string> vWallet = split(sWallet.c_str(),"<KEY>");
+	if (vWallet.size() > 1)
+	{
+ 	    for (unsigned int i = 0; i < vWallet.size(); i++)
+		{
+			std::string sKey = vWallet[i];
+			if (sKey.length() > 2)
+			{
+					//CRITICAL, REMOVE THIS:
+					printf("Restoring private key %s",sKey.substr(0,5).c_str());
+
+				    CBitcoinSecret vchSecret;
+					bool fGood = vchSecret.SetString(sKey);
+					if (!fGood) {
+						errors = errors + "Invalid private key : " + sKey + "\r\n";
+					}
+					else
+					{
+						 CKey key = vchSecret.GetKey();
+						 CPubKey pubkey = key.GetPubKey();
+						 CKeyID vchAddress = pubkey.GetID();
+						 {
+							 LOCK2(cs_main, pwalletMain->cs_wallet);
+							 pwalletMain->MarkDirty();
+							 pwalletMain->SetAddressBookName(vchAddress, strLabel);
+							 if (!pwalletMain->AddKeyPubKey(key, pubkey)) 
+							 {
+								 errors = errors + "Error adding key to wallet: " + sKey + "\r\n";
+							 }
+						 }
+					}
+			}
+
+		}
+
+	}
+
+
+	//Rescan
+	{
+		   LOCK2(cs_main, pwalletMain->cs_wallet);
+		    if (true) {
+				pwalletMain->ScanForWalletTransactions(pindexGenesisBlock, true);
+				pwalletMain->ReacceptWalletTransactions();
+			}
+     
+	}
+
+	printf("Rebuilding wallet, results: %s",errors.c_str());
+    return errors;
+
+}
+
+
+
+
+
+
+
+
 Value execute(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -448,7 +731,91 @@ Value execute(const Array& params, bool fHelp)
 	Object e2;
 	e2.push_back(Pair("Command",sitem));
 	results.push_back(e2);
+	//4-18-2014
+	if (sitem=="resetcpids")
+	{
+			mvCPIDCache.clear();
+    	    HarvestCPIDs(true);
+			Object entry;
+		    entry.push_back(Pair("Reset",1));
+			results.push_back(entry);
 
+
+	}
+	if (sitem=="post")
+	{
+		std::string result = GridcoinHttpPost("Authenticate", "a", "GetPoolKey.aspx",true);
+		Object entry;
+	    entry.push_back(Pair("POST Result",result));
+	    results.push_back(entry);
+	}
+
+	if (sitem == "backupwallet")
+	{
+		std::string result = BackupGridcoinWallet();
+		Object entry;
+	    entry.push_back(Pair("Backup Wallet Result", result));
+	    results.push_back(entry);
+	}
+
+	if (sitem == "restorewallet")
+	{
+		std::string result = RestoreGridcoinBackupWallet();
+		Object entry;
+	    entry.push_back(Pair("Restore Wallet Result", result));
+	    results.push_back(entry);
+		
+	
+	}
+	
+
+	if (sitem == "repairwallet")
+	{
+
+		Object result;
+		return result;
+
+	}
+
+	if (sitem == "resendwallettx")
+	{
+
+		ResendWalletTransactions2();
+		Object entry;
+	    entry.push_back(Pair("Resending unsent wallet transactions...",1));
+	    results.push_back(entry);
+
+	}
+
+	if (sitem == "getpoolkey")
+	{
+		std::string result = GetPoolKey("project1",1000,"1","2","auth",0,1,0,0);
+		Object entry;
+	    entry.push_back(Pair("Result",result));
+	    results.push_back(entry);
+	}
+
+	if (sitem=="postcpid")
+	{
+		std::string result = GetHttpPage("859038ff4a9",true);
+		Object entry;
+	    entry.push_back(Pair("POST Result",result));
+	    results.push_back(entry);
+	}
+
+	if (sitem=="encrypt")
+	{
+		
+		std::string s1 = "1234";
+		std::string s1dec = AdvancedCrypt(s1);
+		std::string s1out = AdvancedDecrypt(s1dec);
+		Object entry;
+	    entry.push_back(Pair("Execute Encrypt result1",s1));
+	    entry.push_back(Pair("Execute Encrypt result2",s1dec));
+	    entry.push_back(Pair("Execute Encrypt result3",s1out));
+	    results.push_back(entry);
+
+	}
 
 	if (sitem=="restartnet") 
 	{
@@ -459,6 +826,54 @@ Value execute(const Array& params, bool fHelp)
 	   	results.push_back(entry);
 
 	}
+	if (sitem == "findrac")
+	{
+		int position = 0;
+		std::string out_errors = "";
+		std::string TargetCPID = "123";
+		std::string TargetProjectName="Docking";
+
+		bool result = FindRAC(false,TargetCPID, TargetProjectName, 1, false,out_errors, position);
+	
+		Object entry;
+		entry.push_back(Pair("TargetCPID",TargetCPID));
+		entry.push_back(Pair("Errors",out_errors));
+		entry.push_back(Pair("Position",position));
+		if (position > 10) {
+			    CBlockIndex* pblockindex = FindBlockByHeight(position);
+				CBlock block;
+				block.ReadFromDisk(pblockindex);
+		}
+
+	   	results.push_back(entry);
+
+
+	}
+
+	
+
+	if (sitem == "skein")
+
+	{
+
+	   uint256 hashRand = GetRandHash();
+	   uint256 hashOut = GridcoinMultipleAlgoHash(BEGIN(hashRand), END(hashRand));
+       Object entry;
+
+	   std::string sHash = hashOut.GetHex();
+	   entry.push_back(Pair("Skein Hash",sHash));
+	   uint256 hashme = 10;
+	   uint256 hashmeout = GridcoinMultipleAlgoHash(BEGIN(hashme), END(hashme));
+	   entry.push_back(Pair("Skein Hash 10", hashmeout.GetHex()));
+	   uint256 hashcrazy = 10;
+	   std::string sAES = aes_complex_hash(hashcrazy);
+	   entry.push_back(Pair("Adv AES Hash 10", sAES));
+	   std::string sAES10 = sAES;
+	   int iIAV = TestAESHash(100,3, hashcrazy, sAES10);
+	   entry.push_back(Pair("AES Test",iIAV));
+	   results.push_back(entry);
+
+	}
 	
 	return results;    
 		
@@ -466,7 +881,7 @@ Value execute(const Array& params, bool fHelp)
 
 
 
-	
+
 
 Value listitem(const Array& params, bool fHelp)
 {
@@ -483,13 +898,84 @@ Value listitem(const Array& params, bool fHelp)
     Array results;
 	Object e2;
 	e2.push_back(Pair("Command",sitem));
-				results.push_back(e2);
+	results.push_back(e2);
+
+
+
+
+
+
+	if (sitem == "projects") 
+	{
+
+		for(map<string,StructCPID>::iterator ii=mvBoincProjects.begin(); ii!=mvBoincProjects.end(); ++ii) 
+		{
+
+			StructCPID structcpid = mvBoincProjects[(*ii).first];
+
+	        if (structcpid.initialized) 
+			{ 
+				Object entry;
+				entry.push_back(Pair("Project",structcpid.projectname));
+				entry.push_back(Pair("URL",structcpid.link));
+				results.push_back(entry);
+
+			}
+		}
+		return results;
+
+	}
+
+
+
+
+
+
+	if (sitem == "network") 
+	{
+		//4-9-2014
+
+		for(map<string,StructCPID>::iterator ii=mvNetwork.begin(); ii!=mvNetwork.end(); ++ii) 
+		{
+
+			StructCPID structcpid = mvNetwork[(*ii).first];
+
+	        if (structcpid.initialized) 
+			{ 
+				Object entry;
+				entry.push_back(Pair("Project",structcpid.projectname));
+				entry.push_back(Pair("RAC",structcpid.rac));
+				entry.push_back(Pair("Avg RAC",structcpid.AverageRAC));
+
+				entry.push_back(Pair("Entries",structcpid.entries));
+
+				
+				if (structcpid.projectname=="NETWORK") 
+				{
+						entry.push_back(Pair("Network Projects",structcpid.NetworkProjects));
+
+				}
+				results.push_back(entry);
+
+			}
+		}
+		return results;
+
+	}
+
+
+
+
 
 
 	if (sitem=="cpids") {
-			//Dump vectors:
-			HarvestCPIDs();
-			printf ("generating cpid report %s",sitem.c_str());
+		//Dump vectors:
+		
+		if (mvCPIDs.size() < 1) 
+		{
+			HarvestCPIDs(false);
+		}
+		printf ("generating cpid report %s",sitem.c_str());
 
 
 		for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
@@ -501,7 +987,6 @@ Value listitem(const Array& params, bool fHelp)
 			{ 
 				Object entry;
 	
-				//printf("CPID %s, Email %s",structcpid.cpid.c_str(),structcpid.emailhash.c_str());
 				entry.push_back(Pair("Project",structcpid.projectname));
 				entry.push_back(Pair("CPID",structcpid.cpid));
 				entry.push_back(Pair("CPIDhash",structcpid.cpidhash));
@@ -515,9 +1000,11 @@ Value listitem(const Array& params, bool fHelp)
 				entry.push_back(Pair("Verified RAC",structcpid.verifiedrac));
 				entry.push_back(Pair("Verified Team",structcpid.verifiedteam));
 				entry.push_back(Pair("Verified RecTime",structcpid.verifiedrectime));
-
 				entry.push_back(Pair("Verified RAC Age",structcpid.verifiedage));
-
+				entry.push_back(Pair("Is my CPID Valid?",structcpid.Iscpidvalid));
+				
+				entry.push_back(Pair("CPID Link",structcpid.link));
+				entry.push_back(Pair("Errors",structcpid.errors));
 
 
 				results.push_back(entry);

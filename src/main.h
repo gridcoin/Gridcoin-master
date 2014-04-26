@@ -12,7 +12,6 @@
 #include "scrypt.h"
 #include "uint256.h"
 
-
 #include "hashgroestl.h"
 #include "hashskein.h"
 #include "hashqubit.h"
@@ -34,6 +33,8 @@ class CNode;
 
 extern int miningAlgo;
 
+extern bool fGenerate;
+
 
 
 enum { 
@@ -49,7 +50,6 @@ enum
     // primary version
     BLOCK_VERSION_DEFAULT        = 2,
 
-    // algo
     BLOCK_VERSION_ALGO           = (7 << 9),
     BLOCK_VERSION_SCRYPT         = (1 << 9),
     BLOCK_VERSION_GROESTL        = (2 << 9),
@@ -98,23 +98,13 @@ inline std::string GetAlgoName(int Algo)
 
 
 
-const CBigNum bnProof[5] = {	
-	CBigNum(~uint256(0) >> 20),
-	CBigNum(~uint256(0) >> 20), 
-	CBigNum(~uint256(0) >> 20),
-	CBigNum(~uint256(0) >> 20),
-	CBigNum(~uint256(0) >> 20)};
-
 
 
 
 /** Run the miner threads */
-void GenerateBitcoins(bool fGenerate, CWallet* pwallet);
+void GenerateGridcoins(bool fGenCoins);
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, int algo);
 const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, int algo);
-
-
-
 
 
 struct CBlockIndexWorkComparator;
@@ -156,7 +146,8 @@ static const unsigned int CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT = 1454;
 /** Default amount of block size reserved for high-priority transactions (in bytes) */
 static const int DEFAULT_BLOCK_PRIORITY_SIZE = 27000;
 // Boinc hash merkle root
-static const std::string BoincHashMerkleRoot = "PUrMgXr9kgcqiuehEJ2Tq1dovW";
+static const std::string BoincHashMerkleRoot_OLD = "0x2e463ddc588a5900589c75234510c536ce58ec94dafd07157c4be0b3bb9f1f0a";
+
 // Script check threads
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 #ifdef USE_UPNP
@@ -174,7 +165,7 @@ extern std::set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexValid;
 
 extern std::string BoincAuthenticity();
 
-std::string GetHttpPage(std::string cpid);
+std::string GetHttpPage(std::string cpid,bool usedns);
 
 
 extern uint256 hashGenesisBlock;
@@ -209,6 +200,23 @@ extern int64 nMinimumInputValue;
 
 // Minimum disk space required - used in CheckDiskSpace()
 static const uint64 nMinDiskSpace = 52428800;
+
+
+// PoB Miner Global Vars:
+extern std::string 	msMiningProject;
+extern std::string 	msMiningCPID;
+extern double    	mdMiningRAC;
+extern std::string  msENCboincpublickey;
+extern std::string  msMiningErrors;
+// PoB GPU Miner Global Vars:
+extern std::string 	msGPUMiningProject;
+extern std::string 	msGPUMiningCPID;
+extern double    	mdGPUMiningRAC;
+extern std::string  msGPUENCboincpublickey;
+ // Stats for Main Screen:
+extern double         mdLastPoBDifficulty;
+extern double         mdLastDifficulty;
+extern std::string    msGlobalStatus;
 
 
 class CReserveKey;
@@ -259,8 +267,8 @@ bool SendMessages(CNode* pto, bool fSendTrickle);
 /** Run an instance of the script checking thread */
 void ThreadScriptCheck();
 /** Generate a new block, without valid proof-of-work */
-CBlockTemplate* CreateNewBlock(CReserveKey& reservekey);
-CBlockTemplate* CreateNewBlockSkein(CReserveKey& reservekey, int algo);
+CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int algo, std::string projectname, double purportedRAC, 
+	std::string boincpublickey,std::string xcpid, bool bPoolMiner);
 
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
@@ -268,13 +276,16 @@ void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& 
 void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash1);
 /** Check mined block */
 
-bool CheckWorkSkein(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
 
-     bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
+bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
 /** Check whether a block hash satisfies the proof-of-work requirement specified by nBits */
-bool CheckProofOfWork(uint256 hash, unsigned int nBits);
+
+bool CheckProofOfWork(uint256 hash, unsigned int nBits, int Algo);
+
 /** Calculate the minimum amount of work a received block needs, without knowing its direct parent */
-unsigned int ComputeMinWork(unsigned int nBase, int64 nTime);
+
+unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int Algo);
+
 /** Get the number of active peers */
 extern int GetNumBlocksOfPeers();
 /** Check whether we are doing an initial block download (synchronizing from disk or network) */
@@ -714,7 +725,7 @@ public:
 
 
 
-    unsigned int GetP2SHSigOpCount(CCoinsViewCache& mapInputs) const;
+unsigned int GetP2SHSigOpCount(CCoinsViewCache& mapInputs) const;
 
 
 	
@@ -1369,9 +1380,6 @@ protected:
 
 
 
-	// Q_OBJECT
-
-
 
 public:
 
@@ -1425,15 +1433,15 @@ public:
     unsigned int nTime;
     unsigned int nBits;
     unsigned int nNonce;
-	std::string hashBoinc;
-
+	
+  
+	
     CBlockHeader()
     {
         SetNull();
     }
 
-	 int GetAlgo() const { return ::GetAlgo(nVersion); }
-   
+	
 
     IMPLEMENT_SERIALIZE
     (
@@ -1468,33 +1476,10 @@ public:
     }
 
 
-	uint256 GetPoWHashSkein(int algo) const
+	uint256 GetHashPoB() const
     {
-        switch (algo)
-        {
-            case ALGO_SHA256D:
-                return GetHash();
-            case ALGO_SCRYPT:
-            {
-                uint256 thash;
-                // Caution: scrypt_1024_1_1_256 assumes fixed length of 80 bytes
-                //scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
-						       return GetHash();
-            }
-            case ALGO_GROESTL:
-              //       return HashGroestl(BEGIN(nVersion), END(nNonce));
-				       return GetHash();
-         
-            case ALGO_SKEIN:
-         //       return HashSkein(BEGIN(nVersion), END(nNonce));
-				       return GetHash();
-         
-            case ALGO_QUBIT:
-         //       return HashQubit(BEGIN(nVersion), END(nNonce));
-				return GetHash();
-         
-		}
-        return GetHash();
+        
+        return Hash(BEGIN(nVersion), END(nNonce));
     }
 
 
@@ -1517,9 +1502,14 @@ public:
 
     // memory only
     mutable std::vector<uint256> vMerkleTree;
-   
-	//10-27-2013
+    
+	//Gridcoin
+	/////////////////////////////////////////
 	std::string hashBoinc;
+	int BlockType;
+		
+	//
+	//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
 
 
 
@@ -1538,12 +1528,29 @@ public:
     (
         READWRITE(*(CBlockHeader*)this);
         READWRITE(vtx);
+		
 		try 
 		{
 			READWRITE(hashBoinc);
-		} catch(std::exception &e) {
-			printf("unable to serialize hashboinc");
 		}
+		catch(std::exception &e) 
+		{
+
+
+		}
+
+ 		try 
+		{
+			READWRITE(BlockType);
+		} catch(std::exception &e) {
+		}
+
+		
+
+		//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
+	
+			
+
     )
 
     void SetNull()
@@ -1562,9 +1569,7 @@ public:
         return thash;
     }
 
-
-
-
+	
     CBlockHeader GetBlockHeader() const
     {
         CBlockHeader block;
@@ -1574,7 +1579,8 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
-        return block;
+		///////////////////////////////////////////
+	    return block;
     }
 
     uint256 BuildMerkleTree() const
@@ -1677,7 +1683,8 @@ public:
         }
 
         // Check the header
-        if (!CheckProofOfWork(GetPoWHash(), nBits))
+
+	    if (!CheckProofOfWork(GetPoWHash(), nBits, BlockType))
             return error("CBlock::ReadFromDisk() : errors in block header");
 
         return true;
@@ -1687,15 +1694,18 @@ public:
 
     void print() const
     {
-        printf("CBlock(hash=%s, input=%s, PoW=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, hashBoinc=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
+			
+		//
+		//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
+
+        printf("CBlock(hash=%s, input=%s, PoW=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
             GetHash().ToString().c_str(),
             HexStr(BEGIN(nVersion),BEGIN(nVersion)+80,false).c_str(),
             GetPoWHash().ToString().c_str(),
             nVersion,
-            hashPrevBlock.ToString().c_str(),
+			hashPrevBlock.ToString().c_str(),
             hashMerkleRoot.ToString().c_str(),
-			hashBoinc.c_str(),
-            nTime, nBits, nNonce,
+			nTime, nBits, nNonce,
             vtx.size());
         for (unsigned int i = 0; i < vtx.size(); i++)
         {
@@ -1857,14 +1867,17 @@ public:
 
     // block header
 
-	//ToDo: change the nVersion to the encrypted miner class - boinc version - public key
-
     int nVersion;
     uint256 hashMerkleRoot;
     unsigned int nTime;
     unsigned int nBits;
     unsigned int nNonce;
-	std::string hashBoinc;
+	////////////////////////////////////////////
+
+	//
+	//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
+	
+	
 
     CBlockIndex()
     {
@@ -1906,11 +1919,11 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
-    }
+	
+	   }
 
 	
-    int GetAlgo() const { return ::GetAlgo(nVersion); }
-
+    
 
     CDiskBlockPos GetBlockPos() const {
         CDiskBlockPos ret;
@@ -1940,6 +1953,8 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+		//////////////////////////////////////////////
+	
 	    return block;
     }
 
@@ -1971,7 +1986,7 @@ public:
     {
         /** Scrypt is used for block proof-of-work, but for purposes of performance the index internally uses sha256.
          *  This check was considered unneccessary given the other safeguards like the genesis and checkpoints. */
-        return true; // return CheckProofOfWork(GetBlockHash(), nBits);
+        return true; // return 
     }
 
     enum { nMedianTimeSpan=11 };
@@ -2013,8 +2028,7 @@ public:
     {
         return strprintf("CBlockIndex(pprev=%p, pnext=%p, nHeight=%d, merkle=%s, hashBlock=%s)",
             pprev, pnext, nHeight,
-            hashMerkleRoot.ToString().c_str(),
-            GetBlockHash().ToString().c_str());
+            hashMerkleRoot.ToString().c_str(),  GetBlockHash().ToString().c_str());
     }
 
     void print() const
@@ -2050,16 +2064,6 @@ struct CBlockIndexWorkComparator
 
 
 
-
-
-
-
-
-
-
-
-
-
 class CChainParams
 {
 public:
@@ -2078,12 +2082,12 @@ public:
     };
 
     const uint256& HashGenesisBlock() const { return hashGenesisBlock; }
-    const CBigNum& ReturnProofOfWorkLimit(int algo) const { return bnProof2[algo]; }
+
     virtual Network NetworkID() const = 0;
 protected:
     CChainParams() {};
 
-    CBigNum bnProof2[NUM_ALGOS];
+    
 };
 
 /**
@@ -2150,12 +2154,15 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-		try {
-		READWRITE(hashBoinc);
-		} catch(std::exception &e)
-		{
-			printf("Unable to Store HashBoinc in DiskBlockIndex");
-		}
+//		try {
+//		READWRITE(hashBoinc);
+//		} catch(std::exception &e)
+//		{
+//		//	printf("Unable to Store HashBoinc in DiskBlockIndex");
+//		}
+
+	
+
     )
 
     uint256 GetBlockHash() const

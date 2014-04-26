@@ -476,6 +476,100 @@ Module modGRC
             Return "MD5Error"
         End Try
     End Function
+
+
+    Public Function ExtractFilename(ByVal sStartElement As String, ByVal sEndElement As String, ByVal sData As String, ByVal minOutLength As Integer) As String
+        Try
+            Dim sDataBackup As String
+            sDataBackup = LCase(sData)
+            Dim iStart As Integer
+            Dim iEnd As Long
+            Dim sOut As String
+            iStart = InStr(1, sDataBackup, sStartElement) + Len(sStartElement) + 1
+            iEnd = InStr(iStart + minOutLength, sDataBackup, sEndElement)
+            sOut = Mid(sData, iStart, iEnd - iStart)
+            sOut = Replace(sOut, ",", "")
+            sOut = Replace(sOut, "br/>", "")
+            sOut = Replace(sOut, "</a>", "")
+            Dim iPrefix As Long
+            iPrefix = InStr(1, sOut, ">")
+            Dim sPrefix As String
+            sPrefix = Mid(sOut, 1, iPrefix)
+            sOut = Replace(sOut, sPrefix, "")
+            Dim sExt As String
+            sExt = LCase(Mid(sOut, Len(sOut) - 2, 3))
+            sOut = LCase(sOut)
+            If sExt = "pdf" Or LCase(sOut).Contains("to parent directory") Or sExt = "msi" Or sExt = "pdb" Or sExt = "xml" Or LCase(sOut).Contains("vshost") Or sExt = "txt" Or sOut = "gridcoin" Or sOut = "gridcoin_ro" Or sOut = "older" Or sExt = "cpp" Or sOut = "web.config" Then sOut = ""
+            If sOut = "gridcoin.zip" Then sOut = ""
+            If sOut = "gridcoinrdtestharness.exe.exe" Or sOut = "gridcoinrdtestharness.exe" Then sOut = ""
+            If sOut = "cgminer_base64.zip" Then sOut = ""
+            If sOut = "signed" Then sOut = ""
+
+            Return Trim(sOut)
+        Catch ex As Exception
+            Dim message As String = ex.Message
+
+
+        End Try
+    End Function
+
+
+
+    Public Function NeedsUpgrade() As Boolean
+        Try
+
+            Dim sMsg As String
+            Dim sURL As String = "http://www.gridcoin.us/download/"
+            Dim w As New MyWebClient
+            Dim sFiles As String
+            sFiles = w.DownloadString(sURL)
+            Dim vFiles() As String = Split(sFiles, "<br>")
+            If UBound(vFiles) < 10 Then
+                Return False
+            End If
+
+            sMsg = ""
+            For iRow As Integer = 0 To UBound(vFiles)
+                Dim sRow As String = vFiles(iRow)
+                Dim sFile As String = ExtractFilename("<a", "</a>", sRow, 5)
+                If Len(sFile) > 1 Then
+                    If sFile = "boinc.dll" Then
+                        Dim sDT As String
+                        sDT = Mid(sRow, 1, 20)
+                        sDT = Trim(sDT)
+
+                        Dim dDt As DateTime
+                        dDt = CDate(Trim(sDT))
+                        dDt = TimeZoneInfo.ConvertTime(dDt, System.TimeZoneInfo.Utc)
+                        'Hosting server is PST, so subtract Utc - 7 to achieve PST:
+                        dDt = DateAdd(DateInterval.Hour, -3, dDt)
+                        'local file time
+                        Dim sLocalPath As String = GetGRCAppDir()
+                        Dim sLocalFile As String = sFile
+                        If LCase(sLocalFile) = "grcrestarter.exe" Then sLocalFile = "grcrestarter_copy.exe"
+                        Dim sLocalPathFile As String = sLocalPath + "\" + sLocalFile
+                        Dim dtLocal As DateTime
+                        Try
+                            dtLocal = System.IO.File.GetLastWriteTime(sLocalPathFile)
+
+                        Catch ex As Exception
+                            Return False
+                        End Try
+                        If dDt > dtLocal Then
+                            Return True
+                        End If
+
+                    End If
+                End If
+            Next iRow
+        Catch ex As Exception
+            Return False
+
+        End Try
+    End Function
+
+
+
 End Module
 
 Public Class MyWebClient

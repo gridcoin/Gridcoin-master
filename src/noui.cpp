@@ -39,9 +39,7 @@ static bool noui_ThreadSafeAskFee(int64 /*nFeeRequired*/)
 
 
 
-//static bool noui_ThreadSafeMessageBox(const std::string& message, const std::string& caption, unsigned int style)
-
-static int noui_ThreadSafeCheckWork(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
+static int noui_ThreadSafeWin32Call(const std::string& h1,const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
 {
 	return -101;
 }
@@ -63,5 +61,8 @@ void noui_connect()
     uiInterface.ThreadSafeAskFee.connect(noui_ThreadSafeAskFee);
     uiInterface.InitMessage.connect(noui_InitMessage);
     uiInterface.ThreadSafeVersion.connect(noui_ThreadSafeVersion);	
-	uiInterface.ThreadSafeCheckWork.connect(noui_ThreadSafeCheckWork);
+	//	uiInterface.ThreadSafeWin32Call.connect(noui_ThreadSafeWin32Call);
 }
+
+
+

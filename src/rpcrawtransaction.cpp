@@ -17,7 +17,7 @@
 #include <boost/lexical_cast.hpp>
 
 
-#ifdef WIN32
+#ifdef QT_GUI
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
@@ -35,18 +35,21 @@ using namespace json_spirit;
 // (throws error if not hex).
 //
 
-
-std::string BoincProjectAddress(int projectid);
 int BoincProjectId(std::string grc);
-int CheckCPUWork(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, std::string greatgreatgrandparentsblockhash, std::string boinchash, bool bUseRPC);
-int CheckCPUWorkByBlock(int blocknumber,bool bUseRPC);
+
 int UpgradeClient();
 extern std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& out_amount, int64& out_locktime, int64& out_projectid, std::string& out_projectaddress, std::string& out_comments, std::string& out_grcaddress);
-extern double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments);
-extern std::map<std::string, MiningEntry> CalculateCPUMining();
 extern void SendGridcoinProjectBeacons();
-int CheckCPUWorkLinux(std::string lastblockhash, std::string greatblockhash, std::string greatgrandparentsblockhash, 
-	std::string greatgreatgrandparentsblockhash, std::string boinchash);
+
+
+extern std::string RoundToString(double d, int place);
+
+extern std::string GetTxProject(uint256 hash, int& out_blocknumber, int& out_blocktype, int& out_rac);
+
+
+
+MiningCPID DeserializeBoincBlock(std::string block);
+
 
 
 
@@ -192,84 +195,6 @@ std::string TxToString(const CTransaction& tx, const uint256 hashBlock, int64& o
 
 
 
-double TxPaidToCPUMiner(const CTransaction& tx, int nBlock, std::string address, double& out_total, std::string& out_comments)
-{
-
-	//Returns tx amount paid to cpu miner in coinbase 
-	std::string grc1 = "";
-	double total = 0;
-	bool bCPUTx = false;
-
-	std::string mygrcaddress = DefaultWalletAddress();
-
-
-	for (unsigned int i = 0; i < tx.vout.size(); i++)
-    {
-        const CTxOut& txout = tx.vout[i];
-		bCPUTx = false;
-		
-		std::string sPaid = FormatMoney(txout.nValue);
-			
-		double paid = lexical_cast<double>(sPaid);
-        
-			//std::string sPaid = RoundToString(paid,10);
-		std::string suffix = "";
-		grc1 = PubKeyToGRCAddress(txout.scriptPubKey);
-	
-
-		if (sPaid.length() > 4 && paid > 0 && grc1.length() > 5) {
-			suffix = sPaid.substr(sPaid.length()-4,4);
-			if (suffix == "7900" || suffix=="0117" || suffix == "0079" ) bCPUTx = true;
-
-
-			if (grc1==mygrcaddress && bCPUTx) {
-			 	//printf("MyGrc Amount %s and suffix %s",sPaid.c_str(),suffix.c_str());
-			
-			 }
-
-
-		}
-
-
-		if (bCPUTx) 
-		{
-	       
-			 	MiningEntry me1 = cpuminerpaymentsconsolidated[grc1];
-
-			if (!me1.paid) 
-				{
-					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(grc1,me1));
-					me1.paid=true;
-					me1.cputotalpayments=0;
-					cpuminerpaymentsconsolidated[grc1] = me1;
-		 		}
-   	 	   
-				me1.cputotalpayments = me1.cputotalpayments + paid;
-			try	
-			{	
-				me1.lastpaiddate =tx.nLockTime;
-			} catch(...) 
-			{ }
-            cpuminerpaymentsconsolidated[grc1]=me1;
-			//printf("Created cputx for %s",sPaid.c_str());
-
-
-		}
-
-
-    }
-    
-	std::string o = "";
-	o = grc1 + "," + boost::lexical_cast<string>(total);
-	out_comments = o;
-	out_total = total;
-	return total;
-	
-}
-
-
-
-
 
 
 
@@ -329,6 +254,47 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
         }
     }
 }
+
+
+
+std::string GetTxProject(uint256 hash, int& out_blocknumber, int& out_blocktype, double& out_rac)
+{
+	//4-7-2014
+    CTransaction tx;
+    uint256 hashBlock = 0;
+	std::string error_code = "";
+    if (!GetTransaction(hash, tx, hashBlock, true, error_code))
+	{
+		return "";
+	}
+    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    ssTx << tx;
+    string strHex = HexStr(ssTx.begin(), ssTx.end());
+	CBlockIndex* pindexPrev = NULL;
+	CBlock block;
+    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
+    if (mi == mapBlockIndex.end())   
+	{
+			return ""; //not found
+	}
+    pindexPrev = (*mi).second;
+  	if (!block.ReadFromDisk(pindexPrev)) 
+	{
+			return ""; //failed to read
+	}
+	out_blocktype = block.BlockType;
+	out_blocknumber = pindexPrev->nHeight;
+	//Deserialize 
+	
+
+    MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
+	
+	out_rac = bb.rac;
+	return bb.projectname;
+	
+}
+
+
 
 Value getrawtransaction(const Array& params, bool fHelp)
 {
@@ -539,7 +505,8 @@ std::string SendMultiProngedTransaction(int projectid, std::string userid)
 {
      std::vector<std::pair<CScript, int64> > vecSend;
      CScript scriptPubKey;
-	 std::string projectaddress = BoincProjectAddress(projectid);
+	 std::string projectaddress = "";
+
 	 std::string grcaddress = DefaultWalletAddress();
 	 CBitcoinAddress address1(projectaddress);
      CBitcoinAddress address2(grcaddress);
@@ -632,7 +599,8 @@ std::string Compensate2(string grc_address, int64 nAmount, string commentfrom, s
 std::string Compensate(string grc_address, double dAmount, string commentfrom, string commentto)
 {
 
-	try {
+	try 
+	{
 			CBitcoinAddress address(grc_address);
 			if (!address.IsValid()) return "Invalid Gridcoin address";
 			CWalletTx wtx;
@@ -650,7 +618,7 @@ std::string Compensate(string grc_address, double dAmount, string commentfrom, s
 	}
 			catch (std::exception &e) {
   
-		return "FAIL2";
+		return "FAIL[stderr]";
 	}
 }
 
@@ -667,486 +635,20 @@ std::string RoundToString(double d, int place)
 
 
 
-std::map<std::string, MiningEntry> CalculatePoolMining(bool bPayDuringWalletHour)
-{
-
-	int nMaxDepth = nBestHeight;
-    CBlock block;
-
-	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
-	block.ReadFromDisk(pLastBlock);
-	int64 LastBlockTime = pLastBlock->GetBlockTime();
-
-	//Gridcoin - 10-30-2013  Calculate the lookback period
-	//      ---------------------- Difficulty Calculation For Lookback Period: ------------------------------------
-	////    Difficulty = (24) *60 mins * 60 secs * 1.8
-    //////  400Kh/s @ 1 difficulty = 8 blocks per day (lookbackperiod = 2 days)
-
-	double diff = GetDifficulty(pLastBlock);
-	if (diff < .05) diff = .05;
-	double lookback = diff * 24 * 60 * 60 * 1.8;
-	double total_utilization = 0;
-	double total_rows = 0;
-    double avg_boinc = 0;
-    string wallet = "";
-	
-    //  -1 showing for miner2 ba packet
-    //	boinc_authenticity_packet = BoincMD5,sBoincBALevel,UtilizationLevel,CARD_VERSION,POOL_MINING_MODE,WalletAddress();
-	//  Compensate Miners -----------------------------------------
-	//  std::map<std::string, MiningEntry> minerpayments;
-	//  11-1-2013
-    minerpayments.clear();
-
-	double compensated_rows = 0;
-	string last_wallet = "";
-	double iBU = 0;
-	double total_shares = 0;
-
-	MiningEntry ae;
-    //Iterate through the chain in reverse
-	int pay = 1;
-
-    for (int i = nMaxDepth; i > 0; i--)
-    {
-    	pay = blockcache[i];
-		if (pay == 0) {
-			//blockcache.insert(map<string,MiningEntry>::value_type(wallet,meNew));
-			blockcache.insert(map<int,int>::value_type(i,1));
-		}
-		if (pay != 10)
-		{
-		CBlockIndex* pblockindex = FindBlockByHeight(i);
-	    block.ReadFromDisk(pblockindex);
-	
-		int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
-		blockcache[i]=20;
-
-        if (block.hashBoinc.length() > 10 && block.hashBoinc.length() < 750) {
-				vector<std::string> vecBoinc;
-		        std::string brh = block.hashBoinc;
-				boost::split(vecBoinc,brh,boost::is_any_of(","));
-				if (vecBoinc.size() > 4) {
-					string pool_mode = vecBoinc[4];
-					if (pool_mode=="SOLO_MINING" || pool_mode=="POOL_MINING") {
-						        if (nActualTimespan > lookback) i=0;
-
-						     	if (nActualTimespan < lookback) {
-								if (pool_mode == "POOL_MINING") {
-										string md5 = vecBoinc[0];
-										string BA = vecBoinc[1];
-										string bu = vecBoinc[2];
-										string wallet = vecBoinc[5];
-									    iBU = boost::lexical_cast<double>(bu);
-										//11-1-2013  At this point in time we are using GRC public addresses, check for size between 20-40
-
-										if (iBU > 0 && wallet.length() > 20 && wallet.length() < 44) {
-											
-											int64 currenttime = GetTime();
-
-											int currenthour = boost::lexical_cast<int>(DateTimeStrFormat("%H", currenttime));
-				     						int wallethour = HourFromGRCAddress(wallet);
-				                            if (  (bPayDuringWalletHour && 
-												(wallethour==currenthour || wallethour==currenthour-1 || wallethour==currenthour-2 || wallethour==currenthour+1 || wallethour==currenthour+2)
-												)    ||  !bPayDuringWalletHour)
-											{
-
-
-											  MiningEntry meNew;
-											  compensated_rows++;
-											  string blocktime =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pblockindex->GetBlockTime()).c_str();
-									 		  int blockhour = boost::lexical_cast<int>(DateTimeStrFormat("%H", pblockindex->GetBlockTime()).c_str());
-											  blockcache[i]=1;
-											  meNew = minerpayments[wallet];
-											  if (meNew.paid != true) {
-												 meNew.paid=true;
-												 meNew.payments=0;
-												 minerpayments.insert(map<string,MiningEntry>::value_type(wallet,meNew));
-											  } 
-											
-											  meNew.strAccount = wallet;
-											  meNew.shares = meNew.shares + iBU;
-											  meNew.payments++;
-											  meNew.blockhour = blockhour;
-											  meNew.wallethour = wallethour;
-											  meNew.boinchash = block.hashBoinc;
-											  //string narr = "GRCMiningPmt_Shares=" + RoundToString(total_shares,2) + "_" + RoundToString(rbpps,7) + "RBPPS[Total:GRC" + RoundToString(payout,4) + "],Payment=" + RoundToString(total_payment,4);
-											  string long_narr = "Shares:" + RoundToString(meNew.shares,2) +",Block:" + RoundToString(i,0) + ",TimeSpan:" + RoundToString(nActualTimespan,0);
-											  meNew.strComment = long_narr;
-											  minerpayments[wallet]=meNew;
-											  total_utilization = total_utilization + iBU;
-											  total_rows++;
-											  total_shares = total_shares + iBU;
-											}
-										}
-
-								}
-							}
-					  }
-				}
-			}
-		}
-	}
-	
-		//Figure out avg boinc utilization
-    	double rbpps = 0;
-	    double payout = 0;
-		if (total_rows > 0) {
-			avg_boinc = total_utilization/total_rows;
-			payout = avg_boinc * 1.5;
-			if (payout > 150) payout = 150;
-			if (payout < 5) payout=5;
-			if (total_utilization < .01) total_utilization=.01;
-			rbpps = payout/total_utilization;
-		 }
-
-		//End of Payments
-		//Persist the rbpps, payout, total_utilization, total_rows:
-		MiningEntry me;
-    	me.rbpps = rbpps;
-		me.payout = payout;
-		me.totalutilization = total_utilization;
-		me.totalrows= total_rows;
-		me.avgboinc = avg_boinc;
-		me.lookback = lookback;
-		me.difficulty  = diff;
-
-		minerpayments.insert(map<string,MiningEntry>::value_type("totals",me));
-		return minerpayments;
-    
-}
-
-
-
-
-
-
-
-std::map<std::string, MiningEntry> CalculateCPUMining()
-{
-
-
-	return cpuminerpayments;
-
-
-	int nMaxDepth = nBestHeight;
-    CBlock block;
-	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
-	block.ReadFromDisk(pLastBlock);
-	int64 LastBlockTime = pLastBlock->GetBlockTime();
-	
-	double diff = GetDifficulty(pLastBlock);
-	if (diff < .05) diff = .05;
-
-    double lookback = 24 * 60 * 60 * 3;
-	//Gridcoin: 2-21-2014 : Changing lookback to 7 days:
-
-	string wallet = "";
-	double maxperuser = 50;
-
-	cpuminerpayments.clear();
-	cpuminerpaymentsconsolidated.clear();
-
-	string last_wallet = "";
-
-
-	
-	MiningEntry ae;
-    //Iterate through the chain in reverse
-	
-	int istart = 0;
-
-    for (int ii = nMaxDepth; ii > 0; ii--)
-    {
-     	CBlockIndex* pblockindex = FindBlockByHeight(ii);
-		block.ReadFromDisk(pblockindex);
-	    int64 nActualTimespan = LastBlockTime - pblockindex->GetBlockTime();
-	    if (nActualTimespan > lookback) 
-		{
-						istart = ii;
-						break;
-		}
-    }
-	
-	
-    for (int i = istart; i <= nMaxDepth; i++)
-    {
-     	CBlockIndex* pblockindex = FindBlockByHeight(i);
-		block.ReadFromDisk(pblockindex);
-	    cpuminerpayments = BlockToCPUMinerPayments(block,pblockindex);
-		MiningEntry me;
-    	me.lookback = lookback;
-		me.difficulty  = diff;
-		cpuminerpayments.insert(map<string,MiningEntry>::value_type("totals",me));
-	}  
-
-
-	//Consolidate the Project-CPUMiners-ProjectCredits collection into CPUMiners collection - For each CPU miner, verify PoW
-	double iapproved=0;
-	double network_credits = 0;
-	double coverage_total = 0;
-	double coverage_count = 0;
-	double coverage_percent = 0;
-	//2-21-2014:
-
-	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpayments[(*ii).first];
-			MiningEntry pow = cpupow[ae.homogenizedkey];
-			
-			if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2) 
-			{
-			    coverage_total++;
-			}
-			if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && pow.cpupowverificationtries > 0) 
-			{
-				coverage_count++;
-     		}
-	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && pow.cpupowverificationtries > 0 && pow.cpupowverificationresult > 0) 
-			{
-				//1-14-2014 consolidate mining payments
-				MiningEntry me1;
-				me1 = cpuminerpaymentsconsolidated[ae.strAccount];
-         	    
-				if (me1.paid != true) 
-				{ 
-					cpuminerpaymentsconsolidated.insert(map<string,MiningEntry>::value_type(ae.strAccount,me1));
-					me1.paid=true;
-					me1.credits=0;
-					me1.networkcredits=0;
-					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
-		 		}
-	            me1.strAccount = ae.strAccount;
-				me1.credits = me1.credits + pow.cpupowverificationresult;
-	            network_credits = network_credits+me1.credits;		    
-				//printf("Increasing network credits by %d",network_credits);
-
-			    cpuminerpaymentsconsolidated[ae.strAccount] = me1;
-			}
-			
-    }
-
-
-	
-	
-	coverage_total = 400;
-	if (coverage_count < 1) coverage_count=1;
-
-	coverage_percent = coverage_count/coverage_total;
-	printf("cov total %f pct %f\r\n",coverage_total,coverage_percent);
-
-	if (coverage_percent > 1) coverage_percent=1;
-
-	//Gridcoin Add total shares to cpuminerpaymentsconsolidated:
-	//Max Weekly subsidy : Changing to Weekly due to bloated wallet issues: Gridcoin - 2-21-2014:
-	double max_daily_subsidy = 576*150*3;  //576 cpu-miners @ 150 grc per day.
-	double rbpps = max_daily_subsidy/(network_credits+.001);
-	//Note: As of 2-21-2014, we are up to 1,600,000 boinc mined credits per day; so lets set up a max rbpps so no mistake can be made regarding overpayments:
-	if (rbpps > .2) rbpps=.2;
-
-	//Total everything
-
-
-	for(map<string,MiningEntry>::iterator ii2=cpuminerpaymentsconsolidated.begin(); ii2!=cpuminerpaymentsconsolidated.end(); ++ii2) 
-	{
-
-			MiningEntry ae2 = cpuminerpaymentsconsolidated[(*ii2).first];
-			MiningEntry pow2 = cpupow[ae2.homogenizedkey];
-	        if (ae2.strAccount.length() > 5 && ae2.projectuserid.length() > 2 && pow2.cpupowverificationtries > 0 && pow2.cpupowverificationresult > 0) 
-			{
-
-			 				iapproved++;			
-
-			}
-	}
-
-		printf("End of CPUMiner Totals");
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-
-
-	try {
-	
-		
-		
-		double iApproved2 = 0;
-
-		
-		for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpayments[(*ii).first];
-			MiningEntry pow = cpupow[ae.homogenizedkey];
-
-			
-	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && pow.cpupowverificationtries > 0 && pow.cpupowverificationresult > 0) 
-			{
-				
- 	                MiningEntry me1;
- 				    me1 = cpuminerpaymentsconsolidated[ae.strAccount];
-					me1.networkcredits = network_credits;
-        			me1.rbpps = rbpps;
-					double compensation = me1.rbpps * me1.credits;
-					if (compensation > maxperuser) compensation = maxperuser;
-					me1.compensation = compensation;
-					//2-10-2014
-
-					double owed = compensation - me1.cputotalpayments;
-					if (owed < 0) owed = 0;
-					if (owed > maxperuser) owed=maxperuser;  //Weekly
-					me1.owed = owed;
-					me1.approvedtransactions = iapproved;
-					//2-21-2014 Weekly Max calculation
-
-					double next_payment_amount = (CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT/(iapproved+.01))*coverage_percent;
-					if (next_payment_amount > owed) next_payment_amount = owed;
-					me1.nextpaymentamount = next_payment_amount;
-					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
-			}
-
-    }
-
-
-
-		
-		for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
-		{
-
-			MiningEntry me1 = cpuminerpaymentsconsolidated[(*ii).first];
-	
-	        if (me1.nextpaymentamount > 1) 
-			{
-				
-	    			iApproved2++;
-
-			}
-		}
-
-
-	//2-10-2014 Remove possibility of overpayments:
-    
-
-	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpayments[(*ii).first];
-			MiningEntry pow = cpupow[ae.homogenizedkey];
-	        MiningEntry me1 = cpuminerpaymentsconsolidated[ae.strAccount];
-	
-
-			if (pow.cpupowverificationtries==0) {
-					me1.rbpps = rbpps;
-					double compensation = me1.rbpps * me1.credits;
-					if (compensation > maxperuser) compensation = maxperuser;
-					me1.compensation = compensation;
-					double owed = compensation - me1.cputotalpayments;
-					if (compensation > 5 && me1.cputotalpayments > 5 && owed < 1) {
-						//2-21-2014
-						pow.cpupowverificationtries=1;
-						cpupow[ae.homogenizedkey]=pow;
-					}
-
-			}
-
-
-
-
-	        if (me1.nextpaymentamount > 1) 
-			{
-				
-	        		me1.networkcredits = network_credits;
-        			me1.rbpps = rbpps;
-					double compensation = me1.rbpps * me1.credits;
-					if (compensation > maxperuser) compensation = maxperuser;
-					me1.compensation = compensation;
-				    double owed = compensation - me1.cputotalpayments;
-					if (owed < 0) owed = 0;
-					if (owed > 450) owed=450;
-					me1.owed = owed;
-					me1.approvedtransactions = iApproved2;
-					double next_payment_amount = (CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT/(iApproved2+.01))*coverage_percent;
-					if (next_payment_amount > owed) next_payment_amount = owed;
-					me1.nextpaymentamount = next_payment_amount;
-					cpuminerpaymentsconsolidated[ae.strAccount] = me1;
-			}
-
-    }
-
-		
-
-	} catch(...)
-
-	{
-
-		printf("Error in calculate cpu mining");
-
-	}
-
-
-		
-
-	return cpuminerpayments;
-
-  }
-
-
-
-
 
 void SendGridcoinProjectBeacons()
 {
-	printf("Sending beacons:");
-
-    
-	std::map<std::string, MiningEntry> cpumap = CalculateCPUMining();
-
-	if (!GetCPUMiningMode()) {
-		printf("CPU mining disabled; no beacons to send.");
-		return;
-	}
-
-	//For each Gridcoin project in the lookback period, send a project beacon
-	MiningEntry me;
-	
+	/*
 	int64 bal = pwalletMain->GetBalance();
 	std::string sPaid = FormatMoney(bal);
 	double dbal = lexical_cast<double>(sPaid);
-    printf("Balance %f",dbal);
-	if (dbal < .50) {
+    if (dbal < .50) {
 		printf("Not enough money to send beacons.");
 		return;
 	}
-
-	for (int i = 1; i < 6; i++) 
-	{
-		std::string key = RoundToString(i,0) + DefaultWalletAddress();
-		//Verify user is participating first:
-		std::string userid = GetBoincProjectUserId(i);
-		if (userid.length() > 2)  
-		{
-			if (cpumap[key].locktime == 0)
-			{
-				
-				SendMultiProngedTransaction(i,userid);
-				printf("Sending beacon for project %d",i);
-				cpumap[key].locktime = 1;
-				cpuminerpayments[key].locktime=1;
-			}
-			else
-			{
-				printf("Transaction %d previously sent.",i);
-			}
-		} else
-		{
-				printf("User not participating in project %d.",i);
-		
-		}
-
-	}
-
+	SendMultiProngedTransaction(i,userid);
+	*/
 }
-
 
 
 
@@ -1195,69 +697,6 @@ std::string ConvBS(std::string s)
 
 
 
-Value checkwork(const Array& params, bool fHelp)
-{
-	//RPCcheckwork 1-26-2014
-
-	 if (fHelp)
-        throw runtime_error(
-            "checkwork <blocknumber> \n"
-            "Returns CPU Miner Result Code after checking block"
-            + HelpRequiringPassphrase());
-
-	 printf("Starting checkwork...");
-
-    int blocknumber = params[0].get_int();
-    if (blocknumber < 5 || blocknumber > nBestHeight)
-        throw runtime_error("Block number out of range.");
-	Object entry;
-	
-	try {
-	
-	entry.push_back(Pair("Check Work",1.1));
-	entry.push_back(Pair("Block Number",blocknumber));
-    CBlock block;
-	CBlockIndex* pBlock = FindBlockByHeight(blocknumber);
-	block.ReadFromDisk(pBlock);
-	std::string boinchash = block.hashBoinc.c_str();
-	entry.push_back(Pair("Boinc Hash",boinchash));
-	pBlock = FindBlockByHeight(blocknumber-1);
-	block.ReadFromDisk(pBlock);
-	std::string blockhash1 = pBlock->phashBlock->GetHex().c_str();
-	pBlock = FindBlockByHeight(blocknumber-2);
-	block.ReadFromDisk(pBlock);
-	std::string blockhash2 = pBlock->phashBlock->GetHex().c_str();
-	pBlock = FindBlockByHeight(blocknumber-3);
-	block.ReadFromDisk(pBlock);
-	std::string blockhash3 = pBlock->phashBlock->GetHex().c_str();
-	pBlock = FindBlockByHeight(blocknumber-4);
-	block.ReadFromDisk(pBlock);
-	std::string blockhash4 = pBlock->phashBlock->GetHex().c_str();
-
-	printf("Lastblockhash %s",blockhash1.c_str());
-	printf("Lastblockhash %s",blockhash2.c_str());
-	printf("Lastblockhash %s",blockhash3.c_str());
-	printf("Lastblockhash %s",blockhash4.c_str());
-    printf("Boinchash %s",boinchash.c_str());
-	entry.push_back(Pair("Last Block Hash",blockhash1));
-	entry.push_back(Pair("Prior Block Hash",blockhash2));
-	entry.push_back(Pair("Great Block Hash",blockhash3));
-	entry.push_back(Pair("Great Great Block Hash",blockhash4));
-
-	}
-	catch (...) {
-		return -20;
-        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
-	}
-   
-	return entry;
-
-}
-
-
-
-
-
 
 Value upgrade(const Array& params, bool fHelp)
 {
@@ -1269,402 +708,13 @@ Value upgrade(const Array& params, bool fHelp)
 		Object entry;
 		entry.push_back(Pair("Upgrading Wallet Version",1.0));
 		int result = 0;
-#ifdef WIN32
+
+#if defined(WIN32) && defined(QT_GUI)
 		result = UpgradeClient();
 #endif
      	entry.push_back(Pair("Result",result));
 		return result;
 }
-
-
-Value listminers(const Array& params, bool fHelp)
-{
-
-	printf("Creating miner payout report...");
-		if (fHelp || params.size() > 3)
-        throw runtime_error(
-            "listminers [minconf=1] [maxconf=9999999] \n"
-            "Returns array of pool mining transactions\n"
-            "{}");
-
-	RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
-
-	Array results;
-
-	minerpayments = CalculatePoolMining(false);
-    
-    int inum = 0;
-   
-    double rbpps = minerpayments["totals"].rbpps;
-    Object entry;
-	entry.push_back(Pair("Mining Report Version",1.3));
-	std::string boinc_authenticity = BoincAuthenticity();
-	entry.push_back(Pair("Boinc Version",boinc_authenticity));
-	entry.push_back(Pair("Difficulty",minerpayments["totals"].difficulty));
-	entry.push_back(Pair("Grand Total Utilization",minerpayments["totals"].totalutilization));
-	entry.push_back(Pair("Average Boinc", minerpayments["totals"].avgboinc));
-	entry.push_back(Pair("Grand Total Block Payout",minerpayments["totals"].payout));
-	entry.push_back(Pair("Grand Total RBPPS",rbpps));
-	entry.push_back(Pair("Lookback Period",minerpayments["totals"].lookback));
-
-	results.push_back(entry);
-    double total_payments=0;
-	for(map<string,MiningEntry>::iterator ii=minerpayments.begin(); ii!=minerpayments.end(); ++ii) 
-	{
-
-			MiningEntry ae = minerpayments[(*ii).first];
-
-	        if (ae.strAccount.length() > 5) 
-			{
-				double compensation = ae.shares*rbpps;
-	     		Object e;
-				inum++;
-				e.push_back(Pair("Payment #",inum));
-				e.push_back(Pair("Payment Comment",ae.strComment));
-				e.push_back(Pair("Block Hour",ae.blockhour));
-				e.push_back(Pair("Wallet Hour",ae.wallethour));
-				int64 currenttime = GetTime();
-				int currenthour = boost::lexical_cast<int>(DateTimeStrFormat("%H", currenttime));
-			    e.push_back(Pair("Current Hour",currenthour));
-				e.push_back(Pair("Boinc Hash",ae.boinchash));
-				e.push_back(Pair("Shares", RoundToString(ae.shares,2)));
-				e.push_back(Pair("Account",ae.strAccount));
-				e.push_back(Pair("Payments",ae.payments));
-				e.push_back(Pair("Compensation",RoundToString(compensation,6)));
-				total_payments = total_payments + compensation;
-	     		results.push_back(e);
-			}
-
-    }
-		Object e3;
-		e3.push_back(Pair("Grand Total Payments",RoundToString(total_payments,6)));
-		results.push_back(e3);
-        return results;
-
-}
-
-
-
-
-Value listcpuminers(const Array& params, bool fHelp)
-{
-
-	
-	printf("Creating cpu miner payout report...");
-		if (fHelp || params.size() > 3)
-        throw runtime_error(
-            "listminers [minconf=1] [maxconf=9999999] \n"
-            "Returns array of pool mining transactions\n"
-            "{}");
-
-	RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
-	Array results;
-
-    cpuminerpayments.clear();
-	cpuminerpayments = CalculateCPUMining();
-	    
-    int inum = 0;
-   
- 
-	Object entry;
-	
-	entry.push_back(Pair("CPU Credit Details Report Version",1.03));
-	entry.push_back(Pair("Difficulty",cpuminerpayments["totals"].difficulty));
-    entry.push_back(Pair("Lookback Period", cpuminerpayments["totals"].lookback));
-
-	results.push_back(entry);
-	std::string row = "";
-	row = "#,Account,Project#,Verified RAC,Verification Tries,Total Payments";
-	results.push_back(row);
-
-	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpayments[(*ii).first];
-
-	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2) 
-			{
-		 		inum++;
-				MiningEntry CPU = cpupow[ae.homogenizedkey];
-				row = RoundToString(inum,0) + "," + ae.strAccount + ", " + RoundToString(ae.projectid,0) + ", " 
-					+ RoundToString(CPU.cpupowverificationresult,0) + ", " 
-					+ RoundToString(CPU.cpupowverificationtries,0) + ", " + RoundToString(ae.cputotalpayments,2);
-		
-	     		results.push_back(row);
-			}
-
-    }
-
-
-
-	Object e2;
-
-	//1-23-2014
-	//////////////////////////////////////////////////////////////////////
-
-	//Emit Consolidated report
-	e2.push_back(Pair("Consolidated CPU Credit Report Version",1.7));
-	results.push_back(e2);
-	double gtp = 0;
-	row = "#,Account,Verified RAC,Total Payments,Earned,Network Credits,RBPPS,Owed,Next Payment Amount";
-	results.push_back(row);
-
-	inum=0;
-	for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
-
-	        if (ae.strAccount.length() > 5) 
-			{ 
-	      		inum++;
-				gtp=gtp+ae.compensation;
-				
-				row = RoundToString(inum,0) + "," + ae.strAccount + ", " + RoundToString(ae.credits,0) + ", " 
-					+ RoundToString(ae.cputotalpayments,2) + ", " 
-					+ RoundToString(ae.compensation,2) + ", " + RoundToString(ae.networkcredits,2) + ", " + RoundToString(ae.rbpps,4) 
-					+ ", " + RoundToString(ae.owed,4) + ", " + RoundToString(ae.nextpaymentamount,2);
-	     		results.push_back(row);
-			}
-
-    }
-
-	/////////////////////////////////// EMIT UNPAID CPUMINER REPORT
-
-	
-	//Emit Consolidated report
-	e2.push_back(Pair("Consolidated CPU - Unpaid CPU Miner Report",1.6));
-	results.push_back(e2);
-	double gtp2 = 0;
-
-	inum=0;
-	for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
-
-	        if (ae.strAccount.length() > 5 && ae.nextpaymentamount > .99) 
-			{ 
-				Object e3;
-				inum++;
-				e3.push_back(Pair("CPU Miner #",inum));
-				e3.push_back(Pair("Payment Comment",ae.strComment));
-				e3.push_back(Pair("GRC Address",ae.strAccount));
-				e3.push_back(Pair("Total RAC",RoundToString(ae.credits,2)));
-				e3.push_back(Pair("Payments",RoundToString(ae.cputotalpayments,4)));
-				e3.push_back(Pair("Earned",RoundToString(ae.compensation,4)));
-				gtp2=gtp2+ae.compensation;
-				e3.push_back(Pair("Network CPUMined RAC",RoundToString(ae.networkcredits,2)));
-				e3.push_back(Pair("RBPPBAC",RoundToString(ae.rbpps,4)));
-				e3.push_back(Pair("Owed",RoundToString(ae.owed,4)));
-				e3.push_back(Pair("Next Payment Amount",RoundToString(ae.nextpaymentamount,2)));
-				//	e3.push_back(Pair("Last Paid",ae.lastpaiddate));
-				e3.push_back(Pair("Approved CPU-Mining Pool Payment Count",ae.approvedtransactions));
-
-	     		results.push_back(e3);
-			}
-
-    }
-
-
-	
-	//////////////////////////////////////////////////////
-
-		Object e5;
-		e5.push_back(Pair("Grand Total Payments",RoundToString(gtp,6)));
-		results.push_back(e5);
-        return results;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Value listmycpuminers(const Array& params, bool fHelp)
-{
-
-	
-	printf("Creating mycpu miner payout report...");
-		if (fHelp || params.size() > 3)
-        throw runtime_error(
-            "listminers [minconf=1] [maxconf=9999999] \n"
-            "Returns array of pool mining transactions\n"
-            "{}");
-
-	RPCTypeCheck(params, list_of(int_type)(int_type)(array_type));
-	Array results;
-
-   cpuminerpayments.clear();
-	cpuminerpayments = CalculateCPUMining();
-	    
-    int inum = 0;
-   
-    Object entry;
-	
-	entry.push_back(Pair("CPU Credit Details Report Version",1.02));
-	entry.push_back(Pair("Difficulty",cpuminerpayments["totals"].difficulty));
-    entry.push_back(Pair("Lookback Period", cpuminerpayments["totals"].lookback));
-
-	results.push_back(entry);
-	//2-3-2014
-    std::string mygrcaddress = DefaultWalletAddress();
-
-	for(map<string,MiningEntry>::iterator ii=cpuminerpayments.begin(); ii!=cpuminerpayments.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpayments[(*ii).first];
-
-	        if (ae.strAccount.length() > 5 && ae.projectuserid.length() > 2 && ae.strAccount==mygrcaddress) 
-			{
-				Object e;
-				inum++;
-				e.push_back(Pair("CPU Miner #",inum));
-				e.push_back(Pair("Payment Comment",ae.strComment));
-				e.push_back(Pair("GRC Address",ae.strAccount));
-				e.push_back(Pair("ProjectId",ae.projectid));
-				e.push_back(Pair("ProjectAddress",ae.projectaddress));
-				e.push_back(Pair("Project UserId",ae.projectuserid));
-				MiningEntry CPU = cpupow[ae.homogenizedkey];
-				e.push_back(Pair("CPU Daily Avg Credits Earned",CPU.cpupowverificationresult));
-				e.push_back(Pair("CPU Verification Tries",CPU.cpupowverificationtries));
-				e.push_back(Pair("CPU Verification GRC Address",CPU.strAccount));
-				e.push_back(Pair("CPU PoW Key",CPU.cpupowhash));
-				e.push_back(Pair("Total Payments",ae.cputotalpayments));
-			
-				e.push_back(Pair("Block #",ae.blocknumber));
-				e.push_back(Pair("TX ID",ae.transactionid));
-			
-				e.push_back(Pair("Locktime",ae.locktime));
-
-	     		results.push_back(e);
-			}
-
-    }
-
-
-
-	Object e2;
-
-	//1-23-2014
-	//////////////////////////////////////////////////////////////////////
-
-	//Emit Consolidated report
-	e2.push_back(Pair("Consolidated CPU Credit Report Version",1.5));
-	results.push_back(e2);
-	double gtp = 0;
-
-	inum=0;
-	for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
-
-	        if (ae.strAccount.length() > 5 && ae.strAccount==mygrcaddress) 
-			{ 
-	
-				Object e33;
-				inum++;
-				e33.push_back(Pair("CPU Miner #",inum));
-				e33.push_back(Pair("Payment Comment",ae.strComment));
-				e33.push_back(Pair("GRC Address",ae.strAccount));
-
-				e33.push_back(Pair("Total Avg Daily Credits",RoundToString(ae.credits,2)));
-				e33.push_back(Pair("Total Daily CPU Payments to your GRC Address",RoundToString(ae.cputotalpayments,4)));
-				e33.push_back(Pair("Amount Earned",RoundToString(ae.compensation,4)));
-				gtp=gtp+ae.compensation;
-
-				e33.push_back(Pair("Network CPUMined Boinc Credits",RoundToString(ae.networkcredits,2)));
-				e33.push_back(Pair("RBPPBAC Payment Per Boinc Avg Credit",RoundToString(ae.rbpps,4)));
-				e33.push_back(Pair("Outstanding Owed Amount",RoundToString(ae.owed,4)));
-				e33.push_back(Pair("Next Payment Amount",RoundToString(ae.nextpaymentamount,2)));
-				e33.push_back(Pair("Last Paid",ae.lastpaiddate));
-			
-				e33.push_back(Pair("Approved CPU-Mining Pool Payment Count",ae.approvedtransactions));
-
-
-	     		results.push_back(e33);
-			}
-
-    }
-
-	/////////////////////////////////// EMIT UNPAID CPUMINER REPORT
-
-	
-	//Emit Consolidated report
-	e2.push_back(Pair("Consolidated CPU - Unpaid CPU Miner Report",1.4));
-	results.push_back(e2);
-	double gtp2 = 0;
-
-	inum=0;
-	for(map<string,MiningEntry>::iterator ii=cpuminerpaymentsconsolidated.begin(); ii!=cpuminerpaymentsconsolidated.end(); ++ii) 
-	{
-
-			MiningEntry ae = cpuminerpaymentsconsolidated[(*ii).first];
-
-	        if (ae.strAccount.length() > 5 && ae.nextpaymentamount > .05 && ae.strAccount==mygrcaddress) 
-			{ 
-				Object e3;
-				inum++;
-				e3.push_back(Pair("CPU Miner #",inum));
-				e3.push_back(Pair("Payment Comment",ae.strComment));
-				e3.push_back(Pair("GRC Address",ae.strAccount));
-
-				e3.push_back(Pair("Total Avg Daily Credits",RoundToString(ae.credits,2)));
-				e3.push_back(Pair("Total Daily CPU Payments to your GRC Address",RoundToString(ae.cputotalpayments,4)));
-				e3.push_back(Pair("Amount Earned",RoundToString(ae.compensation,4)));
-				gtp2=gtp2+ae.compensation;
-
-				e3.push_back(Pair("Network CPUMined Boinc Credits",RoundToString(ae.networkcredits,2)));
-				e3.push_back(Pair("RBPPBAC Payment Per Boinc Avg Credit",RoundToString(ae.rbpps,4)));
-				e3.push_back(Pair("Outstanding Owed Amount",RoundToString(ae.owed,4)));
-				e3.push_back(Pair("Next Payment Amount",RoundToString(ae.nextpaymentamount,2)));
-					e3.push_back(Pair("Last Paid",ae.lastpaiddate));
-			
-				e3.push_back(Pair("Approved CPU-Mining Pool Payment Count",ae.approvedtransactions));
-
-
-	     		results.push_back(e3);
-			}
-
-    }
-
-
-	
-	//////////////////////////////////////////////////////
-
-		Object e5;
-		e5.push_back(Pair("Grand Total Payments",RoundToString(gtp,6)));
-		results.push_back(e5);
-        return results;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

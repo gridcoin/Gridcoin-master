@@ -104,6 +104,7 @@ public:
 
             // Determine whether to show transaction or not
             bool showTransaction = (inWallet && TransactionRecord::showTransaction(mi->second));
+			
 
             if(status == CT_UPDATED)
             {
@@ -370,7 +371,14 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
     switch(wtx->type)
     {
     case TransactionRecord::Generated:
-        return QIcon(":/icons/tx_mined");
+		if (wtx->IsCPU) 
+		{
+			return QIcon(":/icons/tx_cpumined");
+		}
+		else
+		{
+			return QIcon(":/icons/tx_mined");
+		}
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::RecvFromOther:
         return QIcon(":/icons/tx_input");
@@ -466,6 +474,9 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
         case TransactionStatus::Offline:
 //            return QColor(192,192,192);
 			return QColor(200,0,0);
+
+
+			//4-12-2014 show cpu mined in different color
 
         case TransactionStatus::Unconfirmed:
             switch(wtx->status.depth)

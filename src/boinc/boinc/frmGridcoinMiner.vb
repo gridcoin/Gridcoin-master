@@ -5,7 +5,8 @@ Imports ICSharpCode.SharpZipLib.Zip
 
 
 Public Class frmGridcoinMiner
-    Public mGpus As New EnumerateGPUs
+    Public mGpus As EnumerateGPUs
+
 
 
     Private Function GetVal(sName) As String
@@ -107,6 +108,18 @@ Public Class frmGridcoinMiner
         cmbDefaults.Items.Add("7950-Tahiti-High")
         cmbDefaults.Items.Add("6870-Barts")
         cmbDefaults.Items.Add("7870-Pitcairn")
+
+        Try
+
+            mGpus = New EnumerateGPUs
+
+        Catch ex As Exception
+            MsgBox("Gridcoin has suffered an internal error while enumerating GPUs.  This is usually caused by not having the AMD drivers installed. ", MsgBoxStyle.Critical, "Error while enumerating GPUs")
+
+            Exit Sub
+
+        End Try
+
 
 
         'Add each real device
@@ -298,4 +311,13 @@ Public Class frmGridcoinMiner
         Me.Refresh()
         System.Threading.Thread.Sleep(500)
     End Function
+
+    Public Sub New()
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+
+    End Sub
 End Class

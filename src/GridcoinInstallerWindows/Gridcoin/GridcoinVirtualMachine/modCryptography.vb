@@ -11,6 +11,8 @@ Imports System.Security.Cryptography
 Public Module modCryptography
     Private TripleDes As New TripleDESCryptoServiceProvider
     Public MerkleRoot As String = "0xda43abf15a2fcd57ceae9ea0b4e0d872981e2c0b72244466650ce6010a14efb8"
+    Public merkleroot2 As String = "0xda43abf15abcdefghjihjklmnopq872981e2c0b72244466650ce6010a14efb8"
+
     Private GBoincThreadCount As Guid
     Private GBoincCPUUtilization As Guid
     Private GBoincAvgCredits As Guid
@@ -133,7 +135,7 @@ Public Module modCryptography
     Private Sub Merkle(ByVal sSalt As String)
         Try
 
-        TripleDes.Key = TruncateHash(MerkleRoot + Right(sSalt, 4), TripleDes.KeySize \ 8)
+            TripleDes.Key = TruncateHash(MerkleRoot + Right(sSalt, 4), TripleDes.KeySize \ 8)
             TripleDes.IV = TruncateHash("", TripleDes.BlockSize \ 8)
         Catch ex As Exception
 
@@ -232,10 +234,10 @@ Public Module modCryptography
         Return Val(span.TotalSeconds)
     End Function
 
-    Public Function CheckWork(ByVal sGridBlockHash1 As String, ByVal sGridBlockHash2 As String, _
+    Public Function Dep1(ByVal sGridBlockHash1 As String, ByVal sGridBlockHash2 As String, _
                               ByVal sGridBlockHash3 As String, sGridBlockHash4 As String, _
                               ByVal sBoincHash As String) As Double
-        'CheckWorkResultCodes
+        'DepResultCodes
 
         '+1 Valid
         '-1 CPU Hash does not contain gridcoin block hash
@@ -266,7 +268,7 @@ Public Module modCryptography
 
 
 
-            'Pool Operator  2-20-2014
+            'Pool Operator 
             If InStr(1, sBoincHash, "pool_operatorx") > 0 Then
                 'Return 1
             End If
@@ -297,10 +299,8 @@ Public Module modCryptography
             Dim bSleepVerification As Boolean
             Dim dSLL As Double = 0
             Dim dNL As Double = 0
-            '    Log("Calling Get sleep level by address for " + Trim(sGRCAddress) + " " + Trim(dSLL) + " " + sOriginalBlockHash)
-            '     Log("CHECKWORK: Sleep Level for " + Trim(sGRCAddress) + " = " & Trim(dSLL) & " for blockhash " & sOriginalBlockHash & " " + Trim(dNL))
 
-            If mnBestBlock > 199999 Then
+            If mnBestBlock > 299999 Then
                 If sGridBlockHash4 = "SCRYPT_SLEEP" Then
                     bSleepVerification = GetSleepLevelByAddress(sGRCAddress, dSLL, sOriginalBlockHash, dNL)
                     If bSleepVerification = False Then
@@ -308,7 +308,7 @@ Public Module modCryptography
                     End If
                 End If
             End If
-          
+
 
             'ReHash the Source Hash
             bHash = System.Text.Encoding.ASCII.GetBytes(sCPUSourceHash)
@@ -340,7 +340,7 @@ Public Module modCryptography
 
 
         Catch ex As Exception
-            Log("CheckWork(Cryptography): " + ex.Message + ":" + ex.Source)
+            Log("(Cryptography): " + ex.Message + ":" + ex.Source)
 
             Return -18
         End Try

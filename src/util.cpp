@@ -17,6 +17,7 @@
 #include "sync.h"
 #include "version.h"
 #include "ui_interface.h"
+
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/case_conv.hpp> // for to_lower()
 #include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
@@ -85,6 +86,11 @@ bool fLogTimestamps = false;
 CMedianFilter<int64> vTimeOffsets(200,0);
 volatile bool fReopenDebugLog = false;
 bool fCachedPath[2] = {false, false};
+
+
+extern bool IsConfigFileEmpty();
+
+
 
 // Init OpenSSL library multithreading support
 static CCriticalSection** ppmutexOpenSSL;
@@ -1109,12 +1115,30 @@ boost::filesystem::path GetConfigFile()
     return pathConfigFile;
 }
 
+
+
+bool IsConfigFileEmpty() 
+{
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    if (!streamConfig.good())
+	{
+
+        return true;
+
+	}
+	return false;
+
+}
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good())
+	{
+
         return; // No bitcoin.conf file is OK
+
+	}
 
     // clear path cache after loading config file
     fCachedPath[0] = fCachedPath[1] = false;

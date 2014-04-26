@@ -1,6 +1,7 @@
 #include "overviewpage.h"
 #include "ui_overviewpage.h"
 
+#include "main.h"
 #include "clientmodel.h"
 #include "walletmodel.h"
 #include "bitcoinunits.h"
@@ -20,6 +21,8 @@
 
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3
+
+
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -170,6 +173,7 @@ void OverviewPage::setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 
 
 void OverviewPage::UpdateBoincUtilization()
 {
+	/*
     ui->txtDisplay->setText("");
 
     if (nBoincUtilization > 0) 
@@ -179,7 +183,14 @@ void OverviewPage::UpdateBoincUtilization()
 	 QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
 	 ui->txtDisplay->setText("Boinc Utilization: " + qsUtilization);
 	}
+	*/
+
+	 QString qsStatus = QString::fromUtf8(msGlobalStatus.c_str());
+	 ui->txtDisplay->setText(qsStatus);
+
 }
+
+
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
@@ -246,5 +257,11 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
+	OverviewPage::UpdateBoincUtilization();
+}
+
+void OverviewPage::updateglobalstatus()
+{
+
 	OverviewPage::UpdateBoincUtilization();
 }

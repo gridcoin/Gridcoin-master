@@ -92,9 +92,10 @@ OBJS= \
     obj/hash.o \
     obj/bloom.o \
     obj/leveldb.o \
-    obj/txdb.o
+    obj/txdb.o \
+    obj/skein.o \
 
-all: litecoind.exe
+all: gridcoind.exe
 
 DEFS += -I"$(CURDIR)/leveldb/include"
 DEFS += -I"$(CURDIR)/leveldb/helpers"

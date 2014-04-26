@@ -47,6 +47,7 @@ Public Class frmMining
             ChartBoinc()
             UpdateChartHashRate()
             ChartBoincUtilization()
+
             Me.Update()
         Catch ex As Exception
         End Try
@@ -198,7 +199,10 @@ Public Class frmMining
                 sData = "work"
 
             End If
-            ForceBoincToUseGPUs(sData)
+
+            'ForceBoincToUseGPUs(sData)
+
+
             Dim sw As New System.IO.StreamWriter(sPath, False)
 
             sw.WriteLine(sData)
@@ -212,7 +216,8 @@ Public Class frmMining
         LogSleepStatus(msSleepStatus)
 
         'SCRYPT_SLEEP:
-        If nBestBlock < 99999 Then Exit Sub
+        If nBestBlock < 199999 Then Exit Sub
+        Exit Sub
 
         If msSleepStatus = "SLEEP" Then
             DisableAllGPUs()
@@ -419,13 +424,8 @@ Public Class frmMining
         mlElapsedTime = mlElapsedTime + 1
 
         If clsGVM.CPUMiner.Status = False Then
-            pbBoincBlock.Visible = False
             lblBoincBlock.Text = Mid(clsGVM.CPUMiner.MinedHash, 1, 42) + "..."
-
         Else
-            pbBoincBlock.Visible = True
-            If clsGVM.CPUMiner.Elapsed.Seconds > 0 Then pbBoincBlock.Value = clsGVM.CPUMiner.Elapsed.Seconds
-            If clsGVM.CPUMiner.Elapsed.Seconds > pbBoincBlock.Maximum - 5 Then pbBoincBlock.Maximum = pbBoincBlock.Maximum + 15
         End If
 
         If msLastBlockHash <> lblLastBlockHash.Text Then
@@ -553,52 +553,60 @@ Public Class frmMining
             pi = New ProcessStartInfo()
             '  pi.WorkingDirectory = GetGRCAppDir()
             pi.WorkingDirectory = GetGridFolder() + "cgminer" + Trim(iInstance) + "\"
+            pi.WindowStyle = ProcessWindowStyle.Minimized
+
+
+            'The process object must have shellexecute set to false in order to use env variables:
 
             pi.UseShellExecute = False
 
-            Try
-                pi.EnvironmentVariables.Remove("GPU_MAX_ALLOC_PERCENT")
-                pi.EnvironmentVariables.Remove("GPU_USE_SYNC_OBJECTS")
-            Catch ex As Exception
-            End Try
-            Try
-                pi.EnvironmentVariables.Add("GPU_MAX_ALLOC_PERCENT", "100")
-            Catch ex As Exception
-            End Try
-            Try
-                pi.EnvironmentVariables.Add("GPU_USE_SYNC_OBJECTS", "1")
-            Catch ex As Exception
-            End Try
-            'pi.FileName = pi.WorkingDirectory + "\gridcoinminer.exe"
+
+            If pi.UseShellExecute = False Then
+                Try
+                    pi.EnvironmentVariables.Remove("GPU_MAX_ALLOC_PERCENT")
+                    pi.EnvironmentVariables.Remove("GPU_USE_SYNC_OBJECTS")
+                Catch ex As Exception
+                End Try
+
+                Try
+                    pi.EnvironmentVariables.Add("GPU_MAX_ALLOC_PERCENT", "100")
+                Catch ex As Exception
+                End Try
+                Try
+                    pi.EnvironmentVariables.Add("GPU_USE_SYNC_OBJECTS", "1")
+                Catch ex As Exception
+                End Try
+            End If
+
             pi.FileName = pi.WorkingDirectory + "\cgminer.exe"
 
             pi.Arguments = "-c cgm" + Trim(iInstance)
             pi.CreateNoWindow = False
-            pi.WindowStyle = ProcessWindowStyle.Hidden
+            pi.WindowStyle = ProcessWindowStyle.Normal
+
             p.StartInfo = pi
             If Not File.Exists(pi.FileName) Then
                 lblThanks.Text = "CGMiner is missing. "
                 Exit Sub
             End If
-            
+
             p.Start()
             TabCGMINER.Select()
             Dim hwnd As IntPtr
+            Dim hwnd2 As IntPtr
 
-            Threading.Thread.Sleep(1000)
+            Threading.Thread.Sleep(100)
             For x = 0 To 30
                 Application.DoEvents()
+                hwnd2 = GetHwndByProcessName(p.ProcessName, p.MainWindowTitle)
+                ShowWindow(hwnd2, 0) 'Make invisible
                 If p.Id <> 0 And p.MainWindowTitle <> "" Then Exit For
                 Threading.Thread.Sleep(100)
             Next
-
             hwnd = GetHwndByProcessName(p.ProcessName, p.MainWindowTitle)
-
             mCGMinerHwnd(iInstance) = hwnd
             mCGMinerAPIDown(iInstance) = 0
-
             ShowWindow(hwnd, 0) 'Make invisible
-
             Application.DoEvents()
         Catch Ex As Exception
             lblThanks.Text = Ex.Message
@@ -701,8 +709,7 @@ Public Class frmMining
 
 
             Try
-                Call clsUtilization.AuthenticateToPool()
-
+               
             Catch ex As Exception
 
             End Try
@@ -734,8 +741,7 @@ Public Class frmMining
     Private Sub InitializeFormMining()
         ReStartMiners()
 
-        clsUtilization.AuthenticateToPool()
-
+       
 
 
     End Sub
@@ -747,8 +753,6 @@ Public Class frmMining
 
             End If
             updateGh()
-            Call ChartBoincUtilization()
-            Call UpdateChartHashRate()
             If miInitCounter = 50 Then Call UpdateIntensity()
 
         Catch ex As Exception
@@ -817,10 +821,7 @@ Public Class frmMining
     End Sub
     Private Sub frmMining_Load(sender As Object, e As System.EventArgs) Handles Me.Load
     
-        '   For x = 1 To 70
-        'Application.DoEvents()
-        'System.Threading.Thread.Sleep(100)
-        'Next
+      
 
         RestartedWalletAt = Now
         'Set the defaults for the checkboxes
@@ -1030,6 +1031,9 @@ Public Class frmMining
         ' Add any initialization after the InitializeComponent() call.
         Dim sMessage1 As String
         sMessage1 = KeyValue("CPUMessage2")
+
+        sMessage1 = "notified"
+
         If sMessage1 = "" Then
             Dim sMsg As String = "Note: If you are CPUMining, we recently added a requirement to be a member of Team 'Gridcoin'.  " _
                                  & "Please click on Projects, and verify that you are a member of Team Gridcoin for each project you participating in.  " _
@@ -1057,12 +1061,10 @@ Public Class frmMining
     End Sub
 
     Private Sub timerPoolAuthenticator_Tick(sender As System.Object, e As System.EventArgs) Handles timerPoolAuthenticator.Tick
-        mclsUtilization.AuthenticateToPool()
-
+       
     End Sub
 
-    Private Sub btnReauthenticate_Click(sender As System.Object, e As System.EventArgs) Handles btnReauthenticate.Click
-        Call clsUtilization.AuthenticateToPool()
-
+    Private Sub btnReauthenticate_Click(sender As System.Object, e As System.EventArgs)
+        
     End Sub
 End Class

@@ -18,10 +18,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <openssl/crypto.h>
 
-
-#ifndef WIN32
-extern boost::thread_group threadGroup;
-#endif
+#include <boost/algorithm/string/case_conv.hpp> // for to_lower()
+#include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
 
 
 #include "global_objects_noui.hpp"
@@ -35,10 +33,28 @@ using namespace boost;
 
 CWallet* pwalletMain;
 CClientUIInterface uiInterface;
+std::vector<std::string> split(std::string s, std::string delim);
+
+void ShutdownGridcoinMiner();
+
+void StartNodeNetworkOnly();
+void ThreadCPIDs();
+
 
 int CloseGuiMiner();
+bool fGenerate = false;
+extern void InitializeBoincProjects();
 
 extern void RestartGridcoin3();
+bool IsConfigFileEmpty();
+void GetNextProject();
+void GetNextGPUProject(bool force);
+
+void HarvestCPIDs(bool cleardata);
+
+bool TallyNetworkAverages();
+
+std::string RestoreGridcoinBackupWallet();
 
 
 
@@ -80,7 +96,7 @@ enum BindFlags {
 // threads have exited.
 //
 // Note that if running -daemon the parent process returns from AppInit
-// before adding any threads to the threadGroup, so .join_all() returns
+// before adding any threads to the oup, so .join_all() returns
 // immediately and the parent exits from main().
 //
 // Shutdown for Qt is very similar, only it uses a QTimer to detect
@@ -117,7 +133,8 @@ void Shutdown()
     TRY_LOCK(cs_Shutdown, lockShutdown);
     if (!lockShutdown) return;
 	
-#if WIN32
+
+#if defined(WIN32) && defined(QT_GUI)
 	CloseGuiMiner();
 #endif
 
@@ -126,9 +143,8 @@ void Shutdown()
     nTransactionsUpdated++;
     StopRPCThreads();
     bitdb.Flush(false);
-	GenerateBitcoins(false, NULL);
-
-    
+    ShutdownGridcoinMiner();
+	    
     StopNode();
     {
         LOCK(cs_main);
@@ -169,11 +185,17 @@ void DetectShutdownThread(boost::thread_group* threadGroup)
 void RestartGridcoin3() 
 {
      	//Gridcoin - 12-26-2013 Stop all network threads; Stop the node; Restart the Node.
+		//Note: The threadGroup only contains Network Threads:
 		threadGroup.interrupt_all();
         threadGroup.join_all();
+		printf("Stopping node\r\n");
 		StopNode();
-		StartNode();
-        threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+
+		//Lets get the cpids here
+		ThreadCPIDs();
+
+		printf("Starting node...\r\n");
+		StartNodeNetworkOnly();
 }
 
 
@@ -190,6 +212,90 @@ void HandleSIGHUP(int)
 }
 
 
+
+
+void InitializeBoincProjects()
+{
+
+		std::string boinc_projects[100];
+	       
+        boinc_projects[0] = "http://boinc.bakerlab.org/rosetta/   |rosetta@home";
+        boinc_projects[1] = "http://docking.cis.udel.edu/         |Docking";
+        boinc_projects[2] = "http://www.malariacontrol.net/       |malariacontrol.net";
+        boinc_projects[3] = "http://www.worldcommunitygrid.org/   |World Community Grid";
+        boinc_projects[4] = "http://asteroidsathome.net/boinc/    |Asteroids@home";
+        boinc_projects[5] = "http://climateprediction.net/        |climateprediction.net";
+        boinc_projects[6] = "http://pogs.theskynet.org/pogs/      |pogs";
+        boinc_projects[8] = "http://setiathome.berkeley.edu/      |SETI@home";
+        boinc_projects[11] = "http://boinc.gorlaeus.net/          |Leiden Classical";
+		//Leiden Classical
+        boinc_projects[12] = "http://home.edges-grid.eu/home/     |EDGeS@Home";
+        boinc_projects[13] = "http://milkyway.cs.rpi.edu/milkyway/|Milkyway@Home";
+        boinc_projects[15] = "http://casathome.ihep.ac.cn/        |CAS@home";
+        boinc_projects[16] = "http://aerospaceresearch.net/constellation/|Constellation";
+        boinc_projects[17] = "http://www.cosmologyathome.org/     |Cosmology@Home";
+        boinc_projects[18] = "http://boinc.freerainbowtables.com/ |DistrRTgen";
+        boinc_projects[19] = "http://einstein.phys.uwm.edu/       |Einstein@Home";
+        boinc_projects[20] = "http://www.enigmaathome.net/        |Enigma@Home";
+        boinc_projects[22] = "http://registro.ibercivis.es/       |ibercivis";
+        boinc_projects[23] = "http://lhcathomeclassic.cern.ch/sixtrack/|LHC@home 1.0";
+        boinc_projects[24] = "http://lhcathome2.cern.ch/test4theory|Test4Theory@Home";
+        boinc_projects[25] = "http://mindmodeling.org/            |MindModeling@Beta";
+        boinc_projects[26] = "http://escatter11.fullerton.edu/nfs/|NFS@Home";
+        boinc_projects[27] = "http://numberfields.asu.edu/NumberFields/|NumberFields@home";
+        boinc_projects[28] = "http://oproject.info/               |OProject@Home";
+        boinc_projects[29] = "http://boinc.fzk.de/poem/           |Poem@Home";
+        boinc_projects[30] = "http://www.primegrid.com/           |PrimeGrid";
+        boinc_projects[32] = "http://sat.isa.ru/pdsat/            |SAT@home";
+        boinc_projects[33] = "http://boincsimap.org/boincsimap/   |boincsimap";
+		boinc_projects[34] = "http://boinc.thesonntags.com/collatz/|Collatz Conjecture";
+        boinc_projects[35] = "http://mmgboinc.unimi.it/           |SimOne@home";
+        boinc_projects[36] = "http://volunteer.cs.und.edu/subset_sum/|SubsetSum@Home";
+        boinc_projects[37] = "http://boinc.vgtu.lt/vtuathome/     |VGTU project@Home";
+        boinc_projects[39] = "http://www.rechenkraft.net/yoyo/    |yoyo@home";
+        boinc_projects[40] = "http://eon.ices.utexas.edu/eon2/    |eon2";
+		////////////////////ADDING CustomMiners:
+		boinc_projects[41] ="http://albert.phys.uwm.edu/|Albert@home";
+		boinc_projects[42]="http://boinc.almeregrid.nl/|AlmereGrid Boinc Grid";
+		boinc_projects[44]="http://bealathome.com/|Beal@home";
+		boinc_projects[47]="http://convector.fsv.cvut.cz/|convector";
+		boinc_projects[48]="http://www.distributedDataMining/|Distributed Data Mining";
+		boinc_projects[49]="http://gerasim.boinc.ru/|Gerasim@Home";
+		boinc_projects[50]="http://www.gpugrid.net/|GPUGRID";
+		boinc_projects[53]="http://moowrap.net/|Moo! Wrapper";
+		boinc_projects[54]="http://boinc.med.usherbrooke.ca/nrg/|Najmanovich Research";
+		boinc_projects[57]="http://boinc.riojascience.com/|Rioja Science";
+		boinc_projects[59]="http://sat.isa.ru/pdsat/|SAT@home";
+		boinc_projects[61]="http://dg.imp.kiev.ua/slinca/|SLinCA";
+		boinc_projects[63]="http://wuprop.boinc-af.org/|WUProp@Home";
+		
+
+		for (int i = 0; i < 100; i++)
+		{
+			std::string proj = boinc_projects[i];
+			if (proj.length() > 1)
+			{
+				
+       			boost::to_lower(proj);
+
+				std::vector<std::string> vProject = split(proj,"|");
+				std::string mainProject = vProject[1];
+				boost::to_lower(mainProject);
+
+				StructCPID structcpid;
+				mvBoincProjects.insert(map<string,StructCPID>::value_type(mainProject,structcpid));
+				structcpid = mvBoincProjects[mainProject];
+				structcpid.initialized = true;
+				structcpid.link = vProject[0];
+				structcpid.projectname = vProject[1];
+				mvBoincProjects[mainProject] = structcpid;
+		//		printf("Loading %s",mainProject.c_str());
+			} 
+
+		}
+
+
+}
 
 
 
@@ -270,7 +376,6 @@ bool AppInit(int argc, char* argv[])
 #endif
 
         detectShutdownThread = new boost::thread(boost::bind(&DetectShutdownThread, &threadGroup));
-		//threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "detectshutdown", &DetectShutdownThread));
 		
         fRet = AppInit2();
     }
@@ -581,8 +686,20 @@ bool AppInit2()
     // ********************************************************* Step 2: parameter interactions
 
 	// 10-13-2013: Gridcoin: Removed createnew() globalcom reference for headless version
-	
+	if (IsConfigFileEmpty()) 
+	{
 
+		   bool fRet = uiInterface.ThreadSafeMessageBox(
+                       "Configuration file empty.  \r\n" + _("Would you like to Exit?"),
+                    "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
+             
+	}
+
+	printf("Loading boinc projects \r\n");
+
+	InitializeBoincProjects();
+
+	////////////////////////////////////////
     fTestNet = GetBoolArg("-testnet");
     fBloomFilters = GetBoolArg("-bloomfilters");
     if (fBloomFilters)
@@ -623,25 +740,12 @@ bool AppInit2()
 
 
 	 // Algo
-    std::string strAlgo = GetArg("-algo", "sha256d");
-	printf("Chosen Algo %s\n", strAlgo.c_str());
+    std::string strAlgo = "PoB";
+	miningAlgo=2;
+	// Set pool mining mode 4-6-2014
+	if (mapArgs["-poolmining"] == "true")  bPoolMiningMode = true;
 
-    transform(strAlgo.begin(),strAlgo.end(),strAlgo.begin(),::tolower);
-    if (strAlgo == "sha" || strAlgo == "sha256" || strAlgo == "sha256d")
-        miningAlgo = ALGO_SHA256D;
-    else if (strAlgo == "scrypt")
-        miningAlgo = ALGO_SCRYPT;
-    else if (strAlgo == "groestl" || strAlgo == "groestlsha2")
-        miningAlgo = ALGO_GROESTL;
-    else if (strAlgo == "skein" || strAlgo == "skeinsha2")
-        miningAlgo = ALGO_SKEIN;
-    else if (strAlgo == "q2c" || strAlgo == "qubit")
-        miningAlgo = ALGO_QUBIT;
-    else
-        miningAlgo = ALGO_SHA256D;
-    
-	printf("Mining Algo %s\n",strAlgo.c_str());
-
+	
 
     // Make sure enough file descriptors are available
     int nBind = std::max((int)mapArgs.count("-bind"), 1);
@@ -1086,6 +1190,21 @@ bool AppInit2()
 
     nStart = GetTimeMillis();
     bool fFirstRun = true;
+
+
+	//Gridcoin - Erase And Restore Wallet
+	//4-26-2014
+
+    if (mapArgs.count("-restorewallet"))
+	{
+		boost::filesystem::path path = GetDataDir() / "wallet.dat";
+		bool result1 =  remove(path.string().c_str());
+		if (result1 != 0) printf("Unable to remove wallet.dat\r\n");
+		uiInterface.InitMessage(_("Restoring wallet..."));
+
+	}
+	//Let the system create a new wallet first:    
+
     pwalletMain = new CWallet("wallet.dat");
     DBErrors nLoadWalletRet = pwalletMain->LoadWallet(fFirstRun);
     if (nLoadWalletRet != DB_LOAD_OK)
@@ -1146,6 +1265,21 @@ bool AppInit2()
     printf(" wallet      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
 
     RegisterWallet(pwalletMain);
+
+
+	//Restore wallet from Backup?
+	
+    if (mapArgs.count("-restorewallet"))
+	{
+
+		std::string sRestored =  RestoreGridcoinBackupWallet();
+		printf("Restore status %s", sRestored.c_str());
+		uiInterface.InitMessage(_("Wallet restored..."));
+
+	}
+
+
+
 
     CBlockIndex *pindexRescan = pindexBest;
     if (GetBoolArg("-rescan"))
@@ -1217,27 +1351,33 @@ bool AppInit2()
     printf("mapWallet.size() = %"PRIszu"\n",       pwalletMain->mapWallet.size());
     printf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain->mapAddressBook.size());
 	//
-
-
     StartNode();
-	//Store a reference to the threadGroup:
-	
+	//Store a reference to the oup:
 
-    if (fServer)
-        StartRPCThreads();
+    uiInterface.InitMessage(_("Loading Network Averages..."));
+	//TallyNetworkAverages();
 
-	
+	if (false) 
+	{
+		//Initialize network to avoid race conditions:
+		uiInterface.InitMessage(_("Loading CPIDs..."));
+	}
+
+
+
     // Generate coins in the background
+	std::string sGen = mapArgs["-cpumining"];
+	//std::string sGen = GetArg("-cpumining", "false");
+	printf("CPUMINING %s ",sGen.c_str());
 
-	//bool fGenerate = false;
-	//std::string sGen = GetArg("-gen", "false");
-	//if (sGen=="true") fGenerate = true;
-	//  Internal future miner:
-	// 	GenerateBitcoins(fGenerate, pwalletMain);
+	if (sGen=="true") fGenerate = true;
+	// Internal future miner:
+		uiInterface.InitMessage(_("Starting PoB Miners..."));
+	
 
-
-
-
+	if (fServer)        StartRPCThreads();
+	
+	
     // ********************************************************* Step 12: finished
     uiInterface.InitMessage(_("Done loading"));
 
@@ -1248,6 +1388,14 @@ bool AppInit2()
     threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
 	//Create the GridCoin thread
 
+	//PRODUCTION CRITICAL (REMOVE fTestNet)
+	if (fTestNet) 
+	{
+		GenerateGridcoins(fGenerate);
+
+	}
+
+	
     return !fRequestShutdown;
 }
 

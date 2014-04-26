@@ -100,7 +100,7 @@ static bool ThreadSafeAskFee(int64 nFeeRequired)
 }
 
 
-static int ThreadSafeCheckWork(const std::string& h1,
+static int ThreadSafeWin32Call(const std::string& h1,
 	                           const std::string& h2,const std::string& h3,const std::string& h4,const std::string& h5) 
 {
 	if (!guiref) return -100;
@@ -108,7 +108,7 @@ static int ThreadSafeCheckWork(const std::string& h1,
 	int result = -50;
 	//Qt::QueuedConnection
 	//GUIUtil::blockingGUIThreadConnection(),
-	QMetaObject::invokeMethod(guiref, "threadsafecheckwork",
+	QMetaObject::invokeMethod(guiref, "threadsafewin32call",
 	GUIUtil::blockingGUIThreadConnection(),
 			Q_ARG(QString, QString::fromStdString(h1)),
 			Q_ARG(QString, QString::fromStdString(h2)),
@@ -134,7 +134,7 @@ int ThreadSafeVersion()
 
 
 static void InitMessage(const std::string &message)
-{
+{  //25,25,25
     if(splashref)
     {
         splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(25,25,25));
@@ -295,7 +295,8 @@ int main(int argc, char *argv[])
     uiInterface.ThreadSafeMessageBox.connect(ThreadSafeMessageBox);
     uiInterface.ThreadSafeAskFee.connect(ThreadSafeAskFee);
 
-	uiInterface.ThreadSafeCheckWork.connect(ThreadSafeCheckWork);
+	//	uiInterface.ThreadSafeWin32Call.connect(ThreadSafeWin32Call);
+
 
 	
     uiInterface.InitMessage.connect(InitMessage);
@@ -359,7 +360,6 @@ int main(int argc, char *argv[])
 
 	 	QTimer *timer = new QTimer(guiref);
 		QObject::connect(timer, SIGNAL(timeout()), guiref, SLOT(timerfire()));
-	//	timer->start(10000);
 	  
 
         if(AppInit2())

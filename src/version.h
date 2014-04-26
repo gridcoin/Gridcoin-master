@@ -25,10 +25,10 @@ extern const std::string CLIENT_DATE;
 // network protocol versioning
 //
 
-static const int PROTOCOL_VERSION = 100001;
+static const int PROTOCOL_VERSION = 110004;
 
 // earlier versions not supported as of Feb 2012, and are disconnected
-static const int MIN_PROTO_VERSION = 100001;
+static const int MIN_PROTO_VERSION = 110004;
 
 // nTime field added to CAddress, starting with this version;
 // if possible, avoid requesting addresses nodes older than this

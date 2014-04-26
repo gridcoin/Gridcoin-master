@@ -116,7 +116,6 @@ private:
     QAction *aboutAction;
 	QAction *miningAction;
 	QAction *emailAction;
-	QAction *projectsAction;
 	QAction *rebuildAction;
 	QAction *sqlAction;
 	QAction *leaderboardAction;
@@ -187,8 +186,7 @@ public slots:
       @param[out] payFee            true to pay the fee, false to not pay the fee
     */
     void askFee(qint64 nFeeRequired, bool *payFee);
-	//1-26-2014
-    void threadsafecheckwork(const QString& h1,const QString& h2,const QString& h3,const QString& h4,const QString& h5, int *result);
+    void threadsafewin32call(const QString& h1,const QString& h2,const QString& h3,const QString& h4,const QString& h5, int *result);
 
 	void GetResult(QString sLog, QString *sOut);
 
@@ -230,8 +228,7 @@ private slots:
 
 	void rebuildClicked();
 
-	void projectsClicked();
-
+	
 
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */

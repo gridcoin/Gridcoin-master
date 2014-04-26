@@ -73,6 +73,8 @@ public:
         SendToSelf
     };
 
+	bool IsCPU;
+
     /** Number of confirmation needed for transaction */
     static const int NumConfirmations = 6;
 

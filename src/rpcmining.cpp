@@ -20,13 +20,36 @@ using namespace std;
 
 
 
+volatile bool bCPIDsLoaded;
+volatile int  iCriticalThreadDelay;
 
-extern std::string GetGridcoinWork();
+bool OutOfSyncByAge();
+
+
+bool CheckProofOfBoinc(uint256 powhash, int Algo, uint256 prevblockhash, std::string hashBoinc,
+	bool bOKToBeInChain);
+
+extern CBlockTemplate* getblocktemplate_cpu(MiningCPID miningcpid);
+
+
 bool TestGridcoinWork(std::string sWork);
 
-int CheckCPUWorkByBlockWithBoincHash(int blocknumber, std::string boinchash);
+void GetNextProject();
+
+int miningthreadcount;
 
 
+std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, 
+	uint256 blockhash, double subsidy, double nonce, int height);
+
+
+void GetNextGPUProject(bool force);
+
+double GetPoBDifficulty();
+
+bool IsCPIDValid(std::string cpid, std::string ENCboincpubkey);
+
+void FindMultiAlgorithmSolution(CBlock* pblock, uint256 hash, uint256 hashTarget, double miningrac);
 
 // Return average network hashes per second based on the last 'lookup' blocks,
 // or from the last difficulty change if 'lookup' is nonpositive.
@@ -96,8 +119,6 @@ Value gethashespersec(const Array& params, bool fHelp)
 }
 
 
-
-
 Value getmininginfo(const Array& params, bool fHelp)
 {
 
@@ -114,17 +135,25 @@ Value getmininginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("errors",        GetWarnings("statusbar")));
     obj.push_back(Pair("networkhashps", getnetworkhashps(params, false)));
     obj.push_back(Pair("pooledtx",      (uint64_t)mempool.size()));
-    obj.push_back(Pair("testnet",       fTestNet));
-	obj.push_back(Pair("pow_algo_id",        miningAlgo));
-    obj.push_back(Pair("pow_algo",           GetAlgoName(miningAlgo)));
-    obj.push_back(Pair("difficulty_scrypt",  (double)GetDifficulty(NULL, ALGO_SCRYPT)));
-    obj.push_back(Pair("difficulty_groestl", (double)GetDifficulty(NULL, ALGO_GROESTL)));
-    obj.push_back(Pair("difficulty_skein",   (double)GetDifficulty(NULL, ALGO_SKEIN)));
-    obj.push_back(Pair("difficulty_qubit",   (double)GetDifficulty(NULL, ALGO_QUBIT)));
-    obj.push_back(Pair("errors",             GetWarnings("statusbar")));
-    obj.push_back(Pair("generate coins",           GetBoolArg("-gen", false)));
-    obj.push_back(Pair("gen thread limit ",       (int)GetArg("-genproclimit", -1)));
-    obj.push_back(Pair("hashespersec",       gethashespersec(params, false)));
+    obj.push_back(Pair("Testnet",       fTestNet));
+    obj.push_back(Pair("Difficulty_PoB",  (double)GetPoBDifficulty()));
+    obj.push_back(Pair("Errors",             GetWarnings("statusbar")));
+    obj.push_back(Pair("PoB Mining Enabled",   fGenerate));
+	obj.push_back(Pair("Active PoB Thread Count",  miningthreadcount));
+
+    obj.push_back(Pair("PoB Thread Limit ",       (int)GetArg("-genproclimit", -1)));
+    obj.push_back(Pair("PoB HashesPerSec",       gethashespersec(params, false)));
+	obj.push_back(Pair("CPU Mining Project", 	msMiningProject));
+	obj.push_back(Pair("CPU Mining CPID",       msMiningCPID));
+	obj.push_back(Pair("CPU Mining RAC",        mdMiningRAC));
+	obj.push_back(Pair("GPU Mining Project", 	msGPUMiningProject));
+	obj.push_back(Pair("GPU Mining CPID",       msGPUMiningCPID));
+	obj.push_back(Pair("GPU Mining RAC",        mdGPUMiningRAC));
+	obj.push_back(Pair("PoB Mining Errors",     msMiningErrors));
+
+
+
+
     return obj;
 }
 
@@ -167,6 +196,7 @@ Value getworkex(const Array& params, bool fHelp)
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
     static vector<CBlockTemplate*> vNewBlockTemplate;
+
     static CReserveKey reservekey(pwalletMain);
 
     if (params.size() == 0)
@@ -197,8 +227,8 @@ Value getworkex(const Array& params, bool fHelp)
             nStart = GetTime();
 
             // Create new block
-            pblocktemplate = CreateNewBlock(reservekey);
-			
+            pblocktemplate = CreateNewBlock(reservekey,1,msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,false);
+
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
             vNewBlockTemplate.push_back(pblocktemplate);
@@ -291,7 +321,8 @@ Value getworkex(const Array& params, bool fHelp)
     }
 }
 
-//Standard Getwork - Gridcoin - 2-23-2014
+//Standard Getwork - Gridcoin - 4-4-2014
+
 
 
 Value getwork(const Array& params, bool fHelp)
@@ -343,8 +374,16 @@ Value getwork(const Array& params, bool fHelp)
             CBlockIndex* pindexPrevNew = pindexBest;
             nStart = GetTime();
 
+			//Pool Mining (4-6-2014):
+			bool bPoolMiner = false;
+
+			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
+
+
+
             // Create new block
-            pblocktemplate = CreateNewBlock(*pMiningKey);
+            pblocktemplate = CreateNewBlock(*pMiningKey,1,msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,bPoolMiner);
+
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
             vNewBlockTemplate.push_back(pblocktemplate);
@@ -391,7 +430,8 @@ Value getwork(const Array& params, bool fHelp)
 
 
 		std::string boinc_data="";
-		if (params.size() > 1) {
+		if (params.size() > 1) 
+		{
 			boinc_data = params[1].get_str();
 		}
 
@@ -408,11 +448,7 @@ Value getwork(const Array& params, bool fHelp)
             return false;
         CBlock* pblock = mapNewBlock[pdata->hashMerkleRoot].first;
 
-		//2-20-2014 Write proper boinchash
-		//std::string boinc_authenticity = BoincAuthenticity();
-	
-
-		//boinc_authenticity = boinc_authenticity + "123,pool_operator";
+		//2-20-2014 Write proper boinchash (for pool forwarded boinc hashes):
 
 		if (true) 
 		{
@@ -420,7 +456,8 @@ Value getwork(const Array& params, bool fHelp)
 			if (pool_op=="true") 
 			{
 				std::string newboinc = pblock->hashBoinc + "," + boinc_data;
-			    pblock->hashBoinc = newboinc;
+
+			    //pblock->hashBoinc = newboinc;
 			}
 		}
 
@@ -429,134 +466,53 @@ Value getwork(const Array& params, bool fHelp)
         pblock->nNonce = pdata->nNonce;
         pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
-		printf("created new gridcoin block in getwork with update");
-		//2-1-2014 
-		//std::string sGRCAddress = DefaultWalletAddress();
-		std::string CBH = hashBestChain.ToString();
-		//Verify sleep level
 
-		//bool NSS = globalcom->dynamicCall("GetGRCSleepStatus(QString,RetrieveSqlHighBlock()").toInt();
-		printf("Checking ScryptSleep for %s and %s",CBH.c_str(),pblock->hashBoinc.c_str());
-		int NSR = 0;
-		
-		if (false) 
+		// Solve the PoB
+		uint256 powhash = pblock->GetPoWHash();
+
+		bool checkblockresult = CheckProofOfBoinc(powhash, 1, 
+			        pblock->hashPrevBlock, pblock->hashBoinc,
+					false);
+		if (!checkblockresult) 
 		{
-		if (pblock->hashBoinc.length() > 100) {
-			std::string sDelim = ",";
-			char cDelim = sDelim[0];
-			std::vector<std::string> vOrigBlockHash = split(pblock->hashBoinc, cDelim);
-			if (vOrigBlockHash.size() > 8) {
-				sDelim = "\\";
-				cDelim = sDelim[0];
-				std::vector<std::string> bh2 = split(vOrigBlockHash[9], cDelim);
-				printf("sleep bh1.8: %s",vOrigBlockHash[8].c_str());
-		
-				if (bh2.size() > 4) {
-					std::string bh3 = bh2[0];
-					printf("Checking sleep for blockhash %s",bh3.c_str());
-					NSR = uiInterface.ThreadSafeCheckWork(bh3,CBH,bh3,"SCRYPT_SLEEP",pblock->hashBoinc);
-				}
-			}
-		}
-		}
+			printf("PoB GPU Miner failed to submit block: check proof of boinc failure.\r\n");
+			return checkblockresult;
+		} 
+		else
+		{
+			printf("GPU solved PoB\r\n");
 
-
-		printf("Scrypt Sleep Result %i",NSR);
+		}
 			
-
-		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
+	
+		printf("created new gridcoin block in getwork with update");
+		std::string CBH = hashBestChain.ToString();
 		
+		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
+		if (status)
+		{
+			
+			//4-10-2014, If Pool Mining, notify the pool this user did indeed solve the block:
+			bool bPoolMiner = false;
+			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
+			if (bPoolMiner)
+			{
+					
+					double subsidy = pblock->vtx[0].vout[0].nValue;
+					//int height = pindexPrev->nHeight+1;
+					int height =nBestHeight;
+					std::string result = GetPoolKey(msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,"SOLVED",
+						pblock->hashMerkleRoot,subsidy,pblock->nNonce,height);
+					printf("Posting block to pool:  Result  %s\r\n",result.c_str());
+
+			}
+
+
+		}
 		return status;
 
     }
 }
-
-
-
-
-std::string GetGridcoinWork()
-{
-
-    if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Gridcoin is not connected!");
-    if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
-
-
-    typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
-    static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
-    static vector<CBlockTemplate*> vNewBlockTemplate;
-    // Update block
-        static unsigned int nTransactionsUpdatedLast;
-        static CBlockIndex* pindexPrev;
-        static int64 nStart;
-        static CBlockTemplate* pblocktemplate;
-        if (pindexPrev != pindexBest ||
-            (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60))
-        {
-            if (pindexPrev != pindexBest)
-            {
-                // Deallocate old blocks since they're obsolete now
-                mapNewBlock.clear();
-                BOOST_FOREACH(CBlockTemplate* pblocktemplate, vNewBlockTemplate)
-                    delete pblocktemplate;
-                vNewBlockTemplate.clear();
-            }
-
-            // Clear pindexPrev so future getworks make a new block, despite any failures from here on
-            pindexPrev = NULL;
-
-            // Store the pindexBest used before CreateNewBlock, to avoid races
-            nTransactionsUpdatedLast = nTransactionsUpdated;
-            CBlockIndex* pindexPrevNew = pindexBest;
-            nStart = GetTime();
-
-            // Create new block
-            pblocktemplate = CreateNewBlock(*pMiningKey);
-            if (!pblocktemplate)
-                throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
-            vNewBlockTemplate.push_back(pblocktemplate);
-
-            // Need to update only after we know CreateNewBlock succeeded
-            pindexPrev = pindexPrevNew;
-        }
-        CBlock* pblock = &pblocktemplate->block; // pointer for convenience
-
-        // Update nTime
-        pblock->UpdateTime(pindexPrev);
-        pblock->nNonce = 0;
-
-        // Update nExtraNonce
-        static unsigned int nExtraNonce = 0;
-        IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
-
-        // Save
-        mapNewBlock[pblock->hashMerkleRoot] = make_pair(pblock, pblock->vtx[0].vin[0].scriptSig);
-
-        // Pre-build hash buffers
-        char pmidstate[32];
-        char pdata[128];
-        char phash1[64];
-        FormatHashBuffers(pblock, pmidstate, pdata, phash1);
-        uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
-        Object result;
-        result.push_back(Pair("midstate", HexStr(BEGIN(pmidstate), END(pmidstate)))); // deprecated
-        result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
-        result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); // deprecated
-        result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
-
-		Value temp = result;
-		std::string styled =   write_string(temp, false);
-        printf("gridblockhash %s ", styled.c_str());
-		
-        return styled;
-
-}
-
-
-
-
-
 
 
 
@@ -638,14 +594,6 @@ bool TestGridcoinWork(std::string sWork)
 
 
 
-
-
-
-
-
-
-
-
 Value getblocktemplate(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -689,7 +637,10 @@ Value getblocktemplate(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Gridcoin is not connected!");
 
-    if (IsInitialBlockDownload())
+	if (!bCPIDsLoaded) {
+		printf("Getblocktemplate called, but no cpids are loaded yet...\r\n");
+	}
+    if (IsInitialBlockDownload() || 	!bCPIDsLoaded   )
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
 
     // Update block
@@ -697,7 +648,26 @@ Value getblocktemplate(const Array& params, bool fHelp)
     static CBlockIndex* pindexPrev;
     static int64 nStart;
     static CBlockTemplate* pblocktemplate;
-	printf("getblocktemplatecalled");
+	printf("!!GETBlocktemplatecalled\r\n");
+	
+	if (msGPUMiningProject=="") 
+	{
+		printf("Calling for next gpu project...");
+		GetNextGPUProject(false);
+	}
+	
+
+	if (msGPUMiningProject=="") 
+		{
+			printf("Unable to GPU Mine: No project specified in getmininginfo (for GPU).\r\n");
+		    throw JSONRPCError(RPC_INVALID_PARAMETER, "Unable to GPU Mine:No project specified");
+		}
+		if (!IsCPIDValid(msGPUMiningCPID,msGPUENCboincpublickey))
+		{
+			printf("Unable to GPU Mine: Invalid cpid in getmininginfo (for GPU) %s. \r\n", msGPUMiningCPID.c_str());
+		    throw JSONRPCError(RPC_INVALID_PARAMETER, "No valid CPID given");
+		}
+
 
 
     if (pindexPrev != pindexBest ||
@@ -717,8 +687,9 @@ Value getblocktemplate(const Array& params, bool fHelp)
             delete pblocktemplate;
             pblocktemplate = NULL;
         }
-        pblocktemplate = CreateNewBlock(*pMiningKey);
+
 		
+        pblocktemplate = CreateNewBlock(*pMiningKey,1,msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,false);
 					
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
@@ -797,6 +768,110 @@ Value getblocktemplate(const Array& params, bool fHelp)
 
     return result;
 }
+
+
+
+
+
+
+
+/*
+CBlockTemplate* getblocktemplate_cpu(MiningCPID miningcpid)
+{
+	
+
+    if (IsInitialBlockDownload() || !bCPIDsLoaded   )    
+		{
+			printf("Unable to retrieve getblocktemplate: Gridcoin is downloading blocks...");
+			return NULL;
+		}
+
+    // Update block
+    static unsigned int nTransactionsUpdatedLast;
+    static CBlockIndex* pindexPrev;
+    static int64 nStart;
+    static CBlockTemplate* pblocktemplate;
+	printf("!!GETBlocktemplate_cpu_called\r\n");
+	
+	if (miningcpid.projectname=="") 
+		{
+			printf("Unable to CPU Mine: No project specified in getmininginfo.\r\n");
+			return NULL;
+		    //throw JSONRPCError(RPC_INVALID_PARAMETER, "Unable to GPU Mine:No project specified");
+		}
+		if (!IsCPIDValid(miningcpid.cpid,miningcpid.encboincpublickey))
+		{
+			printf("Unable to CPU Mine: Invalid cpid in getmininginfo %s. \r\n", msGPUMiningCPID.c_str());
+			return NULL;
+		    //throw JSONRPCError(RPC_INVALID_PARAMETER, "No valid CPID given");
+		}
+
+
+
+    if (pindexPrev != pindexBest ||
+        (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 5))
+    {
+        // Clear pindexPrev so future calls make a new block, despite any failures from here on
+        pindexPrev = NULL;
+
+        // Store the pindexBest used before CreateNewBlock, to avoid races
+        nTransactionsUpdatedLast = nTransactionsUpdated;
+        CBlockIndex* pindexPrevNew = pindexBest;
+        nStart = GetTime();
+
+        // Create new block
+        if(pblocktemplate)
+        {
+            delete pblocktemplate;
+            pblocktemplate = NULL;
+        }
+				
+        pblocktemplate = CreateNewBlock(*pMiningKey,2,miningcpid.projectname, miningcpid.rac,miningcpid.encboincpublickey,miningcpid.cpid,false);
+					
+        if (!pblocktemplate)
+		{
+          printf("Unable to create new block in getblocktemplate_cpu: Out of memory");
+		  return NULL;
+		}
+
+        // Need to update only after we know CreateNewBlock succeeded
+        pindexPrev = pindexPrevNew;
+    }
+
+    CBlock* pblock = &pblocktemplate->block; // pointer for convenience
+
+    // Update nTime
+    pblock->UpdateTime(pindexPrev);
+    pblock->nNonce = 0;
+
+    uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
+
+	return pblocktemplate.release();
+
+}
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Value submitblock(const Array& params, bool fHelp)
 {

@@ -29,6 +29,7 @@ public:
     void setClientModel(ClientModel *clientModel);
     void setWalletModel(WalletModel *walletModel);
     void showOutOfSyncWarning(bool fShow);
+	void updateglobalstatus();
 	void UpdateBoincUtilization();
 
 public slots:

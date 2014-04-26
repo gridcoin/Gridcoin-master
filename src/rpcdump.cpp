@@ -14,6 +14,8 @@
 using namespace json_spirit;
 using namespace std;
 
+
+
 class CTxDump
 {
 public:
@@ -94,3 +96,4 @@ Value dumpprivkey(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known");
     return CBitcoinSecret(vchSecret).ToString();
 }
+

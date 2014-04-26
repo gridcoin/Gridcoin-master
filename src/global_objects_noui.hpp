@@ -9,26 +9,14 @@ extern std::string sBoincDeltaOverTime;
 extern std::string sBoincAuthenticity;
 extern std::string sMinedHash;
 extern std::string sSourceBlock;
-
 extern int nRegVersion;
-
 extern bool bDebugMode;
-
-
 extern bool bBoincSubsidyEligible;
 extern bool bPoolMiningMode;
 extern bool bCPUMiningMode;
 
-extern double nMegaHashProtection;
-extern double nMegaHashBoincProtection;
-extern double MEGAHASH_VIOLATION_THRESHHOLD;
-//extern double MEGAHASH_BOINC_VIOLATION_THRESHHOLD;
-extern double MEGAHASH_VIOLATION_COUNT;
-extern double MEGAHASH_VIOLATION_COUNT_THRESHHOLD;
 
-    struct MiningEntry {
-
-
+struct MiningEntry {
         double shares;
 		std::string strComment;
         std::string strAccount;
@@ -93,17 +81,67 @@ extern double MEGAHASH_VIOLATION_COUNT_THRESHHOLD;
 		std::string verifiedteam;
 		double verifiedrectime;
 		double verifiedage;
+		double entries;
+		double AverageRAC;
+		double NetworkProjects;
+		std::string boincpublickey;
+		bool Iscpidvalid;
+		std::string link;
+		std::string errors;
 	};
 
 
-extern std::map<std::string, MiningEntry> minerpayments;
-extern std::map<std::string, MiningEntry> cpuminerpayments;
-extern std::map<std::string, MiningEntry> cpupow;
-extern std::map<std::string, MiningEntry> cpuminerpaymentsconsolidated;
-extern std::map<int, int> blockcache;
-extern std::map<std::string, StructCPID> mvCPIDs;
-extern std::map<std::string, StructCPID> mvCreditNode;
 
+    struct StructCPIDCache {
+		std::string cpid;
+		std::string cpidproject;
+		std::string xml;
+		bool initialized;
+		double blocknumber;
+	};
+
+
+
+	struct MiningCPID
+	{
+		std::string projectname;
+		double rac;
+		std::string encboincpublickey;
+		std::string cpid;
+		double pobdifficulty;
+		unsigned int diffbytes;
+		bool initialized;	
+		std::string enccpid;
+		std::string aesskein;
+		std::string encaes;
+	};
+
+	
+        
+
+
+
+
+
+
+extern std::map<int, int> blockcache;
+
+//User CPIDs 
+extern std::map<std::string, StructCPID> mvCPIDs;
+//Verified CPIDs
+extern std::map<std::string, StructCPID> mvCreditNode;
+//Network Averages
+extern std::map<std::string, StructCPID> mvNetwork;
+extern std::map<std::string, StructCPID> mvNetworkCPIDs;
+
+
+extern std::map<std::string, StructCPID> mvCreditNodeCPIDProject; //Contains verified CPID+Projects;
+//Caches
+extern std::map<std::string, StructCPIDCache> mvCPIDCache; //Contains cached blocknumbers for CPID+Projects;
+//Boinc Valid Projects
+extern std::map<std::string, StructCPID> mvBoincProjects; // Contains all of the allowed boinc projects;
+// Timers
+extern std::map<std::string, int> mvTimers; // Contains event timers that reset after max ms duration iterator is exceeded
 
 
 extern double nMinerPaymentCount;

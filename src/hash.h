@@ -1,7 +1,10 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
+// Copyright (c) 2014 the Gridcoin Developers
+
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef BITCOIN_HASH_H
 #define BITCOIN_HASH_H
 
@@ -11,6 +14,21 @@
 #include <openssl/sha.h>
 #include <openssl/ripemd.h>
 #include <vector>
+
+#include "sph_skein.h"
+#include "sph_cubehash.h"
+#include "sph_groestl.h"
+
+
+//#ifdef GLOBALDEFINED
+//#define GLOBAL
+//#else
+//#define GLOBAL extern
+//#endif
+//GLOBAL sph_skein512_context     z_skein;
+//#define ZSKEIN (memcpy(&ctx_skein, &z_skein, sizeof(z_skein)))
+
+
 
 template<typename T1>
 inline uint256 Hash(const T1 pbegin, const T1 pend)
@@ -22,6 +40,36 @@ inline uint256 Hash(const T1 pbegin, const T1 pend)
     SHA256((unsigned char*)&hash1, sizeof(hash1), (unsigned char*)&hash2);
     return hash2;
 }
+
+
+
+template<typename T1>
+inline uint256 GridcoinMultipleAlgoHash(const T1 pbegin, const T1 pend)
+{
+    sph_skein512_context     ctx_skein;
+	sph_groestl512_context   ctx_groestl;
+    sph_cubehash512_context  ctx_cubehash;
+
+    static unsigned char pblank[1];
+    uint512 hash[4];
+   
+    sph_skein512_init(&ctx_skein);
+    sph_skein512 (&ctx_skein,  (pbegin == pend ? pblank : static_cast<const void*>(&pbegin[0])), (pend - pbegin) * sizeof(pbegin[0]));
+    sph_skein512_close(&ctx_skein, static_cast<void*>(&hash[0]));
+		
+    sph_groestl512_init(&ctx_groestl);
+    sph_groestl512 (&ctx_groestl, static_cast<const void*>(&hash[0]), 64);
+    sph_groestl512_close(&ctx_groestl, static_cast<void*>(&hash[1]));
+
+    sph_cubehash512_init(&ctx_cubehash);
+    sph_cubehash512 (&ctx_cubehash, static_cast<const void*>(&hash[1]), 64);
+    sph_cubehash512_close(&ctx_cubehash, static_cast<void*>(&hash[2]));
+
+    return hash[2].trim256();
+}
+
+
+
 
 class CHashWriter
 {

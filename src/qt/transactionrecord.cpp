@@ -3,6 +3,16 @@
 #include "wallet.h"
 #include "base58.h"
 
+
+
+
+std::string GetTxProject(uint256 hash, int& out_blocknumber, int& out_blocktype, double& out_rac);
+
+
+std::string RoundToString(double d, int place);
+
+
+
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
@@ -44,6 +54,17 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 CTxDestination address;
                 sub.idx = parts.size(); // sequence number
                 sub.credit = txout.nValue;
+				//Note if it is CPU or not
+
+				int out_blocknumber=0;
+				int out_blocktype = 0;
+				double out_rac = 0;
+
+
+				std::string project = GetTxProject(hash,out_blocknumber, out_blocktype, out_rac);
+				sub.IsCPU=false;
+				if (out_blocktype==2) sub.IsCPU=true;
+
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address))
                 {
                     // Received by Bitcoin Address
@@ -222,6 +243,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
 bool TransactionRecord::statusUpdateNeeded()
 {
     return status.cur_num_blocks != nBestHeight;
+
 }
 
 std::string TransactionRecord::getTxID()

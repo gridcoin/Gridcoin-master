@@ -11,6 +11,9 @@
 const unsigned int WALLET_CRYPTO_KEY_SIZE = 32;
 const unsigned int WALLET_CRYPTO_SALT_SIZE = 8;
 
+
+
+
 /*
 Private key encryption is done based on a CMasterKey,
 which holds a salt and random encryption key.
@@ -67,7 +70,7 @@ private:
     unsigned char chKey[WALLET_CRYPTO_KEY_SIZE];
     unsigned char chIV[WALLET_CRYPTO_KEY_SIZE];
     bool fKeySet;
-
+	
 public:
     bool SetKeyFromPassphrase(const SecureString &strKeyData, const std::vector<unsigned char>& chSalt, const unsigned int nRounds, const unsigned int nDerivationMethod);
     bool Encrypt(const CKeyingMaterial& vchPlaintext, std::vector<unsigned char> &vchCiphertext);
@@ -103,5 +106,13 @@ public:
 
 bool EncryptSecret(const CKeyingMaterial& vMasterKey, const CKeyingMaterial &vchPlaintext, const uint256& nIV, std::vector<unsigned char> &vchCiphertext);
 bool DecryptSecret(const CKeyingMaterial& vMasterKey, const std::vector<unsigned char>& vchCiphertext, const uint256& nIV, CKeyingMaterial& vchPlaintext);
+
+std::string AdvancedCrypt(std::string boinchash);
+std::string AdvancedDecrypt(std::string boinchash_encrypted);
+
+bool GridDecrypt(const std::vector<unsigned char>& vchCiphertext,std::vector<unsigned char>& vchPlaintext);
+bool GridEncrypt(std::vector<unsigned char> vchPlaintext, std::vector<unsigned char> &vchCiphertext);
+
+
 
 #endif

@@ -426,10 +426,12 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn)
                     wtx.nTimeSmart = std::max(latestEntry, std::min(blocktime, latestNow));
                 }
                 else
-                    printf("AddToWallet() : found %s in block %s not in index\n",
-                           wtxIn.GetHash().ToString().c_str(),
-                           wtxIn.hashBlock.ToString().c_str());
-            }
+
+				{
+                 //   printf("AddToWallet() : found %s in block %s not in index\n",                           wtxIn.GetHash().ToString().c_str(),                           wtxIn.hashBlock.ToString().c_str());
+				}
+
+				}
         }
 
         bool fUpdated = false;
@@ -456,7 +458,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn)
         }
 
         //// debug print
-        printf("AddToWallet %s  %s%s\n", wtxIn.GetHash().ToString().c_str(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""));
+        //printf("AddToWallet %s  %s%s\n", wtxIn.GetHash().ToString().c_str(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""));
 
         // Write to disk
         if (fInsertedNew || fUpdated)
@@ -859,6 +861,25 @@ void CWalletTx::RelayWalletTransaction()
         }
     }
 }
+
+
+
+
+
+
+
+// ppcoin: check 'spent' consistency between wallet and txindex
+// ppcoin: fix wallet spent state according to txindex
+void CWallet::FixSpentCoins(int& nMismatchFound, int64_t& nBalanceInQuestion, bool fCheckOnly)
+{
+   
+}
+
+
+
+
+
+
 
 void CWallet::ResendWalletTransactions()
 {
@@ -1844,7 +1865,14 @@ bool CReserveKey::GetReservedKey(CPubKey& pubkey)
                 return false;
         }
     }
-    assert(vchPubKey.IsValid());
+
+	if (!vchPubKey.IsValid()) 
+	{
+		printf("CReserveKey::GetReservedKey(): For some reason, the public key is invalid.  Returning false.");
+			return false;
+	}
+
+		//assert(vchPubKey.IsValid());
     pubkey = vchPubKey;
     return true;
 }

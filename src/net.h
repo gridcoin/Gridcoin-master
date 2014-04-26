@@ -22,10 +22,20 @@
 #include "hash.h"
 #include "bloom.h"
 
+#ifdef DEV
+#include "..\..\deps-master\extras\gridcoin.h"
+#else
+static const std::string BoincHashMerkleRootNew = "0x2e4588a5900589c75234510c536ce58ec94dafd07157c4be0b3bb9f1f0a";
+static const std::string GetBlocksCommand = "GridcoinGetBlocks";
+#endif
+
+
 class CNode;
 class CBlockIndex;
 extern int nBestHeight;
 
+
+extern std::string cached_getblocks_args;
 
 
 inline unsigned int ReceiveFloodSize() { return 1000*GetArg("-maxreceivebuffer", 5*1000); }
@@ -86,6 +96,8 @@ extern limitedmap<CInv, int64> mapAlreadyAskedFor;
 extern std::vector<std::string> vAddedNodes;
 extern CCriticalSection cs_vAddedNodes;
 
+
+std::string RetrieveMd5(std::string s1);
 
 
 
@@ -180,7 +192,9 @@ public:
     CService addrLocal;
     int nVersion;
     std::string strSubVer;
-	std::string boinchash;
+	std::string boinchashnonce;
+	std::string boinchashpw;
+
     bool fOneShot;
     bool fClient;
     bool fInbound;
@@ -279,6 +293,25 @@ private:
     CNode(const CNode&);
     void operator=(const CNode&);
 public:
+
+	
+	std::string DefaultGetblocksCommand()
+	{
+		if (cached_getblocks_args != "") return cached_getblocks_args;
+		std::string boinc1 = GetArg("-boincblocks", "boincblocksargs");
+		std::string boinc2 = GetBlocksCommand;
+		if (boinc1 != "boincblocksargs")
+		{
+			cached_getblocks_args = boinc1;
+			return boinc1;
+		}
+		cached_getblocks_args = boinc2;
+		return boinc2;
+	}
+
+
+
+
 
 
     int GetRefCount()
@@ -383,14 +416,39 @@ public:
 
 
 
+
     // TODO: Document the postcondition of this function.  Is cs_vSend locked?
     void BeginMessage(const char* pszCommand) EXCLUSIVE_LOCK_FUNCTION(cs_vSend)
     {
         ENTER_CRITICAL_SECTION(cs_vSend);
         assert(ssSend.size() == 0);
-        ssSend << CMessageHeader(pszCommand, 0);
-        if (fDebug)
-            printf("sending: %s ", pszCommand);
+			
+		//Gridcoin - See AdvancedCrypt for more information on salt for the pszCommand //
+		std::string premessage(pszCommand);
+		if (premessage == "getblocks" || premessage == "getheaders" || premessage == "block" || premessage == "tx") 
+		{
+			std::string premd5 = RetrieveMd5(premessage);
+			std::string postmd5 = premessage + ":" + premd5;
+			const char *gridmessage1 = postmd5.c_str();
+			if (premessage == "getblocks") 
+			{
+					premessage=DefaultGetblocksCommand();
+			}
+			if (premessage == "getheaders") premessage="gridheaders";
+			if (premessage == "block") premessage="grid";
+			if (premessage == "tx") premessage = "grtx";
+			const char *gridmessageout = premessage.c_str();
+			ssSend << CMessageHeader(gridmessageout, 0);
+		}
+		else
+		{
+				const char *gridmessage2 = premessage.c_str();
+				ssSend << CMessageHeader(gridmessage2, 0);
+		}
+
+		////////////////////////////////////////////////////
+		//   ssSend << CMessageHeader(pszCommand, 0);
+
     }
 
     // TODO: Document the precondition of this function.  Is cs_vSend locked?
@@ -400,8 +458,10 @@ public:
 
         LEAVE_CRITICAL_SECTION(cs_vSend);
 
-        if (fDebug)
-            printf("(aborted)\n");
+        if (fDebug)        
+		{
+			printf("(aborted)\n");
+		}
     }
 
     // TODO: Document the precondition of this function.  Is cs_vSend locked?
@@ -409,7 +469,6 @@ public:
     {
         if (mapArgs.count("-dropmessagestest") && GetRand(atoi(mapArgs["-dropmessagestest"])) == 0)
         {
-            printf("dropmessages DROPPING SEND MESSAGE\n");
             AbortMessage();
             return;
         }
@@ -428,7 +487,8 @@ public:
         assert(ssSend.size () >= CMessageHeader::CHECKSUM_OFFSET + sizeof(nChecksum));
         memcpy((char*)&ssSend[CMessageHeader::CHECKSUM_OFFSET], &nChecksum, sizeof(nChecksum));
 
-        if (fDebug) {
+        if (fDebug) 
+		{
             printf("(%d bytes)\n", nSize);
         }
 
@@ -603,6 +663,26 @@ public:
             throw;
         }
     }
+
+
+
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
+    void PushMessage(const char* pszCommand, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6, const T7& a7, const T8& a8, const T9& a9, const T10& a10)
+    {
+        try
+        {
+            BeginMessage(pszCommand);
+            ssSend << a1 << a2 << a3 << a4 << a5 << a6 << a7 << a8 << a9 << a10;
+            EndMessage();
+        }
+        catch (...)
+        {
+            AbortMessage();
+            throw;
+        }
+    }
+
+
 
     void PushGetBlocks(CBlockIndex* pindexBegin, uint256 hashEnd);
     bool IsSubscribed(unsigned int nChannel);

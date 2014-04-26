@@ -531,8 +531,10 @@ void ThreadFlushWalletDB(const string& strFile)
 
 bool BackupWallet(const CWallet& wallet, const string& strDest)
 {
-    if (!wallet.fFileBacked)
-        return false;
+	//Create dedicated path for wallet checkpoints
+		
+    if (!wallet.fFileBacked)        return false;
+
     while (true)
     {
         {
@@ -581,6 +583,9 @@ bool CWalletDB::Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys)
     // Rewrite salvaged data to wallet.dat
     // Set -rescan so any missing transactions will be
     // found.
+	//RecoverWallet 
+	//4-26-2014
+
     int64 now = GetTime();
     std::string newFilename = strprintf("wallet.%"PRI64d".bak", now);
 

@@ -103,7 +103,9 @@ Public Class CPUMiner
         MiningBlock = GetBlockTemplate(nonce, diff)
 
         While True
-            nonce = nonce + 1
+                nonce = nonce + 1
+                System.Threading.Thread.Sleep(100)
+
             If LastBlockHash <> sStartingBlockHash Then
                 sGVMGuidHash = modCryptography.ReturnGVMGuid(Des3EncryptData(LastBlockHash + ",CPUMiner," + UnixTimestamp().ToString))
                 MiningBlock.GVM_BOINC_GUID = sGVMGuidHash

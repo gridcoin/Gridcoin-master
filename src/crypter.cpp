@@ -11,6 +11,14 @@
 #endif
 
 #include "crypter.h"
+#include "net.h"
+
+unsigned char chKeyGridcoin[256];
+unsigned char chIVGridcoin[256];
+bool fKeySetGridcoin;
+
+std::string DefaultBoincHashArgs();
+
 
 bool CCrypter::SetKeyFromPassphrase(const SecureString& strKeyData, const std::vector<unsigned char>& chSalt, const unsigned int nRounds, const unsigned int nDerivationMethod)
 {
@@ -98,6 +106,121 @@ bool CCrypter::Decrypt(const std::vector<unsigned char>& vchCiphertext, CKeyingM
     vchPlaintext.resize(nPLen + nFLen);
     return true;
 }
+
+
+
+
+
+
+bool LoadGridKey(std::string gridkey, std::string salt)
+{
+	const char* chGridKey = gridkey.c_str();
+	const char* chSalt = salt.c_str();
+	OPENSSL_cleanse(chKeyGridcoin, sizeof(chKeyGridcoin));
+    OPENSSL_cleanse(chIVGridcoin, sizeof(chIVGridcoin));
+	int i = 0;
+	i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha512(),(unsigned char *)chSalt,
+		(unsigned char *)chGridKey, 
+		strlen(chGridKey), 1,
+		chKeyGridcoin, chIVGridcoin);
+    fKeySetGridcoin = true;
+    return true;
+}
+
+
+
+
+
+
+
+bool GridEncrypt(std::vector<unsigned char> vchPlaintext, std::vector<unsigned char> &vchCiphertext)
+{
+	bool result=LoadGridKey(DefaultBoincHashArgs(),"cqiuehEJ2Tqdov");
+    int nLen = vchPlaintext.size();
+    int nCLen = nLen + AES_BLOCK_SIZE, nFLen = 0;
+    vchCiphertext = std::vector<unsigned char> (nCLen);
+    EVP_CIPHER_CTX ctx;
+    bool fOk = true;
+    EVP_CIPHER_CTX_init(&ctx);
+    if (fOk) fOk = EVP_EncryptInit_ex(&ctx, EVP_aes_256_cbc(), NULL, chKeyGridcoin, chIVGridcoin);
+    if (fOk) fOk = EVP_EncryptUpdate(&ctx, &vchCiphertext[0], &nCLen, &vchPlaintext[0], nLen);
+    if (fOk) fOk = EVP_EncryptFinal_ex(&ctx, (&vchCiphertext[0])+nCLen, &nFLen);
+    EVP_CIPHER_CTX_cleanup(&ctx);
+    if (!fOk) return false;
+    vchCiphertext.resize(nCLen + nFLen);
+    return true;
+}
+
+
+bool GridDecrypt(const std::vector<unsigned char>& vchCiphertext,std::vector<unsigned char>& vchPlaintext)
+{
+	bool result=LoadGridKey(DefaultBoincHashArgs(),"cqiuehEJ2Tqdov");
+	int nLen = vchCiphertext.size();
+    int nPLen = nLen, nFLen = 0;
+    EVP_CIPHER_CTX ctx;
+    bool fOk = true;
+    EVP_CIPHER_CTX_init(&ctx);
+    if (fOk) fOk = EVP_DecryptInit_ex(&ctx, EVP_aes_256_cbc(), NULL, chKeyGridcoin, chIVGridcoin);
+    if (fOk) fOk = EVP_DecryptUpdate(&ctx, &vchPlaintext[0], &nPLen, &vchCiphertext[0], nLen);
+    if (fOk) fOk = EVP_DecryptFinal_ex(&ctx, (&vchPlaintext[0])+nPLen, &nFLen);
+    EVP_CIPHER_CTX_cleanup(&ctx);
+    if (!fOk) return false;
+    vchPlaintext.resize(nPLen + nFLen);
+    return true;
+}
+
+
+
+
+char FromUnsigned( unsigned char ch )
+{
+  return static_cast< char >( ch );
+}
+
+std::string UnsignedVectorToString(std::vector< unsigned char > v)
+{
+	std::string s;
+	s.reserve( v.size() );
+	std::transform( v.begin(), v.end(), back_inserter( s ), FromUnsigned );
+	return s;
+}
+
+
+std::string AdvancedCrypt(std::string boinchash)
+{
+
+	try 
+	{
+	   std::vector<unsigned char> vchSecret( boinchash.begin(), boinchash.end() );
+	   std::string d1 = "                                                                                                                                        ";
+	   std::vector<unsigned char> vchCryptedSecret(d1.begin(),d1.end());
+       bool OK = GridEncrypt(vchSecret, vchCryptedSecret);
+	   std::string encrypted = UnsignedVectorToString(vchCryptedSecret);
+	   return encrypted;
+	} catch (std::exception &e) 
+	{
+		printf("Error while encrypting %s",boinchash.c_str());
+		return "";
+	}
+              
+}
+
+std::string AdvancedDecrypt(std::string boinchash_encrypted)
+{
+	try{
+	   std::string d2 = "                                                                                                                                        ";
+	   std::vector<unsigned char> vchCryptedSecret(boinchash_encrypted.begin(),boinchash_encrypted.end());
+	   std::vector<unsigned char> vchPlaintext(d2.begin(),d2.end());
+	   bool OKDecrypt = GridDecrypt(vchCryptedSecret,vchPlaintext);
+	   std::string decrypted = UnsignedVectorToString(vchPlaintext);
+	   return decrypted;
+	} catch (std::exception &e) 
+	{
+		printf("Error while decrypting %s",boinchash_encrypted.c_str());
+		return "";
+	}
+}
+     
 
 
 bool EncryptSecret(const CKeyingMaterial& vMasterKey, const CKeyingMaterial &vchPlaintext, const uint256& nIV, std::vector<unsigned char> &vchCiphertext)

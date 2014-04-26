@@ -26,6 +26,7 @@ std::string Compensate(string grc_address, double dAmount, string commentfrom, s
 std::string Compensate2(string grc_address, int64 nAmount, string commentfrom, string commentto);
 
 
+double GetPoBDifficulty();
 
 
 std::string HelpRequiringPassphrase()
@@ -88,6 +89,9 @@ Value getinfo(const Array& params, bool fHelp)
     obj.push_back(Pair("connections",   (int)vNodes.size()));
     obj.push_back(Pair("proxy",         (proxy.first.IsValid() ? proxy.first.ToStringIPPort() : string())));
     obj.push_back(Pair("difficulty",    (double)GetDifficulty()));
+	
+    obj.push_back(Pair("difficulty_PoB",  (double)GetPoBDifficulty()));
+    
     obj.push_back(Pair("testnet",       fTestNet));
     obj.push_back(Pair("keypoololdest", (boost::int64_t)pwalletMain->GetOldestKeyPoolTime()));
     obj.push_back(Pair("keypoolsize",   pwalletMain->GetKeyPoolSize()));

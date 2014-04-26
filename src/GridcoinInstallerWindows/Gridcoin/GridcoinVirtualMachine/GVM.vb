@@ -150,13 +150,6 @@ Public Class GVM
         End Get
     End Property
 
-    Public ReadOnly Property CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, ByVal sGRCHash3 As String, ByVal sGRCHash4 As String, ByVal sBoinchash As String) As Double
-        Get
-            Return modCryptography.CheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sGRCHash4, sBoinchash)
-
-        End Get
-    End Property
-
 
     Public ReadOnly Property CalcApiUrl(lProj As Long, sUserId As String) As String
         Get

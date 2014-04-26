@@ -23,6 +23,9 @@
 #include <upnperrors.h>
 #endif
 
+
+
+
 // Dump addresses to peers.dat every 15 minutes (900s)
 #define DUMP_ADDRESSES_INTERVAL 900
 
@@ -30,22 +33,35 @@ using namespace std;
 using namespace boost;
 
 
-#ifndef WIN32
+#ifndef QT_GUI
  boost::thread_group threadGroup;
 #endif
 
 
-extern std::string GetHttpPage(std::string cpid);
 
 
-extern std::string DefaultBoincHashArgs(int copylocal);
+extern std::string GetHttpPage(std::string cpid, bool usedns);
 
+extern std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, 
+	uint256 blockhash, double subsidy, double nonce, int height);
 
+std::string ExtractXML(std::string XMLdata, std::string key, std::string key_end);
+
+extern std::string DefaultBoincHashArgs();
+std::string cached_boinchash_args = "";
+
+std::string RetrieveMd5(std::string s1);
+extern void StartNodeNetworkOnly();
+
+extern std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string urlPage, bool bUseDNS);
+
+std::string msPubKey = "";
 
 static const int MAX_OUTBOUND_CONNECTIONS = 16;
 
-bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
+std::string RoundToString(double d, int place);
 
+bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
 
 struct LocalServiceInfo {
     int nScore;
@@ -192,16 +208,26 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer)
 bool RecvLine2(SOCKET hSocket, string& strLine)
 {
     strLine = "";
+
+	clock_t begin = clock();
+
+
     loop
     {
         char c;
         int nBytes = recv(hSocket, &c, 1, 0);
+
+		clock_t end = clock();
+		double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+		if (elapsed_secs > 14) return true;
+			
         if (nBytes > 0)
         {
             if (c == '\n')
                 continue;
             if (c == '\r')
                 return true;
+			
             strLine += c;
             if (strLine.size() >= 39000)
                 return true;
@@ -217,6 +243,11 @@ bool RecvLine2(SOCKET hSocket, string& strLine)
                 if (nErr == WSAEWOULDBLOCK || nErr == WSAEINTR || nErr == WSAEINPROGRESS)
                 {
                     MilliSleep(50);
+					clock_t end = clock();
+					double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+		
+					if (elapsed_secs > 14) return true;
+		
                     continue;
                 }
             }
@@ -225,7 +256,7 @@ bool RecvLine2(SOCKET hSocket, string& strLine)
             if (nBytes == 0)
             {
                 // socket closed
-                printf("socket closed\n");
+              
                 return false;
             }
             else
@@ -277,7 +308,7 @@ bool RecvLine(SOCKET hSocket, string& strLine)
             if (nBytes == 0)
             {
                 // socket closed
-                printf("socket closed\n");
+                //printf("socket closed\n");
                 return false;
             }
             else
@@ -406,13 +437,9 @@ bool IsReachable(const CNetAddr& addr)
 
 
 void StringToChar(std::string s, char* a) 
-{
-//	char *a=new char[s.size()+1];
-	a=new char[s.size()+1];
-
+{	a=new char[s.size()+1];
 	a[s.size()]=0;
 	memcpy(a,s.c_str(),s.size());
-	//outChar = a;
 
 }
 
@@ -421,18 +448,12 @@ void StringToChar(std::string s, char* a)
 std::string GetHttpContent(const CService& addrConnect, std::string getdata)
 {
 
-
-
-	//char *pszGet;
-	//StringToChar(getdata,pszGet);
-
 	char *pszGet = (char*)getdata.c_str();
-
 
     SOCKET hSocket;
     if (!ConnectSocket(addrConnect, hSocket))
 	{
-        return "GetHttpContent() : connection to failed";
+        return "GetHttpContent() : connection to address failed";
 	}
 
 	printf("Trying %s",getdata.c_str());
@@ -442,37 +463,31 @@ std::string GetHttpContent(const CService& addrConnect, std::string getdata)
     string strLine;
 	std::string strOut="null";
 
-	MilliSleep(111);
+	MilliSleep(133);
+	double timeout = 0;
 
+
+	clock_t begin = clock();
+
+	
     while (RecvLine2(hSocket, strLine))
     {
 
-		   //      if (!RecvLine(hSocket, strLine)) {
-			//		 break;
-				// }
-    
 	            strOut = strOut + strLine + "\r\n";
-					
-       //         if (!RecvLine(hSocket, strLine))
-        //        {
-         //           closesocket(hSocket);
-          //          break;
-           //     }
-				MilliSleep(222);
+				MilliSleep(155);
+				timeout=timeout+222;
+  			    clock_t end = clock();
+				double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+				if (timeout > 14000) break;
+				if (elapsed_secs > 14) break;
+				
+			    if (strLine.find("<END>") != string::npos) break;
+
 
     }
-            closesocket(hSocket);
-         //   if (strLine.find("<") != string::npos)
-         //       strLine = strLine.substr(0, strLine.find("<"));
-         //   strLine = strLine.substr(strspn(strLine.c_str(), " \t\n\r"));
-         //   while (strLine.size() > 0 && isspace(strLine[strLine.size()-1]))
-          //      strLine.resize(strLine.size()-1);
-           // CService addr(strLine,0,true);
-           // if (!addr.IsValid() || !addr.IsRoutable())
-           //     return false;
-          //  ipRet.SetIP(addr);
-
-			return strOut;
+    closesocket(hSocket);
+    
+	return strOut;
 
 }
 
@@ -480,42 +495,155 @@ std::string GetHttpContent(const CService& addrConnect, std::string getdata)
 
 
 
-
-
-
-
-std::string GetHttpPage(std::string cpid)
+std::string GridHTTPPost(std::string url, std::string hostheader, const string& strMsg, const map<string,string>& mapRequestHeaders)
 {
+    ostringstream s;
+    s << "POST /" + url + " HTTP/1.1\r\n"
+      << "User-Agent: Gridcoin-QT/" << FormatFullVersion() << "\r\n"
+	  << "Host: " + hostheader + "" << "\r\n"
+      << "Content-Length: " << strMsg.size() << "\r\n";
+
+    BOOST_FOREACH(const PAIRTYPE(string, string)& item, mapRequestHeaders)
+        s << item.first << ": " << item.second << "\r\n";
+        s << "\r\n" << strMsg;
+
+    return s.str();
+}
+
+std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, 
+	uint256 blockhash, double subsidy, double nonce, int height)
+{
+	std::string key = "<ADDRESS>";
+	std::string keystop = "</ADDRESS>";
+	if (fTestNet) 
+	{
+			key = "<ADDRESSTESTNET>";
+			keystop = "</ADDRESSTESTNET>";
+	}
+	if (dMiningRAC < 100 || sMiningProject=="" || xcpid=="") return "";
+	std::string sboincpubkey = AdvancedDecrypt(ENCBoincpublickey);
+
+	std::string boincauth = sMiningProject + ";" + RoundToString(dMiningRAC,0) + ";" + sboincpubkey + ";" + xcpid + ";" 
+		+ RoundToString(subsidy,2) + ";" + RoundToString(nonce,0) + ";" + RoundToString((double)height,0);
+	std::string http = GridcoinHttpPost(messagetype,boincauth,"GetPoolKey.aspx",true);
+	msPubKey = ExtractXML(http,key,keystop);
+	return msPubKey;
+}
+
+std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string urlPage, bool bUseDNS)
+{
+	// HTTP basic authentication
+    std::string strAuth1 = mapArgs["-pooluser"];
+	std::string strAuth2 = mapArgs["-poolpassword"];
+	std::string strAuth3 = mapArgs["-miner"];
+    map<string, string> mapRequestHeaders;
+    mapRequestHeaders["Miner"] = strAuth1+";"+strAuth2+";"+strAuth3 + ";" + boincauth;
+	CService addrConnect;
+	std::string ip = "127.0.0.1";
+	std::string poolFullURL = mapArgs["-poolurl"];  
+	if (poolFullURL=="")  return "ERR:Pool URL missing";
+	std::string domain = "";
+	if (poolFullURL.find("https://") != string::npos) 
+	{
+		domain = poolFullURL.substr(8,poolFullURL.length()-8);
+	}
+	if(poolFullURL.find("http://") != string::npos)
+	{
+		domain = poolFullURL.substr(7,poolFullURL.length()-7);
+	}
+
+	if (domain=="") 
+	{
+		printf("Pool Domain Missing \r\n");
+		return "ERR:Pool Domain missing";
+	}
+    int port = 80;
+
+	CService addrIP(domain, port, true);
+
+	if (bUseDNS) 
+	{
+		if (addrIP.IsValid()) 
+		{
+				addrConnect = addrIP;
+				printf("Domain Post IP valid\r\n %s",domain.c_str());
+		}
+	} 
+	else
+	{
+  		addrConnect = CService(ip, port); 
+	}
+	std::string strPost = GridHTTPPost(urlPage, domain, msg, mapRequestHeaders);
+    printf("querying getdata\r\n  %s \r\n",strPost.c_str());
+	std::string http = GetHttpContent(addrConnect, strPost);
+	printf("http:\r\n  %s\r\n",http.c_str());
+	return http;
+	
+}
+
+
+
+
+std::string GetHttpPage(std::string cpid, bool UseDNS)
+{
+	//4-16-2014 cpid cache
+	
+	   StructCPIDCache c = mvCPIDCache["cache"+cpid];
+	   if (c.initialized)
+	   {
+		   if (c.xml.length() > 100) 
+		   {
+			   printf("Cache hit on %s \r\n",cpid.c_str());
+			   return c.xml;
+		   }
+
+	   }
+
+
 
 		CService addrConnect;
-   		std::string url = "http://boinc.netsoft-online.com/get_user.php?cpid=ca895b47aacffbdbf906201821af2f9f";
+   		std::string url = "http://boinc.netsoft-online.com/get_user.php?cpid=";
 		std::string url2 = "216.165.179.26";
 		std::string url3 = "boinc.netsoft-online.com";
 		std::string url4 = "get_user.php?cpid=" + cpid;
-		printf("Getting HTTP Request\r\n %s",url4.c_str());
+
+		printf("Getting HTTP Request\r\n %s \r\n",url4.c_str());
+
+
 		CService addrIP(url3, 80, true);
+		if (UseDNS)
+		{
         if (addrIP.IsValid()) 
 			{
 				addrConnect = addrIP;
-				printf("Querying address\r\n %s",url4.c_str());
+				//addrConnect = CService(url3,80);
+				printf("Querying address\r\n %s \r\n",url4.c_str());
 		    }
-        
-  	    addrConnect = CService("216.165.179.26", 80); 
+		}
+		else
+		{
+  			addrConnect = CService("216.165.179.26", 80); 
+		}
+
 		std::string getdata = "GET /" + url4 + " HTTP/1.1\r\n"
                      "Host: boinc.netsoft-online.com\r\n"
   				     "User-Agent: Mozilla/4.0\r\n"
                      "\r\n";
              
-		printf("querying getdata %s",getdata.c_str());
+        //		printf("querying getdata %s",getdata.c_str());
 		std::string http = GetHttpContent(addrConnect,getdata);
-	    printf("http: %s",http.c_str());
-		return http;
+	    //  printf("http: %s",http.c_str());
+		std::string resultset = "" + http;
+
+		c.initialized=true;
+		c.xml = resultset;
+		mvCPIDCache.insert(map<string,StructCPIDCache>::value_type("cache"+cpid,c));
+	
+	    mvCPIDCache["cache"+cpid]=c;
+	
+		return resultset;
 		
 }
-
-
-
-
 
 
 
@@ -701,7 +829,7 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest)
 
 
     
-   // printf("trying connection %s lastseen=%.1fhrs\n",        pszDest ? pszDest : addrConnect.ToString().c_str(),        pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
+    // printf("trying connection %s lastseen=%.1fhrs\n",        pszDest ? pszDest : addrConnect.ToString().c_str(),        pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
 
 
     // Connect
@@ -746,7 +874,7 @@ void CNode::CloseSocketDisconnect()
     fDisconnect = true;
     if (hSocket != INVALID_SOCKET)
     {
-        printf("disconnecting node %s\n", addrName.c_str());
+        //printf("dsconnecting node %s\n", addrName.c_str());
         closesocket(hSocket);
         hSocket = INVALID_SOCKET;
     }
@@ -765,42 +893,19 @@ void CNode::Cleanup()
 {
 }
 
-std::string DefaultBoincHashArgs(int copylocal)
+std::string DefaultBoincHashArgs()
 {
-	//3-16-2014 (Gridcoin), add support for ProofOfBoinc Node Relay support when local miner is using PoB Skein CPU Mining:
-	std::string sboinchashargs = "boinchashargs";
-	if (mapArgs.count("-boinchash"))
-    {
-		sboinchashargs = GetArg("-boinchash", "boinchashargs");
+	// (Gridcoin), add support for ProofOfBoinc Node Relay support:
+	if (cached_boinchash_args != "") return cached_boinchash_args;
+	std::string boinc1 = GetArg("-boinchash", "boinchashargs");
+    std::string boinc2 = BoincHashMerkleRootNew;
+	if (boinc1 != "boinchashargs")
+	{
+		cached_boinchash_args = boinc1;
+		return boinc1;
 	}
-   
-	std::string boincAuth = BoincAuthenticity();
-	std::string mygrcaddress = DefaultWalletAddress();
-	uint256 boincHashRandNonce = GetRandHash();
-    std::string sboinchashmerkleroot = BoincHashMerkleRoot;
-    std::string nonce = boincHashRandNonce.GetHex();
-	if (sboinchashargs != "boinchashargs") return sboinchashargs;
-	if (copylocal==1) {
-		sboinchashargs = boincAuth;
-	}
-
-	if (copylocal==2) {
-		sboinchashargs = boincAuth + mygrcaddress;
-	}
-
-	if (copylocal==3) {
-		sboinchashargs = boincAuth + mygrcaddress + nonce;
-		if (sboinchashmerkleroot.length() > 30)
-		{ 
-			return sboinchashmerkleroot;
-		}
-		else
-		{ 
-			return sboinchashargs;
-		}
-	}
-	
-	return sboinchashargs;
+	cached_boinchash_args = boinc2;
+	return boinc2;
 }
 
 void CNode::PushVersion()
@@ -811,8 +916,11 @@ void CNode::PushVersion()
     CAddress addrMe = GetLocalAddress(&addr);
     RAND_bytes((unsigned char*)&nLocalHostNonce, sizeof(nLocalHostNonce));
     printf("send version message: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", PROTOCOL_VERSION, nBestHeight, addrMe.ToString().c_str(), addrYou.ToString().c_str(), addr.ToString().c_str());
-	std::string sboinchashargs = DefaultBoincHashArgs(3);
-    PushMessage("version", PROTOCOL_VERSION, sboinchashargs, nLocalServices, nTime, addrYou, addrMe,
+	std::string sboinchashargs = DefaultBoincHashArgs();
+	uint256 boincHashRandNonce = GetRandHash();
+	std::string nonce = boincHashRandNonce.GetHex();
+	std::string pw1 = RetrieveMd5(nonce+","+sboinchashargs);
+    PushMessage("version", PROTOCOL_VERSION, nonce, pw1, nLocalServices, nTime, addrYou, addrMe,
                 nLocalHostNonce, FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>()), nBestHeight);
 	
 }
@@ -1198,7 +1306,9 @@ void ThreadSocketHandler()
             {
                 int nErr = WSAGetLastError();
                 if (nErr != WSAEWOULDBLOCK)
-                    printf("socket error accept failed: %d\n", nErr);
+				{
+                  //  printf("socket error accept failed: %d\n", nErr);
+				}
             }
             else if (nInbound >= nMaxConnections - MAX_OUTBOUND_CONNECTIONS)
             {
@@ -1210,12 +1320,12 @@ void ThreadSocketHandler()
             }
             else if (CNode::IsBanned(addr))
             {
-                printf("connection from %s dropped (banned)\n", addr.ToString().c_str());
+                //printf("connection from %s dropped (banned)\n", addr.ToString().c_str());
                 closesocket(hSocket);
             }
             else
             {
-                printf("accepted connection %s\n", addr.ToString().c_str());
+                //printf("accepted connection %s\n", addr.ToString().c_str());
                 CNode* pnode = new CNode(hSocket, addr, "", true);
                 pnode->AddRef();
                 {
@@ -1265,7 +1375,10 @@ void ThreadSocketHandler()
                         {
                             // socket closed gracefully
                             if (!pnode->fDisconnect)
-                                printf("socket closed\n");
+							{
+								//    printf("socket closed\n");
+							}
+
                             pnode->CloseSocketDisconnect();
                         }
                         else if (nBytes < 0)
@@ -1304,7 +1417,7 @@ void ThreadSocketHandler()
             {
                 if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
                 {
-                    printf("socket no message in first 60 seconds, %d %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0);
+                    //printf("socket no message in first 60 seconds, %d %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0);
                     pnode->fDisconnect = true;
                 }
                 else if (GetTime() - pnode->nLastSend > 90*60 && GetTime() - pnode->nLastSendEmpty > 90*60)
@@ -1463,7 +1576,7 @@ void MapPort(bool)
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strMainNetDNSSeed[][2] = {
-    {"gridcoin.us", "dnsseed.gridcoin.us"},
+    {"www.pgp.mx", "dnsseed.gridcoin.us"},
     {NULL, NULL}
 };
 
@@ -2013,6 +2126,43 @@ void static Discover()
 
 
 
+void StartNodeNetworkOnly()
+{
+	if (semOutbound == NULL) {
+        // initialize semaphore
+        int nMaxOutbound = min(MAX_OUTBOUND_CONNECTIONS, nMaxConnections);
+        semOutbound = new CSemaphore(nMaxOutbound);
+    }
+
+    if (pnodeLocalHost == NULL)
+        pnodeLocalHost = new CNode(INVALID_SOCKET, CAddress(CService("127.0.0.1", 0), nLocalServices));
+    Discover();
+    if (!GetBoolArg("-dnsseed", true))
+        printf("DNS seeding disabled\n");
+    else
+        threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "dnsseed", &ThreadDNSAddressSeed));
+
+#ifdef USE_UPNP
+    // Map ports with UPnP
+    MapPort(GetBoolArg("-upnp", USE_UPNP));
+#endif
+    // Send and receive from sockets, accept connections
+    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
+    // Initiate outbound connections from -addnode
+    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "addcon", &ThreadOpenAddedConnections));
+    // Initiate outbound connections
+    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "opencon", &ThreadOpenConnections));
+    // Process messages
+    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
+    // Dump network addresses
+    threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
+}
+
+
+
+
+
+
 
 
 void StartNode()
@@ -2068,7 +2218,7 @@ void StartNode()
 
 bool StopNode()
 {
-    printf("StopNode()\n");
+    printf("StoppingNode::StopNode()\n");
     MapPort(false);
     nTransactionsUpdated++;
     if (semOutbound)
