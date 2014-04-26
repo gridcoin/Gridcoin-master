@@ -22,3 +22,14 @@ C:\Gridcoin-master\release\GridcoinRDTestHarness.exe.config
 C:\Gridcoin-master\release\GridcoinRDTestHarness.exe
 C:\Gridcoin-master\release\GridcoinRDTestHarness.pdb
 C:\Gridcoin-master\release\GridcoinRDTestHarness.xml
+C:\Gridcoin-Private\release\GridcoinRDTestHarness.exe.config
+C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.exe
+C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.xml
+C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.pdb
+C:\Gridcoin-Private\release\GridcoinRDTestHarness.exe
+C:\Gridcoin-Private\release\GridcoinRDTestHarness.pdb
+C:\Gridcoin-Private\release\GridcoinRDTestHarness.xml
+C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.vbprojResolveAssemblyReference.cache
+C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.Form1.resources
+C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.Resources.resources
+C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GridcoinRDTestHarness\GridcoinRDTestHarness\obj\x86\Release\GridcoinRDTestHarness.vbproj.GenerateResource.Cache

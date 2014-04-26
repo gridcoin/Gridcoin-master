@@ -2,6 +2,13 @@
 Imports System.IO
 
 Public Class Form1
+
+
+    Private prodURL As String = "http://www.gridcoin.us/download/"
+    Private testURL As String = "http://www.gridcoin.us/download/signed/"
+    Private bTestNet As Boolean
+
+
     Private Sub RemoveBlocksDir(d As System.IO.DirectoryInfo)
         Try
             d.Delete(True)
@@ -18,10 +25,26 @@ Public Class Form1
         System.Threading.Thread.Sleep(3000)
         GC.Collect()
     End Sub
+    Private Function GetURL() As String
+        If bTestNet Then
+            Return testURL
+        Else
+            Return prodURL
+        End If
+    End Function
     Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+
+
+
+
 
         '''''''''''''''''''''RESTORE SNAPSHOT
         If Environment.GetCommandLineArgs.Length > 0 Then
+
+            If Environment.CommandLine.Contains("testnet") Then
+                bTestNet = True
+            End If
+
             If Environment.CommandLine.Contains("restoresnapshot") Then
                 Try
                     KillMiners()
@@ -90,7 +113,9 @@ Public Class Form1
             End Try
         End If
         '''''''''''''''''''''''''''''''''UPGRADE'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+        If Environment.CommandLine.Contains("testnetupgrade") Then
+            bTestNet = True
+        End If
         If Environment.CommandLine.Contains("upgrade") Then
             Try
                 KillMiners()
@@ -158,6 +183,8 @@ Public Class Form1
             pi.WorkingDirectory = fi.DirectoryName
             pi.UseShellExecute = True
             pi.FileName = fi.DirectoryName + "\gridcoin-qt.exe"
+            If bTestNet Then pi.Arguments = "-testnet"
+
             pi.WindowStyle = ProcessWindowStyle.Maximized
             pi.CreateNoWindow = False
             p.StartInfo = pi
@@ -276,7 +303,7 @@ Public Class Form1
         Catch ex As Exception
         End Try
 
-        Dim sURL As String = "http://www.gridcoin.us/download/" + sFile
+        Dim sURL As String = GetURL() + sFile
         Dim myWebClient As New MyWebClient()
         myWebClient.DownloadFile(sURL, sLocalPathFile)
         Me.Refresh()
@@ -317,10 +344,69 @@ Public Class Form1
         b = System.Convert.FromBase64String(value)
         System.IO.File.WriteAllBytes(sFilePath, b)
     End Function
+
+    Public Function NeedsUpgrade() As Boolean
+        Try
+
+            Dim sMsg As String
+            Dim sURL As String = GetURL()
+            Dim w As New MyWebClient
+            Dim sFiles As String
+            sFiles = w.DownloadString(sURL)
+            Dim vFiles() As String = Split(sFiles, "<br>")
+            If UBound(vFiles) < 10 Then
+                Return False
+            End If
+
+            sMsg = ""
+            For iRow As Integer = 0 To UBound(vFiles)
+                Dim sRow As String = vFiles(iRow)
+                Dim sFile As String = ExtractFilename("<a", "</a>", sRow, 5)
+                If Len(sFile) > 1 Then
+                    If sFile = "boinc.dll" Then
+                        Dim sDT As String
+                        sDT = Mid(sRow, 1, 20)
+                        sDT = Trim(sDT)
+
+                        Dim dDt As DateTime
+                        dDt = CDate(Trim(sDT))
+                        dDt = TimeZoneInfo.ConvertTime(dDt, System.TimeZoneInfo.Utc)
+                        'Hosting server is PST, so subtract Utc - 7 to achieve PST:
+                        dDt = DateAdd(DateInterval.Hour, -3, dDt)
+                        'local file time
+                        Dim sLocalPath As String = GetGRCAppDir()
+                        Dim sLocalFile As String = sFile
+                        If LCase(sLocalFile) = "grcrestarter.exe" Then sLocalFile = "grcrestarter_copy.exe"
+                        Dim sLocalPathFile As String = sLocalPath + "\" + sLocalFile
+                        Dim dtLocal As DateTime
+                        Try
+                            dtLocal = System.IO.File.GetLastWriteTime(sLocalPathFile)
+
+                        Catch ex As Exception
+                            Return False
+
+
+                        End Try
+                        If dDt > dtLocal Then
+                            Return True
+                        End If
+
+
+
+                    End If
+                End If
+            Next iRow
+        Catch ex As Exception
+            Return False
+
+        End Try
+
+    End Function
+
     Public Function DynamicUpgradeWithManifest() As String
         Dim sMsg As String
         For iTry As Long = 1 To 10
-            Dim sURL As String = "http://www.gridcoin.us/download/"
+            Dim sURL As String = GetURL()
             Dim w As New MyWebClient
             Dim sFiles As String
             sFiles = w.DownloadString(sURL)
@@ -351,7 +437,7 @@ Public Class Form1
         Next iTry
         Return sMsg
     End Function
-   
+
     Public Function ExtractFilename(ByVal sStartElement As String, ByVal sEndElement As String, ByVal sData As String, ByVal minOutLength As Integer) As String
         Try
             Dim sDataBackup As String
@@ -376,8 +462,14 @@ Public Class Form1
             If sExt = "pdf" Or LCase(sOut).Contains("to parent directory") Or sExt = "msi" Or sExt = "pdb" Or sExt = "xml" Or LCase(sOut).Contains("vshost") Or sExt = "txt" Or sOut = "gridcoin" Or sOut = "gridcoin_ro" Or sOut = "older" Or sExt = "cpp" Or sOut = "web.config" Then sOut = ""
             If sOut = "gridcoin.zip" Then sOut = ""
             If sOut = "gridcoinrdtestharness.exe.exe" Or sOut = "gridcoinrdtestharness.exe" Then sOut = ""
+            If sOut = "cgminer_base64.zip" Then sOut = ""
+            If sOut = "signed" Then sOut = ""
+
             Return Trim(sOut)
         Catch ex As Exception
+            Dim message As String = ex.Message
+
+
         End Try
     End Function
     Public Function UpgradeGrcRestarter(sParams As String)

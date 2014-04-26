@@ -21,7 +21,6 @@ INPUT(
 ./build/netbase.o
 ./build/key.o
 ./build/script.o
-./build/main.o
 ./build/init.o
 ./build/net.o
 ./build/bloom.o
@@ -70,6 +69,10 @@ INPUT(
 ./build/leveldb.o
 ./build/txdb.o
 ./build/splashscreen.o
+./build/main.o
+./build/skein.o
+./build/groestl.o
+./build/cubehash.o
 ./build/qrcodedialog.o
 ./build/moc_bitcoingui.o
 ./build/moc_transactiontablemodel.o
