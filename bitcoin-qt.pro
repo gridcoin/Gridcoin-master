@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = gridcoin-qt
 macx:TARGET = "Gridcoin-Qt"
-VERSION = 0.7.7.5
+VERSION = 0.9.0.1
 INCLUDEPATH += src src/json src/qt
 INCLUDEPATH += tmp/moc/release_shared 
 QT += core gui network
@@ -57,20 +57,25 @@ win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
 win32:QMAKE_LFLAGS *= -Wl,--large-address-aware
 
+# use: qmake "DEV=1"
+contains(DEV,1)
+{
+    message(Building with Dev Directory)
+    DEFINES += DEV
+}
+
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
-contains(USE_QRCODE, 1) 
-{
-    message(Building with QRCode support)
-    #DEFINES += USE_QRCODE
-    # LIBS += -lqrencode
-    # LIBS += -md5
+contains(USE_QRCODE, 11) {
+    message(Building with QRCode support-1)
+    DEFINES += USE_QRCODE
+    LIBS += -lqrencode
 } else {
-    message(Building with QRCode support)
+    message(Building with QRCode support-2)
     #DEFINES += USE_QRCODEx
     #LIBS += -lqrencode
     #LIBS += -md5
- }
+}
 
 # use: qmake "USE_UPNP=1" ( enabled by default; default)
 #  or: qmake "USE_UPNP=0" (disabled by default)
@@ -156,7 +161,6 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
     src/qt/miningdialog.h \
-    #src/qt/gridcoin.h \
     src/qt/editaddressdialog.h \
     src/qt/bitcoinaddressvalidator.h \
     src/alert.h \
@@ -231,17 +235,12 @@ HEADERS += src/qt/bitcoingui.h \
     src/limitedmap.h \
     src/qt/macnotificationhandler.h \
     src/qt/splashscreen.h \
-    src/sph_blake.h \
-      src/sph_groestl.h \
-      src/sph_keccak.h \
-      src/sph_bmw.h \
-      src/sph_jh.h \
-      src/sph_skein.h \
-      src/sph_types.h \
-      src/sph_luffa.h \
-      src/sph_cubehash.h \
-      src/sph_shavite.h \
-  
+    src/sph_groestl.h \
+    src/sph_skein.h \
+    src/sph_types.h \
+    src/sph_cubehash.h \
+    src/sph_shavite.h  
+    
  
 SOURCES += src/qt/bitcoin.cpp \
     src/qt/bitcoingui.cpp \
@@ -312,19 +311,11 @@ SOURCES += src/qt/bitcoin.cpp \
     src/noui.cpp \
     src/leveldb.cpp \
     src/txdb.cpp \
-    src/qt/splashscreen.cpp
+    src/qt/splashscreen.cpp \
     src/main.cpp \
-     src/skein.c \
-     src/luffa.c \
-     src/cubehash.c \
-     src/shavite.c \
-     src/echo.c \
-     src/simd.c
-
-    
-  
-  
-
+    src/skein.c \
+    src/groestl.c \
+    src/cubehash.c 
 
 ##
 #RC_FILE  = qaxserver.rc
@@ -346,11 +337,13 @@ FORMS += src/qt/forms/sendcoinsdialog.ui \
     src/qt/forms/optionsdialog.ui
 
 #contains(USE_QRCODE, 1) {
-
 HEADERS += src/qt/qrcodedialog.h
 SOURCES += src/qt/qrcodedialog.cpp
 FORMS += src/qt/forms/qrcodedialog.ui
+#}
 
+#contains(DEV,1) {
+	HEADERS += ../../deps-master/extras/gridcoin.h
 #}
 
 contains(BITCOIN_QT_TEST, 1) {
