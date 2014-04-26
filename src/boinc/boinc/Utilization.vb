@@ -17,13 +17,41 @@ Public Class Utilization
         Public Stale As Double
         Public Message As String
     End Structure
+
+    Public ReadOnly Property Version As Double
+        Get
+            Return 115
+
+
+
+
+        End Get
+    End Property
+
     Private lfrmMiningCounter As Long = 0
     Public ReadOnly Property BoincUtilization As Double
         Get
             Return Val(clsGVM.BoincUtilization)
         End Get
     End Property
+    Public ReadOnly Property ClientNeedsUpgrade As Double
+        Get
+            Dim bNeedsUp As Boolean = NeedsUpgrade()
+            If bNeedsUp Then
+                Log("Client outdated; needs upgraded.")
 
+                If KeyValue("suppressupgrade") = "true" Then
+                    Log("Client needs upgraded; Not upgrading due to key.")
+
+                    Return 0
+                End If
+                Return 1
+            End If
+            Log("Client up to date")
+
+            Return 0
+        End Get
+    End Property
     Public ReadOnly Property BoincThreads As Double
         Get
             Return Val(clsGVM.BoincThreads)
@@ -51,14 +79,6 @@ Public Class Utilization
     Public Function CgMinerDeviceSummary(lDevId As Long) As CgSumm
         Return modCgMiner.CgSummary(lDevId)
     End Function
-    Public ReadOnly Property Version As Double
-        Get
-            Return 90
-
-
-
-        End Get
-    End Property
     Public ReadOnly Property CalcApiUrl(lProj As Long, sUserId As String) As String
         Get
             Return Trim(clsGVM.CalcApiUrl(lProj, sUserId))
@@ -84,6 +104,11 @@ Public Class Utilization
     Public Sub UpgradeWallet()
         Call RestartWallet1("upgrade")
     End Sub
+    Public Sub UpgradeWalletTestnet()
+        Call RestartWallet1("testnetupgrade")
+    End Sub
+
+
     Public Sub ReindexWallet()
         Call RestartWallet1("reindex")
     End Sub
@@ -110,11 +135,6 @@ Public Class Utilization
     Public Function StrToMd5Hash(s As String) As String
         Return CalcMd5(s)
     End Function
-    Public ReadOnly Property CheckWork(ByVal sGRCHash1 As String, ByVal sGRCHash2 As String, ByVal sGRCHash3 As String, ByVal sGRCHash4 As String, ByVal sBoinchash As String) As Double
-        Get
-            Return clsGVM.CheckWork(sGRCHash1, sGRCHash2, sGRCHash3, sGRCHash4, sBoinchash)
-        End Get
-    End Property
     Public ReadOnly Property RetrieveWin32BoincHash() As String
         Get
             Dim sHash As String
@@ -237,12 +257,6 @@ Public Class Utilization
         mfrmMining.ForceBoincToUseGPUs(sSleepDirective)
     End Function
     Public Function ShowProjects()
-        If mfrmProjects Is Nothing Then
-            mfrmProjects = New frmProjects
-            mfrmProjects.Show()
-        Else
-            mfrmProjects.Show()
-        End If
     End Function
     Public Function ShowSql()
         mfrmSql = New frmSQL

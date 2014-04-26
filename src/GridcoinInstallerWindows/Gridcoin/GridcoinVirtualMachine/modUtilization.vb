@@ -61,17 +61,16 @@ Module modUtilization
         TeamGridcoinProjects(5) = "FvDfoheNe74JcUp6uf3N8cPeU4KeUsxPq7,http://milkyway.cs.rpi.edu/milkyway"
 
         If _timerBoincUtilization Is Nothing Then
-            _timerBoincUtilization = New System.Timers.Timer(20000)
+            _timerBoincUtilization = New System.Timers.Timer(60000)
             AddHandler _timerBoincUtilization.Elapsed, New ElapsedEventHandler(AddressOf BoincUtilizationTimerElapsed)
             _timerBoincUtilization.Enabled = True
         End If
 
         If _timerBoincCredits Is Nothing Then
-            _timerBoincCredits = New System.Timers.Timer(300000)
+            _timerBoincCredits = New System.Timers.Timer(600000)
             AddHandler _timerBoincCredits.Elapsed, New ElapsedEventHandler(AddressOf BoincCreditsElapsed)
             _timerBoincCredits.Enabled = True
             BoincCreditsElapsed()
-
         End If
 
     End Sub

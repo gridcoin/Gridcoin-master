@@ -140,7 +140,6 @@ extern json_spirit::Value ValueFromAmount(int64 amount);
 extern double DoubleFromAmount(int64 amount);
 
 extern double GetDifficulty(const CBlockIndex* blockindex = NULL);
-extern double GetDifficulty(const CBlockIndex* blockindex, int algo);
 
 extern std::string HexBits(unsigned int nBits);
 extern std::string HelpRequiringPassphrase();
@@ -196,20 +195,13 @@ extern json_spirit::Value getinfo(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value getrawtransaction(const json_spirit::Array& params, bool fHelp); // in rcprawtransaction.cpp
 extern json_spirit::Value listunspent(const json_spirit::Array& params, bool fHelp);
-extern json_spirit::Value listminers(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value upgrade(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value sendtoself(const json_spirit::Array& params, bool fHelp);
-extern json_spirit::Value checkwork(const json_spirit::Array& params, bool fHelp);
 
-extern json_spirit::Value listcpuminers(const json_spirit::Array& params, bool fHelp);
-
-extern json_spirit::Value listmycpuminers(const json_spirit::Array& params, bool fHelp);
 
 extern std::string RoundToString(double d, int place);
 extern std::map<std::string, MiningEntry> CalculatePoolMining(bool bPayDuringWalletHour);
 
-
-extern json_spirit::Value getpoolminingmode(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value lockunspent(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listlockunspent(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value createrawtransaction(const json_spirit::Array& params, bool fHelp);

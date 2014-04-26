@@ -11,8 +11,7 @@
 #include "bitcoinrpc.h"
 #include "db.h"
 
-
-#ifdef WIN32
+#if defined(WIN32) && defined(QT_GUI)
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
@@ -30,6 +29,11 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include <boost/algorithm/string/case_conv.hpp> // for to_lower()
+#include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
+
+#include <boost/algorithm/string/join.hpp>
 #include <list>
 
 
@@ -50,7 +54,8 @@ static ssl::context* rpc_ssl_context = NULL;
 static boost::thread_group* rpc_worker_group = NULL;
 
 
-#ifdef WIN32
+
+#if defined(WIN32) && defined(QT_GUI)
 QAxObject *globalrpccom = NULL;
 #endif
 
@@ -282,14 +287,9 @@ static const CRPCCommand vRPCCommands[] =
     { "dumpprivkey",            &dumpprivkey,            true,      false },
     { "importprivkey",          &importprivkey,          false,     false },
     { "listunspent",            &listunspent,            false,     false },
-	{ "listminers",             &listminers,             false,     false },
 	{ "upgrade",                &upgrade,                false,     false },
-	{ "checkwork",              &checkwork,              false,     false },
-	{ "listcpuminers",          &listcpuminers,          false,     false },
 	{ "listitem",               &listitem,               false,     false },
 	{ "execute",                &execute,                   false,     false },
-	{ "listmycpuminers",        &listmycpuminers,        false,     false },
-	{ "getpoolminingmode",      &getpoolminingmode,      false,     false }, 
     { "getrawtransaction",      &getrawtransaction,      false,     false },
     { "createrawtransaction",   &createrawtransaction,   false,     false },
     { "decoderawtransaction",   &decoderawtransaction,   false,     false },
@@ -575,7 +575,14 @@ bool ClientIsUsingLoopback(const boost::asio::ip::address& address)
 {
 	// GridCoin: Ensure boinc utilization reading is emitted from the same server that is mining
     // Make sure that IPv4-compatible and IPv4-mapped IPv6 addresses are treated as IPv4 addresses
-	
+
+	std::string pool_op = GetArg("-pooloperator", "false");
+	if (pool_op=="true") 
+	{
+		return true;
+
+	}
+			
     const string strAddress = address.to_string();
 	if (WildcardMatch(strAddress, "::1")) return true;
 	if (WildcardMatch(strAddress, "127.0.0.1")) return true;
@@ -591,7 +598,6 @@ bool ClientIsUsingLoopback(const boost::asio::ip::address& address)
 	 || strAddress=="0:0:0:0:0:0:0:1" || strAddress=="::1" || strAddress=="127.0.0.1"
     ) 
 	{
-		//printf("Client using loopback.");
 		return true;
 	}
 
@@ -784,6 +790,8 @@ static void RPCAcceptHandler(boost::shared_ptr< basic_socket_acceptor<Protocol, 
     else if (tcp_conn && !ClientAllowed(tcp_conn->peer.address()))
     {
         // Only send a 403 if we're not using SSL to prevent a DoS during the SSL handshake.
+		printf("Rejecting rpc connection  from %s ",tcp_conn->peer.address().to_string().c_str());
+
         if (!fUseSSL)
             conn->stream() << HTTPReply(HTTP_FORBIDDEN, "", false) << std::flush;
         delete conn;
@@ -803,7 +811,6 @@ static void RPCAcceptHandler(boost::shared_ptr< basic_socket_acceptor<Protocol, 
 
 void StartRPCThreads()
 {
-    // getwork/getblocktemplate mining rewards paid here:
     pMiningKey = new CReserveKey(pwalletMain);
 
     strRPCUserColonPass = mapArgs["-rpcuser"] + ":" + mapArgs["-rpcpassword"];
@@ -1025,41 +1032,9 @@ static string JSONRPCExecBatch(const Array& vReq, bool bLoopback)
 
 
 
-double static MegaHashProtection()
-{
-	try {
-  clock_t current = clock();
-  if (nMegaHashProtection == 0) 
-  {
-		  nMegaHashProtection = clock();
-		  printf("resetting megahash protection");
-		  return MEGAHASH_VIOLATION_THRESHHOLD+1;
-  }
-  double elapsed_secs = double(current - nMegaHashProtection)/(double)CLOCKS_PER_SEC;
-  return elapsed_secs;
-	}
-
-	 catch (std::exception& e)
-       
-	 {
-
-		 return 0;
-	 }
-}
-
-
 static inline bool GetCPUMiningMode()
 {
 	if (mapArgs["-cpumining"] == "true") 
-	{
-		return true;
-	} 
-	return false;
-}
-
-static inline bool GetPoolMiningMode()
-{
-    if (mapArgs["-poolmining"] == "true") 
 	{
 		return true;
 	} 
@@ -1127,17 +1102,7 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
             Value valRequest;
 			// GridCoin: Set 1st eligibility requirement after each JSON request: (this is thread safe, since all other threads are locked during a submitblock)
 			bBoincSubsidyEligible = bLoopback;
-			if (bBoincSubsidyEligible) 
-			{
-			    //	printf("Eligible.");
-			}
-			else
-			{
-			   //	printf("not eligible.");
-			}
-
-			//10-29-2013 GridCoin: Implement Pool Mining
-			bPoolMiningMode = GetPoolMiningMode();
+		
 			bCPUMiningMode = GetCPUMiningMode();
 			bDebugMode = GetDebugMode();
 
@@ -1148,45 +1113,19 @@ void ServiceConnection(AcceptedConnection *conn, bool bLoopback)
             string strReply;
 
             // singleton request
-            if (valRequest.type() == obj_type) {
+            if (valRequest.type() == obj_type) 
+			{
                 jreq.parse(valRequest);
-
-				
-		        //GridCoin: MegaHash protection: Denial of Service for the remainder of the threshhold if client violates MegaHash checks:
-            if (false) {
-     				double mh = MegaHashProtection();
- 	     		    if (mh > MEGAHASH_VIOLATION_THRESHHOLD) 
-			        {
-							MEGAHASH_VIOLATION_COUNT=0;
-			        }
-
-				if (mh < MEGAHASH_VIOLATION_THRESHHOLD && jreq.strMethod=="getwork" && MEGAHASH_VIOLATION_COUNT > MEGAHASH_VIOLATION_COUNT_THRESHHOLD) 
-    			{
-	    			printf("Gridcoin getwork denied -- reduce hashpower.");
-					printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
-					
- 					strReply = JSONRPCReply("Reduce Hashpower",Value::null,jreq.id);
-			   return;
-			   } else {
- 					
-				   //printf("megahash level %.8g, mh/vc %.8g, method=%s, threshhold=%.8g",mh,MEGAHASH_VIOLATION_COUNT, jreq.strMethod.c_str(),MEGAHASH_VIOLATION_THRESHHOLD);
-					
-			   }
-
-			}
-
-
-            Value result = tableRPC.execute(jreq.strMethod, jreq.params, bLoopback);
-            // Send reply
-            strReply = JSONRPCReply(result, Value::null, jreq.id);
-
-            // array of requests
-            } else if (valRequest.type() == array_type)
+	            Value result = tableRPC.execute(jreq.strMethod, jreq.params, bLoopback);
+                // Send reply
+               strReply = JSONRPCReply(result, Value::null, jreq.id);
+               // array of requests
+            }
+			else if (valRequest.type() == array_type)
                 strReply = JSONRPCExecBatch(valRequest.get_array(), bLoopback);
             else
                 throw JSONRPCError(RPC_PARSE_ERROR, "Top-level object parse error");
-
-            conn->stream() << HTTPReply(HTTP_OK, strReply, fRun) << std::flush;
+                conn->stream() << HTTPReply(HTTP_OK, strReply, fRun) << std::flush;
         }
         catch (Object& objError)
         {
@@ -1366,16 +1305,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "listunspent"            && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "listunspent"            && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "listunspent"            && n > 2) ConvertTo<Array>(params[2]);
-	if (strMethod == "checkwork"              && n > 0) ConvertTo<boost::int64_t>(params[0]);
-	if (strMethod == "listminers"             && n > 0) ConvertTo<boost::int64_t>(params[0]);
 	if (strMethod == "upgrade"                && n > 0) ConvertTo<boost::int64_t>(params[0]);
-	if (strMethod == "listminers"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
-	if (strMethod == "listcpuminers"          && n > 0) ConvertTo<boost::int64_t>(params[0]);
-	if (strMethod == "listcpuminers"          && n > 1) ConvertTo<boost::int64_t>(params[1]);
-	if (strMethod == "listmycpuminers"        && n > 0) ConvertTo<boost::int64_t>(params[0]);
-	if (strMethod == "listmycpuminers"        && n > 1) ConvertTo<boost::int64_t>(params[1]);
-
-	if (strMethod == "getpoolminingmode"      && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "getrawtransaction"      && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "createrawtransaction"   && n > 0) ConvertTo<Array>(params[0]);
     if (strMethod == "createrawtransaction"   && n > 1) ConvertTo<Object>(params[1]);
