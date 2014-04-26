@@ -98,51 +98,31 @@ Public Class Form1
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
 
-
         Dim sOut As String
+        Dim z As New Utilization
+
+        sOut = z.Des3Decrypt(sOut)
+
+        Stop
+
+
+
+
         sOut = Trim(False)
 
 
         Dim bResult As Boolean
-        '2-28-2014 md5 hash cpid + email
 
-
-        Dim z As New Utilization
-
+        
         Stop
-
 
         z.ShowMiningConsole()
-        Stop
-
-
-
-        z.mForceBoincToUseGpus("work")
-
-        Stop
-        z.mForceBoincToUseGpus("sleep")
-
         Stop
 
 
         Exit Sub
 
 
-
-
-
-
-
-
-        Dim sMd5 As String
-        Dim sCPID As String = "6f7c93b51ccf55e4e0529e7e5f6fdcfa"
-        Dim sEM As String = "940ce591b1c7fa43c86ac2578825499b"
-        sMd5 = z.StrToMd5Hash(sCPID + "," + sEM)
-
-        sMd5 = z.StrToMd5Hash(sCPID + "rachalupa@yahoo.com")
-
-
-        Stop
 
 
         
