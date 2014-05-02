@@ -1,0 +1,12 @@
+@font-face {
+	font-family: Noto Sans;
+	src: local("Noto Sans"), local("NotoSans"), url(https://themes.googleusercontent.com/static/fonts/notosans/v1/ZiLgXLg9VOzuKqsMXR7GDg.eot) format("embedded-opentype"), url(https://themes.googleusercontent.com/static/fonts/notosans/v1/JLrcxvhkM17op1c4raL9Fg.woff) format("woff");
+	font-weight: 400;
+	font-style: normal;
+}
+@font-face {
+	font-family: Noto Sans;
+	src: local("Noto Sans Bold"), local("NotoSans-Bold"), url(https://themes.googleusercontent.com/static/fonts/notosans/v1/PIbvSEyHEdL91QLOQRnZ11QlYEbsez9cZjKsNMjLOwM.eot) format("embedded-opentype"), url(https://themes.googleusercontent.com/static/fonts/notosans/v1/PIbvSEyHEdL91QLOQRnZ1xsxEYwM7FgeyaSgU71cLG0.woff) format("woff");
+	font-weight: 700;
+	font-style: normal;
+}

@@ -5,12 +5,13 @@
 
 
 
-
 std::string GetTxProject(uint256 hash, int& out_blocknumber, int& out_blocktype, double& out_rac);
-
-
+int GetBlockType(uint256 prevblockhash);
+int GetBlockType2(uint256 prevblockhash, int& out_height);
 std::string RoundToString(double d, int place);
+double DoubleFromAmount(int64 amount);
 
+bool OutOfSyncByAge();
 
 
 /* Return positive answer if transaction should be shown in list.
@@ -59,11 +60,20 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 				int out_blocknumber=0;
 				int out_blocktype = 0;
 				double out_rac = 0;
+				
+				//If value has a 4 digit scale, and ends in 1, this is a cpu coinbase block
+				double myCredit = DoubleFromAmount(sub.credit);
 
+				std::string sSub = RoundToString(myCredit, 4);
+				std::string cpu_flag = sSub.substr(sSub.length()-1,1);
+				printf("Credit amount %s",sSub.c_str());
 
-				std::string project = GetTxProject(hash,out_blocknumber, out_blocktype, out_rac);
 				sub.IsCPU=false;
-				if (out_blocktype==2) sub.IsCPU=true;
+				
+				if (cpu_flag == "1") 
+				{
+						sub.IsCPU=true;
+				}
 
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address))
                 {

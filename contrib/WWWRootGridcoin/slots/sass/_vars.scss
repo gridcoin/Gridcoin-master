@@ -1,0 +1,42 @@
+// slot machine wheels
+$scale:                   1.5;
+$wheel-wrapper-gutter:    20px;
+$wheel-inner-gutter:      10px;
+$wheel-width:             70px * $scale;
+$wheel-height:            $wheel-width * 2;
+$wheel-side-height:       ($wheel-height / 6);
+$wheel-image-width:       $wheel-side-height;
+$wheels-wrapper-width:    ($wheel-width * 3)
+                        + (2 * $wheel-inner-gutter)
+                        + (2 * $wheel-wrapper-gutter);
+$wheels-wrapper-height:   $wheel-height
+                        + $wheel-wrapper-gutter;
+
+//slot machine top
+$top-frame-width:         10px;
+$top-width:               $wheels-wrapper-width
+                        + ($wheel-wrapper-gutter * 2)
+                        + ($top-frame-width * 2);
+$top-height:              $wheels-wrapper-height
+                        + ($wheel-wrapper-gutter * 2)
+                        + ($top-frame-width * 2);
+$bottom-width:            $top-width;
+$bottom-height:           $top-height * 0.5;
+$bottom-depth:            $top-height;
+$play-button-width:       50px * $scale;
+$play-button-height:      20px * $scale;
+$play-button-depth:       4px * $scale;
+
+$win-height:              50px * $scale;
+
+$margin-top:              20px * $scale;
+
+// colors
+$button-color:            #a00;
+$wheel-part-color:        #fff;
+$wheel-side-color:        darken($wheel-part-color,100%);
+$wheel-border-color:      darken($wheel-part-color,6%);
+$box-color:               #d4d5d6;
+$wheels-wall-color:       #555;
+$display-color:           #373737;
+

@@ -102,7 +102,7 @@ inline std::string GetAlgoName(int Algo)
 
 
 /** Run the miner threads */
-void GenerateGridcoins(bool fGenCoins);
+void GenerateGridcoins(bool fGenCoins, bool loadcpids);
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, int algo);
 const CBlockIndex* GetLastBlockIndexForAlgo(const CBlockIndex* pindex, int algo);
 
@@ -1425,9 +1425,11 @@ class CBlockHeader
 {
 public:
     // header
-	
+	// Gridcoin: For CPU Mining, make block nVersion = 3 for CPUBlocks and nVersion = 2 for GPU blocks:
+
     static const int CURRENT_VERSION=2;
-    int nVersion;
+    
+	int nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
     unsigned int nTime;
@@ -1445,8 +1447,11 @@ public:
 
     IMPLEMENT_SERIALIZE
     (
-        READWRITE(this->nVersion);
+        // READWRITE(this->nVersion);
+        // nVersion = this->nVersion;
+	    READWRITE(this->nVersion);
         nVersion = this->nVersion;
+    
         READWRITE(hashPrevBlock);
         READWRITE(hashMerkleRoot);
         READWRITE(nTime);
@@ -1542,7 +1547,9 @@ public:
  		try 
 		{
 			READWRITE(BlockType);
-		} catch(std::exception &e) {
+		} 
+		catch(std::exception &e) 
+		{
 		}
 
 		
@@ -1684,7 +1691,7 @@ public:
 
         // Check the header
 
-	    if (!CheckProofOfWork(GetPoWHash(), nBits, BlockType))
+	    if (!CheckProofOfWork(GetPoWHash(), nBits, nVersion))
             return error("CBlock::ReadFromDisk() : errors in block header");
 
         return true;
@@ -1735,7 +1742,7 @@ public:
     bool AddToBlockIndex(CValidationState &state, const CDiskBlockPos &pos);
 
     // Context-independent validity checks
-    bool CheckBlock(CValidationState &state, bool fCheckPOW=true, bool fCheckMerkleRoot=true) const;
+    bool CheckBlock(CValidationState &state, bool fCheckPOW=true, bool fCheckMerkleRoot=true, bool bConnectingBlock=false) const;
 
     // Store block on disk
     // if dbp is provided, the file is known to already reside on disk

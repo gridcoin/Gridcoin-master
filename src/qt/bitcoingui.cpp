@@ -78,8 +78,12 @@ int nBlockCount = 0;
 int nTick2 = 0;
 int nRegVersion;
 int nNeedsUpgrade = 0;
+volatile bool bRestartGridcoinMiner;
+volatile bool bForceUpdate;
+
 bool bCheckedForUpgrade = false;
 void ThreadCPIDs();
+int Races(int iMax1000);
 
 extern void SendGridcoinProjectBeacons();
 std::string NodesToString();
@@ -94,7 +98,9 @@ bool TallyNetworkAverages();
 
 void LoadCPIDsInBackground();
 
+std::string BackupGridcoinWallet();
 void InitializeCPIDs();
+void RestartGridcoinMiner();
 
 extern int UpgradeClient();
 extern int CloseGuiMiner();
@@ -930,6 +936,12 @@ void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
+		//If we have never loaded net averages load them now:
+		if (!bNetAveragesLoaded)
+		{
+			TallyNetworkAverages();
+		}
+
     }
     else
     {
@@ -1320,10 +1332,29 @@ void ReinstantiateGlobalcom()
 void BitcoinGUI::timerfire()
 {
 	try {
-		std::string time1 =  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime());
+
+		std::string time1 =  DateTimeStrFormat("%m-%d-%Y %H:%M:%S", GetTime());
+		if (Timer("timestamp",15))
+		{
+			printf("Timestamp: %s\r\n",time1.c_str());
+		}
 
 
 		CriticalThreadDelay();
+
+		//If miner found a block in cpu or gpu, restart cpu threads to prevent race:
+		if (bRestartGridcoinMiner)
+		{
+			RestartGridcoinMiner();
+		}
+	
+		//Backup the wallet once per day:
+		if (Timer("backupwallet", 6*60*20))
+		{
+
+			std::string backup_results = BackupGridcoinWallet();
+			printf("Daily backup results: %s\r\n",backup_results.c_str());
+		}
 
 		if (Timer("start",3))
 		{
@@ -1336,16 +1367,27 @@ void BitcoinGUI::timerfire()
 			sRegVer = boost::lexical_cast<std::string>(nRegVersion);
 		}
 
-		if (Timer("status_update",3))
-		{
 
+		if (CreatingNewBlock)
+		{
+			MilliSleep(Races(2000)+1000);
+			if (CreatingNewBlock)
+			{   //Reset in case something went wrong:
+				CreatingNewBlock=false;
+			}
+		}
+
+
+		if (Timer("status_update",2))
+		{
+			GetDifficulty();
 			std::string status = GetGlobalStatus();
-    	
+    		bForceUpdate=true;
 		}
 
 		if (Timer("status_update",10))
 		{
-			mdLastDifficulty =  GetDifficulty();
+			//mdLastDifficulty =  GetDifficulty();
 		}
    
 
@@ -1358,17 +1400,15 @@ void BitcoinGUI::timerfire()
 		}
 		*/
 
-		/*
+		
 
-		if (Timer("net_averages",500)) 
+		if (Timer("net_averages",200)) 
 		{
 			printf("Reharvesting Gridcoin Net Averages\r\n");
 		    //printf("BestChain: new best=%s  height=%d  date=%s\n",    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
-			LoadCPIDsInBackground();
-
+			TallyNetworkAverages();
 		}
-		*/
-
+		
 
 		if (Timer("restart_network",350))
 		{

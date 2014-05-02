@@ -14,6 +14,15 @@ extern bool bDebugMode;
 extern bool bBoincSubsidyEligible;
 extern bool bPoolMiningMode;
 extern bool bCPUMiningMode;
+extern volatile bool bRestartGridcoinMiner;
+extern volatile bool bCPIDsLoaded;
+extern volatile int  iCriticalThreadDelay;
+extern volatile bool CreatingNewBlock;
+extern volatile bool bNetAveragesLoaded;
+extern volatile bool bForceUpdate;
+
+extern int miningthreadcount;
+
 
 
 struct MiningEntry {
@@ -102,6 +111,21 @@ struct MiningEntry {
 
 
 
+	struct StructBlockCache {
+		std::string cpid;
+		std::string project;
+		double rac;
+		std::string hashBoinc;
+		bool initialized;
+		int nHeight;
+	    std::string hash;
+	    int BlockType;
+		int nVersion;
+
+	};
+
+
+
 	struct MiningCPID
 	{
 		std::string projectname;
@@ -114,6 +138,7 @@ struct MiningEntry {
 		std::string enccpid;
 		std::string aesskein;
 		std::string encaes;
+		double nonce;
 	};
 
 	
@@ -138,6 +163,9 @@ extern std::map<std::string, StructCPID> mvNetworkCPIDs;
 extern std::map<std::string, StructCPID> mvCreditNodeCPIDProject; //Contains verified CPID+Projects;
 //Caches
 extern std::map<std::string, StructCPIDCache> mvCPIDCache; //Contains cached blocknumbers for CPID+Projects;
+extern std::map<std::string, StructBlockCache> mvBlockCache;  //Contains Cached Blocks
+
+
 //Boinc Valid Projects
 extern std::map<std::string, StructCPID> mvBoincProjects; // Contains all of the allowed boinc projects;
 // Timers

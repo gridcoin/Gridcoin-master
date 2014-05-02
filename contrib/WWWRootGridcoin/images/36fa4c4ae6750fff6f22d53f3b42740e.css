@@ -1,0 +1,1365 @@
+@font-face {
+	font-family: Ubuntu;
+	src: url(/font/ubuntu-r-webfont.eot?iefix) format("eot"), url(/font/ubuntu-r-webfont.woff) format("woff"), url(/font/ubuntu-r-webfont.ttf) format("truetype"), url(/font/ubuntu-r-webfont.svg) format("svg");
+	font-weight: 300;
+	font-style: normal;
+}
+@font-face {
+	font-family: Ubuntu;
+	src: url(/font/ubuntu-ri-webfont.eot?iefix) format("eot"), url(/font/ubuntu-ri-webfont.woff) format("woff"), url(/font/ubuntu-ri-webfont.ttf) format("truetype"), url(/font/ubuntu-ri-webfont.svg) format("svg");
+	font-weight: 300;
+	font-style: italic;
+}
+@font-face {
+	font-family: Ubuntu;
+	src: url(/font/ubuntu-b-webfont.eot?iefix) format("eot"), url(/font/ubuntu-b-webfont.woff) format("woff"), url(/font/ubuntu-b-webfont.ttf) format("truetype"), url(/font/ubuntu-b-webfont.svg) format("svg");
+	font-weight: 700;
+	font-style: normal;
+}
+@font-face {
+	font-family: Ubuntu;
+	src: url(/font/ubuntu-bi-webfont.eot?iefix) format("eot"), url(/font/ubuntu-bi-webfont.woff) format("woff"), url(/font/ubuntu-bi-webfont.ttf) format("truetype"), url(/font/ubuntu-bi-webfont.svg) format("svg");
+	font-weight: 700;
+	font-style: italic;
+}
+article {
+	display: block;
+}
+aside {
+	display: block;
+}
+details {
+	display: block;
+}
+figcaption {
+	display: block;
+}
+figure {
+	display: block;
+}
+footer {
+	display: block;
+}
+header {
+	display: block;
+}
+hgroup {
+	display: block;
+}
+main {
+	display: block;
+}
+nav {
+	display: block;
+}
+section {
+	display: block;
+}
+summary {
+	display: block;
+}
+audio {
+	display: inline-block;
+}
+canvas {
+	display: inline-block;
+}
+video {
+	display: inline-block;
+}
+audio:not([controls]) {
+	height: 0px; display: none;
+}
+[hidden] {
+	display: none;
+}
+html {
+	font-family: sans-serif; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;
+}
+body {
+	margin: 0px;
+}
+a:focus {
+	outline: dotted thin;
+}
+a:active {
+	outline: 0px;
+}
+a:hover {
+	outline: 0px;
+}
+h1 {
+	margin: 0.67em 0px; font-size: 2em;
+}
+abbr[title] {
+	border-bottom-color: currentColor; border-bottom-width: 1px; border-bottom-style: dotted;
+}
+b {
+	font-weight: bold;
+}
+strong {
+	font-weight: bold;
+}
+dfn {
+	font-style: italic;
+}
+hr {
+	height: 0px; box-sizing: content-box; -moz-box-sizing: content-box;
+}
+mark {
+	background: rgb(255, 255, 0); color: rgb(0, 0, 0);
+}
+code {
+	font-family: monospace, serif; font-size: 1em;
+}
+kbd {
+	font-family: monospace, serif; font-size: 1em;
+}
+pre {
+	font-family: monospace, serif; font-size: 1em;
+}
+samp {
+	font-family: monospace, serif; font-size: 1em;
+}
+pre {
+	white-space: pre-wrap;
+}
+q {
+	quotes: "“" "”" "‘" "’";
+}
+small {
+	font-size: 80%;
+}
+sub {
+	line-height: 0; font-size: 75%; vertical-align: baseline; position: relative;
+}
+sup {
+	line-height: 0; font-size: 75%; vertical-align: baseline; position: relative;
+}
+sup {
+	top: -0.5em;
+}
+sub {
+	bottom: -0.25em;
+}
+img {
+	border: 0px currentColor;
+}
+svg:not(:root) {
+	overflow: hidden;
+}
+figure {
+	margin: 0px;
+}
+fieldset {
+	margin: 0px 2px; padding: 0.35em 0.62em 0.75em; border: 1px solid rgb(192, 192, 192);
+}
+legend {
+	padding: 0px; border: 0px currentColor;
+}
+button {
+	margin: 0px; font-family: inherit; font-size: 100%;
+}
+input {
+	margin: 0px; font-family: inherit; font-size: 100%;
+}
+select {
+	margin: 0px; font-family: inherit; font-size: 100%;
+}
+textarea {
+	margin: 0px; font-family: inherit; font-size: 100%;
+}
+button {
+	line-height: normal;
+}
+input {
+	line-height: normal;
+}
+button {
+	text-transform: none;
+}
+select {
+	text-transform: none;
+}
+button {
+	cursor: pointer; -webkit-appearance: button;
+}
+html input[type='button'] {
+	cursor: pointer; -webkit-appearance: button;
+}
+input[type='reset'] {
+	cursor: pointer; -webkit-appearance: button;
+}
+input[type='submit'] {
+	cursor: pointer; -webkit-appearance: button;
+}
+button[disabled] {
+	cursor: default;
+}
+html input[disabled] {
+	cursor: default;
+}
+input[type='checkbox'] {
+	padding: 0px; box-sizing: border-box;
+}
+input[type='radio'] {
+	padding: 0px; box-sizing: border-box;
+}
+input[type='search'] {
+	box-sizing: content-box; -moz-box-sizing: content-box; -webkit-appearance: textfield; -webkit-box-sizing: content-box;
+}
+textarea {
+	overflow: auto; vertical-align: top;
+}
+table {
+	border-collapse: collapse; border-spacing: 0;
+}
+body {
+	margin: 0px; padding: 0px; color: rgb(100, 100, 100); font-family: "Helvetica Neue","Helvetica",Arial,sans-serif; font-size: 16px; background-color: rgb(247, 247, 247);
+}
+h1 {
+	text-align: center; color: rgb(13, 87, 155); font-family: "Ubuntu",sans-serif; font-size: 160%; font-weight: 700; margin-top: 0px;
+}
+h2 {
+	text-align: left; color: rgb(56, 56, 56); font-family: "Ubuntu",sans-serif; font-size: 130%; font-weight: 700;
+}
+h3 {
+	text-align: left; color: rgb(56, 56, 56); font-size: 110%;
+}
+a:link {
+	color: rgb(44, 111, 173); text-decoration: none;
+}
+a:visited {
+	color: rgb(44, 111, 173); text-decoration: none;
+}
+a:active {
+	color: rgb(44, 111, 173); text-decoration: none;
+}
+a:hover:link {
+	color: rgb(99, 164, 225);
+}
+a:hover:visited {
+	color: rgb(99, 164, 225);
+}
+a:hover:active {
+	color: rgb(99, 164, 225);
+}
+a img {
+	border: 0px currentColor;
+}
+a:link img {
+	border: 0px currentColor;
+}
+a:visited img {
+	border: 0px currentColor;
+}
+a:active img {
+	border: 0px currentColor;
+}
+blockquote {
+	padding-left: 15px; margin-bottom: 18px; margin-left: 0px; border-left-color: rgb(238, 238, 238); border-left-width: 5px; border-left-style: solid;
+}
+pre {
+	margin: 0px 0px 18px; padding: 17px; border-radius: 3px; border: 1px solid rgb(204, 204, 204); line-height: 18px; font-size: 12px; display: block; white-space: pre-wrap; -ms-word-wrap: break-word; background-color: rgb(245, 245, 245); -webkit-border-radius: 3px; -moz-border-radius: 3px;
+}
+ul {
+	padding-left: 20px; margin-left: 0px;
+}
+ul ul {
+	list-style-type: disc;
+}
+li {
+	padding: 5px 0px;
+}
+li p {
+	margin: 0px;
+}
+.alert-message div {
+	background-color: rgb(197, 37, 31);
+}
+.alert-message div div {
+	margin: auto; padding: 10px; width: 850px;
+}
+.alert-message {
+	color: rgb(255, 255, 255);
+}
+.alert-message a {
+	color: rgb(255, 255, 255);
+}
+.alert-message a:link {
+	color: rgb(255, 255, 255);
+}
+.alert-message a:active {
+	color: rgb(255, 255, 255);
+}
+.alert-message a:visited {
+	color: rgb(255, 255, 255);
+}
+.alert-message a:hover {
+	text-decoration: underline;
+}
+#head {
+	margin: 30px 0px;
+}
+#head > div {
+	margin: auto; position: relative; z-index: 100; max-width: 940px;
+}
+.home#head {
+	text-align: center;
+}
+.home#head #logo {
+	text-align: center;
+}
+#body {
+	margin: auto; position: relative; max-width: 940px;
+}
+#langselect {
+	display: none;
+}
+#lang {
+	list-style: none; margin: 0px; padding: 0px; text-align: right; display: block; cursor: pointer;
+}
+#lang li {
+	list-style: none; margin: 0px; padding: 0px; text-align: right; display: block; cursor: pointer;
+}
+#lang ul {
+	list-style: none; margin: 0px; padding: 0px; text-align: right; display: block; cursor: pointer;
+}
+#lang {
+	top: 8px; height: 30px; right: 5px; border-top-color: transparent; border-right-color: transparent; border-left-color: transparent; border-top-width: 2px; border-right-width: 2px; border-left-width: 2px; border-top-style: solid; border-right-style: solid; border-left-style: solid; position: absolute;
+}
+#lang:hover {
+	border-top-color: rgb(235, 235, 235); border-right-color: rgb(235, 235, 235); border-left-color: rgb(235, 235, 235); border-top-width: 2px; border-right-width: 2px; border-left-width: 2px; border-top-style: solid; border-right-style: solid; border-left-style: solid; background-color: rgb(255, 255, 255);
+}
+#lang li ul {
+	top: 28px; right: -2px; padding-bottom: 4px; margin-left: -5px; border-right-color: rgb(235, 235, 235); border-bottom-color: rgb(235, 235, 235); border-left-color: rgb(235, 235, 235); border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; display: none; position: absolute; background-color: rgb(255, 255, 255);
+}
+#lang:hover li ul {
+	display: block;
+}
+#lang li a {
+	padding: 4px 8px; width: 100px; color: rgb(184, 184, 184); font-size: 115%; text-decoration: none; display: inline-block;
+}
+#lang li a:link {
+	padding: 4px 8px; width: 100px; color: rgb(184, 184, 184); font-size: 115%; text-decoration: none; display: inline-block;
+}
+#lang li a:visited {
+	padding: 4px 8px; width: 100px; color: rgb(184, 184, 184); font-size: 115%; text-decoration: none; display: inline-block;
+}
+#lang li a:active {
+	padding: 4px 8px; width: 100px; color: rgb(184, 184, 184); font-size: 115%; text-decoration: none; display: inline-block;
+}
+#lang li ul li a {
+	padding: 2px 8px;
+}
+#lang li ul li a:link {
+	padding: 2px 8px;
+}
+#lang li ul li a:visited {
+	padding: 2px 8px;
+}
+#lang li ul li a:active {
+	padding: 2px 8px;
+}
+#lang:hover li a {
+	color: rgb(102, 102, 102);
+}
+#lang:hover li ul li a {
+	color: rgb(184, 184, 184);
+}
+#lang li ul li:hover a {
+	color: rgb(102, 102, 102);
+}
+#logo {
+	width: 191px; height: 40px; margin-left: 40px; display: block;
+}
+#menumobile {
+	display: none;
+}
+#menusimple {
+	margin: 0px; padding: 0px; left: 245px; top: 8px; height: 35px; position: absolute;
+}
+#menusimple li {
+	list-style: none; margin: 0px 3px; padding: 0px; border-radius: 5px; display: inline-block; position: relative; -webkit-border-radius: 5px;
+}
+#menusimple li:first-child {
+	border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px; -webkit-border-bottom-right-radius: 0px;
+}
+#menusimple li:first-child + li {
+	border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px; -webkit-border-bottom-right-radius: 0px;
+}
+#menusimple li a {
+	padding: 6px 10px 4px; color: rgb(44, 111, 173); font-family: "Ubuntu",sans-serif; font-size: 110%; font-weight: 300; text-decoration: none; display: block; white-space: nowrap;
+}
+#menusimple li:hover {
+	background-color: rgb(44, 111, 173);
+}
+#menusimple li.active {
+	background-color: rgb(44, 111, 173);
+}
+#menusimple li:hover a {
+	color: rgb(255, 255, 255);
+}
+#menusimple li.active a {
+	color: rgb(255, 255, 255);
+}
+#menusimple li ul {
+	margin: 0px; padding: 5px 0px; border: 1px solid rgb(44, 111, 173); display: none; position: absolute; min-width: 120%; background-color: rgb(255, 255, 255);
+}
+#menusimple li:hover ul {
+	display: block;
+}
+#menusimple li ul li {
+	margin: 0px; padding: 0px; border-radius: 0px; width: 100%; display: block; -webkit-border-radius: 0px;
+}
+#menusimple li ul li a {
+	margin: 1px 0px; padding: 6px 10px 3px; width: 100%; color: rgb(44, 111, 173); font-size: 100%; display: block;
+}
+#menusimple li ul li a:active {
+	margin: 1px 0px; padding: 6px 10px 3px; width: 100%; color: rgb(44, 111, 173); font-size: 100%; display: block;
+}
+#menusimple li ul li a:visited {
+	margin: 1px 0px; padding: 6px 10px 3px; width: 100%; color: rgb(44, 111, 173); font-size: 100%; display: block;
+}
+#menusimple li ul li a:link {
+	margin: 1px 0px; padding: 6px 10px 3px; width: 100%; color: rgb(44, 111, 173); font-size: 100%; display: block;
+}
+#menusimple li ul li:hover a {
+	color: rgb(255, 255, 255);
+}
+#menusimple li ul li.active a {
+	color: rgb(255, 255, 255);
+}
+#content {
+	margin: 0px 5px; padding: 30px 40px 40px; border-radius: 6px; border: 2px solid rgb(235, 235, 235); text-align: justify; position: relative; min-height: 400px; background-color: rgb(255, 255, 255); -webkit-border-radius: 6px; -moz-border-radius: 6px;
+}
+#content p {
+	line-height: 1.5em;
+}
+#content li {
+	line-height: 1.5em;
+}
+#footer {
+	padding: 20px 0px 20px 40px; top: -2px; text-align: left; font-size: 94%; position: relative; max-width: 940px;
+}
+#footer div {
+	padding-top: 6px;
+}
+#footer > div > a {
+	margin-right: 15px; white-space: nowrap;
+}
+#footer > div > span {
+	margin-top: 15px; display: block;
+}
+.mainsummary {
+	text-align: center;
+}
+.mainvideo {
+	text-align: center;
+}
+.mainlist {
+	text-align: center;
+}
+.mainsummary {
+	margin: 20px auto 45px; color: rgb(123, 124, 124); font-size: 145%;
+}
+.mainvideo iframe {
+	width: 640px; height: 360px;
+}
+.mainlist {
+	margin: 30px 0px; font-size: 125%;
+}
+.mainlist > div {
+	width: 250px; display: inline-block;
+}
+.mainlist > div > div {
+	text-align: left; line-height: 1.5em; display: inline-block;
+}
+.mainlist > div:first-child {
+	text-align: left;
+}
+.mainlist > div:first-child + div {
+	text-align: center;
+}
+.mainlist > div:first-child + div + div {
+	text-align: right;
+}
+.mainlist > div > div > div {
+	display: inline-block;
+}
+.mainlist img {
+	top: 4px; width: 48px; height: 48px; margin-right: 10px; vertical-align: top; float: left; position: relative;
+}
+.maindesc {
+	margin: auto; line-height: 1.5em; max-width: 760px;
+}
+.mainbutton {
+	text-align: center;
+}
+.mainbutton a {
+	margin: 40px 0px; padding: 15px 20px 20px 68px; border-radius: 12px; border: 1px solid rgb(32, 89, 143); text-align: left; color: rgb(255, 255, 255); font-family: "Ubuntu",sans-serif; font-size: 150%; font-weight: 400; display: inline-block; text-shadow: 0px 2px 6px rgba(0,0,0,0.6); background-image: -ms-linear-gradient(bottom, rgb(32, 89, 143) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 12px;
+}
+.mainbutton a:link {
+	margin: 40px 0px; padding: 15px 20px 20px 68px; border-radius: 12px; border: 1px solid rgb(32, 89, 143); text-align: left; color: rgb(255, 255, 255); font-family: "Ubuntu",sans-serif; font-size: 150%; font-weight: 400; display: inline-block; text-shadow: 0px 2px 6px rgba(0,0,0,0.6); background-image: -ms-linear-gradient(bottom, rgb(32, 89, 143) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 12px;
+}
+.mainbutton a:visited {
+	margin: 40px 0px; padding: 15px 20px 20px 68px; border-radius: 12px; border: 1px solid rgb(32, 89, 143); text-align: left; color: rgb(255, 255, 255); font-family: "Ubuntu",sans-serif; font-size: 150%; font-weight: 400; display: inline-block; text-shadow: 0px 2px 6px rgba(0,0,0,0.6); background-image: -ms-linear-gradient(bottom, rgb(32, 89, 143) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 12px;
+}
+.mainbutton a:active {
+	margin: 40px 0px; padding: 15px 20px 20px 68px; border-radius: 12px; border: 1px solid rgb(32, 89, 143); text-align: left; color: rgb(255, 255, 255); font-family: "Ubuntu",sans-serif; font-size: 150%; font-weight: 400; display: inline-block; text-shadow: 0px 2px 6px rgba(0,0,0,0.6); background-image: -ms-linear-gradient(bottom, rgb(32, 89, 143) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 12px;
+}
+.mainbutton a:hover {
+	color: rgb(255, 255, 255); background-image: none;
+}
+.mainbutton img {
+	width: 42px; height: 42px; margin-right: 10px; margin-bottom: -12px; margin-left: -52px;
+}
+.mainoverview {
+	text-align: center; font-size: 130%; margin-bottom: 10px;
+}
+.mainoverviews {
+	text-align: center; font-size: 145%; margin-bottom: 10px;
+}
+.mainoverviews a {
+	margin: 5px 15px; display: inline-block;
+}
+.start {
+	text-align: left;
+}
+.start div {
+	position: relative;
+}
+.start > div:first-child + div {
+	border-top-color: rgb(224, 224, 224); border-top-width: 1px; border-top-style: solid;
+}
+.start div div {
+	width: 380px; padding-bottom: 70px; vertical-align: top; display: inline-block; position: static;
+}
+.start > div > div:first-child {
+	padding-right: 40px; border-right-color: rgb(224, 224, 224); border-right-width: 1px; border-right-style: solid;
+}
+.start > div > div:first-child + div {
+	padding-left: 40px; margin-left: -1px; border-left-color: rgb(224, 224, 224); border-left-width: 1px; border-left-style: solid;
+}
+.start div div div a {
+	padding: 6px 12px; border-radius: 3px; border: 1px solid rgb(213, 119, 0); color: rgb(255, 255, 255); font-size: 115%; display: inline-block; background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9); -webkit-border-radius: 3px;
+}
+.start div div div a:link {
+	padding: 6px 12px; border-radius: 3px; border: 1px solid rgb(213, 119, 0); color: rgb(255, 255, 255); font-size: 115%; display: inline-block; background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9); -webkit-border-radius: 3px;
+}
+.start div div div a:active {
+	padding: 6px 12px; border-radius: 3px; border: 1px solid rgb(213, 119, 0); color: rgb(255, 255, 255); font-size: 115%; display: inline-block; background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9); -webkit-border-radius: 3px;
+}
+.start div div div a:visited {
+	padding: 6px 12px; border-radius: 3px; border: 1px solid rgb(213, 119, 0); color: rgb(255, 255, 255); font-size: 115%; display: inline-block; background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9); -webkit-border-radius: 3px;
+}
+.start div div div a:hover {
+	color: rgb(255, 255, 255); background-image: none;
+}
+.start h2 {
+	color: rgb(13, 87, 155);
+}
+.start h2 span {
+	color: rgb(238, 146, 9); font-size: 200%;
+}
+.start p {
+	text-align: justify;
+}
+.start div div div {
+	width: auto; bottom: 35px; padding-bottom: 0px; display: block; position: absolute;
+}
+.introlink {
+	text-align: center; font-size: 125%; font-weight: bold; margin-top: 30px;
+}
+.titleicon {
+	top: -2px; width: 32px; height: 32px; margin-right: 8px; vertical-align: middle; position: relative;
+}
+.index {
+	list-style: none; margin: 0px; padding: 0px;
+}
+.index ul {
+	list-style: none; margin: 0px; padding: 0px;
+}
+.index li {
+	list-style: none; margin: 0px; padding: 0px;
+}
+.index {
+	padding: 20px; border: 2px dashed rgb(72, 146, 178); display: inline-block;
+}
+.index ul {
+	padding: 10px 0px;
+}
+.index li {
+	font-weight: bold;
+}
+.index ul li {
+	font-weight: normal;
+}
+.index a {
+	line-height: 1.5em; text-decoration: none; display: block;
+}
+.index a:link {
+	line-height: 1.5em; text-decoration: none; display: block;
+}
+.index a:active {
+	line-height: 1.5em; text-decoration: none; display: block;
+}
+.index a:visited {
+	line-height: 1.5em; text-decoration: none; display: block;
+}
+.box {
+	padding: 0px 20px; border: 2px dashed rgb(72, 146, 178);
+}
+.boxexpand {
+	overflow: hidden;
+}
+.boxexpand > * {
+	display: none;
+}
+.boxexpand > h3:first-child {
+	margin: 20px 0px; display: block;
+}
+.boxexpand > h3:first-child a:link {
+	text-decoration: none;
+}
+.boxexpand > h3:first-child a:visited {
+	text-decoration: none;
+}
+.boxexpand > h3:first-child a:active {
+	text-decoration: none;
+}
+.titlelight {
+	color: rgb(140, 140, 140);
+}
+.contributors {
+	width: 900px; text-align: left;
+}
+.contributors span a {
+	font-size: 80%;
+}
+.contributors span {
+	padding: 6px 0px; width: 170px; overflow: hidden; display: inline-block;
+}
+.resources {
+	text-align: left;
+}
+.resources > div:first-child + div {
+	border-top-color: rgb(224, 224, 224); border-top-width: 1px; border-top-style: solid;
+}
+.resources div div {
+	padding: 10px 0px 25px; width: 380px; vertical-align: top; display: inline-block; min-height: 200px;
+}
+.resources > div > div:first-child {
+	padding-right: 40px; border-right-color: rgb(224, 224, 224); border-right-width: 1px; border-right-style: solid;
+}
+.resources > div > div:first-child + div {
+	padding-left: 40px; margin-left: -1px; border-left-color: rgb(224, 224, 224); border-left-width: 1px; border-left-style: solid;
+}
+.resources div div div {
+	width: auto; display: block;
+}
+.resources p {
+	margin: 6px 0px; font-size: 115%;
+}
+#chatbox {
+	text-align: center;
+}
+.devprojectlist {
+	overflow: hidden;
+}
+.devprojectlist li {
+	display: none;
+}
+.devprojectlist li:first-child {
+	display: list-item;
+}
+.devprojectlist li:first-child + li {
+	display: list-item;
+}
+.devprojectlist li:first-child + li + li {
+	display: list-item;
+}
+.devprojectlist li:first-child + li + li + li {
+	display: list-item;
+}
+.devprojectlist li.more {
+	display: block;
+}
+.devprojectlist a {
+	margin-top: 5px; display: inline-block;
+}
+.floatimg {
+	margin-right: 10px; float: left;
+}
+.preview {
+	margin-top: -5px;
+}
+.previewcol {
+	clear: both;
+}
+.previewcol :first-child.previewrow {
+	padding-left: 0px;
+}
+.previewrow {
+	width: 255px; text-align: justify; padding-left: 40px; float: left; position: relative;
+}
+.previewrow > h2 {
+	font-size: 115%;
+}
+.previewrow > div {
+	margin-right: 15px; margin-bottom: 12px; vertical-align: top; display: inline-block; position: relative;
+}
+.previewrow > div:first-child + div + div {
+	margin-right: 0px;
+}
+.previewrow > div:first-child + div + div + div + div + div {
+	margin-right: 0px;
+}
+.previewrow > div > a > img {
+	margin: auto auto 10px; display: block;
+}
+.previewrow > div > a {
+	width: 72px; height: 110px; text-align: center; font-size: 94%; font-weight: bold; text-decoration: none; vertical-align: top; display: inline-block;
+}
+.previewrow > div > a:visited {
+	width: 72px; height: 110px; text-align: center; font-size: 94%; font-weight: bold; text-decoration: none; vertical-align: top; display: inline-block;
+}
+.previewrow > div > a:link {
+	width: 72px; height: 110px; text-align: center; font-size: 94%; font-weight: bold; text-decoration: none; vertical-align: top; display: inline-block;
+}
+.previewrow > div > a:active {
+	width: 72px; height: 110px; text-align: center; font-size: 94%; font-weight: bold; text-decoration: none; vertical-align: top; display: inline-block;
+}
+.previewrow > div > div {
+	padding: 0px; transition:opacity 400ms ease-out; left: -110px; width: 0px; height: 0px; right: -110px; bottom: 100px; overflow: hidden; display: inline-block; position: absolute; z-index: 1000; opacity: 0; -moz-transition: opacity 400ms ease-out; -webkit-transition: opacity 400ms ease-out;
+}
+.previewrow > div:hover > div {
+	width: auto; height: auto; opacity: 1;
+}
+.previewrow > div > div > div:first-child {
+	background: url("/img/bubbletop.svg") no-repeat bottom; height: 10px;
+}
+.previewrow > div > div > div:first-child + div {
+	background: url("/img/bubblemiddle.svg") repeat-y bottom; padding: 0px 30px;
+}
+.previewrow > div > div > div:first-child + div + div {
+	background: url("/img/bubblebottom.svg") no-repeat bottom; height: 64px;
+}
+.previewrow > div > div > div > span {
+	top: 24px; right: 30px; position: absolute;
+}
+.previewrow > div > div > div > h2 {
+	margin: 0px; padding-top: 10px;
+}
+.previewrow > div > div > div > span > img {
+	margin-left: 4px;
+}
+.previewrow > div > div > div > h2:first-child + span + p {
+	margin: 0px; padding: 10px 0px; line-height: 1.2em; font-size: 95%;
+}
+.previewrow > div > div > div > h2:first-child + span + p + p {
+	margin: 0px; padding: 0px; text-align: center; bottom: -10px; position: relative;
+}
+.previewrow > div > div > div > h2:first-child + span + p + p > a {
+	padding: 4px 8px; border-radius: 4px; border: 1px solid rgb(37, 95, 150); color: rgb(255, 255, 255); font-weight: bold; text-decoration: none; background-image: -ms-linear-gradient(bottom, rgb(37, 95, 150) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 4px;
+}
+.previewrow > div > div > div > h2:first-child + span + p + p > a:visited {
+	padding: 4px 8px; border-radius: 4px; border: 1px solid rgb(37, 95, 150); color: rgb(255, 255, 255); font-weight: bold; text-decoration: none; background-image: -ms-linear-gradient(bottom, rgb(37, 95, 150) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 4px;
+}
+.previewrow > div > div > div > h2:first-child + span + p + p > a:link {
+	padding: 4px 8px; border-radius: 4px; border: 1px solid rgb(37, 95, 150); color: rgb(255, 255, 255); font-weight: bold; text-decoration: none; background-image: -ms-linear-gradient(bottom, rgb(37, 95, 150) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 4px;
+}
+.previewrow > div > div > div > h2:first-child + span + p + p > a:active {
+	padding: 4px 8px; border-radius: 4px; border: 1px solid rgb(37, 95, 150); color: rgb(255, 255, 255); font-weight: bold; text-decoration: none; background-image: -ms-linear-gradient(bottom, rgb(37, 95, 150) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173); -webkit-border-radius: 4px;
+}
+.previewrow > div > div > div > h2:first-child + span + p + p > a:hover {
+	background-image: none;
+}
+.previewrow .walletwarning > div:first-child {
+	background: url("/img/bubblewarntop.svg") no-repeat bottom;
+}
+.previewrow .walletwarning > div:first-child + div {
+	background: url("/img/bubblewarnmiddle.svg") repeat-y bottom;
+}
+.previewrow .walletwarning > div:first-child + div + div {
+	background: url("/img/bubblewarnbottom.svg") no-repeat bottom;
+}
+.previewrow .walletwarning > div > h2:first-child + span + p + p a {
+	border: 1px solid rgb(160, 66, 70); background-image: -ms-linear-gradient(bottom, rgb(160, 66, 70) 14%, rgb(185, 83, 87) 70%); background-color: rgb(185, 83, 87);
+}
+.previewrow .walletwarning > div > h2:first-child + span + p + p a:link {
+	border: 1px solid rgb(160, 66, 70); background-image: -ms-linear-gradient(bottom, rgb(160, 66, 70) 14%, rgb(185, 83, 87) 70%); background-color: rgb(185, 83, 87);
+}
+.previewrow .walletwarning > div > h2:first-child + span + p + p a:visited {
+	border: 1px solid rgb(160, 66, 70); background-image: -ms-linear-gradient(bottom, rgb(160, 66, 70) 14%, rgb(185, 83, 87) 70%); background-color: rgb(185, 83, 87);
+}
+.previewrow .walletwarning > div > h2:first-child + span + p + p a:active {
+	border: 1px solid rgb(160, 66, 70); background-image: -ms-linear-gradient(bottom, rgb(160, 66, 70) 14%, rgb(185, 83, 87) 70%); background-color: rgb(185, 83, 87);
+}
+.previewrow .walletwarning > div > h2:first-child + span + p + p a:hover {
+	background-image: none;
+}
+.previewrow .walletinfo > div:first-child {
+	background: url("/img/bubbleinfotop.svg") no-repeat bottom;
+}
+.previewrow .walletinfo > div:first-child + div {
+	background: url("/img/bubbleinfomiddle.svg") repeat-y bottom;
+}
+.previewrow .walletinfo > div:first-child + div + div {
+	background: url("/img/bubbleinfobottom.svg") no-repeat bottom;
+}
+.previewrow .walletinfo > div > h2:first-child + span + p + p a {
+	border: 1px solid rgb(213, 119, 0); background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9);
+}
+.previewrow .walletinfo > div > h2:first-child + span + p + p a:link {
+	border: 1px solid rgb(213, 119, 0); background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9);
+}
+.previewrow .walletinfo > div > h2:first-child + span + p + p a:visited {
+	border: 1px solid rgb(213, 119, 0); background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9);
+}
+.previewrow .walletinfo > div > h2:first-child + span + p + p a:active {
+	border: 1px solid rgb(213, 119, 0); background-image: -ms-linear-gradient(bottom, rgb(226, 135, 0) 14%, rgb(238, 146, 9) 70%); background-color: rgb(238, 146, 9);
+}
+.previewrow .walletinfo > div > h2:first-child + span + p + p a:hover {
+	background-image: none;
+}
+h1 .rssicon {
+	margin-bottom: 9px; margin-left: 10px; vertical-align: bottom;
+}
+h2 .rssicon {
+	margin-bottom: 7px; margin-left: 10px; vertical-align: bottom;
+}
+.versiontext {
+	text-align: left; margin-bottom: 40px; max-width: 600px;
+}
+.versiontext h1 {
+	text-align: left;
+}
+.alerttext {
+	margin-bottom: 40px;
+}
+.alerttext h1 {
+	text-align: left;
+}
+.alertstatusinactive {
+	color: rgb(13, 87, 155); font-size: 130%; margin-bottom: 30px;
+}
+.alertstatusactive {
+	color: rgb(213, 119, 0); font-size: 130%; margin-bottom: 30px;
+}
+.alertsactive {
+	margin-bottom: 20px;
+}
+.alertsactive a {
+	font-weight: bold;
+}
+.download {
+	text-align: center;
+}
+.download h1 {
+	text-align: center;
+}
+.download h2 {
+	text-align: center;
+}
+.download .mainbutton a {
+	margin: 10px 0px 35px;
+}
+.downloadbox {
+	margin: 0px auto 20px; padding: 20px; border-radius: 12px; border: 2px solid rgb(250, 210, 150); text-align: center; font-size: 125%; display: inline-block; -webkit-border-radius: 12px;
+}
+.downloadbox p {
+	margin: 20px 0px 0px;
+}
+.downloadbox p:first-child {
+	margin-top: 0px; margin-bottom: 20px;
+}
+.downloadbox a {
+	display: inline-block;
+}
+.downloadbox div {
+	margin: 10px 0px; text-align: left;
+}
+.downloadbox span {
+	width: 16px; height: 16px; display: inline-block;
+}
+.download span {
+	width: 16px; height: 16px; display: inline-block;
+}
+.summary {
+	text-align: center; font-size: 125%; margin-bottom: 40px;
+}
+.summarytxt {
+	margin-bottom: 40px;
+}
+.press h2 {
+	font-size: 150%;
+}
+.press-volunteer {
+	border-radius: 8px; text-align: left; -webkit-border-radius: 8px; -moz-border-radius: 8px;
+}
+.press-volunteer > div > div {
+	width: 400px; height: 150px; margin-right: 20px; margin-bottom: 30px; vertical-align: top; display: inline-block;
+}
+.press-volunteer > div > div > img {
+	margin-right: 30px; float: left;
+}
+.press-volunteer > div > div > img:first-child + p {
+	margin: 0px; color: rgb(44, 111, 173); font-weight: bold;
+}
+.press-volunteer > div > div > img:first-child + p + p {
+	margin: 0px;
+}
+.press-volunteer > div > div > img:first-child + p + p + p {
+	font-size: 80%;
+}
+.press-volunteer > div > div > img:first-child + p + p + p + p {
+	margin: 0px;
+}
+.press-volunteer > div > p > img {
+	vertical-align: bottom;
+}
+.press-volunteer > div:first-child + div + div > p {
+	margin-top: 0px; margin-bottom: 10px;
+}
+.press-volunteer > div:first-child > p:first-child + p {
+	transition:height 400ms ease-out; height: 0px; text-align: justify; overflow: hidden; font-size: 85%; margin-top: 0px; margin-bottom: 10px; -moz-transition: height 400ms ease-out; -webkit-transition: height 400ms ease-out;
+}
+.press-faq {
+	border-radius: 8px; text-align: left; -webkit-border-radius: 8px; -moz-border-radius: 8px;
+}
+.press-faq > div {
+	width: 380px; text-align: left; margin-right: 30px; margin-bottom: 15px; vertical-align: top; display: inline-block;
+}
+.press-faq > div > a {
+	font-weight: bold; margin-right: 20px; display: inline-block;
+}
+.press-faq > div > div {
+	transition:height 400ms ease-out; height: 0px; text-align: justify; overflow: hidden; -moz-transition: height 400ms ease-out; -webkit-transition: height 400ms ease-out;
+}
+.press-faq li {
+	text-align: justify; line-height: 1.5em;
+}
+.press-faq > div > span > p {
+	margin-bottom: 0px;
+}
+.press-materials {
+	border-radius: 8px; text-align: left; -webkit-border-radius: 8px; -moz-border-radius: 8px;
+}
+.press-materials > div > a {
+	font-size: 110%; font-weight: bold;
+}
+.press-materials > div {
+	width: 278px; vertical-align: top; display: inline-block; position: relative;
+}
+.press-materials > div > div {
+	transition:height 400ms ease-out; height: 270px; overflow: hidden; -moz-transition: height 400ms ease-out; -webkit-transition: height 400ms ease-out;
+}
+.press-materials > div:first-child + div > div img {
+	border-radius: 10px; width: 120px; height: 120px; margin-right: 14px; margin-bottom: 14px; -webkit-border-radius: 10px; -moz-border-radius: 10px;
+}
+.press-materials > div:first-child > div > p > a {
+	margin-right: 10px; margin-bottom: 10px; display: inline-block;
+}
+.press-materials > div:first-child + div + div > div > p {
+	margin-top: 0px; margin-bottom: 25px;
+}
+.press-materials > div:first-child + div + div > div > p > span:first-child {
+	font-weight: bold; display: block;
+}
+.press-news {
+	border-radius: 8px; text-align: left; -webkit-border-radius: 8px; -moz-border-radius: 8px;
+}
+.press-news > div {
+	width: 700px; height: 125px; margin-bottom: 30px;
+}
+.press-news > div > a > img {
+	margin-right: 30px; float: left;
+}
+.press-news > div > a:first-child + a {
+	margin-bottom: 10px; display: block;
+}
+.press-news a:link {
+	color: rgb(44, 111, 173); font-weight: bold;
+}
+.press-news a:active {
+	color: rgb(44, 111, 173); font-weight: bold;
+}
+.press-news a:visited {
+	color: rgb(44, 111, 173); font-weight: bold;
+}
+.press-news > div > a:first-child + a + a + p {
+	font-size: 80%;
+}
+@media handheld, only screen and (max-device-height:37em), only screen and (max-device-width:50em)
+{
+img {
+	max-width: 100%;
+}
+h1 {
+	text-align: left;
+}
+.summary {
+	text-align: left;
+}
+#head {
+	margin: 0px;
+}
+#langselect {
+	border: 0px currentColor; top: 10px; width: 150px; text-align: right; right: -20px; font-size: 115%; position: absolute; background-color: transparent;
+}
+#menumobile {
+	background-position: center; padding: 12px; width: 40px; height: 40px; float: right; display: inline-block; background-image: url("/img/menumobile.svg"); background-repeat: no-repeat;
+}
+#lang {
+	display: none;
+}
+#menusimple {
+	display: none;
+}
+#menusimple {
+	margin: 0px 0px 10px; height: auto; bottom: 0px; position: static;
+}
+#menusimple li a {
+	padding: 10px 6px 8px; display: block;
+}
+#menusimple li ul li a {
+	padding: 10px 6px 8px; display: block;
+}
+#menusimple li ul li a:active {
+	padding: 10px 6px 8px; display: block;
+}
+#menusimple li ul li a:visited {
+	padding: 10px 6px 8px; display: block;
+}
+#menusimple li ul li a:link {
+	padding: 10px 6px 8px; display: block;
+}
+#menusimple li {
+	margin: 4px; display: block; position: static;
+}
+#menusimple li ul {
+	position: relative; min-width: 0px;
+}
+#menusimple ul.hover {
+	display: block;
+}
+#logo {
+	margin: 10px; display: inline-block; position: static;
+}
+#content {
+	margin: 0px 5px; padding: 15px 10px 20px; position: static;
+}
+#footer {
+	padding: 20px 0px 20px 5px; background-color: transparent;
+}
+.index {
+	padding: 15px;
+}
+.index ul {
+	padding: 5px 0px;
+}
+.index li {
+	padding: 3px 0px;
+}
+.contributors {
+	width: auto;
+}
+.preview {
+	display: none;
+}
+.preview {
+	padding: 0px; border: 0px currentColor; width: auto;
+}
+.previewrow {
+	margin: auto; padding-left: 0px; float: none;
+}
+.press-volunteer > div > div {
+	width: 200px; height: auto;
+}
+.press-volunteer > div > div > img {
+	margin-right: 0px; margin-bottom: 20px; float: none;
+}
+.press-faq > div {
+	width: auto; margin-right: 0px; display: block;
+}
+.press-news > div {
+	width: auto; height: auto;
+}
+.press-news > div > a > img {
+	margin-right: 0px; margin-bottom: 20px; float: none;
+}
+.mainvideo {
+	height: 0px; overflow: hidden; padding-top: 30px; padding-bottom: 56.25%; position: relative;
+}
+.mainvideo iframe {
+	left: 0px; top: 0px; width: 100%; height: 100%; position: absolute;
+}
+.mainlist > div {
+	width: auto; display: block;
+}
+.mainlist > div > div {
+	margin: 10px;
+}
+.mainlist > div:first-child {
+	text-align: left;
+}
+.mainlist > div:first-child + div {
+	text-align: left;
+}
+.mainlist > div:first-child + div + div {
+	text-align: left;
+}
+.start > div {
+	position: static;
+}
+.start > div:first-child + div {
+	border-top-color: currentColor; border-top-width: 0px; border-top-style: none;
+}
+.start div div {
+	padding: 0px 0px 50px; width: auto; display: block; position: relative;
+}
+.start > div > div:first-child {
+	padding-right: 0px; border-right-color: currentColor; border-right-width: 0px; border-right-style: none;
+}
+.start div div div {
+	bottom: 15px;
+}
+.start > div > div:first-child + div {
+	padding-left: 0px; margin-left: 0px; border-left-color: currentColor; border-left-width: 0px; border-left-style: none;
+}
+.resources > div:first-child + div {
+	border-top-color: currentColor; border-top-width: 0px; border-top-style: none;
+}
+.resources div div {
+	padding: 0px 0px 10px; width: auto; display: block; min-height: 0px;
+}
+.resources > div > div:first-child {
+	padding-right: 0px; border-right-color: currentColor; border-right-width: 0px; border-right-style: none;
+}
+.resources > div > div:first-child + div {
+	padding-left: 0px; margin-left: 0px; border-left-color: currentColor; border-left-width: 0px; border-left-style: none;
+}
+}
+body.old #menufor {
+	margin: 0px; padding: 0px; left: 250px; top: 8px; height: 35px; position: absolute;
+}
+body.old h1 {
+	text-align: left;
+}
+body.old .summary {
+	text-align: left;
+}
+body.old .alert-message div div {
+	width: 960px;
+}
+body.old #menufor li {
+	list-style: none; margin: 0px 8px; padding: 0px; border-radius: 5px; float: left; -webkit-left-radius: 5px;
+}
+body.old #menufor li a {
+	padding: 6px 8px 3px; color: rgb(44, 111, 173); font-family: "Ubuntu",sans-serif; font-size: 105%; font-weight: 700; text-decoration: none; display: block; white-space: nowrap;
+}
+body.old #menufor li a:active {
+	padding: 6px 8px 3px; color: rgb(44, 111, 173); font-family: "Ubuntu",sans-serif; font-size: 105%; font-weight: 700; text-decoration: none; display: block; white-space: nowrap;
+}
+body.old #menufor li a:visited {
+	padding: 6px 8px 3px; color: rgb(44, 111, 173); font-family: "Ubuntu",sans-serif; font-size: 105%; font-weight: 700; text-decoration: none; display: block; white-space: nowrap;
+}
+body.old #menufor li a:link {
+	padding: 6px 8px 3px; color: rgb(44, 111, 173); font-family: "Ubuntu",sans-serif; font-size: 105%; font-weight: 700; text-decoration: none; display: block; white-space: nowrap;
+}
+body.old #menufor li:hover {
+	background-color: rgb(44, 111, 173);
+}
+body.old #menufor li.active {
+	background-color: rgb(44, 111, 173);
+}
+body.old #menufor li:hover a {
+	border-radius: 5px; color: rgb(255, 255, 255); -webkit-left-radius: 5px;
+}
+body.old #menufor li.active a {
+	border-radius: 5px; color: rgb(255, 255, 255); -webkit-left-radius: 5px;
+}
+body.old #menu {
+	margin: 12px auto -12px 32px; padding: 0px;
+}
+body.old #menu li {
+	list-style: none; margin: 0px; display: inline-block;
+}
+#menu li a {
+	padding: 8px 10px; border: 2px solid transparent; color: rgb(106, 106, 106); font-family: "Ubuntu",sans-serif; font-weight: 300; text-decoration: none; display: block; white-space: nowrap;
+}
+#menu li a:active {
+	padding: 8px 10px; border: 2px solid transparent; color: rgb(106, 106, 106); font-family: "Ubuntu",sans-serif; font-weight: 300; text-decoration: none; display: block; white-space: nowrap;
+}
+#menu li a:visited {
+	padding: 8px 10px; border: 2px solid transparent; color: rgb(106, 106, 106); font-family: "Ubuntu",sans-serif; font-weight: 300; text-decoration: none; display: block; white-space: nowrap;
+}
+#menu li a:link {
+	padding: 8px 10px; border: 2px solid transparent; color: rgb(106, 106, 106); font-family: "Ubuntu",sans-serif; font-weight: 300; text-decoration: none; display: block; white-space: nowrap;
+}
+body.old #menu li:hover a {
+	border-radius: 3px; border: 2px solid rgb(235, 235, 235); color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); -webkit-border-radius: 3px;
+}
+body.old #menu li.active a {
+	border-radius: 3px; border: 2px solid rgb(235, 235, 235); color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); -webkit-border-radius: 3px;
+}
+body.old #head > div {
+	max-width: 1050px;
+}
+body.old #body {
+	max-width: 1050px;
+}
+body.old #content {
+	padding: 20px 265px 30px 30px;
+}
+body.old .wide#content {
+	padding: 20px 40px 30px 30px; max-width: 990px;
+}
+body.old #rightbox {
+	padding: 5px; border-radius: 5px; top: 20px; width: 210px; right: 30px; position: absolute; -webkit-border-radius: 5px;
+}
+body.old .wide#rightbox {
+	display: none;
+}
+body.old #choose a {
+	padding: 10px 8px 10px 48px; border-radius: 5px; text-align: left; color: rgb(255, 255, 255); font-family: "Ubuntu",sans-serif; font-weight: 300; text-decoration: none; margin-bottom: 10px; display: block; -webkit-border-radius: 5px;
+}
+body.old #before a {
+	padding: 10px 8px 10px 48px; border-radius: 5px; text-align: left; color: rgb(255, 255, 255); font-family: "Ubuntu",sans-serif; font-weight: 300; text-decoration: none; margin-bottom: 10px; display: block; -webkit-border-radius: 5px;
+}
+body.old #support a {
+	padding: 10px 8px 10px 48px; border-radius: 5px; text-align: left; color: rgb(255, 255, 255); font-family: "Ubuntu",sans-serif; font-weight: 300; text-decoration: none; margin-bottom: 10px; display: block; -webkit-border-radius: 5px;
+}
+body.old #choose img {
+	width: 32px; height: 32px; margin-right: 8px; margin-left: -40px; vertical-align: middle;
+}
+body.old #before img {
+	width: 32px; height: 32px; margin-right: 8px; margin-left: -40px; vertical-align: middle;
+}
+body.old #support img {
+	width: 32px; height: 32px; margin-right: 8px; margin-left: -40px; vertical-align: middle;
+}
+body.old #before a {
+	border: 1px solid rgb(32, 89, 143); background-image: -ms-linear-gradient(bottom, rgb(32, 89, 143) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173);
+}
+body.old #support a {
+	border: 1px solid rgb(32, 89, 143); background-image: -ms-linear-gradient(bottom, rgb(32, 89, 143) 14%, rgb(44, 111, 173) 70%); background-color: rgb(44, 111, 173);
+}
+body.old #choose a {
+	padding: 12px 8px 12px 48px; border: 1px solid rgb(213, 119, 0); background-image: -ms-linear-gradient(bottom, rgb(213, 119, 0) 14%, rgb(231, 132, 6) 70%); background-color: rgb(231, 132, 6);
+}
+body.old #choose a:hover {
+	background-image: none;
+}
+body.old #before a:hover {
+	background-image: none;
+}
+body.old #support a:hover {
+	background-image: none;
+}
+body.old .downloadold a {
+	margin: 5px 0px; font-size: 125%; display: inline-block;
+}
+body.old .downloadold span {
+	width: 16px; height: 16px; display: inline-block;
+}
+body.old .preview {
+	margin-top: 40px;
+}
+body.old #footer {
+	max-width: 1050px;
+}
+body.old .foundation {
+	margin: 40px auto; padding: 40px; border-radius: 9px; border: 2px dashed rgb(223, 223, 223); max-width: 500px; -webkit-border-radius: 9px;
+}
+body.old .preview {
+	border-radius: 8px; border: 2px solid rgb(238, 238, 238); width: 880px; padding-top: 15px; padding-left: 40px; -webkit-border-radius: 8px;
+}
+body.old .resourcesold {
+	font-size: 115%; font-weight: bold;
+}
+body.old .resourcesold ul {
+	padding-top: 5px;
+}
+body.old .resourcesold li {
+	text-align: left; padding-top: 6px;
+}
+body.old .resourcesold a {
+	text-decoration: none;
+}
+body.old .resourcesold a:link {
+	text-decoration: none;
+}
+body.old .resourcesold a:active {
+	text-decoration: none;
+}
+body.old .resourcesold a:visited {
+	text-decoration: none;
+}
+body.old .resourcesold li ul li {
+	font-weight: normal;
+}
+@media handheld, only screen and (max-device-height:37em), only screen and (max-device-width:50em)
+{
+body.old #menufor {
+	display: none;
+}
+body.old #menu {
+	display: none;
+}
+body.old #menufor {
+	margin: 10px 0px 0px; height: auto; bottom: 0px; position: static;
+}
+body.old #menufor li {
+	float: none; display: inline-block;
+}
+body.old #menufor li a {
+	padding: 6px 6px 3px;
+}
+body.old #menufor li a:active {
+	padding: 6px 6px 3px;
+}
+body.old #menufor li a:visited {
+	padding: 6px 6px 3px;
+}
+body.old #menufor li a:link {
+	padding: 6px 6px 3px;
+}
+body.old #menufor li {
+	margin: 6px;
+}
+body.old #menu {
+	margin: 10px 0px; height: auto; position: static;
+}
+body.old #menu li {
+	padding: 5px; float: none; display: inline-block;
+}
+body.old #menu li a {
+	padding: 5px;
+}
+body.old #menu li a:active {
+	padding: 5px;
+}
+body.old #menu li a:visited {
+	padding: 5px;
+}
+body.old #menu li a:link {
+	padding: 5px;
+}
+body.old #rightbox {
+	margin: 30px auto 20px; display: block; position: static;
+}
+body.old .wide#rightbox {
+	margin: 30px auto 20px; display: block; position: static;
+}
+body.old #content {
+	padding: 15px 10px 20px;
+}
+body.old .wide#content {
+	margin: 0px 5px; padding: 15px 10px 20px; position: static;
+}
+body.old .foundation {
+	padding: 20px;
+}
+}

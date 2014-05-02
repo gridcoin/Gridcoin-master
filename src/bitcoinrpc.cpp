@@ -53,6 +53,8 @@ static asio::io_service* rpc_io_service = NULL;
 static ssl::context* rpc_ssl_context = NULL;
 static boost::thread_group* rpc_worker_group = NULL;
 
+extern double DoubleFromAmount(int64 amount);
+
 
 
 #if defined(WIN32) && defined(QT_GUI)

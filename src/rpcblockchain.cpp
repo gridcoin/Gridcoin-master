@@ -19,6 +19,8 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
 
 CBigNum ReturnProofOfWorkLimit(int algo);
 
+bool GetBlockNew(uint256 blockhash, int& out_height, CBlock& blk, bool bForceDiskRead);
+
 void ResendWalletTransactions2();
 		
 bool AESSkeinHash(unsigned int diffbytes, double rac, uint256 scrypthash, std::string& out_skein, std::string& out_aes512);
@@ -54,28 +56,15 @@ std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string
 
 
 std::string RacStringFromDiff(double RAC, unsigned int diffbytes);
-
 void PobSleep(int milliseconds);
-
 extern double GetNetworkAvgByProject(std::string projectname);
-
 extern bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjectName, double pobdiff, bool bCreditNodeVerification, std::string& out_errors, int& out_position);
-
-
 void HarvestCPIDs(bool cleardata);
-
 bool TallyNetworkAverages();
-
 void RestartGridcoin3();
-
 std::string GetHttpPage(std::string cpid);
-
-
 bool GridDecrypt(const std::vector<unsigned char>& vchCiphertext,std::vector<unsigned char>& vchPlaintext);
-	
 bool GridEncrypt(std::vector<unsigned char> vchPlaintext, std::vector<unsigned char> &vchCiphertext);
-
-
 
 
 
@@ -84,17 +73,10 @@ double GetPoBDifficulty()
 
 	if (mvNetwork.size() < 1) 	
 	{
-			PobSleep(1000);
+			//PobSleep(1000);
 			TallyNetworkAverages();
 	}
 
-	try 
-	{
-		static CCriticalSection criticalGetDiff;
-		{
- 
-				LOCK(criticalGetDiff);
-	
 				StructCPID structcpid = mvNetwork["NETWORK"];
 				if (!structcpid.initialized) 
 				{
@@ -108,19 +90,9 @@ double GetPoBDifficulty()
 				double dayblocks = networkprojects/576;
 				if (dayblocks > 14)   dayblocks=14;
 				if (dayblocks < .005) dayblocks=.005;
-				//CRITICAL: REMOVE THIS FOR PRODUCTION
-				dayblocks=dayblocks/2;
 				mdLastPoBDifficulty = dayblocks;
-
 				return dayblocks;
-		}
-	}
-	catch (std::exception& e)
-	{
-			printf("Error retrieving PoB\r\n");
-			return 9999;
-	}
-
+	
 }
 
 
@@ -240,7 +212,9 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 //4-23-2014
 	std::string skein2 = aes_complex_hash(blockhash);
 	result.push_back(Pair("AES Calc Hash",skein2));
-	int iav  = TestAESHash(bb.rac, (unsigned int)bb.diffbytes, blockhash, bb.aesskein);
+	uint256 boincpowhash = block.hashMerkleRoot + bb.nonce;
+
+	int iav  = TestAESHash(bb.rac, (unsigned int)bb.diffbytes, boincpowhash, bb.aesskein);
 	result.push_back(Pair("AES512 Valid",iav));
 	
 
@@ -298,15 +272,14 @@ bool RetrieveTxFromBlock(const CBlock& block, const CBlockIndex* blockindex, uin
 
 
 
-bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjectName, double pobdiff, bool bCreditNodeVerification, std::string& out_errors, int& out_position)
+bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjectName, double pobdiff, bool bCreditNodeVerification,
+	std::string& out_errors, int& out_position)
 {
 
 	try 
 	{
-			static CCriticalSection criticalFindRac;
-			{
- 
-					LOCK(criticalFindRac);
+		
+				//	LOCK(criticalFindRac);
 		
 
 					//Gridcoin; Find CPID+Project+RAC in chain
@@ -346,7 +319,6 @@ bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjec
 					if (nMaxDepth < 5 || nMinDepth < 5) return false;
 	
 	
-
 					//Check the cache first:
 					StructCPIDCache cache;
 					std::string sKey = TargetCPID + ":" + TargetProjectName;
@@ -367,36 +339,42 @@ bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjec
 					}
 	
 					CBlock block;
-					CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth);
-					block.ReadFromDisk(pLastBlock);
 					out_errors = "";
 
 					for (int ii = nMaxDepth; ii > nMinDepth; ii--)
 					{
      					CBlockIndex* pblockindex = FindBlockByHeight(ii);
-						block.ReadFromDisk(pblockindex);
-
-		
-
-					MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
-        
-						if (bb.cpid==TargetCPID && bb.projectname==TargetProjectName && block.BlockType==2)
+						int out_height = 0;
+//						std::string hash1 =  pblockindex->GetBlockHash();
+						//
+						bool result1 = GetBlockNew(pblockindex->GetBlockHash(), out_height, block, false);
+						
+						if (result1)
 						{
-							out_position = ii;
-							//Cache this:
-							cache = mvCPIDCache[sKey]; 
-							if (!cache.initialized)
-								{
-									cache.initialized = true;
-									mvCPIDCache.insert(map<string,StructCPIDCache>::value_type(sKey, cache));
-								}
-							cache.cpid = TargetCPID;
-							cache.cpidproject = sKey;
-							cache.blocknumber = ii;
-							if (CheckingWork) printf("Project %s  found at position %i   PoBLevel %f    Start depth %i     end depth %i   \r\n",TargetProjectName.c_str(),ii,pobdifficulty,nMaxDepth,nMinDepth);
+								//block.ReadFromDisk(pblockindex);
+		
+				    			MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
+								//printf("MISSION_CRITICAL:FINDRAC:PROJECT_NAME:FROMCACHE:%s \r\n",bb.projectname.c_str());
 
-    						mvCPIDCache[sKey]=cache;
-							return true;
+				
+								if (bb.cpid==TargetCPID && bb.projectname==TargetProjectName && block.nVersion==3)
+								{
+									out_position = ii;
+									//Cache this:
+									cache = mvCPIDCache[sKey]; 
+									if (!cache.initialized)
+										{
+											cache.initialized = true;
+											mvCPIDCache.insert(map<string,StructCPIDCache>::value_type(sKey, cache));
+										}
+									cache.cpid = TargetCPID;
+									cache.cpidproject = sKey;
+									cache.blocknumber = ii;
+									if (CheckingWork) printf("Project %s  found at position %i   PoBLevel %f    Start depth %i     end depth %i   \r\n",TargetProjectName.c_str(),ii,pobdifficulty,nMaxDepth,nMinDepth);
+
+    								mvCPIDCache[sKey]=cache;
+									return true;
+								}
 						}
 
 					}
@@ -405,8 +383,7 @@ bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjec
 					out_errors = out_errors + "Start depth " + RoundToString(nMaxDepth,0) + "; ";
 					out_errors = out_errors + "Not found; ";
 					return false;
-			}
-	}
+		}
 	catch (std::exception& e)
 	{
 		return false;
@@ -578,9 +555,31 @@ Value getblockbynumber(const Array& params, bool fHelp)
 }
 
 
+void filecopy(FILE *dest, FILE *src)
+{
+    const int size = 16384;
+    char buffer[size];
+
+    while (!feof(src))
+    {
+        int n = fread(buffer, 1, size, src);
+        fwrite(buffer, 1, n, dest);
+    }
+
+    fflush(dest);
+}
 
 
+void fileopen_and_copy(std::string src, std::string dest)
+{
+    FILE * infile  = fopen(src.c_str(),  "rb");
+    FILE * outfile = fopen(dest.c_str(), "wb");
 
+    filecopy(outfile, infile);
+
+    fclose(infile);
+    fclose(outfile);
+}
 
 
 
@@ -588,16 +587,28 @@ Value getblockbynumber(const Array& params, bool fHelp)
 	
 std::string BackupGridcoinWallet()
 {
-	//4-26-2014
+	//5-1-2014
 
-	boost::filesystem::path path = GetDataDir() / "walletbackups" / "backup.dat";
+	std::string filename = "grc_" + DateTimeStrFormat("%m-%d-%Y", GetTime()) + ".dat";
+	std::string standard_filename = "std_" + DateTimeStrFormat("%m-%d-%Y", GetTime()) + ".dat";
+	std::string source_filename   = "wallet.dat";
+
+	boost::filesystem::path path = GetDataDir() / "walletbackups" / filename;
+	boost::filesystem::path target_path_standard = GetDataDir() / "walletbackups" / standard_filename;
+	boost::filesystem::path source_path_standard = GetDataDir() / source_filename;
 
     boost::filesystem::create_directories(path.parent_path());
-  
-	ofstream myBackup;
-	myBackup.open (path.string().c_str());
 	std::string errors = "";
+	//Copy the standard wallet first:
+	fileopen_and_copy(source_path_standard.string().c_str(), target_path_standard.string().c_str());
 
+
+	//Dump all private keys into the Level 2 backup
+	
+	ofstream myBackup;
+
+	myBackup.open (path.string().c_str());
+	
     string strAccount;
 	BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
     {
@@ -620,19 +631,65 @@ std::string BackupGridcoinWallet()
 				CKey vchSecret;
 				if (!pwalletMain->GetKey(keyID, vchSecret))
 				{
-					errors = errors + "During Wallet Bacckup, Private key for address is not known " + strAddress + "\r\n";
+					errors = errors + "During Wallet Backup, Private key for address is not known " + strAddress + "\r\n";
 				}
 				else
 				{
 					std::string private_key = CBitcoinSecret(vchSecret).ToString();
 					//Append to file
-					myBackup << private_key << "<KEY>";
+					std::string strAddr = CBitcoinAddress(keyID).ToString();
+					std::string record = private_key + "<|>" + strAddr + "<KEY>";
+					myBackup << record;
+
 				}
 			}
 
 		 }
     }
+
+	
+	std::string reserve_keys = pwalletMain->GetAllGridcoinKeys();
+	myBackup << reserve_keys;
+
+
+	/*
+	std::map<CKeyID, int64_t> mapKeyBirth;
+	std::set<CKeyID> setKeyPool;
+	pwalletMain->GetKeyBirthTimes(mapKeyBirth);
+	pwalletMain->GetAllReserveKeys(setKeyPool);
+	  // sort time/key pairs 
+	std::vector<std::pair<int64_t, CKeyID> > vKeyBirth; 
+	for (std::map<CKeyID, int64_t>::const_iterator it = mapKeyBirth.begin(); it != mapKeyBirth.end(); it++) 
+	{
+		 vKeyBirth.push_back(std::make_pair(it->second, it->first));
+    } 
+	    mapKeyBirth.clear();
+		std::sort(vKeyBirth.begin(), vKeyBirth.end());
+		// produce output  
+	 for (std::vector<std::pair<int64_t, CKeyID> >::const_iterator it = vKeyBirth.begin(); it != vKeyBirth.end(); it++) 
+	 {
+		    const CKeyID &keyid = it->second; 
+			std::string strAddr = CBitcoinAddress(keyid).ToString();
+			CKey key;    //private
+				
+		    if (pwalletMain->GetKey(keyid, key)) 
+			{
+					std::string private_key = CBitcoinSecret(key).ToString();
+					//Append to file
+					std::string strAddr = CBitcoinAddress(keyid).ToString();
+					std::string record = private_key + "<|>" + strAddr + "<KEY>";
+					myBackup << record;
+			}
+
+	 }
+
+	 */
+
+
 	myBackup.close();
+	//Bitcoin:
+
+
 	return errors;
 
 
@@ -648,13 +705,15 @@ std::string RestoreGridcoinBackupWallet()
 	//AdvancedSalvage
 	//4-26-2014
 
+
+
 	boost::filesystem::path path = GetDataDir() / "walletbackups" / "backup.dat";
 	std::string errors = "";
 	std::string sWallet = getfilecontents(path.string().c_str());
 	if (sWallet == "-1") return "Unable to open backup file.";
 		
     string strSecret = "from file";
-    string strLabel = "";
+    string strLabel = "Restored";
 
 	std::vector<std::string> vWallet = split(sWallet.c_str(),"<KEY>");
 	if (vWallet.size() > 1)
@@ -664,28 +723,43 @@ std::string RestoreGridcoinBackupWallet()
 			std::string sKey = vWallet[i];
 			if (sKey.length() > 2)
 			{
-					//CRITICAL, REMOVE THIS:
 					printf("Restoring private key %s",sKey.substr(0,5).c_str());
-
-				    CBitcoinSecret vchSecret;
-					bool fGood = vchSecret.SetString(sKey);
-					if (!fGood) {
-						errors = errors + "Invalid private key : " + sKey + "\r\n";
-					}
-					else
+					//Key is delimited by <|>
+					std::vector<std::string> vKey = split(sKey.c_str(),"<|>");
+					if (vKey.size() > 1)
 					{
-						 CKey key = vchSecret.GetKey();
-						 CPubKey pubkey = key.GetPubKey();
-						 CKeyID vchAddress = pubkey.GetID();
-						 {
-							 LOCK2(cs_main, pwalletMain->cs_wallet);
-							 pwalletMain->MarkDirty();
-							 pwalletMain->SetAddressBookName(vchAddress, strLabel);
-							 if (!pwalletMain->AddKeyPubKey(key, pubkey)) 
-							 {
-								 errors = errors + "Error adding key to wallet: " + sKey + "\r\n";
-							 }
-						 }
+							std::string sSecret = vKey[0];
+							std::string sPublic = vKey[1];
+							CBitcoinSecret vchSecret;
+							bool fGood = vchSecret.SetString(sSecret);
+							if (!fGood)
+							{
+								errors = errors + "Invalid private key : " + sSecret + "\r\n";
+							}
+							else
+							{
+								 CKey key = vchSecret.GetKey();
+								 CPubKey pubkey = key.GetPubKey();
+								
+								 CKeyID vchAddress = pubkey.GetID();
+								 {
+									 LOCK2(cs_main, pwalletMain->cs_wallet);
+							 
+									 if (!pwalletMain->AddKeyPubKey(key, pubkey)) 
+									 {
+										 errors = errors + "Error adding key to wallet: " + sKey + "\r\n";
+									 }
+
+									 if (i==0)
+									 {
+										pwalletMain->SetDefaultKey(pubkey);
+										pwalletMain->SetAddressBookName(vchAddress, strLabel);
+									 }
+							 		 pwalletMain->MarkDirty();
+							
+      
+								 }
+							}
 					}
 			}
 
@@ -732,6 +806,12 @@ Value execute(const Array& params, bool fHelp)
 	e2.push_back(Pair("Command",sitem));
 	results.push_back(e2);
 	//4-18-2014
+	if (sitem=="tally")
+	{
+
+		TallyNetworkAverages();
+	}
+
 	if (sitem=="resetcpids")
 	{
 			mvCPIDCache.clear();
@@ -739,8 +819,6 @@ Value execute(const Array& params, bool fHelp)
 			Object entry;
 		    entry.push_back(Pair("Reset",1));
 			results.push_back(entry);
-
-
 	}
 	if (sitem=="post")
 	{

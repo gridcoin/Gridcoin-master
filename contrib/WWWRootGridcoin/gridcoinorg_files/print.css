@@ -1,0 +1,30 @@
+body {
+	background: url("images/bg.png"); font-family: "Trebuchet MS","Noto Sans","Helvetica Neue","Helvetica",Arial,sans-serif; font-size: 10px; font-weight: normal;
+}
+a:link {
+	color: black; text-decoration: none;
+}
+a:visited {
+	color: black; text-decoration: none;
+}
+a:hover {
+	color: black; text-decoration: none;
+}
+#language {
+	display: none; visibility: hidden;
+}
+#downloads {
+	display: none; visibility: hidden;
+}
+#images {
+	display: none; visibility: hidden;
+}
+#screen {
+	display: none; visibility: hidden;
+}
+#header .alignright {
+	display: none; visibility: hidden;
+}
+.icon img {
+	margin-top: 14px;
+}

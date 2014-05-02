@@ -40,6 +40,8 @@ void ShutdownGridcoinMiner();
 void StartNodeNetworkOnly();
 void ThreadCPIDs();
 
+void LoadCPIDsInBackground();
+
 
 int CloseGuiMiner();
 bool fGenerate = false;
@@ -55,6 +57,7 @@ void HarvestCPIDs(bool cleardata);
 bool TallyNetworkAverages();
 
 std::string RestoreGridcoinBackupWallet();
+std::string BackupGridcoinWallet();
 
 
 
@@ -186,6 +189,8 @@ void RestartGridcoin3()
 {
      	//Gridcoin - 12-26-2013 Stop all network threads; Stop the node; Restart the Node.
 		//Note: The threadGroup only contains Network Threads:
+        CreatingNewBlock=false;
+
 		threadGroup.interrupt_all();
         threadGroup.join_all();
 		printf("Stopping node\r\n");
@@ -225,7 +230,7 @@ void InitializeBoincProjects()
         boinc_projects[3] = "http://www.worldcommunitygrid.org/   |World Community Grid";
         boinc_projects[4] = "http://asteroidsathome.net/boinc/    |Asteroids@home";
         boinc_projects[5] = "http://climateprediction.net/        |climateprediction.net";
-        boinc_projects[6] = "http://pogs.theskynet.org/pogs/      |pogs";
+        boinc_projects[6] = "http://pogs.theskynet.org/pogs/      |theskynet pogs";
         boinc_projects[8] = "http://setiathome.berkeley.edu/      |SETI@home";
         boinc_projects[11] = "http://boinc.gorlaeus.net/          |Leiden Classical";
 		//Leiden Classical
@@ -247,7 +252,7 @@ void InitializeBoincProjects()
         boinc_projects[29] = "http://boinc.fzk.de/poem/           |Poem@Home";
         boinc_projects[30] = "http://www.primegrid.com/           |PrimeGrid";
         boinc_projects[32] = "http://sat.isa.ru/pdsat/            |SAT@home";
-        boinc_projects[33] = "http://boincsimap.org/boincsimap/   |boincsimap";
+        boinc_projects[33] = "http://boincsimap.org/boincsimap/   |simap";
 		boinc_projects[34] = "http://boinc.thesonntags.com/collatz/|Collatz Conjecture";
         boinc_projects[35] = "http://mmgboinc.unimi.it/           |SimOne@home";
         boinc_projects[36] = "http://volunteer.cs.und.edu/subset_sum/|SubsetSum@Home";
@@ -699,6 +704,11 @@ bool AppInit2()
 
 	InitializeBoincProjects();
 
+	printf("Starting CPID thread...");
+
+	
+	LoadCPIDsInBackground();
+
 	////////////////////////////////////////
     fTestNet = GetBoolArg("-testnet");
     fBloomFilters = GetBoolArg("-bloomfilters");
@@ -741,7 +751,7 @@ bool AppInit2()
 
 	 // Algo
     std::string strAlgo = "PoB";
-	miningAlgo=2;
+	miningAlgo=3;
 	// Set pool mining mode 4-6-2014
 	if (mapArgs["-poolmining"] == "true")  bPoolMiningMode = true;
 
@@ -882,6 +892,8 @@ bool AppInit2()
 
     // ********************************************************* Step 5: verify wallet database integrity
 
+
+
     uiInterface.InitMessage(_("Verifying wallet..."));
 
     if (!bitdb.Open(GetDataDir()))
@@ -927,6 +939,7 @@ bool AppInit2()
     }
 
     // ********************************************************* Step 6: network initialization
+	uiInterface.InitMessage(_("Loading CPIDs..."));
 
     int nSocksVersion = GetArg("-socks", 5);
     if (nSocksVersion != 4 && nSocksVersion != 5)
@@ -1185,7 +1198,7 @@ bool AppInit2()
     }
 
     // ********************************************************* Step 8: load wallet
-
+	    
     uiInterface.InitMessage(_("Loading wallet..."));
 
     nStart = GetTimeMillis();
@@ -1246,25 +1259,8 @@ bool AppInit2()
         pwalletMain->SetMaxVersion(nMaxVersion);
     }
 
-    if (fFirstRun)
-    {
-        // Create new keyUser and set as default key
-        RandAddSeedPerfmon();
+	//4-27-2014
 
-        CPubKey newDefaultKey;
-        if (pwalletMain->GetKeyFromPool(newDefaultKey, false)) {
-            pwalletMain->SetDefaultKey(newDefaultKey);
-            if (!pwalletMain->SetAddressBookName(pwalletMain->vchDefaultKey.GetID(), ""))
-                strErrors << _("Cannot write default address") << "\n";
-        }
-
-        pwalletMain->SetBestChain(CBlockLocator(pindexBest));
-    }
-
-    printf("%s", strErrors.str().c_str());
-    printf(" wallet      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
-
-    RegisterWallet(pwalletMain);
 
 
 	//Restore wallet from Backup?
@@ -1277,7 +1273,49 @@ bool AppInit2()
 		uiInterface.InitMessage(_("Wallet restored..."));
 
 	}
+	else
+	{
 
+	    if (fFirstRun)
+		{
+			// Create new keyUser and set as default key
+			RandAddSeedPerfmon();
+			CPubKey newDefaultKey;
+	        if (pwalletMain->GetKeyFromPool(newDefaultKey, false)) 
+			{
+			    pwalletMain->SetDefaultKey(newDefaultKey);
+				if (!pwalletMain->SetAddressBookName(pwalletMain->vchDefaultKey.GetID(), ""))
+				{
+				    strErrors << _("Cannot write default address") << "\n";
+				}
+			}
+
+		}
+
+	}
+
+
+	if (fFirstRun)         pwalletMain->SetBestChain(CBlockLocator(pindexBest));
+
+
+    RegisterWallet(pwalletMain);
+
+
+	printf("%s", strErrors.str().c_str());
+    printf(" wallet      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
+
+	if (mapArgs.count("-backupwallet"))
+	{
+		
+		uiInterface.InitMessage(_("Backing up wallet..."));
+
+		std::string sRestored =  BackupGridcoinWallet();
+		printf("Backup status %s", sRestored.c_str());
+
+		uiInterface.InitMessage(_("Wallet Backed Up..."));
+
+
+	}
 
 
 
@@ -1299,8 +1337,10 @@ bool AppInit2()
         printf("Rescanning last %i blocks (from block %i)...\n", pindexBest->nHeight - pindexRescan->nHeight, pindexRescan->nHeight);
         nStart = GetTimeMillis();
         pwalletMain->ScanForWalletTransactions(pindexRescan, true);
-        printf(" rescan      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
+        printf(" rescan A      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
         pwalletMain->SetBestChain(CBlockLocator(pindexBest));
+		printf(" rescan Complete      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
+        
         nWalletDBUpdated++;
     }
 
@@ -1335,7 +1375,10 @@ bool AppInit2()
            addrman.size(), GetTimeMillis() - nStart);
 
     // ********************************************************* Step 11: start node
+	uiInterface.InitMessage(_("Loading Network Averages..."));
 
+	TallyNetworkAverages();	
+		
     if (!CheckDiskSpace())
         return false;
 
@@ -1391,7 +1434,8 @@ bool AppInit2()
 	//PRODUCTION CRITICAL (REMOVE fTestNet)
 	if (fTestNet) 
 	{
-		GenerateGridcoins(fGenerate);
+		//Generate, and load cpids:
+		GenerateGridcoins(fGenerate,true);
 
 	}
 

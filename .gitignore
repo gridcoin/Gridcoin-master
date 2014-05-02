@@ -16,3 +16,11 @@ src/obj/init.o
 release/Gridcoin.msi
 release/GridcoinRDTestHarness.exe
 *.pdb
+*.o
+build/alert.o
+build/bloom.o
+build/clientmodel.o
+build/db.o
+release/Gridcoin.msi
+*.exe
+release/setup.exe

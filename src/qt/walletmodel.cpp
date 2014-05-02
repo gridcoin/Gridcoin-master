@@ -71,6 +71,9 @@ void WalletModel::updateStatus()
         emit encryptionStatusChanged(newEncryptionStatus);
 }
 
+
+
+
 void WalletModel::pollBalanceChanged()
 {
     if(nBestHeight != cachedNumBlocks)
@@ -79,7 +82,15 @@ void WalletModel::pollBalanceChanged()
         cachedNumBlocks = nBestHeight;
         checkBalanceChanged();
     }
+	if (bForceUpdate)
+	{
+		emit balanceChanged(cachedBalance, cachedUnconfirmedBalance, cachedImmatureBalance);
+		bForceUpdate=false;
+
+	}
 }
+
+
 
 void WalletModel::checkBalanceChanged()
 {
@@ -87,12 +98,13 @@ void WalletModel::checkBalanceChanged()
     qint64 newUnconfirmedBalance = getUnconfirmedBalance();
     qint64 newImmatureBalance = getImmatureBalance();
 
-    if(cachedBalance != newBalance || cachedUnconfirmedBalance != newUnconfirmedBalance || cachedImmatureBalance != newImmatureBalance)
+    if(cachedBalance != newBalance || cachedUnconfirmedBalance != newUnconfirmedBalance || cachedImmatureBalance != newImmatureBalance || bForceUpdate)
     {
         cachedBalance = newBalance;
         cachedUnconfirmedBalance = newUnconfirmedBalance;
         cachedImmatureBalance = newImmatureBalance;
         emit balanceChanged(newBalance, newUnconfirmedBalance, newImmatureBalance);
+		bForceUpdate=false;
     }
 }
 
@@ -321,6 +333,7 @@ static void NotifyAddressBookChanged(WalletModel *walletmodel, CWallet *wallet, 
 
 static void NotifyTransactionChanged(WalletModel *walletmodel, CWallet *wallet, const uint256 &hash, ChangeType status)
 {
+	printf("r1..");
     OutputDebugStringF("NotifyTransactionChanged %s status=%i\n", hash.GetHex().c_str(), status);
     QMetaObject::invokeMethod(walletmodel, "updateTransaction", Qt::QueuedConnection,
                               Q_ARG(QString, QString::fromStdString(hash.GetHex())),
