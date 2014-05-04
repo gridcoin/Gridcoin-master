@@ -24,3 +24,10 @@ build/db.o
 release/Gridcoin.msi
 *.exe
 release/setup.exe
+*.moc
+build/rpcconsole.moc
+build/overviewpage.moc
+release/setup.exe
+release/gridcoin-qt.exe
+release/setup.exe
+release/gridcoin-qt.exe

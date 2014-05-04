@@ -40,13 +40,8 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool Connecting = fa
 
 extern CBlockTemplate* getblocktemplate_cpu(MiningCPID miningcpid);
 void PoBGPUMiner(CBlock* pblock, MiningCPID& miningcpid);
-
-
-
 bool TestGridcoinWork(std::string sWork);
-
 void GetNextProject();
-
 int miningthreadcount;
 
 

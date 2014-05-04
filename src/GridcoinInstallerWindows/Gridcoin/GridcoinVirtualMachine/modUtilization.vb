@@ -54,12 +54,7 @@ Module modUtilization
   
     Public Sub Initialize()
         Housecleaning()
-        TeamGridcoinProjects(1) = "FufdrPKUXNMrSFNMky6u18F6r6rwUmnAbb,http://www.malariacontrol.net"
-        TeamGridcoinProjects(2) = "G3HA4ouWr1zbhKd7jUU5ZRqR8sPsYdYmYb,http://www.rnaworld.de/rnaworld"
-        TeamGridcoinProjects(3) = "G1dUDVaFG8HmxuzRyCHhqU5k7eQied1nWx,http://boinc.bakerlab.org/rosetta"
-        TeamGridcoinProjects(4) = "G6RdibWpbYQgvvcTThx6NG2vHdBK1a51eE,http://docking.cis.udel.edu"
-        TeamGridcoinProjects(5) = "FvDfoheNe74JcUp6uf3N8cPeU4KeUsxPq7,http://milkyway.cs.rpi.edu/milkyway"
-
+    
         If _timerBoincUtilization Is Nothing Then
             _timerBoincUtilization = New System.Timers.Timer(60000)
             AddHandler _timerBoincUtilization.Elapsed, New ElapsedEventHandler(AddressOf BoincUtilizationTimerElapsed)

@@ -1,21 +1,28 @@
 ########################### Linux Instructions: #####################################################################
-# Released 1-25-2014 - Gridcoin
-# Updated 3-10-2014 - Gridcoin - Merged linux source into master
+# 	
+#	Released 1-25-2014 - Gridcoin
 #
 # This guide is broken up into 3 versions.
 #   
-# 1. Native Headless Daemon that will work as a coin client (mining disabled)
-# 2. Native Gridcoin-qt GUI Wallet that will work as a coin client (mining disabled)
-# 3. Wine version of Gridcoin-qt GUI that will mine and will run on linux, mac and windows
+# 1. Gridcoind - headless daemon 
+# 2. Gridcoin-qt 
+# 3. Wine version of Gridcoin-qt
 #
 # 
-# Section 1: Compiling native linux headless daemon:
+# Section 1: Compiling Gridcoind
+#
 # -Tested on Ubuntu 12.04
 #
-# Known issues: Native QT top level menus for SQL, Mail, Mining, etc do nothing: use wine version for those features.
 #
 #
-######################### Building Gridcoin Headless daemon ##########################################################
+#####################################################################################################################
+
+
+
+#### Building Gridcoind ####
+
+
+
 #### (Tested with #boost 1_5_4_0, Berkeley db 4.8.30, miniupnpc 1.8, openssl 1.0.1e
 #### Step 1: Building the headless daemon:
 
@@ -25,17 +32,19 @@ sudo apt-get install qt-sdk
  
 cd ~
 sudo git clone https://github.com/gridcoin/Gridcoin-master
-
 cd ~/Gridcoin-master/src
 
 sudo rm obj/*.o 
-sudo cp net_daemon.cpp net.cpp
-sudo cp init_daemon.cpp init.cpp
+xsudo cp net_daemon.cpp net.cpp
+xsudo cp init_daemon.cpp init.cpp
 sudo chmod 755 leveldb/build_detect_platform 
+
 sudo make -f makefile.unix USE_UPNP=- 
 
 
 ##### End of Step 1: gridcoind will be found in /src directory
+
+
 
 sudo strip gridcoind
 sudo chmod 755 gridcoind
@@ -44,11 +53,11 @@ sudo mkdir ~/.gridcoin
 cd ~/.gridcoin
 
 
-#### SSL: 
-#ROO's optional comments for Setting up gridcoind for ssl 
+#### SSL: ###################################################################
+#Optional: Setting up gridcoind for ssl 
 #openssl genrsa -out server.pem 2048 
 #openssl req -new -x509 -nodes -sha1 -days 3650 -key server.pem > server.cert 
-####
+#############################################################################
 
 nano ~/.gridcoin/gridcoin.conf 
 server=1 
@@ -73,8 +82,9 @@ addnode=www.gridcoin.us
 ############################################### Building Gridcoin-QT: ##########################################
 
 cd /src
-sudo cp net_qt.cpp net.cpp
-sudo cp init_qt.cpp init.cpp
+
+xsudo cp net_qt.cpp net.cpp
+xsudo cp init_qt.cpp init.cpp
 
 cd ..     #cd to the directory where bitcoin.pro is 
 
@@ -95,38 +105,31 @@ sudo ./gridcoin-qt
 
 
 
-###### Step 3:  Wine (TBD):
+###### Step 3:  Wine :
 
 
 ###### Temporary instructions for Wine Alpha testing:
 ###### Tested on Ubuntu 12.04
 ###### First, install the latest version of wine
 ###### Then download gridcoin-qt-wine:
+
 download:
-http://www.gridcoin.us/download/wine.zip
+
 Extract into Linux working directory
 ## Do the following steps once:
-wine regsvr32 msvbvm60.dll
-wine regsvr32 mschrt20.ocx
-wine regsvr32 mscomctl.ocx
-wine regsvr32 BoincLinux.dll
-wine GridcoinLinuxGUI.exe /regsvr
-cd ..
+
+wget http://www.gridcoin.us/download/gridcoin-qt.msi
+
 chmod 777 gridcoinqtdirectory
 cd gridcoinqtdirectory
+wine gridcoin-qt.msi
 
 ## To execute gridcoin-qt wallet in wine:
 wine gridcoin-qt
 
 ## There will be 3 debug files written to the app directory
 ## Known issues:
-## You must have at least 2 boinc projects running otherwise project information is not gathered
-## You must run the wallet for at least a few minutes before the utilization is gathered
 ## If you kill boinc, it takes 10 minutes for gridcoin utilization to go back to zero (it does eventually)
-## Thread count is working on windows in wine, but not in linux - still working on it
-## The tiny button near the pie chart is the cpuminer test - more info coming.
-## The wide chart is working in wine on windows, and still has a problem on linux
-## The md5:PATH_DOES_NOT_EXIST error is still being worked on
 
 
 

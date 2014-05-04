@@ -5,6 +5,7 @@
 
 #include "main.h"
 #include "bitcoinrpc.h"
+#include <fstream>
 
 #include "init.h" // for pwalletMain
 
@@ -279,9 +280,7 @@ bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjec
 	try 
 	{
 		
-				//	LOCK(criticalFindRac);
 		
-
 					//Gridcoin; Find CPID+Project+RAC in chain
 					int nMaxDepth = nBestHeight-3;
 
@@ -345,16 +344,12 @@ bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjec
 					{
      					CBlockIndex* pblockindex = FindBlockByHeight(ii);
 						int out_height = 0;
-//						std::string hash1 =  pblockindex->GetBlockHash();
-						//
 						bool result1 = GetBlockNew(pblockindex->GetBlockHash(), out_height, block, false);
 						
 						if (result1)
 						{
-								//block.ReadFromDisk(pblockindex);
 		
 				    			MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
-								//printf("MISSION_CRITICAL:FINDRAC:PROJECT_NAME:FROMCACHE:%s \r\n",bb.projectname.c_str());
 
 				
 								if (bb.cpid==TargetCPID && bb.projectname==TargetProjectName && block.nVersion==3)
@@ -604,7 +599,8 @@ std::string BackupGridcoinWallet()
 
 
 	//Dump all private keys into the Level 2 backup
-	
+	//5-4-2014
+
 	ofstream myBackup;
 
 	myBackup.open (path.string().c_str());

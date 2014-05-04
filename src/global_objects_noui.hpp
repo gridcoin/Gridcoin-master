@@ -20,7 +20,7 @@ extern volatile int  iCriticalThreadDelay;
 extern volatile bool CreatingNewBlock;
 extern volatile bool bNetAveragesLoaded;
 extern volatile bool bForceUpdate;
-
+extern volatile bool bAllowBackToBack;
 extern int miningthreadcount;
 
 

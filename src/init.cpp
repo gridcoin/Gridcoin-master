@@ -190,15 +190,10 @@ void RestartGridcoin3()
      	//Gridcoin - 12-26-2013 Stop all network threads; Stop the node; Restart the Node.
 		//Note: The threadGroup only contains Network Threads:
         CreatingNewBlock=false;
-
 		threadGroup.interrupt_all();
         threadGroup.join_all();
 		printf("Stopping node\r\n");
 		StopNode();
-
-		//Lets get the cpids here
-		ThreadCPIDs();
-
 		printf("Starting node...\r\n");
 		StartNodeNetworkOnly();
 }
@@ -273,6 +268,9 @@ void InitializeBoincProjects()
 		boinc_projects[59]="http://sat.isa.ru/pdsat/|SAT@home";
 		boinc_projects[61]="http://dg.imp.kiev.ua/slinca/|SLinCA";
 		boinc_projects[63]="http://wuprop.boinc-af.org/|WUProp@Home";
+		boinc_projects[64]="http://boinc.almeregrid.nl/|almeregrid boinc grid";
+		boinc_projects[65]="http://burp.renderfarming.net/|BURP";
+
 		
 
 		for (int i = 0; i < 100; i++)
@@ -1432,13 +1430,9 @@ bool AppInit2()
 	//Create the GridCoin thread
 
 	//PRODUCTION CRITICAL (REMOVE fTestNet)
-	if (fTestNet) 
-	{
-		//Generate, and load cpids:
-		GenerateGridcoins(fGenerate,true);
-
-	}
-
+	//Generate if cpumining=true
+	bAllowBackToBack=false;
+	GenerateGridcoins(fGenerate,true);
 	
     return !fRequestShutdown;
 }

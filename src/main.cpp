@@ -45,6 +45,9 @@ using namespace boost;
 
 volatile bool CreatingNewBlock;
 volatile bool bNetAveragesLoaded;
+volatile bool bAllowBackToBack;
+volatile bool bRestartGridcoinMiner;
+volatile bool bForceUpdate;
 
 int miningAlgo = ALGO_SHA256D;
 leveldb::DB *txdb; // global pointer for LevelDB object instance
@@ -65,6 +68,7 @@ extern unsigned int DiffBytes(double PoBDiff);
 
 extern int Races(int iMax1000);
 
+int ReindexWallet();
 
 std::string cached_getblocks_args = "";
 extern bool AESSkeinHash(unsigned int diffbytes, double rac, uint256 scrypthash, std::string& out_skein, std::string& out_aes512);
@@ -1206,7 +1210,7 @@ try
             proj = ToOfficialName(proj);
 
 			bool projectvalid = ProjectIsValid(proj);
-			if (!projectvalid) proj = "";
+			//if (!projectvalid) proj = "";
 
 			
 			if (cpid_hash.length() > 5 && proj.length() > 3) 
@@ -1266,8 +1270,8 @@ try
 
 								
 				structverify = mvCreditNodeCPIDProject[sKey]; //Contains verified CPID+Projects;
-				if (!structverify.initialized)
-				{
+				if (!structverify.initialized  && projectvalid)
+ 				{
 					CreditCheck(cpid);
 					structverify=mvCreditNodeCPIDProject[sKey];
 				}
@@ -1310,6 +1314,13 @@ try
 					}
 
 				}
+               if (!projectvalid) 
+			   {
+
+				   structcpid.Iscpidvalid = false;
+				   structcpid.errors = "Not an official boinc whitelisted project.  Please see 'listitem projects'.";
+			   }
+
 
 				mvCPIDs[proj] = structcpid;						
 				printf("Adding %s",cpid.c_str());
@@ -2221,7 +2232,18 @@ bool CBlock::ReadFromDisk(const CBlockIndex* pindex)
     if (!ReadFromDisk(pindex->GetBlockPos()))
         return false;
     if (GetHash() != pindex->GetBlockHash())
-        return error("CBlock::ReadFromDisk() : GetHash() doesn't match index");
+	{
+		//Gridcoin: This is a catastrophic error; at this point the program fails, ends, and doesnt even offer the user a chance to recover the blocks folder
+		//And to make matters worse, when they reindex, they get a silly error saying the blocks are corrupted, then they delete them, then they resync and recover
+		//So, Im going to force a rebuild of the chain (and hope we find out how this can possibly happen to begin with):
+		printf("Gridcoin::CBlock::ReadFromDisk():GetHash():Doesn't match index():Catastrophic Error:Cannot Recover:Panic:Rebuild Block Chain:Restarting...\r\n");
+		
+		int result_code =  ReindexWallet();
+		return false;
+
+		//return error("CBlock::ReadFromDisk() : GetHash() doesn't match index");
+
+	}
     return true;
 }
 
@@ -2634,9 +2656,12 @@ int GetBlockType2(uint256 prevblockhash, int& out_height)
 		if (pPrevBlockIndex)
 		{
 			int out_version = 0;
-			if (pPrevBlockIndex==NULL) printf("prev block index == null");
+			if (pPrevBlockIndex==NULL) 
+			{
+				//	printf("prev block index == null");
+			}
 			out_version = pPrevBlockIndex->nVersion;
-			printf("prev block index version %i",out_version);
+			printf(".PBIV.%i;",out_version);
 			return out_version;
 		}
 		return 2;
@@ -2662,8 +2687,7 @@ bool CreditCheckOnline(std::string cpid, std::string projectname, uint256 prevbl
 	  /////////////////////////////////////////////////////////////////////////////////////////
 	  // PROD Notes:
 	  /////////////////////////////////////////////////////////////////////////////////////////
-
-	  if (LessVerbose(100)) return true;
+	  if (LessVerbose(250)) return true;
 
 	  double rac = CreditCheck(cpid,projectname);
 	  if (purported_rac > (rac*.80) || rac >= purported_rac) 
@@ -2686,28 +2710,20 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 
 	int grandfather = 5;
 
+	if (fTestNet) grandfather = 1000;
+	if (!fTestNet) grandfather = 107000;
 	if (ConnectingBlock) return true;
-	
 	int out_height = 0;
 
     int prevBlockType = 0;
-	printf("a3..");
-
-	//if (!pblock->hashPrevBlock == 0)
-	//{
 	prevBlockType = GetBlockType2(pblock->hashPrevBlock, out_height);
-	//}
 	
 	if (out_height < grandfather) return true;
 	
-		
 	//printf("PoB Checking prior block height %i, Block Type %u \r\n", out_height, prevBlockType);
 	
-	//// Deserialize
-	printf("a55..");
 
 	MiningCPID boincblock = DeserializeBoincBlock(pblock->hashBoinc);
-	printf("a6..");
 
 	bool WalletOutOfSync = OutOfSyncByAge();
 	
@@ -2739,7 +2755,7 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	
 	if (WalletOutOfSync) 
 	{
-			printf("Out of sync..");
+			printf(".OOS.");
 			return true;
 	}
 
@@ -2747,7 +2763,7 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	if (pblock->nVersion==3)
 	{
 		// 1. Verify last block was a GPU block:
-		if (prevBlockType == 3) return error("Check Proof Of Boinc() : Last block not a GPU block");
+		if (bAllowBackToBack == false && prevBlockType == 3) return error("Check Proof Of Boinc() : Last block not a GPU block");
 	    // 2.2 Verify Encrypted PoB hash contains RAC:
 		std::string skein = "";
 		uint256 powhash = pblock->hashMerkleRoot + boincblock.nonce;
@@ -2805,8 +2821,7 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 
 			bool cco = CreditCheckOnline(boincblock.cpid,
 			boincblock.projectname,
-			pblock->hashPrevBlock, boincblock.rac,
-			out_height);
+			pblock->hashPrevBlock, boincblock.rac,			out_height);
 			if (!cco) 
 			{
 							return error("CheckProofOfBoinc():CreditCheckOnline():Credit check failed.");
@@ -3544,7 +3559,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
 
     // Write undo information to disk
 	
-	printf("Writing undo to...");
+	printf("WUT:");
 
     if (pindex->GetUndoPos().IsNull() || (pindex->nStatus & BLOCK_VALID_MASK) < BLOCK_VALID_SCRIPTS)
     {
@@ -3592,14 +3607,14 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
 
 	}
 
-	printf("syncingwallets...");
+	printf(".SW.");
 
     // Watch for transactions paying to me
     for (unsigned int i=0; i<vtx.size(); i++)
         SyncWithWallets(GetTxHash(i), vtx[i], this, true);
 
 
-	printf("Succeeded in connect block\r\n");
+	printf(";SC_I_C_B;");
     return true;
 }
 
@@ -3644,7 +3659,12 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
     vector<CTransaction> vResurrect;
     BOOST_FOREACH(CBlockIndex* pindex, vDisconnect) {
         CBlock block;
-       if (!block.ReadFromDisk(pindex))             return state.Abort(_("Failed to read block"));
+       if (!block.ReadFromDisk(pindex))           
+	   {
+
+		   return state.Abort(_("Failed to read block1"));
+
+	   }
 
 
 
@@ -3668,7 +3688,7 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
     vector<CTransaction> vDelete;
     BOOST_FOREACH(CBlockIndex *pindex, vConnect) {
         CBlock block;
-        if (!block.ReadFromDisk(pindex))            return state.Abort(_("Failed to read block"));
+        if (!block.ReadFromDisk(pindex))            return state.Abort(_("Failed to read block2"));
 
 
         int64 nStart = GetTimeMicros();
@@ -3754,7 +3774,7 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
     nTimeBestReceived = GetTime();
     nTransactionsUpdated++;
 	if (nBestHeight > 70000) {
-		printf("SetBestChain: new best=%s  height=%d  log2_work=%.8g  tx=%lu  date=%s progress=%f\n",
+		printf("SBC:NB=%s;H=%d;L_W=%.8g;TX=%lu;DT=%s;PR=%f;",
 		hashBestChain.ToString().c_str(), nBestHeight, log(nBestChainWork.getdouble())/log(2.0), (unsigned long)pindexNew->nChainTx,
 		DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str(),
 		Checkpoints::GuessVerificationProgress(pindexBest));
@@ -4058,21 +4078,15 @@ CBlockIndex* GetBlockIndex2(uint256 blockhash, int& out_height)
   CBlockIndex* pindex = NULL;	
   if (blockhash != hashGenesisBlock) 
   {
-	    printf("c1..");
-        map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(blockhash);
-		printf("c2..");
-        if (mi == mapBlockIndex.end()) 
+	    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(blockhash);
+		if (mi == mapBlockIndex.end()) 
 		{
 				return false;
 		}
         pindex = (*mi).second;
-		printf("c3..");
 		if (!pindex) return false;
-		printf("c4..");
 		out_height = pindex->nHeight+0;
-		printf("c5..");
-		printf("out_height=%i out_version %i",out_height, pindex->nVersion);
-		printf("c6..");
+		printf(".H=%i;OV=%i.",out_height, pindex->nVersion);
 		return pindex;
   }
 
@@ -4147,22 +4161,38 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
     }
 
 	
-	printf("Writing to block history file...\r\n");
+	printf(".WTBHF.");
 
+	//5-2-2014
+	//History 
+	//Viery pblockindex matches block hash
+	// if (this.GetHash() != pindex->GetBlockHash())
+   
     // Write block to history file
-    try {
+    try 
+	{
         unsigned int nBlockSize = ::GetSerializeSize(*this, SER_DISK, CLIENT_VERSION);
         CDiskBlockPos blockPos;
-        if (dbp != NULL)
-            blockPos = *dbp;
+        if (dbp != NULL)            blockPos = *dbp;
+
         if (!FindBlockPos(state, blockPos, nBlockSize+8, nHeight, nTime, dbp != NULL))
+		{
             return error("AcceptBlock() : FindBlockPos failed");
+		}
         if (dbp == NULL)
+		{
             if (!WriteToDisk(blockPos))
+			{
                 return state.Abort(_("Failed to write block"));
+			}
+		}
         if (!AddToBlockIndex(state, blockPos))
+		{
             return error("AcceptBlock() : AddToBlockIndex failed");
-    } catch(std::runtime_error &e) {
+		}
+    }
+	catch(std::runtime_error &e) 
+	{
         return state.Abort(_("System error: ") + e.what());
     }
 
@@ -4176,7 +4206,7 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
                 pnode->PushInventory(CInv(MSG_BLOCK, hash));
     }
 	nBestAccepted = nHeight;
-	printf("Accepted new best %i",nHeight);
+	printf("ANB:%i;",nHeight);
 
     return true;
 }
@@ -5666,7 +5696,7 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 		//Gridcoin: Network block received -- add to chain
 	    CBlock block;
         vRecv >> block;
-        printf("received block %s height %d \n", block.GetHash().ToString().c_str(), nBestAccepted);
+        printf("RB:%s:H_%d;", block.GetHash().ToString().c_str(), nBestAccepted);
         CInv inv(MSG_BLOCK, block.GetHash());
         pfrom->AddInventoryKnown(inv);
         CValidationState state;
@@ -6390,13 +6420,13 @@ unsigned int DiffBytes(double PoBDiff)
 	unsigned int bytes = 7;
 	if (newpob <= .13)                  bytes = 7;
 	if (newpob > .13 && newpob <= .5)   bytes = 8;
-	if (newpob >  .5 && newpob < 1)     bytes = 9;
-	if (newpob >=  1 && newpob <= 1.5)  bytes = 10;
-	if (newpob > 1.5 && newpob <= 2)    bytes = 11;
-	if (newpob > 2   && newpob <= 5)    bytes = 12;
-	if (newpob > 5   && newpob <= 10)   bytes = 13;
-	if (newpob > 10  && newpob <= 11)   bytes = 14;
-	if (newpob > 11) bytes = newpob+3;
+	if (newpob >  .5 && newpob < 1)     bytes = 8;
+	if (newpob >=  1 && newpob <= 1.5)  bytes = 9;
+	if (newpob > 1.5 && newpob <= 2)    bytes = 9;
+	if (newpob > 2   && newpob <= 5)    bytes = 10;
+	if (newpob > 5   && newpob <= 10)   bytes = 11;
+	if (newpob > 10  && newpob <= 11)   bytes = 12;
+	if (newpob > 11) bytes = newpob+1;
 	//	printf("Diff bytes %s also newpob %f unsigned pob bytes %d",pob.c_str(),newpob,bytes);
 
 	return bytes;
@@ -6875,7 +6905,7 @@ std::string SerializeBoincBlock(std::string cpid, std::string projectname, std::
 	std::string bb = cpid + delim + projectname + delim + AESSkein + delim + RoundToString(RAC,0)
 		+ delim + RoundToString(PoBDifficulty,5) + delim + RoundToString((double)diffbytes,0) + delim + enccpid + delim + encaes + delim + RoundToString(nonce,0);
 
-	printf("Serialized %s",bb.c_str());
+	//printf("Serialized %s",bb.c_str());
 	return bb;
 }
 
@@ -7621,12 +7651,13 @@ void static PoBMiner()
 							pblock->GetPoWHash().GetHex().c_str(),
 							miningcpid.rac, 
 							miningcpid.diffbytes, miningcpid.pobdifficulty, pblock->hashMerkleRoot.GetHex().c_str());
-							bRestartGridcoinMiner = true;
+							//bRestartGridcoinMiner = true;
 	
 							//Get a new project, in case this project was just submitted by another thread
 							printf("Getting next project...\r\n");
 							miningcpid.projectname="";
-							//miningcpid = GetNextProject();
+							miningcpid = GetNextProject();
+							MilliSleep(7777);
 							break;
 						}
 
@@ -7654,7 +7685,9 @@ void static PoBMiner()
 							printf("Check work return Positive\r\n");
 							miningcpid.projectname="";
 							miningcpid.rac = 0;
-							PobSleep(Races(4000));
+							PobSleep(Races(7000));
+							miningcpid = GetNextProject();
+					
 						    //rservekey(pwalletMain);
 							//miningcpid = GetNextProject();
 							//Signal PoB threads to die off with volatile signal:
@@ -7709,9 +7742,7 @@ void static PoBMiner()
 							msMiningErrors = "";
 						}
         	
-
-							//prevblocktype = pblock->pprev->BlockType;
-							if (prevblocktype == 3) 
+							if (prevblocktype == 3 && bAllowBackToBack==false) 
 							{
 								if (LessVerbose(100)) printf("Last block is CPU block (Miner throttling back CPU usage).");
 								msMiningErrors = "Last block is a CPU block (sleeping)";

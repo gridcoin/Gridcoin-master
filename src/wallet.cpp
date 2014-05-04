@@ -418,7 +418,7 @@ void CWallet::WalletUpdateSpent(const CTransaction &tx)
             {
                 CWalletTx& wtx = (*mi).second;
                 if (txin.prevout.n >= wtx.vout.size())
-                    printf("WalletUpdateSpent: bad wtx %s\n", wtx.GetHash().ToString().c_str());
+                    printf("WalletUpdateSpent:BadWtx %s\n", wtx.GetHash().ToString().c_str());
                 else if (!wtx.IsSpent(txin.prevout.n) && IsMine(wtx.vout[txin.prevout.n]))
                 {
                     printf("WalletUpdateSpent found spent coin %sbc %s\n", FormatMoney(wtx.GetCredit()).c_str(), wtx.GetHash().ToString().c_str());
@@ -588,12 +588,11 @@ bool CWallet::AddToWalletIfInvolvingMe(const uint256 &hash, const CTransaction& 
 {
 	//4-29-2014
 
-	printf("addingtowallet..");
+	printf(".ATW.");
     {
 		LOCK2(cs_main, cs_wallet);
         //LOCK(cs_wallet);
-		printf("locked..");
-
+	
         bool fExisted = mapWallet.count(hash);
 
 		printf("o1.");
@@ -615,7 +614,7 @@ bool CWallet::AddToWalletIfInvolvingMe(const uint256 &hash, const CTransaction& 
         }
         else
 		{
-			printf("..updatingspent..");
+			printf(".UPD_SPT.");
 			WalletUpdateSpent(tx);
 		}
     }

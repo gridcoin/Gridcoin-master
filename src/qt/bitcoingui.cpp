@@ -78,8 +78,7 @@ int nBlockCount = 0;
 int nTick2 = 0;
 int nRegVersion;
 int nNeedsUpgrade = 0;
-volatile bool bRestartGridcoinMiner;
-volatile bool bForceUpdate;
+
 
 bool bCheckedForUpgrade = false;
 void ThreadCPIDs();
@@ -376,13 +375,20 @@ CBlock block;
 
 int ReindexWallet()
 {
-	printf("executing grcrestarter reindex");
+			printf("executing grcrestarter reindex");
 
 			QString sFilename = "GRCRestarter.exe";
 			QString sArgument = "";
 			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
 			QProcess p;
-			globalcom->dynamicCall("ReindexWallet()");
+			if (!fTestNet)
+			{
+				globalcom->dynamicCall("ReindexWallet()");
+			}
+			else
+			{
+				globalcom->dynamicCall("ReindexWalletTestNet()");
+			}
 			StartShutdown();
 			return 1;
 }
@@ -796,8 +802,6 @@ void BitcoinGUI::emailClicked()
 
 void BitcoinGUI::rebuildClicked()
 {
-
-
 	printf("Rebuilding...");
 
 	ReindexBlocks();
@@ -1387,7 +1391,6 @@ void BitcoinGUI::timerfire()
 
 		if (Timer("status_update",10))
 		{
-			//mdLastDifficulty =  GetDifficulty();
 		}
    
 
@@ -1402,20 +1405,26 @@ void BitcoinGUI::timerfire()
 
 		
 
-		if (Timer("net_averages",200)) 
+		if (Timer("net_averages",250)) 
 		{
-			printf("Reharvesting Gridcoin Net Averages\r\n");
+			printf("\r\nReharvesting Gridcoin Net Averages\r\n");
 		    //printf("BestChain: new best=%s  height=%d  date=%s\n",    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
 			TallyNetworkAverages();
 		}
 		
 
-		if (Timer("restart_network",350))
+		if (Timer("restart_network",500))
 		{
 			//This procedure will also tally net avgs and harvest CPIDS
 			//Critical Production Change back to 200:
-			printf("Restarting gridcoin's network layer @ %s\r\n",time1.c_str());
+			printf("\r\nRestarting gridcoin's network layer @ %s\r\n",time1.c_str());
 			RestartGridcoin3();
+		}
+
+		if (Timer("gather_cpids",1000))
+		{
+			printf("\r\nReharvesting cpids in background thread...\r\n");
+			LoadCPIDsInBackground();
 		}
 
 

@@ -287,6 +287,7 @@ Public Class Form1
     Public Function GRCDataDir() As String
         Dim sFolder As String
         sFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\Gridcoin\"
+        If bTestNet Then sFolder = sFolder + "testnet\"
         Return sFolder
     End Function
     Private Function DownloadFile(ByVal sFile As String)
