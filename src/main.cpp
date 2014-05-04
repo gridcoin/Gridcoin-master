@@ -52,7 +52,11 @@ volatile bool bForceUpdate;
 int miningAlgo = ALGO_SHA256D;
 leveldb::DB *txdb; // global pointer for LevelDB object instance
 extern void PobSleep(int milliseconds);
-static boost::mutex* mutexTally = NULL;
+
+
+//static boost::mutex* mutexTally = NULL;
+
+
 extern void LoadCPIDsInBackground();
 bool SubmitGridcoinCPUWork(CBlock* pblock, CReserveKey& reservekey);
 
@@ -2238,11 +2242,12 @@ bool CBlock::ReadFromDisk(const CBlockIndex* pindex)
 		//So, Im going to force a rebuild of the chain (and hope we find out how this can possibly happen to begin with):
 		printf("Gridcoin::CBlock::ReadFromDisk():GetHash():Doesn't match index():Catastrophic Error:Cannot Recover:Panic:Rebuild Block Chain:Restarting...\r\n");
 		
+#ifdef QT_GUI
 		int result_code =  ReindexWallet();
+		printf("Panic result code: %i",result_code);
+#endif
 		return false;
-
-		//return error("CBlock::ReadFromDisk() : GetHash() doesn't match index");
-
+		//OldError:return error("CBlock::ReadFromDisk() : GetHash() doesn't match index");
 	}
     return true;
 }
@@ -2697,8 +2702,8 @@ bool CreditCheckOnline(std::string cpid, std::string projectname, uint256 prevbl
 
 	  printf("CreditCheckOnline: Failed - Purported Rac %f; Reported Rac %f",purported_rac, rac);
 	
-	  std::string out_errors = "";
-	  int out_position = 0;
+	  //std::string out_errors = "";
+	  //int out_position = 0;
 	  
 	  return false;
 
@@ -7134,8 +7139,8 @@ bool CheckTransactionSkein(const CTransaction& tx, CValidationState &state)
 
 void static MinerWaitOnline()
 {
-        // Busy-wait for the network to come online so we don't waste time mining on an obsolete chain. 
-	 //while (vNodes.empty() || IsInitialBlockDownload() || fReindex || fImporting || !bCPIDsLoaded || OutOfSyncByAge() )
+       // Busy-wait for the network to come online so we don't waste time mining on an obsolete chain. 
+	   //while (vNodes.empty() || IsInitialBlockDownload() || fReindex || fImporting || !bCPIDsLoaded || OutOfSyncByAge() )
        
         while (vNodes.empty() || IsInitialBlockDownload() || fReindex || fImporting || !bCPIDsLoaded || OutOfSyncByAge() )
         {
@@ -7145,22 +7150,6 @@ void static MinerWaitOnline()
    
 }
 
-
-
-
-void static MinerWaitForSync()
-{
-        // Busy-wait for the network to come online so we don't waste time mining on an obsolete chain. 
-		printf("i1..");
-        //while (IsInitialBlockDownload() || fReindex || fImporting || OutOfSyncByAge() )
-		 while (fReindex || fImporting || IsInitialBlockDownload())
-         {
-            MilliSleep(1111);
-            //boost::this_thread::interruption_point();
-			printf("i2..");
-         }
-   
-}
 
 
 
@@ -7335,8 +7324,8 @@ void GetNextGPUProject(bool force)
 void FindMultiAlgorithmSolution(CBlock* pblock, uint256 hash_old, uint256 hashTarget, double purported_rac)
 {
 	
-		double futile_block = 0;
-     	double max_futile_block = 100000000;
+		//double futile_block = 0;
+     	//double max_futile_block = 100000000;
 		
 }
 
@@ -7483,7 +7472,7 @@ void static PoBMiner()
     // Each thread has its own counter
     int prevblocktype = 0;
 	MiningCPID miningcpid;
-	double PoBDiff = 0;
+	//	double PoBDiff = 0;
 	
     //static CReserveKey pPOBMiningKey(pwalletMain);
 

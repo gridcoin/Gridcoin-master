@@ -104,7 +104,9 @@ OBJS= \
     obj/noui.o \
     obj/leveldb.o \
     obj/txdb.o \
-    obj/skein.o 
+    obj/skein.o \
+    obj/groestl.o \
+    obj/cubehash.o 
 
 ifndef USE_UPNP
 	override USE_UPNP = -

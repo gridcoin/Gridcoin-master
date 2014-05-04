@@ -112,9 +112,9 @@ double GetNetworkAvgByProject(std::string projectname)
 		StructCPID structcpid = mvNetwork[projectname];
 		if (!structcpid.initialized) return 9999;
 
-		double networkrac = structcpid.rac;
+	//	double networkrac = structcpid.rac;
 		double networkavgrac = structcpid.AverageRAC;
-		double networkprojects = structcpid.NetworkProjects;
+		//double networkprojects = structcpid.NetworkProjects;
 		return networkavgrac;
 	}
 	catch (std::exception& e)

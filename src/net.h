@@ -429,7 +429,7 @@ public:
 		{
 			std::string premd5 = RetrieveMd5(premessage);
 			std::string postmd5 = premessage + ":" + premd5;
-			const char *gridmessage1 = postmd5.c_str();
+			//const char *gridmessage1 = postmd5.c_str();
 			if (premessage == "getblocks") 
 			{
 					premessage=DefaultGetblocksCommand();
