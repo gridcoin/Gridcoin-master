@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'bitcoingui.h'
 **
-** Created: Sun May 4 13:33:10 2014
+** Created: Sun May 4 16:21:04 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
