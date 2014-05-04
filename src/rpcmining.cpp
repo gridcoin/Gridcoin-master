@@ -478,7 +478,7 @@ Value getwork(const Array& params, bool fHelp)
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
 
 		// Solve the PoB
-		uint256 powhash = pblock->GetPoWHash();
+		//uint256 powhash = pblock->GetPoWHash();
 
 		bool checkblockresult = CheckProofOfBoinc(pblock,false);
 		if (!checkblockresult) 

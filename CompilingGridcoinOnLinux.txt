@@ -32,6 +32,12 @@ sudo apt-get install qt-sdk
  
 cd ~
 sudo git clone https://github.com/gridcoin/Gridcoin-master
+NOTE: If you already have Gridcoin, do this:
+#git fetch --all
+#git reset --hard origin/master
+
+
+
 cd ~/Gridcoin-master/src
 
 sudo rm obj/*.o 
@@ -78,7 +84,7 @@ addnode=www.gridcoin.us
 #Should return current difficulty
 
 
-###### Step 2:
+#Step 2:
 ############################################### Building Gridcoin-QT: ##########################################
 
 cd /src
@@ -87,7 +93,9 @@ xsudo cp net_qt.cpp net.cpp
 xsudo cp init_qt.cpp init.cpp
 
 cd ..     #cd to the directory where bitcoin.pro is 
-
+sudo mkdir ../../deps-master
+sudo mkdir ../../deps-master/extras
+sudo echo #>../../deps-master/extras/gridcoin.h
 sudo qmake "USE_UPNP=-"
 sudo make
 sudo strip gridcoin-qt

@@ -695,6 +695,7 @@ bool AppInit2()
 		   bool fRet = uiInterface.ThreadSafeMessageBox(
                        "Configuration file empty.  \r\n" + _("Would you like to Exit?"),
                     "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
+		   if (!fRet) printf("Client notified.");
              
 	}
 
