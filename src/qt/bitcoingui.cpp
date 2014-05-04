@@ -18,8 +18,9 @@
 #include <QProcess>
 
 #include "bitcoingui.h"
-#include "..\global_objects.hpp"
-#include "..\global_objects_noui.hpp"
+//#include "..\global_objects.hpp"
+//#include "..\global_objects_noui.hpp"
+
 
 #include "transactiontablemodel.h"
 #include "optionsdialog.h"
@@ -1285,8 +1286,7 @@ int ReindexBlocks_Old()
 	block.ReadFromDisk(pLastBlock);
 	int64 LastBlockTime = pLastBlock->GetBlockTime();
 	//Iterate through the chain in reverse
-	int istart = 0;
-    for (int ii = nMaxDepth; ii > nMaxDepth-100; ii--)
+	for (int ii = nMaxDepth; ii > nMaxDepth-100; ii--)
     {
      	CBlockIndex* pblockindex = FindBlockByHeight(ii);
 		block.ReadFromDisk(pblockindex);
@@ -1308,10 +1308,10 @@ int ReindexBlocks_Old()
     }
 	 // Flush changes to global coin state
     int64 nStart = GetTimeMicros();
-    int nModified = view.GetCacheSize();
+    //int nModified = view.GetCacheSize();
     assert(view.Flush());
     
-	int64 nTime = GetTimeMicros() - nStart;
+	//int64 nTime = GetTimeMicros() - nStart;
     
     // Make sure it's successfully written to disk before changing memory structure
    	FlushGridcoinBlockFile(true);

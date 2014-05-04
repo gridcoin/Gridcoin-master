@@ -2,20 +2,23 @@
 #include "ui_miningdialog.h"
 #include <QPushButton>
 
+#ifdef WIN32
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
 
-#include <QProcess>
+#include "../global_objects.hpp"
+#include "../global_objects_noui.hpp"
 
+#endif
+
+
+#include <QProcess>
 #include <QMessageBox>
 #include "clientmodel.h"
 #include "clientversion.h"
 #include "uint256.h"
 #include "base58.h"
-
-#include "../global_objects.hpp"
-#include "../global_objects_noui.hpp"
 
 
 // Copyright 10-3-2013
@@ -59,24 +62,31 @@ void MiningDialog::refreshClicked()
 
 {
 
+#ifdef WIN32
 	  //Show the boinc homogenized utilization
 	  ui->lblProcessingPowerValue->setText(tr("Calculating..."));
       std::string sBoincUtilization="";
       sBoincUtilization = strprintf("%d",nBoincUtilization);
 	  QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
 	  ui->lblProcessingPowerValue->setText(qsUtilization);
+#endif
 
       int thread_count = 0;
+#ifdef WIN32
 	  thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
 	  std::string sThreads =strprintf("%d",thread_count);
 	  QString qsThreads = QString::fromUtf8(sThreads.c_str());
 	  ui->lblThreads->setText(qsThreads);
+#endif
+
 
 	  int boinc_proxy_version = 0;
+#ifdef WIN32
 	  boinc_proxy_version = globalcom->dynamicCall("Version()").toInt();
 	  std::string sVersion =strprintf("%d",boinc_proxy_version);
 	  QString qsVersion = QString::fromUtf8(sVersion.c_str());
 	  ui->lblVersion->setText(qsVersion);
+#endif
 
 
 }
