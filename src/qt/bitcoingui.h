@@ -6,10 +6,10 @@
 #include <QMap>
 #include <QObject>
 
+#include <QApplication>
 
 
 #if defined(WIN32) && defined(QT_GUI)
-#include <QApplication>
 //#include <QAxFactory>
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>

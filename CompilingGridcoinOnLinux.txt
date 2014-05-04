@@ -41,8 +41,7 @@ NOTE: If you already have Gridcoin, do this:
 cd ~/Gridcoin-master/src
 
 sudo rm obj/*.o 
-xsudo cp net_daemon.cpp net.cpp
-xsudo cp init_daemon.cpp init.cpp
+
 sudo chmod 755 leveldb/build_detect_platform 
 
 sudo make -f makefile.unix USE_UPNP=- 
@@ -89,13 +88,9 @@ addnode=www.gridcoin.us
 
 cd /src
 
-xsudo cp net_qt.cpp net.cpp
-xsudo cp init_qt.cpp init.cpp
 
 cd ..     #cd to the directory where bitcoin.pro is 
-sudo mkdir ../../deps-master
-sudo mkdir ../../deps-master/extras
-sudo echo #>../../deps-master/extras/gridcoin.h
+sudo rm build/o.*
 sudo qmake "USE_UPNP=-"
 sudo make
 sudo strip gridcoin-qt

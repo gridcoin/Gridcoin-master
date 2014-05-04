@@ -1307,7 +1307,7 @@ int ReindexBlocks_Old()
 
     }
 	 // Flush changes to global coin state
-    int64 nStart = GetTimeMicros();
+    //int64 nStart = GetTimeMicros();
     //int nModified = view.GetCacheSize();
     assert(view.Flush());
     
