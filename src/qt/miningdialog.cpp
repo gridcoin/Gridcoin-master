@@ -121,6 +121,8 @@ void MiningDialog::registerClicked()
 void MiningDialog::regsvr(QString program, QString sFilename, QString sArgument)
 {
 
+#ifdef WIN32
+
 	
 			QString path = QCoreApplication::applicationDirPath() + "\\" + program;
 			QProcess p;
@@ -134,6 +136,9 @@ void MiningDialog::regsvr(QString program, QString sFilename, QString sArgument)
 			{
 				globalcom = NULL;
 			}
+#endif
+
+
 }
 
 
