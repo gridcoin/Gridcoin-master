@@ -257,6 +257,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
 }
 
 
+/*
 std::string GetTxProjectFromMemPool(uint256 hash, int& out_blocktype)
 {
 
@@ -269,8 +270,11 @@ std::string GetTxProjectFromMemPool(uint256 hash, int& out_blocktype)
     ssTx << tx;
     string strHex = HexStr(ssTx.begin(), ssTx.end());
 
-	
 }
+*/
+
+
+
 std::string GetTxProject(uint256 hash, int& out_blocknumber, int& out_blocktype, double& out_rac)
 {
 	//4-7-2014
