@@ -31,3 +31,6 @@ release/setup.exe
 release/gridcoin-qt.exe
 release/setup.exe
 release/gridcoin-qt.exe
+build/bitcoingui.o
+*.o
+release/gridcoin-qt.exe

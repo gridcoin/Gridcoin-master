@@ -58,10 +58,10 @@ win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 win32:QMAKE_LFLAGS *= -Wl,--large-address-aware
 
 # use: qmake "DEV=1"
-contains(DEV,1)
+contains(xDEV,1)
 {
     message(Building with Dev Directory)
-    DEFINES += DEV
+    DEFINES += xDEV
 }
 
 # use: qmake "USE_QRCODE=1"
@@ -342,7 +342,7 @@ SOURCES += src/qt/qrcodedialog.cpp
 FORMS += src/qt/forms/qrcodedialog.ui
 #}
 
-#contains(DEV,1) {
+#contains(DEV,2) {
 	HEADERS += ../../deps-master/extras/gridcoin.h
 #}
 

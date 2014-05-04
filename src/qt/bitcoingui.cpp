@@ -130,9 +130,9 @@ void FlushGridcoinBlockFile(bool fFinalize);
 extern int ReindexBlocks();
 bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
 
-
+#ifdef WIN32
 QAxObject *globalcom = NULL;
-
+#endif
 
 int cputick = 0;
 
@@ -383,11 +383,15 @@ int ReindexWallet()
 			QProcess p;
 			if (!fTestNet)
 			{
+#ifdef WIN32
 				globalcom->dynamicCall("ReindexWallet()");
+#endif
 			}
 			else
 			{
+#ifdef WIN32
 				globalcom->dynamicCall("ReindexWalletTestNet()");
+#endif
 			}
 			StartShutdown();
 			return 1;
@@ -404,7 +408,9 @@ int RestartClient()
 			QString sArgument = "";
 			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
 			QProcess p;
+	#ifdef WIN32
 			globalcom->dynamicCall("RestartWallet()");
+#endif
 			StartShutdown();
 			return 1;
 }
@@ -420,11 +426,15 @@ int UpgradeClient()
 			QProcess p;
 			if (!fTestNet)
 			{
+#ifdef WIN32
 				globalcom->dynamicCall("UpgradeWallet()");
+#endif
 			}
 			else
 			{
+#ifdef WIN32
 				globalcom->dynamicCall("UpgradeWalletTestnet()");
+#endif
 			}
 
 			StartShutdown();
@@ -433,9 +443,13 @@ int UpgradeClient()
 
 int CloseGuiMiner()
 {
-	try {
-	globalcom->dynamicCall("CloseGUIMiner()");
-	} catch(...) { return 0; } 
+	try 
+	{
+#ifdef WIN32
+			globalcom->dynamicCall("CloseGUIMiner()");
+#endif
+	}
+	catch(...) { return 0; } 
 
 	return 1;
 }
@@ -796,7 +810,9 @@ void BitcoinGUI::aboutClicked()
 void BitcoinGUI::emailClicked()
 {
 	//Launch the Email Center
+#ifdef WIN32
     globalcom->dynamicCall("ShowEmailModule()");
+#endif
 
 }
 
@@ -811,22 +827,29 @@ void BitcoinGUI::rebuildClicked()
 
 void BitcoinGUI::sqlClicked()
 {
+#ifdef WIN32
 
-	if (!globalcom) {
+	if (!globalcom) 
+	{
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
     
     globalcom->dynamicCall("ShowSql()");
+
+#endif
+
 }
 
 void BitcoinGUI::leaderboardClicked()
 {
+	#ifdef WIN32
 
 	if (globalcom==NULL) {
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
     
     globalcom->dynamicCall("ShowLeaderboard()");
+#endif
 }
 
 
@@ -834,12 +857,14 @@ void BitcoinGUI::leaderboardClicked()
 void BitcoinGUI::miningClicked()
 {
 		
+#ifdef WIN32
+
 	if (globalcom==NULL) {
 		globalcom = new QAxObject("Boinc.Utilization");
 	}
     
       globalcom->dynamicCall("ShowMiningConsole()");
-
+#endif
 }
 
 void BitcoinGUI::gotoOverviewPage()
@@ -1091,8 +1116,11 @@ void BitcoinGUI::askFee(qint64 nFeeRequired, bool *payFee)
 
 void BitcoinGUI::threadsafewin32call(const QString& h1,const QString& h2,const QString& h3,const QString& h4,const QString& h5, int *result)
 {
+	#ifdef WIN32
+
 	printf("calling threadsafe callwin32");
 	*result = globalcom->dynamicCall("ThreadSafeWin32Call(QString,QString,QString,QString,QString)",h1,h2,h3,h4,h5).toInt();
+#endif
 }
 
 
@@ -1306,6 +1334,8 @@ bool Timer(std::string timer_name, int max_ms)
 
 void ReinstantiateGlobalcom()
 {
+#ifdef WIN32
+
 			//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
 	   		//issue the command: lodctr /r (to rebuild the performance counters in the registry)
 			std::string os = GetArg("-os", "windows");
@@ -1330,7 +1360,7 @@ void ReinstantiateGlobalcom()
 							nNeedsUpgrade = globalcom->dynamicCall("ClientNeedsUpgrade()").toInt();
 							if (nNeedsUpgrade) UpgradeClient();
 			}
-
+#endif
 }
 
 void BitcoinGUI::timerfire()
@@ -1362,13 +1392,15 @@ void BitcoinGUI::timerfire()
 
 		if (Timer("start",3))
 		{
-
+			#ifdef WIN32
 			if (globalcom==NULL) ReinstantiateGlobalcom();
 			
 			nBoincUtilization =  globalcom->dynamicCall("BoincUtilization()").toInt();
 			//thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
 			nRegVersion = globalcom->dynamicCall("Version()").toInt();
 			sRegVer = boost::lexical_cast<std::string>(nRegVersion);
+			#endif
+			
 		}
 
 
@@ -1430,6 +1462,9 @@ void BitcoinGUI::timerfire()
 
 		if (Timer("sql",100000) && false)
 		{
+
+				#ifdef WIN32
+		
 			//Upload the current block to the GVM
 			printf("Ready to sync SQL...\r\n");
      		QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
@@ -1445,6 +1480,7 @@ void BitcoinGUI::timerfire()
 	        globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
 	    	//Set Best Block
 	    	globalcom->dynamicCall("SetBestBlock(int)", nBestHeight);
+#endif
 		}
 	}
 	catch(std::runtime_error &e) 

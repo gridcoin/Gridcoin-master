@@ -56,7 +56,9 @@ static SplashScreen *splashref;
 boost::thread_group threadGroup;
 //Global reference to globalcom
 
+#ifdef WIN32
 static QAxObject *globalcom;
+#endif
 
 
 extern int ThreadSafeVersion();
@@ -126,7 +128,10 @@ int ThreadSafeVersion()
 {
 	if (!guiref) return 0;
 	printf("calling for ver");
-	int v = globalcom->dynamicCall("Version()").toInt();
+	int v = 0;
+#ifdef WIN32
+	v=globalcom->dynamicCall("Version()").toInt();
+#endif
 	printf("ver %i",v);
 	return v;
 

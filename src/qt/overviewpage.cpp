@@ -28,7 +28,6 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 
-	//QAxObject *globalcom;
 
 
 

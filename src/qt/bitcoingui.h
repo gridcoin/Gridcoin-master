@@ -6,17 +6,18 @@
 #include <QMap>
 #include <QObject>
 
+
+
+#if defined(WIN32) && defined(QT_GUI)
 #include <QApplication>
-#include <QAxFactory>
-#include <QTabWidget>
-
-#include <QWidget>
-
+//#include <QAxFactory>
 #include <QAxObject>
-
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
+#endif
 
+#include <QTabWidget>
+#include <QWidget>
 #include <QTimer>
 
 

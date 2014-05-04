@@ -688,7 +688,7 @@ bool AppInit2()
 
     // ********************************************************* Step 2: parameter interactions
 
-	// 10-13-2013: Gridcoin: Removed createnew() globalcom reference for headless version
+	// 10-13-2013: Gridcoin: Removed createnew()  reference for headless version
 	if (IsConfigFileEmpty()) 
 	{
 
