@@ -13,11 +13,15 @@
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
+
+#ifdef WIN32
 #include <QAxObject>
-#include "uint256.h"
-#include "base58.h"
 #include "../global_objects.hpp"
 #include "../global_objects_noui.hpp"
+#endif
+
+#include "uint256.h"
+#include "base58.h"
 
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3

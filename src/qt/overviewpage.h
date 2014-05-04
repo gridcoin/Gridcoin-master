@@ -2,7 +2,10 @@
 #define OVERVIEWPAGE_H
 
 #include <QWidget>
+
+#ifdef WIN32
 #include <QAxObject>
+#endif
 
 
 namespace Ui {
