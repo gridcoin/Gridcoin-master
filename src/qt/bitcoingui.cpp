@@ -7,9 +7,12 @@
 
 #include <QApplication>
 
+#ifdef WIN32
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
+#endif
+
 
 
 #include <QProcess>
