@@ -3,13 +3,20 @@
 
 #include "clientmodel.h"
 #include "clientversion.h"
+
+#ifdef WIN32
 #include <QAxObject>
+#endif
+
 
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include <tchar.h>
+
+//#include <tchar.h>
+
+
 #include "uint256.h"
 #include "base58.h"
 #include "../global_objects.hpp"
