@@ -1169,13 +1169,13 @@ try
 
 	printf("loading cpids...");
 
-	std::string sourcefile = GetBoincDataDir() + "boinc\\client_state.xml";
+	std::string sourcefile = GetBoincDataDir() + "client_state.xml";
     std::string sout = "";
     sout = getfilecontents(sourcefile);
 	if (sout == "-1") 
 	{
 		printf("Unable to obtain Boinc CPIDs \r\n");
-		printf("Please set boincdatadir=c:\\programdata\\  \r\n");
+		printf("Please set boincdatadir=c:\\programdata\\boinc\\  \r\n");
 		return;
 	}
 	if (cleardata)

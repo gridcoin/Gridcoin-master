@@ -1099,7 +1099,7 @@ std::string GetBoincDataDir()
     } 
 	else 
 	{
-        path = "c:\\programdata\\";
+        path = "c:\\programdata\\boinc\\";
     }
     return path;
 }
