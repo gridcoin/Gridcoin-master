@@ -987,11 +987,24 @@
        </disabled>
       </palette>
      </property>
+     <property name="font">
+      <font>
+       <family>MS UI Gothic</family>
+       <pointsize>12</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+       <stylestrategy>PreferAntialias</stylestrategy>
+      </font>
+     </property>
      <property name="autoFillBackground">
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">font: 12pt &quot;MS UI Gothic&quot;;color:#00FF00;background-color:black</string>
+      <string notr="true">font: 12pt &quot;MS UI Gothic&quot;;color:#00FF00;
+background-color:black;
+
+</string>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -1388,6 +1401,10 @@
          <property name="autoFillBackground">
           <bool>false</bool>
          </property>
+         <property name="styleSheet">
+          <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));</string>
+         </property>
          <property name="text">
           <string>&amp;Open</string>
          </property>
@@ -1419,6 +1436,10 @@
          </property>
          <property name="autoFillBackground">
           <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));</string>
          </property>
          <property name="text">
           <string>&amp;Show</string>

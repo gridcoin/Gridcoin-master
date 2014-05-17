@@ -92,8 +92,9 @@ Public Module modCryptography
         _BoincMD5 = sMD5
         Return sMD5
     End Function
-    Public Function VerifyBoincAuthenticity() As Long
-        If _BoincAuthenticity <> 0 Then Return _BoincAuthenticity
+    Public Function Deprecated_ReturnOldBA() As Long
+        If _OldBA <> 0 Then Return _OldBA
+
 
         '1.  Retrieve the Boinc MD5 Hash
         '2.  Verify the boinc.exe contains the Berkeley source libraries
@@ -108,14 +109,14 @@ Public Module modCryptography
             Dim sz As Long = info.Length
             'Verify windows & linux size, greater than .758528 mb (758,528)
 
-            If sz < (758528 / 2) Then _BoincAuthenticity = -1 : Return -1 'Invalid executable
+            If sz < (758528 / 2) Then _OldBA = -1 : Return -1 'Invalid executable
 
             If InStr(1, s, "http://boinc.berkeley.edu") = 0 Then
-                _BoincAuthenticity = -2
+                _OldBA = -2
                 Return -2 'failed authenticity check for libraries
             End If
 
-            If InStr(1, s, "LIBEAY32.dll") = 0 Then _BoincAuthenticity = -3 : Return -3 'Failed authenticity check for libraries
+            If InStr(1, s, "LIBEAY32.dll") = 0 Then _OldBA = -3 : Return -3 'Failed authenticity check for libraries
             Dim dir As DirectoryInfo
             dir = New DirectoryInfo(sPath)
             Dim sTrayPath As String
@@ -123,10 +124,10 @@ Public Module modCryptography
 
             info = New FileInfo(sTrayPath)
             sz = info.Length
-            If sz < 30000 Then _BoincAuthenticity = -4 : Return -4 'Failed to find Boinc Tray EXE
+            If sz < 30000 Then _OldBA = -4 : Return -4 'Failed to find Boinc Tray EXE
             Return 1 'Success
         Catch ex As Exception
-            _BoincAuthenticity = -10
+            _OldBA = -10
             Return -10 'Error
         End Try
 
@@ -265,13 +266,6 @@ Public Module modCryptography
             Dim sMD5 As String
             sMD5 = vBoincHash(0)
             If Len(sMD5) < 7 Then Return -12 'MD5 Error
-
-
-
-            'Pool Operator 
-            If InStr(1, sBoincHash, "pool_operatorx") > 0 Then
-                'Return 1
-            End If
 
 
 

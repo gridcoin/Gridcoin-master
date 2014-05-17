@@ -66,7 +66,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
 				std::string sSub = RoundToString(myCredit, 4);
 				std::string cpu_flag = sSub.substr(sSub.length()-1,1);
-				printf("Credit amount %s",sSub.c_str());
+				//printf("Credit amount %s",sSub.c_str());
 
 				sub.IsCPU=false;
 				

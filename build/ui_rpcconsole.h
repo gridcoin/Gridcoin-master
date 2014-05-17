@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'rpcconsole.ui'
 **
-** Created: Fri Dec 27 12:43:16 2013
+** Created: Sat May 17 08:20:36 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -222,8 +222,19 @@ public:
         palette1.setBrush(QPalette::Disabled, QPalette::ToolTipBase, brush13);
         palette1.setBrush(QPalette::Disabled, QPalette::ToolTipText, brush1);
         tabWidget->setPalette(palette1);
+        QFont font;
+        font.setFamily(QString::fromUtf8("MS UI Gothic"));
+        font.setPointSize(12);
+        font.setBold(false);
+        font.setItalic(false);
+        font.setWeight(50);
+        font.setStyleStrategy(QFont::PreferAntialias);
+        tabWidget->setFont(font);
         tabWidget->setAutoFillBackground(false);
-        tabWidget->setStyleSheet(QString::fromUtf8("font: 12pt \"MS UI Gothic\";color:#00FF00;background-color:black"));
+        tabWidget->setStyleSheet(QString::fromUtf8("font: 12pt \"MS UI Gothic\";color:#00FF00;\n"
+"background-color:black;\n"
+"\n"
+""));
         tab_info = new QWidget();
         tab_info->setObjectName(QString::fromUtf8("tab_info"));
         gridLayout = new QGridLayout(tab_info);
@@ -231,13 +242,13 @@ public:
         gridLayout->setHorizontalSpacing(12);
         label_9 = new QLabel(tab_info);
         label_9->setObjectName(QString::fromUtf8("label_9"));
-        QFont font;
-        font.setFamily(QString::fromUtf8("MS UI Gothic"));
-        font.setPointSize(12);
-        font.setBold(false);
-        font.setItalic(false);
-        font.setWeight(50);
-        label_9->setFont(font);
+        QFont font1;
+        font1.setFamily(QString::fromUtf8("MS UI Gothic"));
+        font1.setPointSize(12);
+        font1.setBold(false);
+        font1.setItalic(false);
+        font1.setWeight(50);
+        label_9->setFont(font1);
         label_9->setAutoFillBackground(false);
 
         gridLayout->addWidget(label_9, 0, 0, 1, 1);
@@ -320,7 +331,7 @@ public:
 
         label_11 = new QLabel(tab_info);
         label_11->setObjectName(QString::fromUtf8("label_11"));
-        label_11->setFont(font);
+        label_11->setFont(font1);
         label_11->setAutoFillBackground(false);
 
         gridLayout->addWidget(label_11, 6, 0, 1, 1);
@@ -355,7 +366,7 @@ public:
 
         label_10 = new QLabel(tab_info);
         label_10->setObjectName(QString::fromUtf8("label_10"));
-        label_10->setFont(font);
+        label_10->setFont(font1);
         label_10->setAutoFillBackground(false);
 
         gridLayout->addWidget(label_10, 9, 0, 1, 1);
@@ -411,7 +422,7 @@ public:
 
         labelDebugLogfile = new QLabel(tab_info);
         labelDebugLogfile->setObjectName(QString::fromUtf8("labelDebugLogfile"));
-        labelDebugLogfile->setFont(font);
+        labelDebugLogfile->setFont(font1);
         labelDebugLogfile->setAutoFillBackground(false);
 
         gridLayout->addWidget(labelDebugLogfile, 14, 0, 1, 1);
@@ -419,19 +430,23 @@ public:
         openDebugLogfileButton = new QPushButton(tab_info);
         openDebugLogfileButton->setObjectName(QString::fromUtf8("openDebugLogfileButton"));
         openDebugLogfileButton->setAutoFillBackground(false);
+        openDebugLogfileButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));"));
         openDebugLogfileButton->setAutoDefault(false);
 
         gridLayout->addWidget(openDebugLogfileButton, 15, 0, 1, 1);
 
         labelCLOptions = new QLabel(tab_info);
         labelCLOptions->setObjectName(QString::fromUtf8("labelCLOptions"));
-        labelCLOptions->setFont(font);
+        labelCLOptions->setFont(font1);
 
         gridLayout->addWidget(labelCLOptions, 16, 0, 1, 1);
 
         showCLOptionsButton = new QPushButton(tab_info);
         showCLOptionsButton->setObjectName(QString::fromUtf8("showCLOptionsButton"));
         showCLOptionsButton->setAutoFillBackground(false);
+        showCLOptionsButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));"));
         showCLOptionsButton->setAutoDefault(false);
 
         gridLayout->addWidget(showCLOptionsButton, 17, 0, 1, 1);

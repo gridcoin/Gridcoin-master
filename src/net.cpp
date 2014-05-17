@@ -43,12 +43,15 @@ using namespace boost;
 extern std::string GetHttpPage(std::string cpid, bool usedns);
 
 extern std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, 
-	uint256 blockhash, double subsidy, double nonce, int height);
+	uint256 blockhash, double subsidy, double nonce, int height, int blocktype);
 
 std::string ExtractXML(std::string XMLdata, std::string key, std::string key_end);
 
 extern std::string DefaultBoincHashArgs();
 std::string cached_boinchash_args = "";
+
+void WriteAppCache(std::string key, std::string value);
+
 
 std::string RetrieveMd5(std::string s1);
 extern void StartNodeNetworkOnly();
@@ -208,9 +211,7 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer)
 bool RecvLine2(SOCKET hSocket, string& strLine)
 {
     strLine = "";
-
 	clock_t begin = clock();
-
 
     loop
     {
@@ -456,7 +457,7 @@ std::string GetHttpContent(const CService& addrConnect, std::string getdata)
         return "GetHttpContent() : connection to address failed";
 	}
 
-	printf("Trying %s",getdata.c_str());
+	//printf("Trying %s",getdata.c_str());
 
     send(hSocket, pszGet, strlen(pszGet), MSG_NOSIGNAL);
 
@@ -480,9 +481,7 @@ std::string GetHttpContent(const CService& addrConnect, std::string getdata)
 				double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 				if (timeout > 14000) break;
 				if (elapsed_secs > 14) break;
-				
 			    if (strLine.find("<END>") != string::npos) break;
-
 
     }
     closesocket(hSocket);
@@ -511,8 +510,9 @@ std::string GridHTTPPost(std::string url, std::string hostheader, const string& 
 }
 
 std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, 
-	uint256 blockhash, double subsidy, double nonce, int height)
+	uint256 blockhash, double subsidy, double nonce, int height, int blocktype)
 {
+	//ToDo Pass in CPU or GPU block type, and Miner-Agent
 	std::string key = "<ADDRESS>";
 	std::string keystop = "</ADDRESS>";
 	if (fTestNet) 
@@ -521,12 +521,16 @@ std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string 
 			keystop = "</ADDRESSTESTNET>";
 	}
 	if (dMiningRAC < 100 || sMiningProject=="" || xcpid=="") return "";
-	std::string sboincpubkey = AdvancedDecrypt(ENCBoincpublickey);
+	std::string key_copy = ENCBoincpublickey;
 
-	std::string boincauth = sMiningProject + ";" + RoundToString(dMiningRAC,0) + ";" + sboincpubkey + ";" + xcpid + ";" 
-		+ RoundToString(subsidy,2) + ";" + RoundToString(nonce,0) + ";" + RoundToString((double)height,0);
+	std::string sboincpubkey = AdvancedDecrypt(key_copy);
+
+	std::string boincauth = sMiningProject + "<;>" + RoundToString(dMiningRAC,0) + "<;>" + sboincpubkey + "<;>" + xcpid + "<;>" 
+		+ RoundToString(subsidy,2) + "<;>" + RoundToString(nonce,0) + "<;>" + RoundToString((double)height,0) + "<;>" + RoundToString((double)blocktype,0);
 	std::string http = GridcoinHttpPost(messagetype,boincauth,"GetPoolKey.aspx",true);
 	msPubKey = ExtractXML(http,key,keystop);
+			
+
 	return msPubKey;
 }
 
@@ -537,7 +541,7 @@ std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string
 	std::string strAuth2 = mapArgs["-poolpassword"];
 	std::string strAuth3 = mapArgs["-miner"];
     map<string, string> mapRequestHeaders;
-    mapRequestHeaders["Miner"] = strAuth1+";"+strAuth2+";"+strAuth3 + ";" + boincauth;
+    mapRequestHeaders["Miner"] = strAuth1+"<;>"+strAuth2+"<;>"+strAuth3 + "<;>" + boincauth + "<;>" + msg;
 	CService addrConnect;
 	std::string ip = "127.0.0.1";
 	std::string poolFullURL = mapArgs["-poolurl"];  
@@ -574,9 +578,9 @@ std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string
   		addrConnect = CService(ip, port); 
 	}
 	std::string strPost = GridHTTPPost(urlPage, domain, msg, mapRequestHeaders);
-    printf("querying getdata\r\n  %s \r\n",strPost.c_str());
+    //printf("querying getdata\r\n  %s \r\n",strPost.c_str());
 	std::string http = GetHttpContent(addrConnect, strPost);
-	printf("http:\r\n  %s\r\n",http.c_str());
+	//printf("http:\r\n  %s\r\n",http.c_str());
 	return http;
 	
 }
@@ -586,7 +590,6 @@ std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string
 
 std::string GetHttpPage(std::string cpid, bool UseDNS)
 {
-	//4-16-2014 cpid cache
 	
 	   StructCPIDCache c = mvCPIDCache["cache"+cpid];
 	   if (c.initialized)
@@ -609,14 +612,12 @@ std::string GetHttpPage(std::string cpid, bool UseDNS)
 
 		printf("Getting HTTP Request\r\n %s \r\n",url4.c_str());
 
-
 		CService addrIP(url3, 80, true);
 		if (UseDNS)
 		{
         if (addrIP.IsValid()) 
 			{
 				addrConnect = addrIP;
-				//addrConnect = CService(url3,80);
 				printf("Querying address\r\n %s \r\n",url4.c_str());
 		    }
 		}
@@ -632,17 +633,12 @@ std::string GetHttpPage(std::string cpid, bool UseDNS)
              
         //		printf("querying getdata %s",getdata.c_str());
 		std::string http = GetHttpContent(addrConnect,getdata);
-	    //  printf("http: %s",http.c_str());
 		std::string resultset = "" + http;
-
 		c.initialized=true;
 		c.xml = resultset;
 		mvCPIDCache.insert(map<string,StructCPIDCache>::value_type("cache"+cpid,c));
-	
 	    mvCPIDCache["cache"+cpid]=c;
-	
 		return resultset;
-		
 }
 
 
@@ -1422,12 +1418,12 @@ void ThreadSocketHandler()
                 }
                 else if (GetTime() - pnode->nLastSend > 90*60 && GetTime() - pnode->nLastSendEmpty > 90*60)
                 {
-                    printf("socket not sending\n");
+                   // printf("socket not sending\n");
                     pnode->fDisconnect = true;
                 }
                 else if (GetTime() - pnode->nLastRecv > 90*60)
                 {
-                    printf("socket inactivity timeout\n");
+                   // printf("socket inactivity timeout\n");
                     pnode->fDisconnect = true;
                 }
             }
@@ -1576,7 +1572,7 @@ void MapPort(bool)
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strMainNetDNSSeed[][2] = {
-    {"www.pgp.mx", "dnsseed.gridcoin.us"},
+    {"supernode.gridcoin.us", "dnsseed.gridcoin.us"},
     {NULL, NULL}
 };
 

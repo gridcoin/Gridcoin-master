@@ -6,7 +6,6 @@ extern std::string sBoincMD5;
 extern std::string sBoincBA;
 extern std::string sRegVer;
 extern std::string sBoincDeltaOverTime;
-extern std::string sBoincAuthenticity;
 extern std::string sMinedHash;
 extern std::string sSourceBlock;
 extern int nRegVersion;
@@ -21,6 +20,8 @@ extern volatile bool CreatingNewBlock;
 extern volatile bool bNetAveragesLoaded;
 extern volatile bool bForceUpdate;
 extern volatile bool bAllowBackToBack;
+extern volatile bool CreatingCPUBlock;
+
 extern int miningthreadcount;
 
 
@@ -163,7 +164,9 @@ extern std::map<std::string, StructCPID> mvNetworkCPIDs;
 extern std::map<std::string, StructCPID> mvCreditNodeCPIDProject; //Contains verified CPID+Projects;
 //Caches
 extern std::map<std::string, StructCPIDCache> mvCPIDCache; //Contains cached blocknumbers for CPID+Projects;
+
 extern std::map<std::string, StructBlockCache> mvBlockCache;  //Contains Cached Blocks
+extern std::map<std::string, StructCPIDCache> mvAppCache; //Contains cached blocknumbers for CPID+Projects;
 
 
 //Boinc Valid Projects

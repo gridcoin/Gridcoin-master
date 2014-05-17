@@ -88,7 +88,7 @@ Public Class CPUMiner
         Status = True
         Dim objSHA1 As New SHA1CryptoServiceProvider()
         Call modBoincCredits.LogBoincCredits()
-        modUtilization.BlockData = Trim(VerifyBoincAuthenticity()) + ":" + Trim(modBoincMD5())
+            modUtilization.BlockData = "" + ":" + Trim(modBoincMD5())
         Dim bHash() As Byte
         Dim cHash As String
         Dim startime = Now

@@ -163,8 +163,6 @@ extern CCriticalSection cs_main;
 extern std::map<uint256, CBlockIndex*> mapBlockIndex;
 extern std::set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexValid;
 
-extern std::string BoincAuthenticity();
-
 std::string GetHttpPage(std::string cpid,bool usedns);
 
 
@@ -213,6 +211,9 @@ extern std::string 	msGPUMiningProject;
 extern std::string 	msGPUMiningCPID;
 extern double    	mdGPUMiningRAC;
 extern std::string  msGPUENCboincpublickey;
+extern std::string  msGPUboinckey;
+
+
  // Stats for Main Screen:
 extern double         mdLastPoBDifficulty;
 extern double         mdLastDifficulty;
@@ -267,8 +268,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle);
 /** Run an instance of the script checking thread */
 void ThreadScriptCheck();
 /** Generate a new block, without valid proof-of-work */
-CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int algo, std::string projectname, double purportedRAC, 
-	std::string boincpublickey,std::string xcpid, bool bPoolMiner);
+CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int algo, MiningCPID miningcpid, bool bPoolMiner);
 
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce);

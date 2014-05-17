@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = gridcoin-qt
 macx:TARGET = "Gridcoin-Qt"
-VERSION = 0.9.0.1
+VERSION = 2.0.0.1
 INCLUDEPATH += src src/json src/qt
 INCLUDEPATH += tmp/moc/release_shared 
 QT += core gui network
@@ -58,10 +58,10 @@ win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 win32:QMAKE_LFLAGS *= -Wl,--large-address-aware
 
 # use: qmake "DEV=1"
-contains(xDEV,1)
+contains(ZZZ,1)
 {
-    message(Building with Dev Directory)
-    DEFINES += xDEV
+    message(Building with Dev++ Directory)
+    DEFINES += DEV
 }
 
 # use: qmake "USE_QRCODE=1"

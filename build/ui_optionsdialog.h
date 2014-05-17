@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'optionsdialog.ui'
 **
-** Created: Fri Dec 27 12:43:16 2013
+** Created: Sat May 17 08:20:36 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -115,34 +115,109 @@ public:
         tabWidget = new QTabWidget(OptionsDialog);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         QPalette palette1;
-        QBrush brush4(QColor(0, 0, 127, 255));
+        QBrush brush4(QColor(0, 128, 0, 255));
         brush4.setStyle(Qt::SolidPattern);
-        palette1.setBrush(QPalette::Active, QPalette::Light, brush4);
-        QBrush brush5(QColor(170, 255, 127, 255));
-        brush5.setStyle(Qt::SolidPattern);
-        palette1.setBrush(QPalette::Active, QPalette::BrightText, brush5);
-        palette1.setBrush(QPalette::Active, QPalette::Base, brush4);
-        QBrush brush6(QColor(255, 255, 0, 255));
+        palette1.setBrush(QPalette::Active, QPalette::WindowText, brush4);
+        QLinearGradient gradient(0, 0, 1, 0);
+        gradient.setSpread(QGradient::PadSpread);
+        gradient.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush5(gradient);
+        palette1.setBrush(QPalette::Active, QPalette::Button, brush5);
+        QBrush brush6(QColor(0, 0, 127, 255));
         brush6.setStyle(Qt::SolidPattern);
-        palette1.setBrush(QPalette::Active, QPalette::HighlightedText, brush6);
-        palette1.setBrush(QPalette::Active, QPalette::AlternateBase, brush4);
-        QBrush brush7(QColor(0, 0, 255, 255));
+        palette1.setBrush(QPalette::Active, QPalette::Light, brush6);
+        palette1.setBrush(QPalette::Active, QPalette::Text, brush4);
+        QBrush brush7(QColor(170, 255, 127, 255));
         brush7.setStyle(Qt::SolidPattern);
-        palette1.setBrush(QPalette::Active, QPalette::NoRole, brush7);
-        palette1.setBrush(QPalette::Inactive, QPalette::Light, brush4);
-        palette1.setBrush(QPalette::Inactive, QPalette::BrightText, brush5);
-        palette1.setBrush(QPalette::Inactive, QPalette::Base, brush4);
-        palette1.setBrush(QPalette::Inactive, QPalette::HighlightedText, brush6);
-        palette1.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush4);
-        palette1.setBrush(QPalette::Inactive, QPalette::NoRole, brush7);
-        palette1.setBrush(QPalette::Disabled, QPalette::Light, brush4);
-        palette1.setBrush(QPalette::Disabled, QPalette::BrightText, brush5);
-        palette1.setBrush(QPalette::Disabled, QPalette::Base, brush2);
-        palette1.setBrush(QPalette::Disabled, QPalette::HighlightedText, brush6);
-        palette1.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush4);
-        palette1.setBrush(QPalette::Disabled, QPalette::NoRole, brush7);
+        palette1.setBrush(QPalette::Active, QPalette::BrightText, brush7);
+        palette1.setBrush(QPalette::Active, QPalette::ButtonText, brush4);
+        QLinearGradient gradient1(0, 0, 1, 0);
+        gradient1.setSpread(QGradient::PadSpread);
+        gradient1.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient1.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient1.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush8(gradient1);
+        palette1.setBrush(QPalette::Active, QPalette::Base, brush8);
+        QLinearGradient gradient2(0, 0, 1, 0);
+        gradient2.setSpread(QGradient::PadSpread);
+        gradient2.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient2.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient2.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush9(gradient2);
+        palette1.setBrush(QPalette::Active, QPalette::Window, brush9);
+        QBrush brush10(QColor(255, 255, 0, 255));
+        brush10.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::HighlightedText, brush10);
+        palette1.setBrush(QPalette::Active, QPalette::AlternateBase, brush6);
+        QBrush brush11(QColor(0, 0, 255, 255));
+        brush11.setStyle(Qt::SolidPattern);
+        palette1.setBrush(QPalette::Active, QPalette::NoRole, brush11);
+        palette1.setBrush(QPalette::Inactive, QPalette::WindowText, brush4);
+        QLinearGradient gradient3(0, 0, 1, 0);
+        gradient3.setSpread(QGradient::PadSpread);
+        gradient3.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient3.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient3.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush12(gradient3);
+        palette1.setBrush(QPalette::Inactive, QPalette::Button, brush12);
+        palette1.setBrush(QPalette::Inactive, QPalette::Light, brush6);
+        palette1.setBrush(QPalette::Inactive, QPalette::Text, brush4);
+        palette1.setBrush(QPalette::Inactive, QPalette::BrightText, brush7);
+        palette1.setBrush(QPalette::Inactive, QPalette::ButtonText, brush4);
+        QLinearGradient gradient4(0, 0, 1, 0);
+        gradient4.setSpread(QGradient::PadSpread);
+        gradient4.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient4.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient4.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush13(gradient4);
+        palette1.setBrush(QPalette::Inactive, QPalette::Base, brush13);
+        QLinearGradient gradient5(0, 0, 1, 0);
+        gradient5.setSpread(QGradient::PadSpread);
+        gradient5.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient5.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient5.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush14(gradient5);
+        palette1.setBrush(QPalette::Inactive, QPalette::Window, brush14);
+        palette1.setBrush(QPalette::Inactive, QPalette::HighlightedText, brush10);
+        palette1.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush6);
+        palette1.setBrush(QPalette::Inactive, QPalette::NoRole, brush11);
+        palette1.setBrush(QPalette::Disabled, QPalette::WindowText, brush4);
+        QLinearGradient gradient6(0, 0, 1, 0);
+        gradient6.setSpread(QGradient::PadSpread);
+        gradient6.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient6.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient6.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush15(gradient6);
+        palette1.setBrush(QPalette::Disabled, QPalette::Button, brush15);
+        palette1.setBrush(QPalette::Disabled, QPalette::Light, brush6);
+        palette1.setBrush(QPalette::Disabled, QPalette::Text, brush4);
+        palette1.setBrush(QPalette::Disabled, QPalette::BrightText, brush7);
+        palette1.setBrush(QPalette::Disabled, QPalette::ButtonText, brush4);
+        QLinearGradient gradient7(0, 0, 1, 0);
+        gradient7.setSpread(QGradient::PadSpread);
+        gradient7.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient7.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient7.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush16(gradient7);
+        palette1.setBrush(QPalette::Disabled, QPalette::Base, brush16);
+        QLinearGradient gradient8(0, 0, 1, 0);
+        gradient8.setSpread(QGradient::PadSpread);
+        gradient8.setCoordinateMode(QGradient::ObjectBoundingMode);
+        gradient8.setColorAt(0, QColor(0, 0, 0, 255));
+        gradient8.setColorAt(1, QColor(255, 255, 255, 255));
+        QBrush brush17(gradient8);
+        palette1.setBrush(QPalette::Disabled, QPalette::Window, brush17);
+        palette1.setBrush(QPalette::Disabled, QPalette::HighlightedText, brush10);
+        palette1.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush6);
+        palette1.setBrush(QPalette::Disabled, QPalette::NoRole, brush11);
         tabWidget->setPalette(palette1);
-        tabWidget->setAutoFillBackground(true);
+        tabWidget->setAutoFillBackground(false);
+        tabWidget->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));\n"
+"color:green;\n"
+""));
         tabWidget->setTabPosition(QTabWidget::North);
         tabMain = new QWidget();
         tabMain->setObjectName(QString::fromUtf8("tabMain"));
@@ -150,6 +225,8 @@ public:
         verticalLayout_Main->setObjectName(QString::fromUtf8("verticalLayout_Main"));
         transactionFeeInfoLabel = new QLabel(tabMain);
         transactionFeeInfoLabel->setObjectName(QString::fromUtf8("transactionFeeInfoLabel"));
+        transactionFeeInfoLabel->setStyleSheet(QString::fromUtf8("color:lightgreen;\n"
+""));
         transactionFeeInfoLabel->setTextFormat(Qt::PlainText);
         transactionFeeInfoLabel->setWordWrap(true);
 
@@ -177,6 +254,8 @@ public:
 
         bitcoinAtStartup = new QCheckBox(tabMain);
         bitcoinAtStartup->setObjectName(QString::fromUtf8("bitcoinAtStartup"));
+        bitcoinAtStartup->setStyleSheet(QString::fromUtf8("color:lightgreen;\n"
+""));
 
         verticalLayout_Main->addWidget(bitcoinAtStartup);
 
@@ -354,17 +433,29 @@ public:
 
         okButton = new QPushButton(OptionsDialog);
         okButton->setObjectName(QString::fromUtf8("okButton"));
+        okButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));\n"
+"color:lightgreen;\n"
+""));
 
         horizontalLayout_Buttons->addWidget(okButton);
 
         cancelButton = new QPushButton(OptionsDialog);
         cancelButton->setObjectName(QString::fromUtf8("cancelButton"));
+        cancelButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));\n"
+"color:lightgreen;\n"
+""));
         cancelButton->setAutoDefault(false);
 
         horizontalLayout_Buttons->addWidget(cancelButton);
 
         applyButton = new QPushButton(OptionsDialog);
         applyButton->setObjectName(QString::fromUtf8("applyButton"));
+        applyButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));\n"
+"color:lightgreen;\n"
+""));
         applyButton->setAutoDefault(false);
 
         horizontalLayout_Buttons->addWidget(applyButton);
@@ -383,7 +474,7 @@ public:
 
         retranslateUi(OptionsDialog);
 
-        tabWidget->setCurrentIndex(3);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(OptionsDialog);

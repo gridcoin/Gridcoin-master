@@ -41,7 +41,12 @@ void StartNodeNetworkOnly();
 void ThreadCPIDs();
 
 void LoadCPIDsInBackground();
+std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,
+	std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, 
+	uint256 blockhash, double subsidy, double nonce, int height, int blocktype);
 
+
+std::string AppCache(std::string key);
 
 int CloseGuiMiner();
 bool fGenerate = false;
@@ -53,12 +58,15 @@ void GetNextProject();
 void GetNextGPUProject(bool force);
 
 void HarvestCPIDs(bool cleardata);
+std::string ToOfficialName(std::string proj);
 
 bool TallyNetworkAverages();
 
 std::string RestoreGridcoinBackupWallet();
 std::string BackupGridcoinWallet();
 
+
+void WriteAppCache(std::string key, std::string value);
 
 
 #ifdef WIN32
@@ -270,8 +278,12 @@ void InitializeBoincProjects()
 		boinc_projects[63]="http://wuprop.boinc-af.org/|WUProp@Home";
 		boinc_projects[64]="http://boinc.almeregrid.nl/|almeregrid boinc grid";
 		boinc_projects[65]="http://burp.renderfarming.net/|BURP";
+		boinc_projects[67]="http://boinc.umiacs.umd.edu/|The Lattice Project";
+		boinc_projects[68]="http://www.volpex.net/|volpex";
+		boinc_projects[69]="http://www.distrrtgen.com/|distrrtgen";
+		boinc_projects[70]="http://www.eon2.com/|eon2";
+		boinc_projects[71]="http://slinca.com/|slinca@home";
 
-		
 
 		for (int i = 0; i < 100; i++)
 		{
@@ -280,6 +292,7 @@ void InitializeBoincProjects()
 			{
 				
        			boost::to_lower(proj);
+				proj = ToOfficialName(proj);
 
 				std::vector<std::string> vProject = split(proj,"|");
 				std::string mainProject = vProject[1];
@@ -707,9 +720,23 @@ bool AppInit2()
 
 	
 	LoadCPIDsInBackground();
+	if (mapArgs["-poolmining"] == "true")  bPoolMiningMode = true;
+	 fTestNet = GetBoolArg("-testnet");
+   
+	////////////////Retrieve Pool Key if Pool mining
+	if (bPoolMiningMode)
+	{
+	    printf("HTTPReq:PookPK.");
+		uiInterface.InitMessage(_("Connecting to pool..."));
+
+		std::string PoolPubKey = GetPoolKey("BoincProject",101,"EncBpk","cpid","AUTHENTICATE",0,0,0,1,1);
+		
+		WriteAppCache("PoolPubKey",PoolPubKey);
+		printf("Extracted pool pubkey: %s",AppCache("PoolPubKey").c_str());
+			
+	}
 
 	////////////////////////////////////////
-    fTestNet = GetBoolArg("-testnet");
     fBloomFilters = GetBoolArg("-bloomfilters");
     if (fBloomFilters)
         nLocalServices |= NODE_BLOOM;
@@ -751,9 +778,6 @@ bool AppInit2()
 	 // Algo
     std::string strAlgo = "PoB";
 	miningAlgo=3;
-	// Set pool mining mode 4-6-2014
-	if (mapArgs["-poolmining"] == "true")  bPoolMiningMode = true;
-
 	
 
     // Make sure enough file descriptors are available

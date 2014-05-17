@@ -44,7 +44,7 @@ std::string RetrieveMd5(std::string s1);
 
 
 std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, uint256 blockhash, 
-	 double subsidy, double nonce, int height);
+	 double subsidy, double nonce, int height, int blocktype);
 
 std::string getfilecontents(std::string filename);
 
@@ -74,7 +74,6 @@ double GetPoBDifficulty()
 
 	if (mvNetwork.size() < 1) 	
 	{
-			//PobSleep(1000);
 			TallyNetworkAverages();
 	}
 
@@ -91,7 +90,10 @@ double GetPoBDifficulty()
 				double dayblocks = networkprojects/576;
 				if (dayblocks > 14)   dayblocks=14;
 				if (dayblocks < .005) dayblocks=.005;
+				//MissionCritical for PROD:
+				dayblocks=dayblocks;
 				mdLastPoBDifficulty = dayblocks;
+			
 				return dayblocks;
 	
 }
@@ -209,8 +211,6 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 	result.push_back(Pair("PoB Difficulty", bb.pobdifficulty));
 
 	result.push_back(Pair("AES512 Block Skein Hash", bb.aesskein));
-
-//4-23-2014
 	std::string skein2 = aes_complex_hash(blockhash);
 	result.push_back(Pair("AES Calc Hash",skein2));
 	uint256 boincpowhash = block.hashMerkleRoot + bb.nonce;
@@ -227,8 +227,6 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 	
 	result.push_back(Pair("BlockPoWHash ",blockhash.GetHex()));
 
- //	uint256 hashPoB = GridcoinMultipleAlgoHash(BEGIN(blockhash2), END(blockhash2));
-	//result.push_back(Pair("PoB calculated hash ",hashPoB.GetHex()));
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
     if (blockindex->pnext)
@@ -239,11 +237,6 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 
 int BoincProjectId(std::string grc) 
 {
-   if (grc=="FufdrPKUXNMrSFNMky6u18F6r6rwUmnAbb") return 1; //http://www.malariacontrol.net
-   if (grc=="G3HA4ouWr1zbhKd7jUU5ZRqR8sPsYdYmYb") return 2; //http://www.rnaworld.de/rnaworld
-   if (grc=="G1dUDVaFG8HmxuzRyCHhqU5k7eQied1nWx") return 3; //http://boinc.bakerlab.org/rosetta
-   if (grc=="G6RdibWpbYQgvvcTThx6NG2vHdBK1a51eE") return 4; //http://docking.cis.udel.edu
-   if (grc=="FvDfoheNe74JcUp6uf3N8cPeU4KeUsxPq7") return 5; //http://milkyway.cs.rpi.edu/milkyway
    return 0;
 }
 
@@ -585,19 +578,23 @@ std::string BackupGridcoinWallet()
 	//5-1-2014
 
 	std::string filename = "grc_" + DateTimeStrFormat("%m-%d-%Y", GetTime()) + ".dat";
+	std::string filename_backup = "backup.dat";
+	
 	std::string standard_filename = "std_" + DateTimeStrFormat("%m-%d-%Y", GetTime()) + ".dat";
 	std::string source_filename   = "wallet.dat";
 
 	boost::filesystem::path path = GetDataDir() / "walletbackups" / filename;
 	boost::filesystem::path target_path_standard = GetDataDir() / "walletbackups" / standard_filename;
 	boost::filesystem::path source_path_standard = GetDataDir() / source_filename;
-
+	boost::filesystem::path dest_path_std = GetDataDir() / "walletbackups" / filename_backup;
     boost::filesystem::create_directories(path.parent_path());
 	std::string errors = "";
 	//Copy the standard wallet first:
-	fileopen_and_copy(source_path_standard.string().c_str(), target_path_standard.string().c_str());
+	//	fileopen_and_copy(source_path_standard.string().c_str(), target_path_standard.string().c_str());
+	BackupWallet(*pwalletMain, target_path_standard.string().c_str());
 
 
+	
 	//Dump all private keys into the Level 2 backup
 	//5-4-2014
 
@@ -684,6 +681,8 @@ std::string BackupGridcoinWallet()
 
 	myBackup.close();
 	//Bitcoin:
+	//Copy grc backup to backup.dat:
+	fileopen_and_copy(path.string().c_str(),dest_path_std.string().c_str());
 
 
 	return errors;
@@ -818,10 +817,7 @@ Value execute(const Array& params, bool fHelp)
 	}
 	if (sitem=="post")
 	{
-		std::string result = GridcoinHttpPost("Authenticate", "a", "GetPoolKey.aspx",true);
-		Object entry;
-	    entry.push_back(Pair("POST Result",result));
-	    results.push_back(entry);
+		
 	}
 
 	if (sitem == "backupwallet")
@@ -861,13 +857,7 @@ Value execute(const Array& params, bool fHelp)
 
 	}
 
-	if (sitem == "getpoolkey")
-	{
-		std::string result = GetPoolKey("project1",1000,"1","2","auth",0,1,0,0);
-		Object entry;
-	    entry.push_back(Pair("Result",result));
-	    results.push_back(entry);
-	}
+	
 
 	if (sitem=="postcpid")
 	{

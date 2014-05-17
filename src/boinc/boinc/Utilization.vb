@@ -20,8 +20,7 @@ Public Class Utilization
 
     Public ReadOnly Property Version As Double
         Get
-            Return 131
-
+            Return 137
 
 
 
@@ -229,21 +228,10 @@ Public Class Utilization
             Return clsGVM.BoincDeltaOverTime()
         End Get
     End Property
-    Public ReadOnly Property BoincAuthenticityString As String
-        Get
-            Return Trim(clsGVM.BoincAuthenticityString)
-        End Get
-    End Property
     Public ReadOnly Property BoincTotalCreditsAvg As Double
         Get
             Return clsGVM.BoincCreditsAvg
         End Get
-    End Property
-    Public ReadOnly Property BoincAuthenticity As Double
-        Get
-            Return Val(clsGVM.BoincAuthenticityString)
-        End Get
-
     End Property
     Public ReadOnly Property BoincTotalCredits As Double
         Get

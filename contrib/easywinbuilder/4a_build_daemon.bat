@@ -30,6 +30,8 @@
 @rem remove "rem " from the next line to deactivate upnp
 @rem set PARAMS=%PARAMS% USE_UPNP=-
 
+@set PARAMS=%PARAMS% USE_DEVDIR=1
+
 @cd %ROOTPATH%\src
 @mingw32-make -f makefile.mingw %PARAMS%
 @if errorlevel 1 goto error

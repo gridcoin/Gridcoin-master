@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'sendcoinsentry.ui'
 **
-** Created: Fri Dec 27 12:43:16 2013
+** Created: Sat May 17 08:20:36 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -230,6 +230,10 @@ public:
 
         addressBookButton = new QToolButton(SendCoinsEntry);
         addressBookButton->setObjectName(QString::fromUtf8("addressBookButton"));
+        addressBookButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/icons/address-book"), QSize(), QIcon::Normal, QIcon::Off);
         addressBookButton->setIcon(icon);
@@ -238,6 +242,10 @@ public:
 
         pasteButton = new QToolButton(SendCoinsEntry);
         pasteButton->setObjectName(QString::fromUtf8("pasteButton"));
+        pasteButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         QIcon icon1;
         icon1.addFile(QString::fromUtf8(":/icons/editpaste"), QSize(), QIcon::Normal, QIcon::Off);
         pasteButton->setIcon(icon1);
@@ -246,6 +254,10 @@ public:
 
         deleteButton = new QToolButton(SendCoinsEntry);
         deleteButton->setObjectName(QString::fromUtf8("deleteButton"));
+        deleteButton->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         QIcon icon2;
         icon2.addFile(QString::fromUtf8(":/icons/remove"), QSize(), QIcon::Normal, QIcon::Off);
         deleteButton->setIcon(icon2);

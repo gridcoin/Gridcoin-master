@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'signverifymessagedialog.ui'
 **
-** Created: Fri Dec 27 12:43:16 2013
+** Created: Sat May 17 08:20:36 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -77,6 +77,10 @@ public:
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         tabWidget = new QTabWidget(SignVerifyMessageDialog);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
+        tabWidget->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:green;\n"
+""));
         tabSignMessage = new QWidget();
         tabSignMessage->setObjectName(QString::fromUtf8("tabSignMessage"));
         verticalLayout_SM = new QVBoxLayout(tabSignMessage);
@@ -201,6 +205,10 @@ public:
         verticalLayout_VM->setObjectName(QString::fromUtf8("verticalLayout_VM"));
         infoLabel_VM = new QLabel(tabVerifyMessage);
         infoLabel_VM->setObjectName(QString::fromUtf8("infoLabel_VM"));
+        infoLabel_VM->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         infoLabel_VM->setTextFormat(Qt::PlainText);
         infoLabel_VM->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         infoLabel_VM->setWordWrap(true);
@@ -279,7 +287,7 @@ public:
 
         retranslateUi(SignVerifyMessageDialog);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(SignVerifyMessageDialog);

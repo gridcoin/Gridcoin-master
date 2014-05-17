@@ -466,6 +466,11 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
 
     return result;
 }
+//
+//threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+
+	
+
 
 void ThreadFlushWalletDB(const string& strFile)
 {
@@ -484,7 +489,7 @@ void ThreadFlushWalletDB(const string& strFile)
     int64 nLastWalletUpdate = GetTime();
     while (true)
     {
-        MilliSleep(500);
+        MilliSleep(250);
 
         if (nLastSeen != nWalletDBUpdated)
         {

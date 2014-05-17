@@ -59,6 +59,13 @@ ifneq (${USE_UPNP}, -)
  DEFS += -DSTATICLIB -DUSE_UPNP=$(USE_UPNP)
 endif
 
+
+
+ifdef USE_DEVDIR
+    DEFS += -DDEV=1 
+endif
+
+
 ifneq (${USE_IPV6}, -)
 	DEFS += -DUSE_IPV6=$(USE_IPV6)
 endif

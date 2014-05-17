@@ -164,9 +164,8 @@ Public Class GVM
         End Get
     End Property
 
-    Public ReadOnly Property BoincAuthenticityString As String
+    Public ReadOnly Property OldBA As String
         Get
-            Return Trim(VerifyBoincAuthenticity.ToString())
         End Get
     End Property
     Public ReadOnly Property BoincCreditsAtPointInTime As Double

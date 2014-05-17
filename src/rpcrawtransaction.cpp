@@ -17,7 +17,7 @@
 #include <boost/lexical_cast.hpp>
 
 
-#ifdef WIN32
+#if defined(WIN32) && defined(QT_GUI)
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>

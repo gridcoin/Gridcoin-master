@@ -18,11 +18,18 @@ using namespace std;
 #include <sys/io.h>
 #endif
 
+//CCriticalSection cs_main;
+static boost::thread_group* postThreads = NULL;
 
 extern bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey);
 
 extern CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservekey);
 
+double DoubleFromAmount(int64 amount);
+
+extern MiningCPID GetGPUMiningCPID();
+
+extern void StartPostOnBackgroundThread(int height, MiningCPID miningcpid, uint256 hashmerkleroot, double nNonce, double subsidy, unsigned int nVersion, std::string message);
 
 
 void CriticalThreadDelay();
@@ -33,10 +40,19 @@ volatile int  iCriticalThreadDelay;
 
 bool OutOfSyncByAge();
 
+std::string AppCache(std::string key);
+
+std::string SerializeBoincBlock(std::string cpid, std::string projectname, std::string AESSkein, double RAC,
+	double PoBDifficulty, unsigned int diffbytes, std::string enccpid, std::string encaes, double nonce);
 
 
 bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool Connecting = false);
 
+
+
+bool CheckWorkCPU(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
+
+MiningCPID DeserializeBoincBlock(std::string block);
 
 extern CBlockTemplate* getblocktemplate_cpu(MiningCPID miningcpid);
 void PoBGPUMiner(CBlock* pblock, MiningCPID& miningcpid);
@@ -46,7 +62,7 @@ int miningthreadcount;
 
 
 std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string ENCBoincpublickey,std::string xcpid, std::string messagetype, 
-	uint256 blockhash, double subsidy, double nonce, int height);
+	uint256 blockhash, double subsidy, double nonce, int height, int blocktype);
 
 
 void GetNextGPUProject(bool force);
@@ -141,6 +157,9 @@ Value getmininginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("errors",        GetWarnings("statusbar")));
     obj.push_back(Pair("networkhashps", getnetworkhashps(params, false)));
     obj.push_back(Pair("pooledtx",      (uint64_t)mempool.size()));
+	obj.push_back(Pair("Pool Mining", bPoolMiningMode));
+
+
     obj.push_back(Pair("Testnet",       fTestNet));
     obj.push_back(Pair("Difficulty_PoB",  (double)GetPoBDifficulty()));
     obj.push_back(Pair("Errors",             GetWarnings("statusbar")));
@@ -233,7 +252,11 @@ Value getworkex(const Array& params, bool fHelp)
             nStart = GetTime();
 
             // Create new block
-            pblocktemplate = CreateNewBlock(reservekey,2,msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,false);
+			
+			MiningCPID miningcpid = GetGPUMiningCPID();
+
+
+            pblocktemplate = CreateNewBlock(reservekey,2,miningcpid,false);
 
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
@@ -327,6 +350,27 @@ Value getworkex(const Array& params, bool fHelp)
     }
 }
 
+
+
+void PostOnBackgroundThread(int height,MiningCPID miningcpid, uint256 hashmerkleroot, double nNonce, double subsidy, unsigned int nVersion, std::string message)
+{
+    	//Solved or AUTHENTICATE
+		std::string result = GetPoolKey(miningcpid.projectname,miningcpid.rac,miningcpid.encboincpublickey,miningcpid.cpid,message,
+						hashmerkleroot,subsidy,nNonce,height,nVersion);
+					printf("Posting block type %u to pool:  Result  %s\r\n",nVersion,result.c_str());
+
+}
+
+void StartPostOnBackgroundThread(int height, MiningCPID miningcpid, uint256 hashmerkleroot, double nNonce, double subsidy, unsigned int nVersion, std::string message)
+{
+	  if (!bPoolMiningMode) return;
+	  postThreads = new boost::thread_group();
+	  postThreads->create_thread(boost::bind(&PostOnBackgroundThread,height,miningcpid,hashmerkleroot,nNonce,subsidy,nVersion,message));
+	  //        minerThreads->create_thread(boost::bind(&ThreadGridcoinMiner, i));
+	
+}
+
+
 //Standard Getwork - Gridcoin - 4-4-2014
 
 
@@ -351,7 +395,10 @@ Value getwork(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
 
-	//4-27-2014
+	//test deadlock prevention
+	
+	//LOCK(cs_main);
+		
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
@@ -388,11 +435,11 @@ Value getwork(const Array& params, bool fHelp)
 			bool bPoolMiner = false;
 
 			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
-
-
-
+			
             // Create new block
-            pblocktemplate = CreateNewBlock(*pMiningKey,2,msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,bPoolMiner);
+
+			MiningCPID miningcpid = GetGPUMiningCPID();
+            pblocktemplate = CreateNewBlock(*pMiningKey,2,miningcpid,bPoolMiner);
 
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
@@ -427,8 +474,7 @@ Value getwork(const Array& params, bool fHelp)
         result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
         result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); // deprecated
         result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
-		//printf("created new grc block in g-etwork");
-
+		
         return result;
     }
     else
@@ -465,9 +511,7 @@ Value getwork(const Array& params, bool fHelp)
 			std::string pool_op = GetArg("-pooloperator", "false");
 			if (pool_op=="true") 
 			{
-				std::string newboinc = pblock->hashBoinc + "," + boinc_data;
-
-			    //pblock->hashBoinc = newboinc;
+				//std::string newboinc = pblock->hashBoinc + "," + boinc_data;
 			}
 		}
 
@@ -477,9 +521,28 @@ Value getwork(const Array& params, bool fHelp)
         pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
 
-		// Solve the PoB
-		//uint256 powhash = pblock->GetPoWHash();
+		// Solve the PoB and add AES 2 byte puzzle:
+		
+		printf("{CreateNewBlock_GPU}");
+		std::string CBH = hashBestChain.ToString();
+		//Fill in the hashBoinc: (But first, grab the original mining cpid):
+		MiningCPID miningcpid = DeserializeBoincBlock(pblock->hashBoinc);
+	
+		printf("1GPU Deserialized boinc hash %s\r\n",pblock->hashBoinc.c_str());
 
+		PoBGPUMiner(pblock, miningcpid);
+		
+		printf("2GPU Deserialized boinc hash %s\r\n",pblock->hashBoinc.c_str());
+
+		//Check CPID here:
+		bool cpidOK = IsCPIDValid(miningcpid.cpid,miningcpid.encboincpublickey);
+		if (!cpidOK) 
+		{
+			printf("\r\n GPU1: During submission of GPU block, CPID is invalid. %s : %s",miningcpid.cpid.c_str(),miningcpid.encboincpublickey.c_str());
+			return false;
+		}
+	
+		
 		bool checkblockresult = CheckProofOfBoinc(pblock,false);
 		if (!checkblockresult) 
 		{
@@ -491,50 +554,50 @@ Value getwork(const Array& params, bool fHelp)
 			printf("GPU solved PoB\r\n");
 
 		}
-			
-	
-		printf("created new gridcoin block in getwork with update");
-		std::string CBH = hashBestChain.ToString();
-		//Fill in the hashBoinc:
-		MiningCPID miningcpid;
-		miningcpid.cpid = msGPUMiningCPID;
-		miningcpid.projectname = msGPUMiningProject;
-		miningcpid.rac = mdGPUMiningRAC;
-		miningcpid.encboincpublickey = msGPUENCboincpublickey;
-		miningcpid.diffbytes = 2;
 		
-		PoBGPUMiner(pblock, miningcpid);
-
-
 		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
 		if (status)
 		{
 			
-			//4-10-2014, If Pool Mining, notify the pool this user did indeed solve the block:
+			//If Pool Mining, notify the pool this user did indeed solve the block:
 			bool bPoolMiner = false;
 			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
-			if (bPoolMiner)
+			if (bPoolMiner  && 	AppCache("PoolPubKey").length() > 1)
 			{
-					
-					double subsidy = pblock->vtx[0].vout[0].nValue;
-					//int height = pindexPrev->nHeight+1;
-					int height =nBestHeight;
-					std::string result = GetPoolKey(msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,"SOLVED",
-						pblock->hashMerkleRoot,subsidy,pblock->nNonce,height);
-					printf("Posting block to pool:  Result  %s\r\n",result.c_str());
-
+					//POOL MINING - GPU
+					printf("Ready to Post GPU block to pool\r\n");
+					double subsidy = DoubleFromAmount(pblock->vtx[0].vout[0].nValue);
+					int height = nBestHeight;
+					StartPostOnBackgroundThread(height,miningcpid,pblock->hashMerkleRoot,pblock->nNonce,subsidy,pblock->nVersion,"SOLVED");
 			}
-
-			GetNextGPUProject(false);
-
-
+			//GetNextGPUProject(false);
+			bRestartGridcoinMiner = true;
 		}
 		return status;
 
-    }
+    
+	}
 }
 
 
+
+void Mutex()
+{
+	int mutex=0;
+	while(CreatingCPUBlock)
+	{
+		mutex=mutex+100;
+		if (mutex > 8000)
+		{
+			printf("Giving Up...");
+			CreatingCPUBlock=false;
+			break;
+		}
+		MilliSleep(100);
+
+	}
+
+}
 
 
 
@@ -543,28 +606,38 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
 
 	static CBlock* pblock;
+	
+	
+	Mutex();
+
+	CreatingCPUBlock=true;
 
 	try 
 	{
 
-	printf("1.........");
+	printf("c1...");
 
 
     if (vNodes.empty())
 	{
 		printf("Getwork_CPU:Gridcoin is not connected!");
 		succeeded = false;
+		CreatingCPUBlock=false;
 		return pblock;
 	
 	}
 
 
-    if (IsInitialBlockDownload() || !bCPIDsLoaded)
+    if (IsInitialBlockDownload() || !bCPIDsLoaded || miningcpid.projectname.length() < 3 || miningcpid.cpid.length() < 3 || miningcpid.encboincpublickey.length() < 3)
 	{
 			printf("Getwork_CPU:Gridcoin is downloading blocks...");
 			succeeded=false;
+			CreatingCPUBlock=false;
 			return pblock;
 	}
+
+
+
 
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock2_t;
@@ -576,7 +649,7 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
     static int64 nStart;
     static CBlockTemplate* pblocktemplate;
 
-	printf("2.........");
+	printf("2..");
 
     if (pindexPrev != pindexBest ||  (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60))
         {
@@ -597,26 +670,30 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
             CBlockIndex* pindexPrevNew = pindexBest;
             nStart = GetTime();
 
-			//Pool Mining (4-6-2014):
 			bool bPoolMiner = false;
-
 			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
 
             // Create new block
-			printf("3.........");
+			printf("3..");
+			//DEADLOCK Found here:
+			printf("..ENT_DDLOCK..");
 
-            pblocktemplate = CreateNewBlock(reservekey,3,miningcpid.projectname, miningcpid.rac,miningcpid.encboincpublickey,miningcpid.cpid,false);
-				printf("4.........");
+            pblocktemplate = CreateNewBlock(reservekey,3,miningcpid,bPoolMiner);
+			printf("..LOCK_RELEASED..");
+
+
+			printf("4..");
 
             if (!pblocktemplate)
 			{
 
 				printf("GetCPUBlock::Out of memory");
 				succeeded=false;
+				CreatingCPUBlock=false;
 				return pblock;
 
 			}
-			printf("5.........");
+			printf("5..");
 
             vNewBlockTemplate2.push_back(pblocktemplate);
 
@@ -626,11 +703,8 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
 
 
-	printf("6.........");
-
-     //   CBlock* pblock = &pblocktemplate->block; // pointer for convenience
-	  pblock = &pblocktemplate->block; // pointer for convenience
-
+  	   printf("6..");
+       pblock = &pblocktemplate->block; // pointer for convenience
 
         // Update nTime
         pblock->UpdateTime(pindexPrev);
@@ -653,7 +727,7 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
     	printf("created new CPU block in getwork_cpu");
 		succeeded=true;
 
-
+		CreatingCPUBlock=false;
         return pblock;
 
 	}
@@ -661,25 +735,24 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 	{
 		printf("Error while creating cpu block in rpc\r\n");
 		succeeded=false;
+		
+		CreatingCPUBlock=false;
 		return pblock;
 	}
 	
+	CreatingCPUBlock=false;
+	return pblock;
 
 }
 
 
 
-bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey)
+bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey, double nonce)
 {
 	 
         
 		std::string pool_op = GetArg("-pooloperator", "false");
-		if (pool_op=="true") 
-		{
-						//			std::string newboinc = pblock->hashBoinc + "," + boinc_data;
-		}
-
-	
+			
 		// Solve the PoB
 		uint256 powhash = pblock->GetPoWHash();
 		printf("Submitting New CPU Block with merkleroot %s, powhash %s",
@@ -702,24 +775,26 @@ bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey)
 		printf("created new gridcoin CPU block in getwork_cpu with update");
 		std::string CBH = hashBestChain.ToString();
 		
-		bool status = CheckWork(pblock, *pwalletMain, reservekey);
+		bool status = CheckWorkCPU(pblock, *pwalletMain, reservekey);
 		if (status)
 		{
 			
 			//4-10-2014, If Pool Mining, notify the pool this user did indeed solve the block:
 			bool bPoolMiner = false;
 			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
-			if (bPoolMiner)
+			if (bPoolMiner  && 	AppCache("PoolPubKey").length() > 1)
 			{
-					
-					double subsidy = pblock->vtx[0].vout[0].nValue;
+					//POOL MINING - CPU MINER
+					double subsidy = DoubleFromAmount(pblock->vtx[0].vout[0].nValue);
+					MiningCPID miningcpid = DeserializeBoincBlock(pblock->hashBoinc);
 					int height =nBestHeight;
-					std::string result = GetPoolKey(msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,"SOLVED",
-						pblock->hashMerkleRoot, subsidy,pblock->nNonce,height);
-					printf("Posting block to pool:  Result  %s\r\n",result.c_str());
+					StartPostOnBackgroundThread(height,miningcpid,pblock->hashMerkleRoot,pblock->nNonce,subsidy,pblock->nVersion,"SOLVED");
+					printf("Posting CPU block to pool");
+
 			}
 
 		}
+
 		return status;
  }
 
@@ -728,7 +803,18 @@ bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey)
 
 
 
+MiningCPID GetGPUMiningCPID()
+{
 
+	MiningCPID miningcpid;
+	miningcpid.projectname=	msGPUMiningProject;
+	miningcpid.cpid = msGPUMiningCPID;
+	miningcpid.rac=mdGPUMiningRAC;
+	miningcpid.encboincpublickey = msGPUENCboincpublickey;
+	miningcpid.initialized = true;
+	return miningcpid;
+
+}
 
 
 
@@ -834,8 +920,9 @@ Value getblocktemplate(const Array& params, bool fHelp)
             pblocktemplate = NULL;
         }
 
-		
-        pblocktemplate = CreateNewBlock(*pMiningKey,2,msGPUMiningProject,mdGPUMiningRAC,msGPUENCboincpublickey,msGPUMiningCPID,false);
+		MiningCPID miningcpid = GetGPUMiningCPID();
+
+        pblocktemplate = CreateNewBlock(*pMiningKey,2,miningcpid,false);
 					
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");

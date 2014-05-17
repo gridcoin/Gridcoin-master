@@ -42,7 +42,7 @@ Module modUtilization
     Private last_sample As Double = 0
     Public BoincAvgOverTime As String = ""
     Public _BoincMD5 = ""
-    Public _BoincAuthenticity As Double = 0
+    Public _oldBA As Double = 0
     Public BlockData As String = ""
     Public PublicWalletAddress As String = ""
     Public mdProcNarrComponent1 As Double
