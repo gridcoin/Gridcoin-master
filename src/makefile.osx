@@ -155,6 +155,14 @@ obj/%.o: %.cpp
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
 
+
+obj/%.o: %.c
+    $(CXX) -c $(CFLAGS) -f permissive -MMD -MF $(@:%.o=%.d) -o $@ $<
+    @cp $(@:%.o=%.d) $(@:%.o=%.P); \
+      sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+          -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
+      rm -f $(@:%.o=%.d)
+
 gridcoind: $(OBJS:obj/%=obj/%)
 	$(CXX) $(CFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)
 

@@ -1218,7 +1218,9 @@ try
 	if (sout == "-1") 
 	{
 		printf("Unable to obtain Boinc CPIDs \r\n");
-		printf("Please set boincdatadir=c:\\programdata\\boinc\\      \r\n");
+
+		printf("Please set boincdatadir=c:\\programdata\\boinc\\  \r\n");
+
 		return;
 	}
 	if (cleardata)
