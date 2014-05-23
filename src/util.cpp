@@ -1097,10 +1097,19 @@ std::string GetBoincDataDir()
         path = mapArgs["-boincdatadir"];
 		if (path.length() > 0) return path;
     } 
-	else 
-	{
-        path = "c:\\programdata\\boinc\\";
-    }
+
+    #ifndef WIN32
+    #ifdef __linux__
+        path = "/var/lib/boinc-client/"; // Linux
+    #else
+        path = "/Library/Application Support/BOINC Data/"; // Mac OSX
+    #endif
+    #elif WINVER < 0x0600
+        path = "c:\\documents and settings\\all users\\application data\\boinc\\"; // Windows XP
+    #else
+        path = "c:\\programdata\\boinc\\"; // Windows Vista and up
+    #endif
+
     return path;
 }
 
