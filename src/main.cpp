@@ -1219,7 +1219,12 @@ try
 	{
 		printf("Unable to obtain Boinc CPIDs \r\n");
 
-		printf("Please set boincdatadir=c:\\programdata\\boinc\\  \r\n");
+		if (mapArgs.count("-boincdatadir") && mapArgs["-boincdatadir"].length() > 0)
+		{
+			printf("Boinc data directory set in gridcoin.conf has been incorrectly specified \r\n");
+		}
+
+		else printf("Boinc data directory is not in the operating system's default location \r\nPlease move it there or specify its current location in gridcoin.conf \r\n");
 
 		return;
 	}
