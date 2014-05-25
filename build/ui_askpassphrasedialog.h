@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'askpassphrasedialog.ui'
 **
-** Created: Fri Dec 27 12:43:16 2013
+** Created: Tue May 20 20:07:07 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -50,6 +50,10 @@ public:
         sizePolicy.setHeightForWidth(AskPassphraseDialog->sizePolicy().hasHeightForWidth());
         AskPassphraseDialog->setSizePolicy(sizePolicy);
         AskPassphraseDialog->setMinimumSize(QSize(550, 0));
+        AskPassphraseDialog->setStyleSheet(QString::fromUtf8("\n"
+"background-color:black;\n"
+"color:lightgreen;\n"
+""));
         verticalLayout = new QVBoxLayout(AskPassphraseDialog);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         warningLabel = new QLabel(AskPassphraseDialog);
@@ -64,33 +68,51 @@ public:
         formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
         passLabel1 = new QLabel(AskPassphraseDialog);
         passLabel1->setObjectName(QString::fromUtf8("passLabel1"));
+        passLabel1->setStyleSheet(QString::fromUtf8("background-color:black;\n"
+""));
 
         formLayout->setWidget(0, QFormLayout::LabelRole, passLabel1);
 
         passEdit1 = new QLineEdit(AskPassphraseDialog);
         passEdit1->setObjectName(QString::fromUtf8("passEdit1"));
+        passEdit1->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         passEdit1->setEchoMode(QLineEdit::Password);
 
         formLayout->setWidget(0, QFormLayout::FieldRole, passEdit1);
 
         passLabel2 = new QLabel(AskPassphraseDialog);
         passLabel2->setObjectName(QString::fromUtf8("passLabel2"));
+        passLabel2->setStyleSheet(QString::fromUtf8("background-color:black;\n"
+""));
 
         formLayout->setWidget(1, QFormLayout::LabelRole, passLabel2);
 
         passEdit2 = new QLineEdit(AskPassphraseDialog);
         passEdit2->setObjectName(QString::fromUtf8("passEdit2"));
+        passEdit2->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         passEdit2->setEchoMode(QLineEdit::Password);
 
         formLayout->setWidget(1, QFormLayout::FieldRole, passEdit2);
 
         passLabel3 = new QLabel(AskPassphraseDialog);
         passLabel3->setObjectName(QString::fromUtf8("passLabel3"));
+        passLabel3->setStyleSheet(QString::fromUtf8("background-color:black;\n"
+""));
 
         formLayout->setWidget(2, QFormLayout::LabelRole, passLabel3);
 
         passEdit3 = new QLineEdit(AskPassphraseDialog);
         passEdit3->setObjectName(QString::fromUtf8("passEdit3"));
+        passEdit3->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         passEdit3->setEchoMode(QLineEdit::Password);
 
         formLayout->setWidget(2, QFormLayout::FieldRole, passEdit3);
@@ -110,6 +132,10 @@ public:
 
         buttonBox = new QDialogButtonBox(AskPassphraseDialog);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 

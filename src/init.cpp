@@ -283,6 +283,10 @@ void InitializeBoincProjects()
 		boinc_projects[69]="http://www.distrrtgen.com/|distrrtgen";
 		boinc_projects[70]="http://www.eon2.com/|eon2";
 		boinc_projects[71]="http://slinca.com/|slinca@home";
+		boinc_projects[72]="http://finance.gridcoin.us/|Gridcoin Finance";
+		boinc_projects[73]="http://supernode.gridcoin.us/|Gridcoin Supernode";
+
+
 
 
 		for (int i = 0; i < 100; i++)
@@ -822,6 +826,9 @@ bool AppInit2()
     fPrintToConsole = GetBoolArg("-printtoconsole");
     fPrintToDebugger = GetBoolArg("-printtodebugger");
     fLogTimestamps = GetBoolArg("-logtimestamps");
+
+	
+	fLogTimestamps=true;
 
     if (mapArgs.count("-timeout"))
     {
@@ -1453,10 +1460,8 @@ bool AppInit2()
     // Run a thread to flush wallet periodically
     threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
 	//Create the GridCoin thread
-
-	//PRODUCTION CRITICAL (REMOVE fTestNet)
-	//Generate if cpumining=true
 	bAllowBackToBack=false;
+	//Generate if cpumining=true
 	GenerateGridcoins(fGenerate,true);
 	
     return !fRequestShutdown;

@@ -56,13 +56,13 @@ Module modUtilization
         Housecleaning()
     
         If _timerBoincUtilization Is Nothing Then
-            _timerBoincUtilization = New System.Timers.Timer(60000)
+            _timerBoincUtilization = New System.Timers.Timer(600000)
             AddHandler _timerBoincUtilization.Elapsed, New ElapsedEventHandler(AddressOf BoincUtilizationTimerElapsed)
             _timerBoincUtilization.Enabled = True
         End If
 
         If _timerBoincCredits Is Nothing Then
-            _timerBoincCredits = New System.Timers.Timer(600000)
+            _timerBoincCredits = New System.Timers.Timer(6000000)
             AddHandler _timerBoincCredits.Elapsed, New ElapsedEventHandler(AddressOf BoincCreditsElapsed)
             _timerBoincCredits.Enabled = True
             BoincCreditsElapsed()
@@ -72,7 +72,7 @@ Module modUtilization
     Private Sub BoincUtilizationTimerElapsed()
         Try
             _timerBoincUtilization.Enabled = False
-            ReturnBoincCPUUsage()
+            ' ReturnBoincCPUUsage()
         Catch ex As Exception
         End Try
         _timerBoincUtilization.Enabled = True

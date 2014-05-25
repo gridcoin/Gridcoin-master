@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'transactiondescdialog.ui'
 **
-** Created: Sat May 17 08:20:36 2014
+** Created: Fri May 23 18:28:42 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -33,7 +33,7 @@ public:
     {
         if (TransactionDescDialog->objectName().isEmpty())
             TransactionDescDialog->setObjectName(QString::fromUtf8("TransactionDescDialog"));
-        TransactionDescDialog->resize(620, 250);
+        TransactionDescDialog->resize(1000, 336);
         QPalette palette;
         QBrush brush(QColor(0, 255, 0, 255));
         brush.setStyle(Qt::SolidPattern);

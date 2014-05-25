@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'optionsdialog.ui'
 **
-** Created: Sat May 17 08:20:36 2014
+** Created: Tue May 20 19:41:48 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -348,11 +348,19 @@ public:
         verticalLayout_Window->setObjectName(QString::fromUtf8("verticalLayout_Window"));
         minimizeToTray = new QCheckBox(tabWindow);
         minimizeToTray->setObjectName(QString::fromUtf8("minimizeToTray"));
+        minimizeToTray->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
 
         verticalLayout_Window->addWidget(minimizeToTray);
 
         minimizeOnClose = new QCheckBox(tabWindow);
         minimizeOnClose->setObjectName(QString::fromUtf8("minimizeOnClose"));
+        minimizeOnClose->setStyleSheet(QString::fromUtf8("\n"
+"background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));\n"
+"color:lightgreen;\n"
+""));
 
         verticalLayout_Window->addWidget(minimizeOnClose);
 

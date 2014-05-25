@@ -787,6 +787,12 @@ color:green;
          <property name="toolTip">
           <string>Show only a tray icon after minimizing the window.</string>
          </property>
+         <property name="styleSheet">
+          <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
+color:lightgreen;
+</string>
+         </property>
          <property name="text">
           <string>&amp;Minimize to the tray instead of the taskbar</string>
          </property>
@@ -796,6 +802,12 @@ color:green;
         <widget class="QCheckBox" name="minimizeOnClose">
          <property name="toolTip">
           <string>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Quit in the menu.</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
+color:lightgreen;
+</string>
          </property>
          <property name="text">
           <string>M&amp;inimize on close</string>

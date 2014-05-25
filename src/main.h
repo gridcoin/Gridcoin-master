@@ -212,6 +212,7 @@ extern std::string 	msGPUMiningCPID;
 extern double    	mdGPUMiningRAC;
 extern std::string  msGPUENCboincpublickey;
 extern std::string  msGPUboinckey;
+extern double       boincmagnitude;
 
 
  // Stats for Main Screen:

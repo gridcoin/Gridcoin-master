@@ -56,41 +56,53 @@ Public Class frmMining
     Private Sub OneMinuteUpdate()
         Try
 
-            If mlLeaderboardPosition = 0 Or mdScryptSleep < 0.5 Then Call RefreshLeaderboardPosition()
+            If mlLeaderboardPosition = 0 Or mdScryptSleep < 0.5 Then
+                '                Call RefreshLeaderboardPosition()
 
-        Dim lMinSetting = Val(KeyValue("RestartMiner"))
-        Dim lRunning = Math.Abs(DateDiff(DateInterval.Minute, RestartedMinerAt, Now))
-        If lMinSetting = 0 Then
-            lblRestartMiner.Text = "Never"
-        Else
-            Dim dCountdown As Double
-            dCountdown = lMinSetting - lRunning
-            lblRestartMiner.Text = Trim(dCountdown)
-            If dCountdown <= 0 Then
-                    Refresh2(True)
-                End If
-        End If
-
-        lMinSetting = Val(KeyValue("RestartWallet"))
-            lRunning = Math.Abs(DateDiff(DateInterval.Minute, RestartedWalletAt, Now))
-        If lMinSetting = 0 Then
-            lblRestartWallet.Text = "Never"
-        Else
-            Dim dCountdown As Double
-            dCountdown = lMinSetting - lRunning
-                lblRestartWallet.Text = Trim(dCountdown)
-            If dCountdown <= 0 Then
-                RestartedWalletAt = Now
-                RestartWallet()
             End If
-        End If
-            'Update Scrypt Sleep
-            '1-15-2014
-            lblScryptSleep.Text = String.Format("{0:p}", Val(mdScryptSleep))
-            lblLeaderboardPosition.Text = Trim(mlLeaderboardPosition)
-            CalculateScryptSleep()
-            lblSleepLevel.Text = String.Format("{0:p}", Val(mdBlockSleepLevel))
-            lblStatus.Text = msSleepStatus
+            
+            Dim lMinSetting As Long
+            Dim lRunning As Long
+
+            If False Then
+                lMinSetting = Val(KeyValue("RestartMiner"))
+                lRunning = Math.Abs(DateDiff(DateInterval.Minute, RestartedMinerAt, Now))
+                If lMinSetting = 0 Then
+                    lblRestartMiner.Text = "Never"
+                Else
+                    Dim dCountdown As Double
+                    dCountdown = lMinSetting - lRunning
+                    lblRestartMiner.Text = Trim(dCountdown)
+                    If dCountdown <= 0 Then
+                        Refresh2(True)
+                    End If
+                End If
+            End If
+
+
+            If False Then
+                lMinSetting = Val(KeyValue("RestartWallet"))
+                lRunning = Math.Abs(DateDiff(DateInterval.Minute, RestartedWalletAt, Now))
+                If lMinSetting = 0 Then
+                    lblRestartWallet.Text = "Never"
+                Else
+                    Dim dCountdown As Double
+                    dCountdown = lMinSetting - lRunning
+                    lblRestartWallet.Text = Trim(dCountdown)
+                    If dCountdown <= 0 Then
+                        RestartedWalletAt = Now
+                        RestartWallet()
+                    End If
+                End If
+                'Update Scrypt Sleep
+                lblScryptSleep.Text = String.Format("{0:p}", Val(mdScryptSleep))
+                lblLeaderboardPosition.Text = Trim(mlLeaderboardPosition)
+                CalculateScryptSleep()
+                lblSleepLevel.Text = String.Format("{0:p}", Val(mdBlockSleepLevel))
+                lblStatus.Text = msSleepStatus
+            End If
+
+            ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
         Catch exx As Exception
             Log("One minute update:" + exx.Message)
@@ -419,18 +431,16 @@ Public Class frmMining
     End Sub
 
     Private Sub timerBoincBlock_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles timerBoincBlock.Tick
-        lblCPUMinerElapsed.Text = Trim(Math.Round(clsGVM.CPUMiner.KHPS, 0))
+        '   lblCPUMinerElapsed.Text = Trim(Math.Round(clsGVM.CPUMiner.KHPS, 0))
         lblLastBlockHash.Text = Mid(clsGVM.LastBlockHash, 1, 43) + "..."
         mlElapsedTime = mlElapsedTime + 1
 
-        If clsGVM.CPUMiner.Status = False Then
-            lblBoincBlock.Text = Mid(clsGVM.CPUMiner.MinedHash, 1, 42) + "..."
-        Else
-        End If
-
+      
         If msLastBlockHash <> lblLastBlockHash.Text Then
-            If mlElapsedTime > 40 Then Call OneMinuteUpdate() 'Update scrypt sleep panel
+            If mlElapsedTime > 40 Then
+                '   Call OneMinuteUpdate() 'Update scrypt sleep panel
 
+            End If
         End If
         msLastBlockHash = lblLastBlockHash.Text
 
@@ -669,8 +679,8 @@ Public Class frmMining
 
         'Update Boinc Stats:
         Try
-            lblPower.Text = Trim(Math.Round(clsUtilization.BoincUtilization, 1))
-            lblThreadCount.Text = Trim(clsUtilization.BoincThreads)
+            '  lblPower.Text = Trim(Math.Round(clsUtilization.BoincUtilization, 1))
+            ' lblThreadCount.Text = Trim(clsUtilization.BoincThreads)
             lblVersion.Text = Trim(clsUtilization.Version)
             lblAvgCredits.Text = Trim(clsUtilization.BoincTotalCreditsAvg)
             lblMD5.Text = Trim(clsUtilization.BoincMD5)
@@ -748,7 +758,7 @@ Public Class frmMining
     Private Sub timerReaper_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles timerReaper.Tick
         Try
             miInitCounter = miInitCounter + 1
-            If miInitCounter = 7 Then
+            If miInitCounter = 3 Then
                 Call InitializeFormMining()
 
             End If
@@ -999,10 +1009,9 @@ Public Class frmMining
         If mdScryptSleep = 0 Then mdScryptSleep = 0.5
     End Sub
     Private Sub TimerCGMonitor_Tick(sender As System.Object, e As System.EventArgs) Handles TimerCGMonitor.Tick
-        RefreshLeaderboardPosition()
+        'RefreshLeaderboardPosition()
         'Scrypt Sleep : if we are sleeping, don't bother monitoring the GPUs:
-        If msSleepStatus = "SLEEP" Then Exit Sub
-
+      
         'For each enabled CGMiner, restart if down:
         If chkCGMonitor.Checked = False Then Exit Sub
         For x = 0 To 5
@@ -1060,9 +1069,6 @@ Public Class frmMining
 
     End Sub
 
-    Private Sub timerPoolAuthenticator_Tick(sender As System.Object, e As System.EventArgs) Handles timerPoolAuthenticator.Tick
-       
-    End Sub
 
     Private Sub btnReauthenticate_Click(sender As System.Object, e As System.EventArgs)
         

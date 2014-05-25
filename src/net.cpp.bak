@@ -1504,15 +1504,15 @@ void ThreadMapPort()
 
                 if(r!=UPNPCOMMAND_SUCCESS)
 				{
-                    printf("AddPortMapping(%s, %s, %s) failed with code %d (%s)\n",
-                        port.c_str(), port.c_str(), lanaddr, r, strupnperror(r));
+                   // printf("AddPortMapping(%s, %s, %s) unsuccessful with code %d (%s)\n",                        port.c_str(), port.c_str(), lanaddr, r, strupnperror(r));
+
 				}
                 else
 				{
                   //  printf("UPnP Port Mapping successful.\n");
 				}
 
-                MilliSleep(20*60*1000); // Refresh every 20 minutes
+                MilliSleep(40*60*1000); // Refresh every 20 minutes
             }
         }
         catch (boost::thread_interrupted)

@@ -25,6 +25,9 @@ extern bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey);
 
 extern CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservekey);
 
+double Round(double d, int place);
+
+
 double DoubleFromAmount(int64 amount);
 
 extern MiningCPID GetGPUMiningCPID();
@@ -165,8 +168,9 @@ Value getmininginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("Errors",             GetWarnings("statusbar")));
     obj.push_back(Pair("PoB Mining Enabled",   fGenerate));
 	obj.push_back(Pair("Active PoB Thread Count",  miningthreadcount));
+	obj.push_back(Pair("Boinc Magnitude",  Round(boincmagnitude,3)));
 
-    obj.push_back(Pair("PoB Thread Limit ",       (int)GetArg("-genproclimit", -1)));
+    obj.push_back(Pair("PoB Thread Limit ",       (int)GetArg("-threadlimit", -1)));
     obj.push_back(Pair("PoB HashesPerSec",       gethashespersec(params, false)));
 	obj.push_back(Pair("CPU Mining Project", 	msMiningProject));
 	obj.push_back(Pair("CPU Mining CPID",       msMiningCPID));
@@ -570,11 +574,9 @@ Value getwork(const Array& params, bool fHelp)
 					int height = nBestHeight;
 					StartPostOnBackgroundThread(height,miningcpid,pblock->hashMerkleRoot,pblock->nNonce,subsidy,pblock->nVersion,"SOLVED");
 			}
-			//GetNextGPUProject(false);
-			bRestartGridcoinMiner = true;
+			GetNextGPUProject(false);
 		}
 		return status;
-
     
 	}
 }

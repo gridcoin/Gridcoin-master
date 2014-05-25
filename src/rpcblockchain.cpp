@@ -90,12 +90,8 @@ double GetPoBDifficulty()
 				double dayblocks = networkprojects/576;
 				if (dayblocks > 14)   dayblocks=14;
 				if (dayblocks < .005) dayblocks=.005;
-				//MissionCritical for PROD:
-				dayblocks=dayblocks;
 				mdLastPoBDifficulty = dayblocks;
-			
 				return dayblocks;
-	
 }
 
 
@@ -273,9 +269,8 @@ bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjec
 	try 
 	{
 		
-		
 					//Gridcoin; Find CPID+Project+RAC in chain
-					int nMaxDepth = nBestHeight-3;
+					int nMaxDepth = nBestHeight-1;
 
 					if (nMaxDepth < 3) nMaxDepth=3;
 
@@ -305,7 +300,7 @@ bool FindRAC(bool CheckingWork, std::string TargetCPID, std::string TargetProjec
 					////////////////////////////
 					if (nMinDepth > nMaxDepth) 
 					{
-						nMinDepth = nMaxDepth-2;
+						nMinDepth = nMaxDepth-1;
 					}
 	
 					if (nMaxDepth < 5 || nMinDepth < 5) return false;

@@ -1438,65 +1438,66 @@ void BitcoinGUI::timerfire()
 		}
    
 
-		/*
-		if (Timer("net_averages",245)) 
-		{
-			printf("Reharvesting Gridcoin Net Averages");
-		    //printf("BestChain: new best=%s  height=%d  date=%s\n",    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
-			TallyNetworkAverages();
-		}
-		*/
+		
 
 		if (Timer("net_averages",350)) 
 		{
 			printf("\r\nReharvesting Gridcoin Net Averages\r\n");
-		    //printf("BestChain: new best=%s  height=%d  date=%s\n",    hashBestChain.ToString().c_str(), nBestHeight,  DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str());
+			//Freeze mining threads
+		    iCriticalThreadDelay=30;
 			TallyNetworkAverages();
+			//Restart the PoB miners, since the PoB Diff probably changed:
 		}
 		
-
-		if (Timer("restart_network",500))
+		if (false)
 		{
-			//This procedure will also tally net avgs and harvest CPIDS
-			//Critical Production Change back to 200:
-			printf("\r\nRestarting gridcoin's network layer @ %s\r\n",time1.c_str());
-			RestartGridcoin3();
+			if (Timer("restart_network",777))
+			{
+				//This procedure will also tally net avgs and harvest CPIDS
+				printf("\r\nRestarting gridcoin's network layer @ %s\r\n",time1.c_str());
+				iCriticalThreadDelay=30;
+				RestartGridcoin3();
+			}
 		}
 
-		if (Timer("gather_cpids",1000))
+
+		if (Timer("gather_cpids",10000))
 		{
 			printf("\r\nReharvesting cpids in background thread...\r\n");
+		    iCriticalThreadDelay=30;
 			LoadCPIDsInBackground();
 		}
 
-
-		if (Timer("sql",100000) && false)
+		if (false)
 		{
+				if (Timer("sql",100000) && false)
+				{
 
-				#ifdef WIN32
+						#ifdef WIN32
 		
-			//Upload the current block to the GVM
-			printf("Ready to sync SQL...\r\n");
-     		QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
-	    	globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
-			//Retrieve SQL high block number:
-			int iSqlBlock = 0;
-			iSqlBlock = globalcom->dynamicCall("RetrieveSqlHighBlock()").toInt();
-     	    //Send Gridcoin block to SQL:
-			QString qsblock = QString::fromUtf8(RetrieveBlocksAsString(iSqlBlock).c_str());
-			globalcom->dynamicCall("SetSqlBlock(Qstring)",qsblock);
-	    	//Set Public Wallet Address
-     	    QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
-	        globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
-	    	//Set Best Block
-	    	globalcom->dynamicCall("SetBestBlock(int)", nBestHeight);
-#endif
+					//Upload the current block to the GVM
+					printf("Ready to sync SQL...\r\n");
+     				QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
+	    			globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
+					//Retrieve SQL high block number:
+					int iSqlBlock = 0;
+					iSqlBlock = globalcom->dynamicCall("RetrieveSqlHighBlock()").toInt();
+     				//Send Gridcoin block to SQL:
+					QString qsblock = QString::fromUtf8(RetrieveBlocksAsString(iSqlBlock).c_str());
+					globalcom->dynamicCall("SetSqlBlock(Qstring)",qsblock);
+	    			//Set Public Wallet Address
+     				QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
+					globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
+	    			//Set Best Block
+	    			globalcom->dynamicCall("SetBestBlock(int)", nBestHeight);
+					#endif
+				}
 		}
-	}
-	catch(std::runtime_error &e) 
-	{
-		printf("GENERAL RUNTIME ERROR!");
-	}
+		}
+		catch(std::runtime_error &e) 
+		{
+			printf("GENERAL RUNTIME ERROR!");
+		}
 
 
 }

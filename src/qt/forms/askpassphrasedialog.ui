@@ -25,6 +25,12 @@
   <property name="windowTitle">
    <string>Passphrase Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">
+background-color:black;
+color:lightgreen;
+</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="warningLabel">
@@ -43,6 +49,10 @@
      </property>
      <item row="0" column="0">
       <widget class="QLabel" name="passLabel1">
+       <property name="styleSheet">
+        <string notr="true">background-color:black;
+</string>
+       </property>
        <property name="text">
         <string>Enter passphrase</string>
        </property>
@@ -50,6 +60,12 @@
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="passEdit1">
+       <property name="styleSheet">
+        <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
+color:lightgreen;
+</string>
+       </property>
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
        </property>
@@ -57,6 +73,10 @@
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="passLabel2">
+       <property name="styleSheet">
+        <string notr="true">background-color:black;
+</string>
+       </property>
        <property name="text">
         <string>New passphrase</string>
        </property>
@@ -64,6 +84,12 @@
      </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="passEdit2">
+       <property name="styleSheet">
+        <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
+color:lightgreen;
+</string>
+       </property>
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
        </property>
@@ -71,6 +97,10 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="passLabel3">
+       <property name="styleSheet">
+        <string notr="true">background-color:black;
+</string>
+       </property>
        <property name="text">
         <string>Repeat new passphrase</string>
        </property>
@@ -78,6 +108,12 @@
      </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="passEdit3">
+       <property name="styleSheet">
+        <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
+color:lightgreen;
+</string>
+       </property>
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
        </property>
@@ -103,6 +139,12 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="styleSheet">
+      <string notr="true">
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
+color:lightgreen;
+</string>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
