@@ -399,7 +399,10 @@ std::string AppCache(std::string key)
 		mvAppCache.insert(map<string,StructCPIDCache>::value_type("cache"+key,setting));
 	    mvAppCache["cache"+key]=setting;
 	}
-	if (setting.xml != "") printf("AppCachehit on %s",setting.xml.c_str());
+	if (setting.xml != "") 
+	{
+			//printf("AppCachehit on %s",setting.xml.c_str());
+	}
 	return setting.xml;
 }
 
@@ -1358,16 +1361,35 @@ try
 
 				}
 
-				if (structcpid.verifiedrac < 100)         
+				
+				
+				if (!structcpid.Iscpidvalid)
 				{
 					structcpid.Iscpidvalid = false;
-					structcpid.errors = "RAC too low";
+					structcpid.errors = "CPID invalid.  Check E-mail address.";
 				}
-				if (!structverify.initialized)
+
+				if (!structverify.initialized && structcpid.Iscpidvalid)
 				{
 					structcpid.Iscpidvalid = false;
 					structcpid.errors = "Project missing in credit verification node.";
 				}
+
+				if (structcpid.rac < 100)         
+				{
+					structcpid.Iscpidvalid = false;
+					structcpid.errors = "RAC too low";
+				}
+
+				if (structverify.initialized)
+				{
+					if (structcpid.verifiedrac < 100 && structcpid.verifiedrac > 0)
+					{
+						structcpid.errors = "Verified RAC too low.";
+
+					}
+				}
+
 				if (structverify.initialized)
 				{
 					if (structcpid.verifiedrac == 0 && structcpid.rac > 100)
@@ -5499,7 +5521,7 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 
         pfrom->fSuccessfullyConnected = true;
 
-        printf("receive version message: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString().c_str(), addrFrom.ToString().c_str(), pfrom->addr.ToString().c_str());
+        //printf("receive version message: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString().c_str(), addrFrom.ToString().c_str(), pfrom->addr.ToString().c_str());
 
         cPeerBlockCounts.input(pfrom->nStartingHeight);
     }
@@ -7357,7 +7379,7 @@ MiningCPID GetNextProject()
 						mytotalrac = mytotalrac + structcpid.rac;
 						mytotalpct = mytotalpct + projpct;
 						mycount=mycount+1;
-						printf("Magnitude: instances %g   myrac  %g   netrac  %g\r\n",mycount,structcpid.rac,ProjectRAC);
+						//printf("Magnitude: instances %g   myrac  %g   netrac  %g\r\n",mycount,structcpid.rac,ProjectRAC);
 					}
 				}
 			}
@@ -7683,7 +7705,7 @@ void PoBGPUMiner(CBlock* pblock, MiningCPID& miningcpid)
 						miningcpid.rac,		miningcpid.pobdifficulty, 
 						miningcpid.diffbytes, 
 						miningcpid.encboincpublickey, enc_aes, nNonce);
-				printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
+				//printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
 				pblock->hashBoinc = hashBoinc;
 				return;
 			}
@@ -7704,7 +7726,7 @@ void CriticalThreadDelay()
 	{
 		iCriticalThreadDelay--;
 		MilliSleep(1000);
-		printf("CriticalThreadDelay()::Sleeping().%i .",iCriticalThreadDelay);
+		//printf("CriticalThreadDelay()::Sleeping().%i .",iCriticalThreadDelay);
 	}
 }
 
@@ -7843,7 +7865,7 @@ double static PoBMiner(int threadid)
 						miningcpid.rac,		miningcpid.pobdifficulty, 
 						miningcpid.diffbytes, 
 						miningcpid.encboincpublickey, enc_aes, nNonce);
-						printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
+						//printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
 						pblock->hashBoinc = hashBoinc;
 						std::string skein2 = aes_complex_hash(powhash);
 						printf("calculated skein: %s",skein2.c_str());
