@@ -1470,15 +1470,14 @@ void BitcoinGUI::timerfire()
 
 		if (false)
 		{
-				if (Timer("sql",100000) && false)
+				if (Timer("sql",2))
 				{
 
-						#ifdef WIN32
-		
+					#ifdef WIN32
 					//Upload the current block to the GVM
-					printf("Ready to sync SQL...\r\n");
-     				QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
-	    			globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
+					//printf("Ready to sync SQL...\r\n");
+     				//QString lbh = QString::fromUtf8(hashBestChain.ToString().c_str()); 
+	    			//globalcom->dynamicCall("SetLastBlockHash(QString)",lbh);
 					//Retrieve SQL high block number:
 					int iSqlBlock = 0;
 					iSqlBlock = globalcom->dynamicCall("RetrieveSqlHighBlock()").toInt();
@@ -1486,8 +1485,8 @@ void BitcoinGUI::timerfire()
 					QString qsblock = QString::fromUtf8(RetrieveBlocksAsString(iSqlBlock).c_str());
 					globalcom->dynamicCall("SetSqlBlock(Qstring)",qsblock);
 	    			//Set Public Wallet Address
-     				QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
-					globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
+     				//QString pwa = QString::fromUtf8(DefaultWalletAddress().c_str()); 
+					//globalcom->dynamicCall("SetPublicWalletAddress(QString)",pwa);
 	    			//Set Best Block
 	    			globalcom->dynamicCall("SetBestBlock(int)", nBestHeight);
 					#endif
