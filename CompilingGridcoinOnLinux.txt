@@ -25,6 +25,8 @@
 
 #### (Tested with #boost 1_5_4_0, Berkeley db 4.8.30, miniupnpc 1.8, openssl 1.0.1e
 #### Step 1: Building the headless daemon:
+If you have trouble updating source from git:
+git config --global http.sslverify false
 
 
 sudo apt-get install ntp git build-essential libssl-dev libdb-dev libdb++-dev libboost-all-dev libqrencode-dev

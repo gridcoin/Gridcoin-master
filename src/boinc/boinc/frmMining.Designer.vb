@@ -206,6 +206,7 @@ Partial Class frmMining
         Me.ChartUtilization.SuppressExceptions = True
         Me.ChartUtilization.TabIndex = 3
         Me.ChartUtilization.Text = "Chart2"
+        Me.ChartUtilization.Visible = False
         '
         'lblTxtVersion
         '

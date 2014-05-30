@@ -687,11 +687,11 @@ Public Class frmMining
             Dim sNarr As String
             sNarr = "Components: " + Trim(Math.Round(clsGVM.mbunarr1, 0)) + "," + Trim(Math.Round(clsGVM.mbunarr2, 0))
             lblProcNarr.Text = sNarr
-            If clsUtilization.BoincUtilization < 51 Then
-                lblWarning.Text = "Boinc Utilization Low"
-            Else
-                lblWarning.Text = ""
-            End If
+            '    If clsUtilization.BoincUtilization < 51 Then
+            'lblWarning.Text = "Boinc Utilization Low"
+            'Else
+            'lblWarning.Text = ""
+            'End If
         Catch ex As Exception
 
         End Try

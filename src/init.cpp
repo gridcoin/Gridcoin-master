@@ -267,7 +267,7 @@ void InitializeBoincProjects()
 		boinc_projects[42]="http://boinc.almeregrid.nl/|AlmereGrid Boinc Grid";
 		boinc_projects[44]="http://bealathome.com/|Beal@home";
 		boinc_projects[47]="http://convector.fsv.cvut.cz/|convector";
-		boinc_projects[48]="http://www.distributedDataMining/|Distributed Data Mining";
+		boinc_projects[48]="http://www.distributeddatamining.org/|Distributed Data Mining";
 		boinc_projects[49]="http://gerasim.boinc.ru/|Gerasim@Home";
 		boinc_projects[50]="http://www.gpugrid.net/|GPUGRID";
 		boinc_projects[53]="http://moowrap.net/|Moo! Wrapper";
@@ -281,7 +281,6 @@ void InitializeBoincProjects()
 		boinc_projects[67]="http://boinc.umiacs.umd.edu/|The Lattice Project";
 		boinc_projects[68]="http://www.volpex.net/|volpex";
 		boinc_projects[69]="http://www.distrrtgen.com/|distrrtgen";
-		boinc_projects[70]="http://www.eon2.com/|eon2";
 		boinc_projects[71]="http://slinca.com/|slinca@home";
 		boinc_projects[72]="http://finance.gridcoin.us/|Gridcoin Finance";
 		boinc_projects[73]="http://supernode.gridcoin.us/|Gridcoin Supernode";

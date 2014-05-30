@@ -1449,9 +1449,9 @@ void BitcoinGUI::timerfire()
 			//Restart the PoB miners, since the PoB Diff probably changed:
 		}
 		
-		if (false)
+		if (true)
 		{
-			if (Timer("restart_network",777))
+			if (Timer("restart_network",277))
 			{
 				//This procedure will also tally net avgs and harvest CPIDS
 				printf("\r\nRestarting gridcoin's network layer @ %s\r\n",time1.c_str());

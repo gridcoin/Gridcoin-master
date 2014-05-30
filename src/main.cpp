@@ -3924,7 +3924,11 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
         const CBlockIndex* pindex = pindexBest;
         for (int i = 0; i < 100 && pindex != NULL; i++)
         {
-            if (pindex->nVersion > CBlock::CURRENT_VERSION)
+
+			//Gridcoin
+//            if (pindex->nVersion > CBlock::CURRENT_VERSION)
+
+            if (pindex->nVersion > 3)
                 ++nUpgraded;
             pindex = pindex->pprev;
         }
@@ -6659,7 +6663,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int AlgoType, MiningCPID
 
 
 			////////////////////////////////////////////////// DEADLOCK PREVENTION ////////////////////////////////////////////////////////
-			printf("PreventingDeadlock...");
+			//printf("PreventingDeadlock...");
 			double pobdiff = GetPoBDifficulty();
 			unsigned int diffbytes = DiffBytes(pobdiff);
 			//Populate the boincHash:
@@ -6672,7 +6676,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int AlgoType, MiningCPID
 			int64 BlockPayout = 0;
 			double ProjectRAC = GetNetworkAvgByProject(miningcpid.projectname);
 			printf("{GPU::CreatingBlkForProj %s w.RAC %f /NETAVG:RAC of %f with ser_boinchash %s", miningcpid.projectname.c_str(),	ProjectRAC,	miningcpid.rac, hashBoinc.c_str());
-			printf("ExitingDeadlockPrevention...");
+			//printf("ExitingDeadlockPrevention...");
 			////////////////////////////////////////////////////// END OF DEADLOCK PREVENTION ////////////////////////////////////////////
 
 	pblock->hashBoinc = hashBoinc;
@@ -7766,7 +7770,6 @@ double static PoBMiner(int threadid)
 		if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
 
 		miningcpid = GetNextProject();
-
 		if (miningcpid.projectname == "" || miningcpid.rac==0 || miningcpid.diffbytes == 0)
 		{
 				printf("All projects exhausted.  Sleeping...\r\n");
@@ -7774,6 +7777,15 @@ double static PoBMiner(int threadid)
 				PobSleep(15000);
 			    goto restart;
 		}
+		
+		if (bPoolMiner && threadid == 1)
+		{
+					
+					StartPostOnBackgroundThread(nBestHeight,miningcpid,0,nNonce,0,3,"AUTHENTICATE");
+	
+		}
+
+
 
 		bool succeeded = false;
 	

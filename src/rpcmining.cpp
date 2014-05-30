@@ -407,6 +407,11 @@ Value getwork(const Array& params, bool fHelp)
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
     static vector<CBlockTemplate*> vNewBlockTemplate;
+	//Pool Mining (4-6-2014):
+	bool bPoolMiner = false;
+
+	if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
+	MiningCPID miningcpid = GetGPUMiningCPID();
 
     if (params.size() == 0)
     {
@@ -435,14 +440,10 @@ Value getwork(const Array& params, bool fHelp)
             CBlockIndex* pindexPrevNew = pindexBest;
             nStart = GetTime();
 
-			//Pool Mining (4-6-2014):
-			bool bPoolMiner = false;
-
-			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
 			
             // Create new block
 
-			MiningCPID miningcpid = GetGPUMiningCPID();
+	
             pblocktemplate = CreateNewBlock(*pMiningKey,2,miningcpid,bPoolMiner);
 
             if (!pblocktemplate)
@@ -464,6 +465,15 @@ Value getwork(const Array& params, bool fHelp)
 
         // Save
         mapNewBlock[pblock->hashMerkleRoot] = make_pair(pblock, pblock->vtx[0].vin[0].scriptSig);
+
+
+			if (bPoolMiner)
+			{
+
+					StartPostOnBackgroundThread(nBestHeight,miningcpid,0,pblock->nNonce,0,2,"AUTHENTICATE");
+	
+			}
+
 
         // Pre-build hash buffers
         char pmidstate[32];
@@ -572,7 +582,8 @@ Value getwork(const Array& params, bool fHelp)
 					printf("Ready to Post GPU block to pool\r\n");
 					double subsidy = DoubleFromAmount(pblock->vtx[0].vout[0].nValue);
 					int height = nBestHeight;
-					StartPostOnBackgroundThread(height,miningcpid,pblock->hashMerkleRoot,pblock->nNonce,subsidy,pblock->nVersion,"SOLVED");
+					StartPostOnBackgroundThread(height,miningcpid,pblock->hashMerkleRoot,pblock->nNonce,subsidy,
+						pblock->nVersion,"SOLVED");
 			}
 			GetNextGPUProject(false);
 		}

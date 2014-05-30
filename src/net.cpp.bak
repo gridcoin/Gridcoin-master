@@ -570,7 +570,7 @@ std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string
 		if (addrIP.IsValid()) 
 		{
 				addrConnect = addrIP;
-				printf("Domain Post IP valid\r\n %s",domain.c_str());
+				//printf("Domain Post IP valid\r\n %s",domain.c_str());
 		}
 	} 
 	else
