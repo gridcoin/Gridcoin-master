@@ -80,11 +80,11 @@ double GetPoBDifficulty()
 				StructCPID structcpid = mvNetwork["NETWORK"];
 				if (!structcpid.initialized) 
 				{
-					TallyNetworkAverages();
-					if (!structcpid.initialized)
-					{
+					//TallyNetworkAverages();
+					//if (!structcpid.initialized)
+					//{
 							return 99;
-					}
+					//}
 				}
 				double networkrac = structcpid.rac;
 				double networkavgrac = structcpid.AverageRAC;
