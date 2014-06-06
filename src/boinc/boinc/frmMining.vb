@@ -56,10 +56,8 @@ Public Class frmMining
     Private Sub OneMinuteUpdate()
         Try
 
-            If mlLeaderboardPosition = 0 Or mdScryptSleep < 0.5 Then
-                '                Call RefreshLeaderboardPosition()
+             ChartBoincUtilization()
 
-            End If
             
             Dim lMinSetting As Long
             Dim lRunning As Long
@@ -94,12 +92,6 @@ Public Class frmMining
                         RestartWallet()
                     End If
                 End If
-                'Update Scrypt Sleep
-                lblScryptSleep.Text = String.Format("{0:p}", Val(mdScryptSleep))
-                lblLeaderboardPosition.Text = Trim(mlLeaderboardPosition)
-                CalculateScryptSleep()
-                lblSleepLevel.Text = String.Format("{0:p}", Val(mdBlockSleepLevel))
-                lblStatus.Text = msSleepStatus
             End If
 
             ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -112,30 +104,7 @@ Public Class frmMining
 
     End Sub
     Public Function CalculateScryptSleep() As Double
-        Try
-            If Len(clsGVM.LastBlockHash) > 3 Then
-                msBlockSuffix = Mid(clsGVM.LastBlockHash, Len(clsGVM.LastBlockHash) - 3, 3)
-                lblBlockSuffix.Text = msBlockSuffix
-            End If
-            Dim dDecSuffix = CDbl("&h" + Trim(msBlockSuffix))
-            Dim dCalc = dDecSuffix / 40.96
-            'Globalization
-            dCalc = dCalc / 100
-            msSleepStatus = "WORK"
-            If mdScryptSleep >= dCalc Then msSleepStatus = "WORK" Else msSleepStatus = "SLEEP"
-            If dDecSuffix = 0 Then msSleepStatus = "WORK(-1)"
-            If mdScryptSleep < 0.5 Or mdScryptSleep > 1.0 Then msSleepStatus = "WORK(-2)"
-            'Globalization
-            mdBlockSleepLevel = dCalc
-            If msLastSleepStatus <> msSleepStatus Then
-                DirectGPUSleepStatus()
-            End If
-            msLastSleepStatus = msSleepStatus
-            Return dCalc
-        Catch ex As Exception
-            msSleepStatus = "WORK(-3)"
-        End Try
-    End Function
+      End Function
     Public Function GetBoincProgFolder() As String
         Dim sAppDir As String
         sAppDir = KeyValue("boincappfolder")
@@ -224,18 +193,8 @@ Public Class frmMining
 
     End Sub
     Private Sub DirectGPUSleepStatus()
-        'Per S4mmy, write the Sleep Status to a file:
-        LogSleepStatus(msSleepStatus)
-
-        'SCRYPT_SLEEP:
-        If nBestBlock < 199999 Then Exit Sub
         Exit Sub
 
-        If msSleepStatus = "SLEEP" Then
-            DisableAllGPUs()
-        Else
-            EnableAllGPUs()
-        End If
     End Sub
     Public Sub Refresh2(ByVal bStatsOnly As Boolean)
         bCharting = False
@@ -343,25 +302,29 @@ Public Class frmMining
         Try
             ChartUtilization.Series.Clear()
             ChartUtilization.Titles.Clear()
+            ChartUtilization.Visible = True
+
             ChartUtilization.BackColor = Color.Transparent : ChartUtilization.ForeColor = Color.Blue
-            ChartUtilization.Titles.Add("Utilization")
+            ChartUtilization.Titles.Add("Boinc Magnitude")
             ChartUtilization.ChartAreas(0).BackColor = Color.Transparent
             ChartUtilization.ChartAreas(0).BackSecondaryColor = Color.White
             ChartUtilization.Legends(0).BackColor = Color.Transparent
             ChartUtilization.Legends(0).ForeColor = Color.Honeydew
             Dim sUtilization As New Series
-            sUtilization.Name = "Utilization" : sUtilization.ChartType = SeriesChartType.Pie : sUtilization.LegendText = "Boinc Utilization"
+            sUtilization.Name = "Magnitude" : sUtilization.ChartType = SeriesChartType.Pie
+
+            sUtilization.LegendText = "Boinc Magnitude"
             sUtilization.LabelBackColor = Color.Lime : sUtilization.IsValueShownAsLabel = False
             sUtilization.LabelForeColor = Color.Honeydew
             ChartUtilization.Series.Add(sUtilization)
             Dim bu As Double
-            bu = Math.Round(clsUtilization.BoincUtilization, 1)
-            If Not bUICharted Then bUICharted = True : bu = 1
+            bu = Math.Round(clsUtilization.BoincMagnitude, 1)
+            If Not bUICharted Then bUICharted = True : bu = 2
             ChartUtilization.Series("Utilization").Points.AddY(bu)
             ChartUtilization.Series("Utilization").LabelBackColor = Color.Transparent
             ChartUtilization.Series("Utilization").Points(0).Label = Trim(bu)
             ChartUtilization.Series("Utilization").Points(0).Color = Color.Blue
-            ChartUtilization.Series("Utilization").Points(0).LegendToolTip = Trim(bu) + " utilization."
+            ChartUtilization.Series("Utilization").Points(0).LegendToolTip = Trim(bu) + " magnitude"
             ChartUtilization.Series("Utilization").Points.AddY(100 - bu)
             ChartUtilization.Series("Utilization").Points(1).IsVisibleInLegend = False
             ChartUtilization.Series("Utilization")("PointWidth") = "0.5"
@@ -432,17 +395,11 @@ Public Class frmMining
 
     Private Sub timerBoincBlock_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles timerBoincBlock.Tick
         '   lblCPUMinerElapsed.Text = Trim(Math.Round(clsGVM.CPUMiner.KHPS, 0))
-        lblLastBlockHash.Text = Mid(clsGVM.LastBlockHash, 1, 43) + "..."
+        '        lblLastBlockHash.Text = Mid(clsGVM.LastBlockHash, 1, 43) + "..."
         mlElapsedTime = mlElapsedTime + 1
 
       
-        If msLastBlockHash <> lblLastBlockHash.Text Then
-            If mlElapsedTime > 40 Then
-                '   Call OneMinuteUpdate() 'Update scrypt sleep panel
-
-            End If
-        End If
-        msLastBlockHash = lblLastBlockHash.Text
+        '       msLastBlockHash = lblLastBlockHash.Text
 
     End Sub
 
@@ -684,9 +641,9 @@ Public Class frmMining
             lblVersion.Text = Trim(clsUtilization.Version)
             lblAvgCredits.Text = Trim(clsUtilization.BoincTotalCreditsAvg)
             lblMD5.Text = Trim(clsUtilization.BoincMD5)
-            Dim sNarr As String
-            sNarr = "Components: " + Trim(Math.Round(clsGVM.mbunarr1, 0)) + "," + Trim(Math.Round(clsGVM.mbunarr2, 0))
-            lblProcNarr.Text = sNarr
+            '   Dim sNarr As String
+            '    sNarr = "Components: " + Trim(Math.Round(clsGVM.mbunarr1, 0)) + "," + Trim(Math.Round(clsGVM.mbunarr2, 0))
+            '    lblProcNarr.Text = sNarr
             '    If clsUtilization.BoincUtilization < 51 Then
             'lblWarning.Text = "Boinc Utilization Low"
             'Else

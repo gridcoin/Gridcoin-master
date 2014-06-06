@@ -80,7 +80,11 @@ double GetPoBDifficulty()
 				StructCPID structcpid = mvNetwork["NETWORK"];
 				if (!structcpid.initialized) 
 				{
-					return 9999;
+					TallyNetworkAverages();
+					if (!structcpid.initialized)
+					{
+							return 99;
+					}
 				}
 				double networkrac = structcpid.rac;
 				double networkavgrac = structcpid.AverageRAC;
@@ -89,7 +93,18 @@ double GetPoBDifficulty()
 				if (networkprojects == 0) networkprojects=1;
 				double dayblocks = networkprojects/576;
 				if (dayblocks > 14)   dayblocks=14;
-				if (dayblocks < .005) dayblocks=.005;
+				if (dayblocks < .005) 
+				{
+					if (fTestNet) 
+					{
+						dayblocks=.005;
+					}
+					else
+					{
+						dayblocks=99;
+					}
+
+				}
 				mdLastPoBDifficulty = dayblocks;
 				return dayblocks;
 }

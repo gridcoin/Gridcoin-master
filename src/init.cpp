@@ -273,6 +273,8 @@ void InitializeBoincProjects()
 		boinc_projects[53]="http://moowrap.net/|Moo! Wrapper";
 		boinc_projects[54]="http://boinc.med.usherbrooke.ca/nrg/|Najmanovich Research";
 		boinc_projects[57]="http://boinc.riojascience.com/|Rioja Science";
+		boinc_projects[58]="http://szdg.lpds.sztaki.hu/szdg/|SZTAKI Desktop Grid";
+
 		boinc_projects[59]="http://sat.isa.ru/pdsat/|SAT@home";
 		boinc_projects[61]="http://dg.imp.kiev.ua/slinca/|SLinCA";
 		boinc_projects[63]="http://wuprop.boinc-af.org/|WUProp@Home";
@@ -281,6 +283,8 @@ void InitializeBoincProjects()
 		boinc_projects[67]="http://boinc.umiacs.umd.edu/|The Lattice Project";
 		boinc_projects[68]="http://www.volpex.net/|volpex";
 		boinc_projects[69]="http://www.distrrtgen.com/|distrrtgen";
+		boinc_projects[70]="http://www.distrrtgen.com/|Distributed Rainbow Table Generator";
+
 		boinc_projects[71]="http://slinca.com/|slinca@home";
 		boinc_projects[72]="http://finance.gridcoin.us/|Gridcoin Finance";
 		boinc_projects[73]="http://supernode.gridcoin.us/|Gridcoin Supernode";

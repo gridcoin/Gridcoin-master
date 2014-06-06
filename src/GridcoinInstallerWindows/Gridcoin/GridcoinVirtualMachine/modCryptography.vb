@@ -294,7 +294,7 @@ Public Module modCryptography
             Dim dSLL As Double = 0
             Dim dNL As Double = 0
 
-            If mnBestBlock > 299999 Then
+            If mnBestBlock > 2999999 Then
                 If sGridBlockHash4 = "SCRYPT_SLEEP" Then
                     bSleepVerification = GetSleepLevelByAddress(sGRCAddress, dSLL, sOriginalBlockHash, dNL)
                     If bSleepVerification = False Then

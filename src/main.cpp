@@ -2804,7 +2804,9 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	//Memorial Day night, 8PM CST, 5-26-2014, GoLive for CPU Miners @ block 120000
 
 	if (fTestNet) grandfather = 9593;
-	if (!fTestNet) grandfather = 120000;
+	//6-5-2014: Updating PoB Algo to prevent PoB diff from being below tolerance level after block 125300:
+	if (!fTestNet) grandfather = 125300;
+
 	if (ConnectingBlock) return true;
 	int out_height = 0;
 
@@ -2874,8 +2876,8 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	if (pblock->nVersion==3)
 	{
 		// 1. Verify last block was a GPU block:
-		if (bAllowBackToBack == false && prevBlockType == 3) return error("Check Proof Of Boinc() : Last block not a GPU block");
-	    // 2.2 Verify Encrypted PoB hash contains RAC:
+		if (prevBlockType == 3) return error("Check Proof Of Boinc() : Last block not a GPU block");
+	    // 2.2 Verify PoB hash contains RAC:
 		std::string skein = "";
 						
 		uint256 powhash = pblock->hashMerkleRoot + boincblock.nonce;
@@ -2887,7 +2889,7 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 			if (iav==-1) 
 			{
 				std::string skein1=aes_complex_hash(powhash);
-		//		printf("\r\n powhash %s  boinchash.aesskein %s, calculated skeinhash %s nonce %u",powhash.GetHex().c_str(),					boincblock.aesskein.c_str(), skein1.c_str(), pblock->nNonce);	
+         		//		printf("\r\n powhash %s  boinchash.aesskein %s, calculated skeinhash %s nonce %u",powhash.GetHex().c_str(),					boincblock.aesskein.c_str(), skein1.c_str(), pblock->nNonce);	
 
 				//Test 2:
 				int iav2 = TestAESHash(boincblock.rac, boincblock.diffbytes, powhash, boincblock.aesskein);
@@ -2899,7 +2901,6 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 						boincblock.aesskein.c_str(), 
 						skein1.c_str(), pblock->nNonce);	
 					return error("PoB AES512 hash mismatch error");
-					//5-19-2014
 				}
 
 			}
@@ -2957,8 +2958,53 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	//6. Verify CPU Blocks DiffBytes > minimum
 	if (pblock->nVersion==3)
 	{
+		
+		//6-5-2014 Verify PoB Limits:
+		if (boincblock.pobdifficulty < .75 && !fTestNet)
+		{
+			return error("CheckProofOfBoinc():PoB diff lower than minimum work level.");
+		}
+
+		//Check PoB Tolerance
+		CBlockIndex* pblockPoBCurrent = NULL;
+
+		pblockPoBCurrent = GetBlockIndex2(pblock->GetHash(), out_height);
+		if (out_height > 10 && !fTestNet)
+		{
+					CBlockIndex* pblockCPU1000 = NULL;
+					pblockCPU1000 = GetLastBlockIndexForAlgo(pblockPoBCurrent,3);
+					int cpu_height1000 = 0;
+					if (pblockCPU1000 != NULL)
+					{
+						CBlock blockCPU1000;
+						bool bcpublock1000 = GetBlockNew(pblockCPU1000->GetBlockHash(), cpu_height1000, blockCPU1000, false);
+						if (cpu_height1000 > 0)
+						{
+							MiningCPID prior_work_1000 = DeserializeBoincBlock(pblock->hashBoinc);
+
+							if (prior_work_1000.pobdifficulty > 1)
+							{
+								//Verify this block PoB Diff is within 25% of the diff level of the last CPU block:
+								printf("CheckProofOfBoinc()::ToleranceCheck()::Height1 %i, Height 2 %i, Last Project %s, Current project %s:Last PoB Diff Bytes Level %u, Current PoB Diff level %u",
+									cpu_height1000, out_height, prior_work_1000.projectname.c_str(),boincblock.projectname.c_str(),
+									prior_work_1000.diffbytes,boincblock.diffbytes);
+
+								if (prior_work_1000.pobdifficulty > boincblock.pobdifficulty)
+								{
+									double tolerance1000 = prior_work_1000.pobdifficulty * .25;
+									if (boincblock.pobdifficulty < tolerance1000) 
+									{
+										return error("CheckProofOfBoinc():PoBDifficulty tolerance below adjusted tolerance work level.");
+									}
+								}
+							}
+						}
+					}
+		}
+
+
+
 		unsigned int mindiff = DiffBytes(0);
-		//5-1-2014
 		if (boincblock.diffbytes < mindiff) return error("CheckProofOfBoinc():DiffBytes below minimum work level.");
 
 		CBlockIndex* pblockCurrent = NULL;
@@ -4769,7 +4815,7 @@ bool VerifyDB() {
 
     // Verify blocks in the best chain
     int nCheckLevel = GetArg("-checklevel", 3);
-    int nCheckDepth = GetArg( "-checkblocks", 288);
+    int nCheckDepth = GetArg( "-checkblocks", 100);
     if (nCheckDepth == 0)
         nCheckDepth = 1000000000; // suffices until the year 19000
     if (nCheckDepth > nBestHeight)
@@ -6593,11 +6639,8 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int AlgoType, MiningCPID
 	*/
 
 
-
-    
 	CreatingNewBlock=true;
 
-	
 	auto_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
     
 	if(!pblocktemplate.get())  return NULL;
@@ -7029,7 +7072,7 @@ std::string SerializeBoincBlock(std::string cpid, std::string projectname, std::
 {
 	std::string delim = "<|>";
 
-	if (PoBDifficulty > 9999) PoBDifficulty=9999;
+	if (PoBDifficulty > 99) PoBDifficulty=99;
 	 
 	std::string bb = cpid + delim + projectname + delim + AESSkein + delim + RoundToString(RAC,0)
 					+ delim + RoundToString(PoBDifficulty,5) + delim + RoundToString((double)diffbytes,0) + delim + enccpid 
@@ -7770,6 +7813,13 @@ double static PoBMiner(int threadid)
 		if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
 
 		miningcpid = GetNextProject();
+
+		if (miningcpid.pobdifficulty < .75 && !fTestNet) 
+		{
+		    	msMiningErrors = "Error in PoB Diff calculation; wait for Gridcoin to Retally Net Averages.";
+				PobSleep(15000);
+			    goto restart;
+		}
 		if (miningcpid.projectname == "" || miningcpid.rac==0 || miningcpid.diffbytes == 0)
 		{
 				printf("All projects exhausted.  Sleeping...\r\n");

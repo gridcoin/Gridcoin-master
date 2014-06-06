@@ -82,7 +82,10 @@ int nBlockCount = 0;
 int nTick2 = 0;
 int nRegVersion;
 int nNeedsUpgrade = 0;
+double GetPoBDifficulty();
 
+
+bool OutOfSyncByAge();
 
 bool bCheckedForUpgrade = false;
 void ThreadCPIDs();
@@ -1433,8 +1436,18 @@ void BitcoinGUI::timerfire()
     		bForceUpdate=true;
 		}
 
-		if (Timer("status_update",10))
+		if (Timer("update_boinc_magnitude", 5))
 		{
+			    
+			    double POB = GetPoBDifficulty();
+				if (POB==99 && !OutOfSyncByAge()) 
+				{
+					//Do this when wallet *was* out of sync, is now in sync, and PoB calculation is out of whack:
+					TallyNetworkAverages();
+					POB = GetPoBDifficulty();
+				}
+				
+				globalcom->dynamicCall("BoincMagnitude(double)", boincmagnitude);
 		}
    
 

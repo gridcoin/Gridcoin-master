@@ -50,13 +50,9 @@ Partial Class frmMining
         Me.Label4 = New System.Windows.Forms.Label()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.btnHide = New System.Windows.Forms.Button()
-        Me.lblBoincBlock = New System.Windows.Forms.Label()
-        Me.lblBlock = New System.Windows.Forms.Label()
         Me.timerBoincBlock = New System.Windows.Forms.Timer(Me.components)
         Me.lblCPUMinerElapsed = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
-        Me.lblLastBlockHash = New System.Windows.Forms.Label()
-        Me.Label6 = New System.Windows.Forms.Label()
         Me.lblAccepted = New System.Windows.Forms.Label()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.lblGPUMhs = New System.Windows.Forms.Label()
@@ -81,16 +77,6 @@ Partial Class frmMining
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabCGMINER = New System.Windows.Forms.TabPage()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
-        Me.lblSleepLev = New System.Windows.Forms.Label()
-        Me.lblSleepLevel = New System.Windows.Forms.Label()
-        Me.Label10 = New System.Windows.Forms.Label()
-        Me.lblBlockSuffi = New System.Windows.Forms.Label()
-        Me.lblSta = New System.Windows.Forms.Label()
-        Me.lblScryptSl = New System.Windows.Forms.Label()
-        Me.lblLeaderboardPosition = New System.Windows.Forms.Label()
-        Me.lblBlockSuffix = New System.Windows.Forms.Label()
-        Me.lblScryptSleep = New System.Windows.Forms.Label()
-        Me.lblStatus = New System.Windows.Forms.Label()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.RichTextBox1 = New System.Windows.Forms.RichTextBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -111,7 +97,6 @@ Partial Class frmMining
         Me.TabGuiMiner = New System.Windows.Forms.TabPage()
         Me.Pb1 = New System.Windows.Forms.PictureBox()
         Me.TimerCGMonitor = New System.Windows.Forms.Timer(Me.components)
-        Me.lblProcNarr = New System.Windows.Forms.Label()
         Me.lblWarning = New System.Windows.Forms.Label()
         Me.msBlockHeight = New System.Windows.Forms.Label()
         Me.Label18 = New System.Windows.Forms.Label()
@@ -120,7 +105,6 @@ Partial Class frmMining
         Me.MenuStrip1.SuspendLayout()
         Me.TabControl1.SuspendLayout()
         Me.TabCGMINER.SuspendLayout()
-        Me.GroupBox4.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.ChartHashRate, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -189,6 +173,7 @@ Partial Class frmMining
         Me.ChartUtilization.BackImageTransparentColor = System.Drawing.Color.Black
         Me.ChartUtilization.BackSecondaryColor = System.Drawing.Color.Black
         Me.ChartUtilization.BorderlineColor = System.Drawing.Color.Black
+        ChartArea2.Area3DStyle.Enable3D = True
         ChartArea2.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
         ChartArea2.Name = "ChartArea1"
         Me.ChartUtilization.ChartAreas.Add(ChartArea2)
@@ -206,14 +191,13 @@ Partial Class frmMining
         Me.ChartUtilization.SuppressExceptions = True
         Me.ChartUtilization.TabIndex = 3
         Me.ChartUtilization.Text = "Chart2"
-        Me.ChartUtilization.Visible = False
         '
         'lblTxtVersion
         '
         Me.lblTxtVersion.AutoSize = True
         Me.lblTxtVersion.BackColor = System.Drawing.Color.Transparent
         Me.lblTxtVersion.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTxtVersion.Location = New System.Drawing.Point(259, 567)
+        Me.lblTxtVersion.Location = New System.Drawing.Point(286, 608)
         Me.lblTxtVersion.Name = "lblTxtVersion"
         Me.lblTxtVersion.Size = New System.Drawing.Size(57, 16)
         Me.lblTxtVersion.TabIndex = 6
@@ -224,7 +208,7 @@ Partial Class frmMining
         Me.lbltxtAvgCredits.AutoSize = True
         Me.lbltxtAvgCredits.BackColor = System.Drawing.Color.Transparent
         Me.lbltxtAvgCredits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!)
-        Me.lbltxtAvgCredits.Location = New System.Drawing.Point(536, 610)
+        Me.lbltxtAvgCredits.Location = New System.Drawing.Point(506, 608)
         Me.lbltxtAvgCredits.Name = "lbltxtAvgCredits"
         Me.lbltxtAvgCredits.Size = New System.Drawing.Size(151, 16)
         Me.lbltxtAvgCredits.TabIndex = 7
@@ -246,7 +230,7 @@ Partial Class frmMining
         Me.lblAvgCredits.AutoSize = True
         Me.lblAvgCredits.BackColor = System.Drawing.Color.Transparent
         Me.lblAvgCredits.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!)
-        Me.lblAvgCredits.Location = New System.Drawing.Point(693, 603)
+        Me.lblAvgCredits.Location = New System.Drawing.Point(663, 601)
         Me.lblAvgCredits.Name = "lblAvgCredits"
         Me.lblAvgCredits.Size = New System.Drawing.Size(24, 25)
         Me.lblAvgCredits.TabIndex = 11
@@ -257,7 +241,7 @@ Partial Class frmMining
         Me.lblVersion.AutoSize = True
         Me.lblVersion.BackColor = System.Drawing.Color.Transparent
         Me.lblVersion.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblVersion.Location = New System.Drawing.Point(404, 567)
+        Me.lblVersion.Location = New System.Drawing.Point(431, 608)
         Me.lblVersion.Name = "lblVersion"
         Me.lblVersion.Size = New System.Drawing.Size(15, 16)
         Me.lblVersion.TabIndex = 12
@@ -268,7 +252,7 @@ Partial Class frmMining
         Me.lblMD5.AutoSize = True
         Me.lblMD5.BackColor = System.Drawing.Color.Transparent
         Me.lblMD5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblMD5.Location = New System.Drawing.Point(631, 635)
+        Me.lblMD5.Location = New System.Drawing.Point(665, 626)
         Me.lblMD5.Name = "lblMD5"
         Me.lblMD5.Size = New System.Drawing.Size(15, 16)
         Me.lblMD5.TabIndex = 14
@@ -279,7 +263,7 @@ Partial Class frmMining
         Me.Label2.AutoSize = True
         Me.Label2.BackColor = System.Drawing.Color.Transparent
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(538, 636)
+        Me.Label2.Location = New System.Drawing.Point(506, 626)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(76, 16)
         Me.Label2.TabIndex = 13
@@ -304,7 +288,7 @@ Partial Class frmMining
         Me.lblRestartMiner.AutoSize = True
         Me.lblRestartMiner.BackColor = System.Drawing.Color.Transparent
         Me.lblRestartMiner.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblRestartMiner.Location = New System.Drawing.Point(404, 583)
+        Me.lblRestartMiner.Location = New System.Drawing.Point(431, 624)
         Me.lblRestartMiner.Name = "lblRestartMiner"
         Me.lblRestartMiner.Size = New System.Drawing.Size(15, 16)
         Me.lblRestartMiner.TabIndex = 17
@@ -315,7 +299,7 @@ Partial Class frmMining
         Me.Label3.AutoSize = True
         Me.Label3.BackColor = System.Drawing.Color.Transparent
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(259, 585)
+        Me.Label3.Location = New System.Drawing.Point(286, 626)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(134, 16)
         Me.Label3.TabIndex = 16
@@ -326,7 +310,7 @@ Partial Class frmMining
         Me.lblRestartWallet.AutoSize = True
         Me.lblRestartWallet.BackColor = System.Drawing.Color.Transparent
         Me.lblRestartWallet.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblRestartWallet.Location = New System.Drawing.Point(404, 601)
+        Me.lblRestartWallet.Location = New System.Drawing.Point(431, 642)
         Me.lblRestartWallet.Name = "lblRestartWallet"
         Me.lblRestartWallet.Size = New System.Drawing.Size(15, 16)
         Me.lblRestartWallet.TabIndex = 21
@@ -337,7 +321,7 @@ Partial Class frmMining
         Me.Label4.AutoSize = True
         Me.Label4.BackColor = System.Drawing.Color.Transparent
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(259, 601)
+        Me.Label4.Location = New System.Drawing.Point(286, 642)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(139, 16)
         Me.Label4.TabIndex = 20
@@ -361,28 +345,6 @@ Partial Class frmMining
         Me.btnHide.Text = "Hide"
         Me.btnHide.UseVisualStyleBackColor = False
         '
-        'lblBoincBlock
-        '
-        Me.lblBoincBlock.AutoSize = True
-        Me.lblBoincBlock.BackColor = System.Drawing.Color.Transparent
-        Me.lblBoincBlock.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblBoincBlock.Location = New System.Drawing.Point(631, 654)
-        Me.lblBoincBlock.Name = "lblBoincBlock"
-        Me.lblBoincBlock.Size = New System.Drawing.Size(15, 16)
-        Me.lblBoincBlock.TabIndex = 28
-        Me.lblBoincBlock.Text = "0"
-        '
-        'lblBlock
-        '
-        Me.lblBlock.AutoSize = True
-        Me.lblBlock.BackColor = System.Drawing.Color.Transparent
-        Me.lblBlock.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblBlock.Location = New System.Drawing.Point(538, 654)
-        Me.lblBlock.Name = "lblBlock"
-        Me.lblBlock.Size = New System.Drawing.Size(82, 16)
-        Me.lblBlock.TabIndex = 27
-        Me.lblBlock.Text = "Boinc Block:"
-        '
         'timerBoincBlock
         '
         Me.timerBoincBlock.Enabled = True
@@ -393,7 +355,7 @@ Partial Class frmMining
         Me.lblCPUMinerElapsed.AutoSize = True
         Me.lblCPUMinerElapsed.BackColor = System.Drawing.Color.Transparent
         Me.lblCPUMinerElapsed.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblCPUMinerElapsed.Location = New System.Drawing.Point(631, 673)
+        Me.lblCPUMinerElapsed.Location = New System.Drawing.Point(665, 642)
         Me.lblCPUMinerElapsed.Name = "lblCPUMinerElapsed"
         Me.lblCPUMinerElapsed.Size = New System.Drawing.Size(15, 16)
         Me.lblCPUMinerElapsed.TabIndex = 30
@@ -404,33 +366,11 @@ Partial Class frmMining
         Me.Label5.AutoSize = True
         Me.Label5.BackColor = System.Drawing.Color.Transparent
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(538, 673)
+        Me.Label5.Location = New System.Drawing.Point(506, 642)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(85, 16)
         Me.Label5.TabIndex = 29
         Me.Label5.Text = "Boinc KH/ps:"
-        '
-        'lblLastBlockHash
-        '
-        Me.lblLastBlockHash.AutoSize = True
-        Me.lblLastBlockHash.BackColor = System.Drawing.Color.Transparent
-        Me.lblLastBlockHash.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblLastBlockHash.Location = New System.Drawing.Point(631, 692)
-        Me.lblLastBlockHash.Name = "lblLastBlockHash"
-        Me.lblLastBlockHash.Size = New System.Drawing.Size(15, 16)
-        Me.lblLastBlockHash.TabIndex = 32
-        Me.lblLastBlockHash.Text = "0"
-        '
-        'Label6
-        '
-        Me.Label6.AutoSize = True
-        Me.Label6.BackColor = System.Drawing.Color.Transparent
-        Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(538, 692)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(73, 16)
-        Me.Label6.TabIndex = 31
-        Me.Label6.Text = "Last Block:"
         '
         'lblAccepted
         '
@@ -676,143 +616,13 @@ Partial Class frmMining
         'GroupBox4
         '
         Me.GroupBox4.BackgroundImage = Global.boinc.My.Resources.Resources.gradient
-        Me.GroupBox4.Controls.Add(Me.lblSleepLev)
-        Me.GroupBox4.Controls.Add(Me.lblSleepLevel)
-        Me.GroupBox4.Controls.Add(Me.Label10)
-        Me.GroupBox4.Controls.Add(Me.lblBlockSuffi)
-        Me.GroupBox4.Controls.Add(Me.lblSta)
-        Me.GroupBox4.Controls.Add(Me.lblScryptSl)
-        Me.GroupBox4.Controls.Add(Me.lblLeaderboardPosition)
-        Me.GroupBox4.Controls.Add(Me.lblBlockSuffix)
-        Me.GroupBox4.Controls.Add(Me.lblScryptSleep)
-        Me.GroupBox4.Controls.Add(Me.lblStatus)
         Me.GroupBox4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
         Me.GroupBox4.Location = New System.Drawing.Point(640, 6)
         Me.GroupBox4.Name = "GroupBox4"
         Me.GroupBox4.Size = New System.Drawing.Size(260, 214)
         Me.GroupBox4.TabIndex = 57
         Me.GroupBox4.TabStop = False
-        Me.GroupBox4.Text = "Scrypt Sleep:"
-        '
-        'lblSleepLev
-        '
-        Me.lblSleepLev.AutoSize = True
-        Me.lblSleepLev.BackColor = System.Drawing.Color.Transparent
-        Me.lblSleepLev.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSleepLev.ForeColor = System.Drawing.Color.Lime
-        Me.lblSleepLev.Location = New System.Drawing.Point(30, 89)
-        Me.lblSleepLev.Name = "lblSleepLev"
-        Me.lblSleepLev.Size = New System.Drawing.Size(135, 16)
-        Me.lblSleepLev.TabIndex = 50
-        Me.lblSleepLev.Text = "Network Sleep Level:"
-        '
-        'lblSleepLevel
-        '
-        Me.lblSleepLevel.AutoSize = True
-        Me.lblSleepLevel.BackColor = System.Drawing.Color.Transparent
-        Me.lblSleepLevel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSleepLevel.ForeColor = System.Drawing.Color.Lime
-        Me.lblSleepLevel.Location = New System.Drawing.Point(187, 89)
-        Me.lblSleepLevel.Name = "lblSleepLevel"
-        Me.lblSleepLevel.Size = New System.Drawing.Size(17, 16)
-        Me.lblSleepLevel.TabIndex = 51
-        Me.lblSleepLevel.Text = "..."
-        '
-        'Label10
-        '
-        Me.Label10.AutoSize = True
-        Me.Label10.BackColor = System.Drawing.Color.Transparent
-        Me.Label10.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label10.ForeColor = System.Drawing.Color.Lime
-        Me.Label10.Location = New System.Drawing.Point(30, 31)
-        Me.Label10.Name = "Label10"
-        Me.Label10.Size = New System.Drawing.Size(141, 16)
-        Me.Label10.TabIndex = 42
-        Me.Label10.Text = "Leaderboard Position:"
-        '
-        'lblBlockSuffi
-        '
-        Me.lblBlockSuffi.AutoSize = True
-        Me.lblBlockSuffi.BackColor = System.Drawing.Color.Transparent
-        Me.lblBlockSuffi.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblBlockSuffi.ForeColor = System.Drawing.Color.Lime
-        Me.lblBlockSuffi.Location = New System.Drawing.Point(31, 69)
-        Me.lblBlockSuffi.Name = "lblBlockSuffi"
-        Me.lblBlockSuffi.Size = New System.Drawing.Size(79, 16)
-        Me.lblBlockSuffi.TabIndex = 46
-        Me.lblBlockSuffi.Text = "Block Suffix:"
-        '
-        'lblSta
-        '
-        Me.lblSta.AutoSize = True
-        Me.lblSta.BackColor = System.Drawing.Color.Transparent
-        Me.lblSta.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSta.ForeColor = System.Drawing.Color.Lime
-        Me.lblSta.Location = New System.Drawing.Point(31, 135)
-        Me.lblSta.Name = "lblSta"
-        Me.lblSta.Size = New System.Drawing.Size(48, 16)
-        Me.lblSta.TabIndex = 48
-        Me.lblSta.Text = "Status:"
-        '
-        'lblScryptSl
-        '
-        Me.lblScryptSl.AutoSize = True
-        Me.lblScryptSl.BackColor = System.Drawing.Color.Transparent
-        Me.lblScryptSl.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblScryptSl.ForeColor = System.Drawing.Color.Lime
-        Me.lblScryptSl.Location = New System.Drawing.Point(31, 50)
-        Me.lblScryptSl.Name = "lblScryptSl"
-        Me.lblScryptSl.Size = New System.Drawing.Size(109, 16)
-        Me.lblScryptSl.TabIndex = 44
-        Me.lblScryptSl.Text = "My Scrypt Sleep:"
-        '
-        'lblLeaderboardPosition
-        '
-        Me.lblLeaderboardPosition.AutoSize = True
-        Me.lblLeaderboardPosition.BackColor = System.Drawing.Color.Transparent
-        Me.lblLeaderboardPosition.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblLeaderboardPosition.ForeColor = System.Drawing.Color.Lime
-        Me.lblLeaderboardPosition.Location = New System.Drawing.Point(188, 31)
-        Me.lblLeaderboardPosition.Name = "lblLeaderboardPosition"
-        Me.lblLeaderboardPosition.Size = New System.Drawing.Size(17, 16)
-        Me.lblLeaderboardPosition.TabIndex = 43
-        Me.lblLeaderboardPosition.Text = "..."
-        '
-        'lblBlockSuffix
-        '
-        Me.lblBlockSuffix.AutoSize = True
-        Me.lblBlockSuffix.BackColor = System.Drawing.Color.Transparent
-        Me.lblBlockSuffix.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblBlockSuffix.ForeColor = System.Drawing.Color.Lime
-        Me.lblBlockSuffix.Location = New System.Drawing.Point(188, 69)
-        Me.lblBlockSuffix.Name = "lblBlockSuffix"
-        Me.lblBlockSuffix.Size = New System.Drawing.Size(17, 16)
-        Me.lblBlockSuffix.TabIndex = 47
-        Me.lblBlockSuffix.Text = "..."
-        '
-        'lblScryptSleep
-        '
-        Me.lblScryptSleep.AutoSize = True
-        Me.lblScryptSleep.BackColor = System.Drawing.Color.Transparent
-        Me.lblScryptSleep.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblScryptSleep.ForeColor = System.Drawing.Color.Lime
-        Me.lblScryptSleep.Location = New System.Drawing.Point(188, 50)
-        Me.lblScryptSleep.Name = "lblScryptSleep"
-        Me.lblScryptSleep.Size = New System.Drawing.Size(17, 16)
-        Me.lblScryptSleep.TabIndex = 45
-        Me.lblScryptSleep.Text = "..."
-        '
-        'lblStatus
-        '
-        Me.lblStatus.AutoSize = True
-        Me.lblStatus.BackColor = System.Drawing.Color.Transparent
-        Me.lblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblStatus.ForeColor = System.Drawing.Color.Lime
-        Me.lblStatus.Location = New System.Drawing.Point(188, 135)
-        Me.lblStatus.Name = "lblStatus"
-        Me.lblStatus.Size = New System.Drawing.Size(17, 16)
-        Me.lblStatus.TabIndex = 49
-        Me.lblStatus.Text = "..."
+        Me.GroupBox4.Text = "Network Status:"
         '
         'GroupBox3
         '
@@ -857,6 +667,7 @@ Partial Class frmMining
         Me.ChartHashRate.BackImageTransparentColor = System.Drawing.Color.Black
         Me.ChartHashRate.BackSecondaryColor = System.Drawing.Color.Black
         Me.ChartHashRate.BorderlineColor = System.Drawing.Color.Black
+        ChartArea3.Area3DStyle.Enable3D = True
         ChartArea3.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
         ChartArea3.Name = "ChartArea1"
         Me.ChartHashRate.ChartAreas.Add(ChartArea3)
@@ -1066,17 +877,6 @@ Partial Class frmMining
         Me.TimerCGMonitor.Enabled = True
         Me.TimerCGMonitor.Interval = 300000
         '
-        'lblProcNarr
-        '
-        Me.lblProcNarr.AutoSize = True
-        Me.lblProcNarr.BackColor = System.Drawing.Color.Transparent
-        Me.lblProcNarr.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblProcNarr.Location = New System.Drawing.Point(538, 734)
-        Me.lblProcNarr.Name = "lblProcNarr"
-        Me.lblProcNarr.Size = New System.Drawing.Size(17, 16)
-        Me.lblProcNarr.TabIndex = 54
-        Me.lblProcNarr.Text = "..."
-        '
         'lblWarning
         '
         Me.lblWarning.AutoSize = True
@@ -1122,14 +922,9 @@ Partial Class frmMining
         Me.Controls.Add(Me.msBlockHeight)
         Me.Controls.Add(Me.Label18)
         Me.Controls.Add(Me.lblWarning)
-        Me.Controls.Add(Me.lblProcNarr)
         Me.Controls.Add(Me.TabControl1)
-        Me.Controls.Add(Me.lblLastBlockHash)
-        Me.Controls.Add(Me.Label6)
         Me.Controls.Add(Me.lblCPUMinerElapsed)
         Me.Controls.Add(Me.Label5)
-        Me.Controls.Add(Me.lblBoincBlock)
-        Me.Controls.Add(Me.lblBlock)
         Me.Controls.Add(Me.btnHide)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.lblRestartWallet)
@@ -1160,8 +955,6 @@ Partial Class frmMining
         Me.MenuStrip1.PerformLayout()
         Me.TabControl1.ResumeLayout(False)
         Me.TabCGMINER.ResumeLayout(False)
-        Me.GroupBox4.ResumeLayout(False)
-        Me.GroupBox4.PerformLayout()
         Me.GroupBox3.ResumeLayout(False)
         Me.GroupBox2.ResumeLayout(False)
         CType(Me.ChartHashRate, System.ComponentModel.ISupportInitialize).EndInit()
@@ -1192,13 +985,9 @@ Partial Class frmMining
     Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents btnClose As System.Windows.Forms.Button
     Friend WithEvents btnHide As System.Windows.Forms.Button
-    Friend WithEvents lblBoincBlock As System.Windows.Forms.Label
-    Friend WithEvents lblBlock As System.Windows.Forms.Label
     Friend WithEvents timerBoincBlock As System.Windows.Forms.Timer
     Friend WithEvents lblCPUMinerElapsed As System.Windows.Forms.Label
     Friend WithEvents Label5 As System.Windows.Forms.Label
-    Friend WithEvents lblLastBlockHash As System.Windows.Forms.Label
-    Friend WithEvents Label6 As System.Windows.Forms.Label
     Friend WithEvents lblAccepted As System.Windows.Forms.Label
     Friend WithEvents Label7 As System.Windows.Forms.Label
     Friend WithEvents lblGPUMhs As System.Windows.Forms.Label
@@ -1241,19 +1030,8 @@ Partial Class frmMining
     Friend WithEvents lblCGMessage As System.Windows.Forms.Label
     Friend WithEvents TimerCGMonitor As System.Windows.Forms.Timer
     Friend WithEvents chkCGMonitor As System.Windows.Forms.CheckBox
-    Friend WithEvents lblProcNarr As System.Windows.Forms.Label
     Friend WithEvents lblWarning As System.Windows.Forms.Label
     Friend WithEvents GroupBox4 As System.Windows.Forms.GroupBox
-    Friend WithEvents lblSleepLev As System.Windows.Forms.Label
-    Friend WithEvents lblSleepLevel As System.Windows.Forms.Label
-    Friend WithEvents Label10 As System.Windows.Forms.Label
-    Friend WithEvents lblBlockSuffi As System.Windows.Forms.Label
-    Friend WithEvents lblSta As System.Windows.Forms.Label
-    Friend WithEvents lblScryptSl As System.Windows.Forms.Label
-    Friend WithEvents lblLeaderboardPosition As System.Windows.Forms.Label
-    Friend WithEvents lblBlockSuffix As System.Windows.Forms.Label
-    Friend WithEvents lblScryptSleep As System.Windows.Forms.Label
-    Friend WithEvents lblStatus As System.Windows.Forms.Label
     Friend WithEvents msBlockHeight As System.Windows.Forms.Label
     Friend WithEvents Label18 As System.Windows.Forms.Label
     Friend WithEvents PoolsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem

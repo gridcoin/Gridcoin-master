@@ -8,6 +8,7 @@ Public Class Utilization
     Private _nBestBlock As Long
     Private _lLeaderboard As Long
     Private _lLeaderUpdates As Long
+    Private _boincmagnitude As Double
 
     Public Structure CgSumm
         Public Mhs As Double
@@ -20,10 +21,7 @@ Public Class Utilization
 
     Public ReadOnly Property Version As Double
         Get
-            Return 151
-
-
-
+            Return 155
 
 
         End Get
@@ -35,6 +33,17 @@ Public Class Utilization
             Return Val(clsGVM.BoincUtilization)
         End Get
     End Property
+
+    Public Property BoincMagnitude As Double
+        Get
+            Return _boincmagnitude
+        End Get
+        Set(value As Double)
+            _boincmagnitude = value
+        End Set
+    End Property
+
+
     Public ReadOnly Property ClientNeedsUpgrade As Double
         Get
             Dim bNeedsUp As Boolean = NeedsUpgrade()
@@ -158,6 +167,7 @@ Public Class Utilization
 
             Dim sPoolUser As String = KeyValue("pooluser")
             Dim sPoolPass As String = KeyValue("poolpassword")
+            Dim sMinerName As String = KeyValue("miner")
 
             If Len(sPoolURL) < 6 Then Return False
             If Len(sPoolUser) = 0 Or Len(sPoolPass) = 0 Then Return False
@@ -169,27 +179,47 @@ Public Class Utilization
             Log("Pool " + sPoolURL + " site certificate invalid.")
             Return False
         End If
-        'Authenticate
+            'Authenticate 5-30-2014
+
+            Dim p As String
+
+            '    = mapArgs["-pooluser"];
+            '	std::string strAuth2 = mapArgs["-poolpassword"];
+            '	std::string strAuth3 = mapArgs["-miner"];
+
+            p = sPoolUser + "<;>" + sPoolPass + "<;>" + sMinerName + "<;>projectname<;>1<;>bpk<;>cpid<;>0<;>0<;>0<;>2<;>AUTHENTICATE"
+
+            '//string http = GridcoinHttpPost(messagetype,boincauth,"GetPoolKey.aspx",true);
+            '	msPubKey = ExtractXML(http,key,keystop);
+
+
         Dim sURL As String = sPoolURL
         If Mid(sURL, Len(sURL), 1) <> "/" Then sURL = sURL + "/"
-            sURL = sURL + "Getwork.aspx?authenticate=true"
-            '2-23-2014
+            sURL = sURL + "GetPoolKey.aspx"
             Using wc As New MyWebClient
 
-            wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded")
-            ' Upload the input string using the HTTP 1.0 POST method.
-            Dim PostData As String
-            PostData = "user=" + Trim(sPoolUser) + "&pass=" + Trim(sPoolPass) + "&boinchash=" + Trim(RetrieveWin32BoincHash)
+                wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded")
+                wc.Headers.Add("Miner", p)
 
-            Dim byteArray As Byte() = System.Text.Encoding.ASCII.GetBytes(PostData)
-            Dim byteResult As Byte() = wc.UploadData(sURL, "POST", byteArray)
-            Dim sResult As String = System.Text.Encoding.ASCII.GetString(byteResult)
-                If LCase(sResult) = "true" Then
+
+                ' Upload the input string using the HTTP 1.0 POST method.
+                Dim PostData As String
+                'PostData = "user=" + Trim(sPoolUser) + "&pass=" + Trim(sPoolPass) + "&boinchash=" + Trim(RetrieveWin32BoincHash)
+                PostData = p
+
+                Dim byteArray As Byte() = System.Text.Encoding.ASCII.GetBytes(PostData)
+                Dim byteResult As Byte() = wc.UploadData(sURL, "POST", byteArray)
+                Dim sResult As String = System.Text.Encoding.ASCII.GetString(byteResult)
+
+                If sResult.Contains("AUTHORIZED") Then
                     Log("Authenticate to Pool: Success")
                     Return True
+                Else
+                    MsgBox("Error while authenticating to pool : " + sResult, vbCritical)
+                    Return False
 
                 End If
-        End Using
+            End Using
 
             Log("Authenticate to Pool: Fail - Username or Password invalid.")
 

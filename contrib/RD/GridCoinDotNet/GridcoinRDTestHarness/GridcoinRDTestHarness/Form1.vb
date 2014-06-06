@@ -98,22 +98,27 @@ Public Class Form1
 
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
-        Dim sQTPath As String = "c:\gridcoin-master\src\qt\"
-        Dim sQTPathF As String = "c:\gridcoin-master\src\qt\forms\"
-        night = True
 
-        RewriteSourceFile(sQTPath, "bitcoin.cpp")
-        RewriteSourceFile(sQTPath, "bitcoingui.cpp")
-        RewriteSourceFile(sQTPath, "optionsdialog.cpp")
-        RewriteSourceFile(sQTPath, "overviewpage.cpp")
+        Dim x As New boinc.Utilization
+        x.ShowMiningConsole()
 
-        RewriteSourceFile(sQTPath, "rpcconsole.cpp")
-        RewriteSourceFile(sQTPath, "signverifymessagedialog.cpp")
-        RewriteSourceFile(sQTPath, "splashscreen.cpp")
-        RewriteSourceFile(sQTPath, "transactiontablemodel.cpp")
-        RewriteSourceFile(sQTPath, "transactionview.cpp")
-        RewriteSourceFile(sQTPath, "guiconstants.h")
-        RewriteSourceFile(sQTPathF, "aboutdialog.ui")
+
+        '        Dim sQTPath As String = "c:\gridcoin-master\src\qt\"
+        '       Dim sQTPathF As String = "c:\gridcoin-master\src\qt\forms\"
+        '      night = True
+        '
+        'RewriteSourceFile(sQTPath, "bitcoin.cpp")
+        'RewriteSourceFile(sQTPath, "bitcoingui.cpp")
+        'RewriteSourceFile(sQTPath, "optionsdialog.cpp")
+        'RewriteSourceFile(sQTPath, "overviewpage.cpp")
+
+        '        RewriteSourceFile(sQTPath, "rpcconsole.cpp")
+        '       RewriteSourceFile(sQTPath, "signverifymessagedialog.cpp")
+        '      RewriteSourceFile(sQTPath, "splashscreen.cpp")
+        '     RewriteSourceFile(sQTPath, "transactiontablemodel.cpp")
+        '    RewriteSourceFile(sQTPath, "transactionview.cpp")
+        '   RewriteSourceFile(sQTPath, "guiconstants.h")
+        '  RewriteSourceFile(sQTPathF, "aboutdialog.ui")
 
 
     End Sub
