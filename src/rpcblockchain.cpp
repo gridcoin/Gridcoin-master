@@ -17,6 +17,7 @@ using namespace json_spirit;
 using namespace std;
 
 int CreateRestorePoint();
+int DownloadBlocks();
 
 
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
@@ -820,6 +821,15 @@ Value execute(const Array& params, bool fHelp)
 				r = CreateRestorePoint();
 			#endif 
 			entry.push_back(Pair("Restore Point",r));
+			results.push_back(entry);
+	}
+	else if (sItem == "downloadblocks")
+	{
+			int r=-1;
+			#if defined(WIN32) && defined(QT_GUI)
+				r = DownloadBlocks();
+			#endif 
+			entry.push_back(Pair("Download Blocks",r));
 			results.push_back(entry);
 	}
 	else if (sItem == "tally")

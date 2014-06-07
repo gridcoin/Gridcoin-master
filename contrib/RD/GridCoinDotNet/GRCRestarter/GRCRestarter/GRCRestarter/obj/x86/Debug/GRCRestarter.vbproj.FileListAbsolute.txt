@@ -2,7 +2,6 @@ C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestar
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\bin\Debug\GRCRestarter.pdb
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\bin\Debug\GRCRestarter.xml
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.vbprojResolveAssemblyReference.cache
-C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.Form1.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.Resources.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.vbproj.GenerateResource.Cache
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.exe
@@ -21,3 +20,4 @@ C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCResta
 C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.Resources.resources
 C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.vbproj.GenerateResource.Cache
 C:\Gridcoin-Private\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.exe
+C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GRCRestarter\GRCRestarter\GRCRestarter\obj\x86\Debug\GRCRestarter.GridcoinUpgrader.resources

@@ -119,6 +119,7 @@ private:
 	QAction *emailAction;
 	QAction *rebuildAction;
 	QAction *upgradeAction;
+	QAction *downloadAction;
 
 	QAction *sqlAction;
 	QAction *leaderboardAction;
@@ -233,6 +234,7 @@ private slots:
 
 	void upgradeClicked();
 
+	void downloadClicked();
 
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */

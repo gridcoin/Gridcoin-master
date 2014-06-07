@@ -86,6 +86,8 @@ double GetPoBDifficulty();
 
 
 extern int CreateRestorePoint();
+extern int DownloadBlocks();
+
 
 
 
@@ -397,6 +399,11 @@ int ReindexWallet()
 			if (!fTestNet)
 			{
 #ifdef WIN32
+				if (!globalcom) 
+				{
+					globalcom = new QAxObject("Boinc.Utilization");
+				}
+
 				globalcom->dynamicCall("ReindexWallet()");
 #endif
 			}
@@ -434,6 +441,31 @@ int CreateRestorePoint()
 			}
 			return 1;
 }
+
+
+
+int DownloadBlocks()
+{
+			printf("executing grcrestarter downloadblocks");
+
+			QString sFilename = "GRCRestarter.exe";
+			QString sArgument = "";
+			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
+			QProcess p;
+
+			#ifdef WIN32
+				if (!globalcom) 
+				{
+					globalcom = new QAxObject("Boinc.Utilization");
+				}
+
+				globalcom->dynamicCall("DownloadBlocks()");
+				StartShutdown();
+			#endif
+			
+			return 1;
+}
+
 
 
 
@@ -556,6 +588,12 @@ void BitcoinGUI::createActions()
 	rebuildAction->setStatusTip(tr("Rebuild Block Chain"));
 	rebuildAction->setMenuRole(QAction::TextHeuristicRole);
 
+	downloadAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Download Blocks"), this);
+	downloadAction->setStatusTip(tr("Download Blocks"));
+	downloadAction->setMenuRole(QAction::TextHeuristicRole);
+
+	
+
 	//6-6-2014 : R Halford : Add Upgrade Button 
 
 	upgradeAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Upgrade QT Client"), this);
@@ -597,6 +635,7 @@ void BitcoinGUI::createActions()
     encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
+
     backupWalletAction = new QAction(QIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
@@ -623,6 +662,7 @@ void BitcoinGUI::createActions()
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
 	connect(rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildClicked()));
 	connect(upgradeAction, SIGNAL(triggered()), this, SLOT(upgradeClicked()));
+	connect(downloadAction, SIGNAL(triggered()), this, SLOT(downloadClicked()));
 
 	connect(sqlAction, SIGNAL(triggered()), this, SLOT(sqlClicked()));
 	connect(leaderboardAction, SIGNAL(triggered()), this, SLOT(leaderboardClicked()));
@@ -675,7 +715,9 @@ void BitcoinGUI::createMenuBar()
 	QMenu *rebuild = appMenuBar->addMenu(tr("&Rebuild Block Chain"));
 	rebuild->addSeparator();
 	rebuild->addAction(rebuildAction);
-
+	rebuild->addSeparator();
+	rebuild->addAction(downloadAction);
+	rebuild->addSeparator();
 	
 	QMenu *sql = appMenuBar->addMenu(tr("&SQL Query Analyzer"));
 	sql->addSeparator();
@@ -881,6 +923,11 @@ void BitcoinGUI::upgradeClicked()
 	
 }
 
+void BitcoinGUI::downloadClicked()
+{
+	DownloadBlocks();
+
+}
 
 void BitcoinGUI::sqlClicked()
 {

@@ -62,6 +62,8 @@ Module modGRC
         Dim pi As ProcessStartInfo = New ProcessStartInfo()
         pi.WorkingDirectory = GetGRCAppDir()
         pi.UseShellExecute = True
+        Log("Restarting wallet with params " + sParams)
+
         pi.Arguments = sParams
         pi.FileName = Trim("GRCRestarter.exe")
         p.StartInfo = pi

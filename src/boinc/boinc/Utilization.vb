@@ -21,7 +21,7 @@ Public Class Utilization
 
     Public ReadOnly Property Version As Double
         Get
-            Return 157
+            Return 158
 
 
 
@@ -122,6 +122,11 @@ Public Class Utilization
 
     Public Sub ReindexWallet()
         Call RestartWallet1("reindex")
+    End Sub
+    Public Sub DownloadBlocks()
+        Log("Downloading blocks")
+
+        Call RestartWallet1("downloadblocks")
     End Sub
     Public Sub ReindexWalletTestNet()
         Call RestartWallet1("reindextestnet")
