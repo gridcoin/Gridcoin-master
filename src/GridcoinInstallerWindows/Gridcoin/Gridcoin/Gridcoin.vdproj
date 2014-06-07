@@ -52,6 +52,12 @@
         "Entry"
         {
         "MsmKey" = "8:_463632BA3613CAC595BB60644F74EBBE"
+        "OwnerKey" = "8:_5C4890F09F604F53A4442AAFD98D6197"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_463632BA3613CAC595BB60644F74EBBE"
         "OwnerKey" = "8:_AD960AA08F2D48649BCF440055E0D4C0"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1336,16 +1342,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Gridcoin 12.9"
-        "ProductCode" = "8:{7DDC2AD1-2134-4C73-AE56-F5B831604E4B}"
-        "PackageCode" = "8:{ED3734D1-1F6A-4298-A9C3-B991C632A860}"
+        "ProductName" = "8:Gridcoin 13.1"
+        "ProductCode" = "8:{9D26C25F-32BF-40F2-BCC6-7B99A6245E99}"
+        "PackageCode" = "8:{ECCF9C35-9EE7-4316-AA57-54A5EDC2DF78}"
         "UpgradeCode" = "8:{9617E9EA-252F-43CE-B53E-B48C85F71192}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:12.9"
+        "ProductVersion" = "8:13.1"
         "Manufacturer" = "8:Gridcoin"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
