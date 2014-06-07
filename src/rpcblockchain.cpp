@@ -83,11 +83,7 @@ double GetPoBDifficulty()
 				StructCPID structcpid = mvNetwork["NETWORK"];
 				if (!structcpid.initialized) 
 				{
-					//TallyNetworkAverages();
-					//if (!structcpid.initialized)
-					//{
 							return 99;
-					//}
 				}
 				double networkrac = structcpid.rac;
 				double networkavgrac = structcpid.AverageRAC;
@@ -792,9 +788,11 @@ std::string RestoreGridcoinBackupWallet()
 }
 
 
-
-
-
+uint256 Skein(std::string sInput)
+{
+	uint256 uiSkein = GridcoinMultipleAlgoHash(BEGIN(sInput), END(sInput));
+	return uiSkein;
+}	
 
 
 
@@ -805,162 +803,97 @@ Value execute(const Array& params, bool fHelp)
 		"execute <string::itemname>\n"
         "Executes an arbitrary command by name.");
 
-    std::string sitem = params[0].get_str();
+    std::string sItem = params[0].get_str();
 
-	if (sitem=="") throw runtime_error("Item invalid.");
+	if (sItem=="") throw runtime_error("Item invalid.");
 
     Array results;
-	Object e2;
-	e2.push_back(Pair("Command",sitem));
-	results.push_back(e2);
-	//4-18-2014
-
-	if (sitem=="restorepoint")
+	Object oOut;
+	oOut.push_back(Pair("Command",sItem));
+	results.push_back(oOut);
+    Object entry;
+		
+	if (sItem == "restorepoint")
 	{
-		int r = CreateRestorePoint();
-		Object entry;
-		entry.push_back(Pair("Restore Point",r));
-		results.push_back(entry);
+			int r=-1;
+			#if defined(WIN32) && defined(QT_GUI)
+				r = CreateRestorePoint();
+			#endif 
+			entry.push_back(Pair("Restore Point",r));
+			results.push_back(entry);
 	}
-
-	if (sitem=="tally")
+	else if (sItem == "tally")
 	{
-
-		TallyNetworkAverages();
+			TallyNetworkAverages();
+			entry.push_back(Pair("Tally Network Averages",1));
+			results.push_back(entry);
 	}
-
-	if (sitem=="resetcpids")
+	else if (sItem == "resetcpids")
 	{
 			mvCPIDCache.clear();
     	    HarvestCPIDs(true);
-			Object entry;
 		    entry.push_back(Pair("Reset",1));
 			results.push_back(entry);
 	}
-	if (sitem=="post")
+	else if (sItem == "backupwallet")
 	{
-		
+			std::string result = BackupGridcoinWallet();
+		    entry.push_back(Pair("Backup Wallet Result", result));
+		    results.push_back(entry);
+	}
+	else if (sItem == "restorewallet")
+	{
+			std::string result = RestoreGridcoinBackupWallet();
+			entry.push_back(Pair("Restore Wallet Result", result));
+			results.push_back(entry);
+	}
+	else if (sItem == "resendwallettx")
+	{
+			ResendWalletTransactions2();
+			entry.push_back(Pair("Resending unsent wallet transactions...",1));
+			results.push_back(entry);
+	} 
+	else if (sItem == "postcpid")
+	{
+			std::string result = GetHttpPage("859038ff4a9",true);
+			entry.push_back(Pair("POST Result",result));
+	        results.push_back(entry);
+	}
+	else if (sItem == "encrypt")
+	{
+			std::string s1 = "1234";
+			std::string s1dec = AdvancedCrypt(s1);
+			std::string s1out = AdvancedDecrypt(s1dec);
+		    entry.push_back(Pair("Execute Encrypt result1",s1));
+		    entry.push_back(Pair("Execute Encrypt result2",s1dec));
+			entry.push_back(Pair("Execute Encrypt result3",s1out));
+			results.push_back(entry);
+	}
+	else if (sItem == "restartnet")
+	{
+			printf("Restarting gridcoin's network layer;");
+			RestartGridcoin3();
+			entry.push_back(Pair("Execute","Restarted Gridcoins network layer."));
+	   		results.push_back(entry);
+	}
+	else if (sItem == "findrac")
+	{
+			int position = 0;
+			std::string out_errors = "";
+	    	std::string TargetCPID = "123";
+			std::string TargetProjectName="Docking";
+			bool result = FindRAC(false,TargetCPID, TargetProjectName, 1, false,out_errors, position);
+			entry.push_back(Pair("TargetCPID",TargetCPID));
+			entry.push_back(Pair("Errors",out_errors));
+		   	results.push_back(entry);
+	}
+	else
+	{
+			entry.push_back(Pair("Command " + sItem + " not found.",-1));
+			results.push_back(entry);
 	}
 
-	if (sitem == "backupwallet")
-	{
-		std::string result = BackupGridcoinWallet();
-		Object entry;
-	    entry.push_back(Pair("Backup Wallet Result", result));
-	    results.push_back(entry);
-	}
 
-	if (sitem == "restorewallet")
-	{
-		std::string result = RestoreGridcoinBackupWallet();
-		Object entry;
-	    entry.push_back(Pair("Restore Wallet Result", result));
-	    results.push_back(entry);
-		
-	
-	}
-	
-
-	if (sitem == "repairwallet")
-	{
-
-		Object result;
-		return result;
-
-	}
-
-	if (sitem == "resendwallettx")
-	{
-
-		ResendWalletTransactions2();
-		Object entry;
-	    entry.push_back(Pair("Resending unsent wallet transactions...",1));
-	    results.push_back(entry);
-
-	}
-
-	
-
-	if (sitem=="postcpid")
-	{
-		std::string result = GetHttpPage("859038ff4a9",true);
-		Object entry;
-	    entry.push_back(Pair("POST Result",result));
-	    results.push_back(entry);
-	}
-
-	if (sitem=="encrypt")
-	{
-		
-		std::string s1 = "1234";
-		std::string s1dec = AdvancedCrypt(s1);
-		std::string s1out = AdvancedDecrypt(s1dec);
-		Object entry;
-	    entry.push_back(Pair("Execute Encrypt result1",s1));
-	    entry.push_back(Pair("Execute Encrypt result2",s1dec));
-	    entry.push_back(Pair("Execute Encrypt result3",s1out));
-	    results.push_back(entry);
-
-	}
-
-	if (sitem=="restartnet") 
-	{
-   		printf("Restarting gridcoin's network layer;");
-		RestartGridcoin3();
-		Object entry;
-		entry.push_back(Pair("Execute","Restarted Gridcoins network layer."));
-	   	results.push_back(entry);
-
-	}
-	if (sitem == "findrac")
-	{
-		int position = 0;
-		std::string out_errors = "";
-		std::string TargetCPID = "123";
-		std::string TargetProjectName="Docking";
-
-		bool result = FindRAC(false,TargetCPID, TargetProjectName, 1, false,out_errors, position);
-	
-		Object entry;
-		entry.push_back(Pair("TargetCPID",TargetCPID));
-		entry.push_back(Pair("Errors",out_errors));
-		entry.push_back(Pair("Position",position));
-		if (position > 10) {
-			    CBlockIndex* pblockindex = FindBlockByHeight(position);
-				CBlock block;
-				block.ReadFromDisk(pblockindex);
-		}
-
-	   	results.push_back(entry);
-
-
-	}
-
-	
-
-	if (sitem == "skein")
-
-	{
-
-	   uint256 hashRand = GetRandHash();
-	   uint256 hashOut = GridcoinMultipleAlgoHash(BEGIN(hashRand), END(hashRand));
-       Object entry;
-
-	   std::string sHash = hashOut.GetHex();
-	   entry.push_back(Pair("Skein Hash",sHash));
-	   uint256 hashme = 10;
-	   uint256 hashmeout = GridcoinMultipleAlgoHash(BEGIN(hashme), END(hashme));
-	   entry.push_back(Pair("Skein Hash 10", hashmeout.GetHex()));
-	   uint256 hashcrazy = 10;
-	   std::string sAES = aes_complex_hash(hashcrazy);
-	   entry.push_back(Pair("Adv AES Hash 10", sAES));
-	   std::string sAES10 = sAES;
-	   int iIAV = TestAESHash(100,3, hashcrazy, sAES10);
-	   entry.push_back(Pair("AES Test",iIAV));
-	   results.push_back(entry);
-
-	}
-	
 	return results;    
 		
 }

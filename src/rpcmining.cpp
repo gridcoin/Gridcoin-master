@@ -394,20 +394,19 @@ Value getwork(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Gridcoin is not connected!");
 	CriticalThreadDelay();
+	double POB = GetPoBDifficulty();
+				
+	//R Halford: 6-7-2014 : Prevent GPU mining during initial sync:
+    if (IsInitialBlockDownload()  || !bCPIDsLoaded || POB==99)
+    {
+		throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
+	}
 
-
-    if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
-
-	//test deadlock prevention
 	
-	//LOCK(cs_main);
-		
-
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
     static vector<CBlockTemplate*> vNewBlockTemplate;
-	//Pool Mining (4-6-2014):
+	//Pool Mining
 	bool bPoolMiner = false;
 
 	if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;

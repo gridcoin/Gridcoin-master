@@ -132,6 +132,9 @@ Public Class Utilization
     Public Sub CreateRestorePoint()
         Call RestartWallet1("createrestorepoint")
     End Sub
+    Public Sub CreateRestorePointTestNet()
+        Call RestartWallet1("createrestorepointtestnet")
+    End Sub
     Public Function xRetrieveGridCoinMiningValue(iDeviceID As Integer, sProperty As String) As String Implements IGridCoinMining.RetrieveGridCoinMiningValue
         Dim sOut As String = modGRC.xReturnMiningValue(iDeviceID, sProperty, True)
         Return sOut

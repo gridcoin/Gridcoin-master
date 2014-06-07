@@ -1431,8 +1431,7 @@ bool AppInit2()
 	//Store a reference to the oup:
 
     uiInterface.InitMessage(_("Loading Network Averages..."));
-	//TallyNetworkAverages();
-
+	
 	if (false) 
 	{
 		//Initialize network to avoid race conditions:
