@@ -32,7 +32,7 @@ Namespace My
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.GRCRestarter.Form1
+            Me.MainForm = Global.GRCRestarter.GridcoinUpgrader
         End Sub
     End Class
 End Namespace

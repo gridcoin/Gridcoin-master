@@ -16,6 +16,9 @@
 using namespace json_spirit;
 using namespace std;
 
+int CreateRestorePoint();
+
+
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
 
 CBigNum ReturnProofOfWorkLimit(int algo);
@@ -811,6 +814,15 @@ Value execute(const Array& params, bool fHelp)
 	e2.push_back(Pair("Command",sitem));
 	results.push_back(e2);
 	//4-18-2014
+
+	if (sitem=="restorepoint")
+	{
+		int r = CreateRestorePoint();
+		Object entry;
+		entry.push_back(Pair("Restore Point",r));
+		results.push_back(entry);
+	}
+
 	if (sitem=="tally")
 	{
 

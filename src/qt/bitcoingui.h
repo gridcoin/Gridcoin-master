@@ -118,6 +118,8 @@ private:
 	QAction *miningAction;
 	QAction *emailAction;
 	QAction *rebuildAction;
+	QAction *upgradeAction;
+
 	QAction *sqlAction;
 	QAction *leaderboardAction;
 
@@ -229,7 +231,8 @@ private slots:
 
 	void rebuildClicked();
 
-	
+	void upgradeClicked();
+
 
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'bitcoingui.h'
 **
-** Created: Sun May 4 16:21:04 2014
+** Created: Fri Jun 6 19:55:26 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_BitcoinGUI[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      33,   14, // methods
+      34,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -58,12 +58,13 @@ static const uint qt_meta_data_BitcoinGUI[] = {
      802,   11,   11,   11, 0x08,
      815,   11,   11,   11, 0x08,
      836,   11,   11,   11, 0x08,
-     860,  853,   11,   11, 0x08,
-     927,  913,   11,   11, 0x08,
-     955,   11,   11,   11, 0x28,
-     979,   11,   11,   11, 0x08,
-     994,   11,   11,   11, 0x08,
+     853,   11,   11,   11, 0x08,
+     877,  870,   11,   11, 0x08,
+     944,  930,   11,   11, 0x08,
+     972,   11,   11,   11, 0x28,
+     996,   11,   11,   11, 0x08,
     1011,   11,   11,   11, 0x08,
+    1028,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -91,7 +92,8 @@ static const char qt_meta_stringdata_BitcoinGUI[] = {
     "aboutClicked()\0miningClicked()\0"
     "emailClicked()\0sqlClicked()\0"
     "leaderboardClicked()\0rebuildClicked()\0"
-    "reason\0trayIconActivated(QSystemTrayIcon::ActivationReason)\0"
+    "upgradeClicked()\0reason\0"
+    "trayIconActivated(QSystemTrayIcon::ActivationReason)\0"
     "fToggleHidden\0showNormalIfMinimized(bool)\0"
     "showNormalIfMinimized()\0toggleHidden()\0"
     "detectShutdown()\0timerfire()\0"
@@ -130,12 +132,13 @@ void BitcoinGUI::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 24: _t->sqlClicked(); break;
         case 25: _t->leaderboardClicked(); break;
         case 26: _t->rebuildClicked(); break;
-        case 27: _t->trayIconActivated((*reinterpret_cast< QSystemTrayIcon::ActivationReason(*)>(_a[1]))); break;
-        case 28: _t->showNormalIfMinimized((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 29: _t->showNormalIfMinimized(); break;
-        case 30: _t->toggleHidden(); break;
-        case 31: _t->detectShutdown(); break;
-        case 32: _t->timerfire(); break;
+        case 27: _t->upgradeClicked(); break;
+        case 28: _t->trayIconActivated((*reinterpret_cast< QSystemTrayIcon::ActivationReason(*)>(_a[1]))); break;
+        case 29: _t->showNormalIfMinimized((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 30: _t->showNormalIfMinimized(); break;
+        case 31: _t->toggleHidden(); break;
+        case 32: _t->detectShutdown(); break;
+        case 33: _t->timerfire(); break;
         default: ;
         }
     }
@@ -173,9 +176,9 @@ int BitcoinGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 33)
+        if (_id < 34)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 33;
+        _id -= 34;
     }
     return _id;
 }

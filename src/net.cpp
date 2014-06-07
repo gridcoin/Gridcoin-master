@@ -690,7 +690,6 @@ bool GetMyExternalIP2(const CService& addrConnect, const char* pszGet, const cha
     closesocket(hSocket);
     return error("GetMyExternalIP() : connection closed");
 }
-//3-1-2014
 
 
 bool GetMyExternalIP(CNetAddr& ipRet)
@@ -1748,11 +1747,11 @@ void ThreadOpenConnections()
 
             // only consider very recently tried nodes after 50 failed attempts
 			//Gridcoin changing to 500:
-            if (nANow - addr.nLastTry < 600 && nTries < 500)
+            if (nANow - addr.nLastTry < 600 && nTries < 30)
                 continue;
 
             // do not allow non-default ports, unless after 2050 invalid addresses selected already
-            if (addr.GetPort() != GetDefaultPort() && nTries < 2050)
+            if (addr.GetPort() != GetDefaultPort() && nTries < 60)
                 continue;
 
             addrConnect = addr;
@@ -1878,8 +1877,9 @@ void static StartSync(const vector<CNode*> &vNodes) {
 
     // fImporting and fReindex are accessed out of cs_main here, but only
     // as an optimization - they are checked again in SendMessages.
-    if (fImporting || fReindex)
-        return;
+
+	//  *********************** Commented out in MyriadCoin, disabling in Gridcoin to try to prevent sync problems: ************************
+	//    if (fImporting || fReindex)        return;
 
     // Iterate over all nodes
     BOOST_FOREACH(CNode* pnode, vNodes) {
@@ -1909,8 +1909,6 @@ void ThreadMessageHandler()
     while (true)
     {
         bool fHaveSyncNode = false;
-
-
 
         vector<CNode*> vNodesCopy;
         {

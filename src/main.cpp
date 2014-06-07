@@ -3956,7 +3956,8 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
     nBestChainWork = pindexNew->nChainWork;
     nTimeBestReceived = GetTime();
     nTransactionsUpdated++;
-	if (nBestHeight > 70000) {
+	if (nBestHeight > 120000) 
+	{
 		printf("SBC:NB=%s;H=%d;L_W=%.8g;TX=%lu;DT=%s;PR=%f;",
 		hashBestChain.ToString().c_str(), nBestHeight, log(nBestChainWork.getdouble())/log(2.0), (unsigned long)pindexNew->nChainTx,
 		DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->GetBlockTime()).c_str(),
@@ -3972,7 +3973,7 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
         {
 
 			//Gridcoin
-//            if (pindex->nVersion > CBlock::CURRENT_VERSION)
+			//if (pindex->nVersion > CBlock::CURRENT_VERSION)
 
             if (pindex->nVersion > 3)
                 ++nUpgraded;
@@ -4744,6 +4745,8 @@ CBlockIndex * InsertBlockIndex(uint256 hash)
 
 bool static LoadBlockIndexDB()
 {
+	//6-6-2014
+
     if (!pblocktree->LoadBlockIndexGuts())
         return false;
 
@@ -4815,7 +4818,7 @@ bool VerifyDB() {
 
     // Verify blocks in the best chain
     int nCheckLevel = GetArg("-checklevel", 3);
-    int nCheckDepth = GetArg( "-checkblocks", 100);
+    int nCheckDepth = GetArg("-checkblocks", 50);
     if (nCheckDepth == 0)
         nCheckDepth = 1000000000; // suffices until the year 19000
     if (nCheckDepth > nBestHeight)
@@ -5743,11 +5746,8 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
         // Send the rest of the chain
         if (pindex)
             pindex = pindex->pnext;
-        int nLimit = 500;
+        int nLimit = 2500;
         //printf("etblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().c_str(), nLimit);
-
-		try {
-
         for (; pindex; pindex = pindex->pnext)
         {
             if (pindex->GetBlockHash() == hashStop)
@@ -5765,11 +5765,6 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
                 break;
             }
         }
-		}
-
-	    catch (std::exception& e) {
-    		printf("GETBLOCKS ERROR, GRIDCOIN.");
-		}
 
     }
 
@@ -7840,6 +7835,7 @@ double static PoBMiner(int threadid)
 		bool succeeded = false;
 	
 		printf(".Getwork_cpu..");
+
 		pPOBMiningKey = new CReserveKey(pwalletMain);
 		CBlock* pblock = NULL;
 		int mutex = 0;
@@ -7867,6 +7863,9 @@ double static PoBMiner(int threadid)
 		
 		if (pblock==NULL) return 0;
 		if (!succeeded)  return 0;
+		msMiningErrors = "CPU Mining " + miningcpid.projectname;
+
+		
 		printf("{PoBMiner_ST}");
 	    nNonce = Races(150000);
 

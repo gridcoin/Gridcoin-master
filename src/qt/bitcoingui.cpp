@@ -85,6 +85,10 @@ int nNeedsUpgrade = 0;
 double GetPoBDifficulty();
 
 
+extern int CreateRestorePoint();
+
+
+
 bool OutOfSyncByAge();
 
 bool bCheckedForUpgrade = false;
@@ -408,6 +412,33 @@ int ReindexWallet()
 
 
 
+int CreateRestorePoint()
+{
+			printf("executing grcrestarter createrestorepoint");
+
+			QString sFilename = "GRCRestarter.exe";
+			QString sArgument = "";
+			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
+			QProcess p;
+			if (!fTestNet)
+			{
+#ifdef WIN32
+				globalcom->dynamicCall("CreateRestorePoint()");
+#endif
+			}
+			else
+			{
+#ifdef WIN32
+				globalcom->dynamicCall("CreateRestorePointTestNet()");
+#endif
+			}
+			return 1;
+}
+
+
+
+
+
 int RestartClient()
 {
 	
@@ -525,6 +556,11 @@ void BitcoinGUI::createActions()
 	rebuildAction->setStatusTip(tr("Rebuild Block Chain"));
 	rebuildAction->setMenuRole(QAction::TextHeuristicRole);
 
+	//6-6-2014 : R Halford : Add Upgrade Button 
+
+	upgradeAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Upgrade QT Client"), this);
+	upgradeAction->setStatusTip(tr("Upgrade QT Client"));
+	upgradeAction->setMenuRole(QAction::TextHeuristicRole);
 
 
     aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About Gridcoin"), this);
@@ -586,6 +622,8 @@ void BitcoinGUI::createActions()
 	connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
 	connect(rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildClicked()));
+	connect(upgradeAction, SIGNAL(triggered()), this, SLOT(upgradeClicked()));
+
 	connect(sqlAction, SIGNAL(triggered()), this, SLOT(sqlClicked()));
 	connect(leaderboardAction, SIGNAL(triggered()), this, SLOT(leaderboardClicked()));
 	
@@ -628,7 +666,11 @@ void BitcoinGUI::createMenuBar()
 	QMenu *email = appMenuBar->addMenu(tr("&E-Mail"));
     email->addSeparator();
     email->addAction(emailAction);
-		
+	
+	QMenu *upgrade = appMenuBar->addMenu(tr("&Upgrade QT Client"));
+	upgrade->addSeparator();
+	upgrade->addAction(upgradeAction);
+
 
 	QMenu *rebuild = appMenuBar->addMenu(tr("&Rebuild Block Chain"));
 	rebuild->addSeparator();
@@ -828,10 +870,16 @@ void BitcoinGUI::emailClicked()
 void BitcoinGUI::rebuildClicked()
 {
 	printf("Rebuilding...");
-
 	ReindexBlocks();
 }
 
+
+void BitcoinGUI::upgradeClicked()
+{
+	printf("Upgrading Gridcoin...");
+	UpgradeClient();
+	
+}
 
 
 void BitcoinGUI::sqlClicked()
@@ -1401,6 +1449,9 @@ void BitcoinGUI::timerfire()
 
 			std::string backup_results = BackupGridcoinWallet();
 			printf("Daily backup results: %s\r\n",backup_results.c_str());
+			//Create a restore point once per day
+			int r = CreateRestorePoint();
+			printf("Created restore point : %i",r);
 		}
 
 		if (Timer("start",3))
