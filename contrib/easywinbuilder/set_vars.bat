@@ -7,10 +7,10 @@
 
 @set OPENSSL=openssl-1.0.1e
 @set BERKELEYDB=db-4.8.30.NC
-@set BOOST=boost_1_54_0
-@set BOOSTVERSION=1.54.0
+@set BOOST=boost_1_55_0
+@set BOOSTVERSION=1.55.0
 @rem If you wonder why there is no -s- see: https://github.com/bitcoin/bitcoin/pull/2835#issuecomment-21231694
-@set BOOSTSUFFIX=-mgw46-mt-1_54
+@set BOOSTSUFFIX=-mgw46-mt-1_55
 @set MINIUPNPC=miniupnpc-1.8
 
 @set EWBLIBS=libs

@@ -39,6 +39,8 @@ void ShutdownGridcoinMiner();
 
 void StartNodeNetworkOnly();
 void ThreadCPIDs();
+extern void StopGridcoin3();
+
 
 void LoadCPIDsInBackground();
 std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,
@@ -191,18 +193,22 @@ void DetectShutdownThread(boost::thread_group* threadGroup)
     }
 }
 
+void StopGridcoin3()
+{
+	       CreatingNewBlock=false;
+		threadGroup.interrupt_all();
+        threadGroup.join_all();
+		printf("Stopping node\r\n");
+		StopNode();
 
+}
 
 void RestartGridcoin3() 
 {
      	//Gridcoin - 12-26-2013 Stop all network threads; Stop the node; Restart the Node.
 		//Note: The threadGroup only contains Network Threads:
-        CreatingNewBlock=false;
-		threadGroup.interrupt_all();
-        threadGroup.join_all();
-		printf("Stopping node\r\n");
-		StopNode();
-		printf("Starting node...\r\n");
+	     StopGridcoin3();
+ 		printf("Starting node...\r\n");
 		StartNodeNetworkOnly();
 }
 
@@ -719,6 +725,17 @@ bool AppInit2()
              
 	}
 
+	//6-10-2014: R Halford: Updating Boost version to 1.5.5 to prevent sync issues; print the boost version to verify:
+	std::string boost_version = "";
+	std::ostringstream s;
+	s << boost_version  << "Using Boost "     
+          << BOOST_VERSION / 100000     << "."  // major version
+          << BOOST_VERSION / 100 % 1000 << "."  // minior version
+          << BOOST_VERSION % 100                // patch level
+          << "\r\n";
+
+	printf(s.str().c_str());
+	
 	printf("Loading boinc projects \r\n");
 
 	InitializeBoincProjects();

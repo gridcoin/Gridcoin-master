@@ -53,8 +53,13 @@ Module modUtilization
 
   
     Public Sub Initialize()
-        Housecleaning()
-    
+        Try
+            Housecleaning()
+
+        Catch ex As Exception
+
+        End Try
+       
         If _timerBoincUtilization Is Nothing Then
             _timerBoincUtilization = New System.Timers.Timer(600000)
             AddHandler _timerBoincUtilization.Elapsed, New ElapsedEventHandler(AddressOf BoincUtilizationTimerElapsed)
@@ -74,7 +79,6 @@ Module modUtilization
     Private Sub BoincUtilizationTimerElapsed()
         Try
             _timerBoincUtilization.Enabled = False
-            ' ReturnBoincCPUUsage()
         Catch ex As Exception
         End Try
         _timerBoincUtilization.Enabled = True
@@ -109,9 +113,11 @@ Module modUtilization
 
     End Function
     Public Function GetUtilizationByPID(ByVal PID As Integer) As Double
-        Dim cat As New PerformanceCounterCategory("Process")
         Dim instances() As String = Nothing
+
         Try
+
+            Dim cat As New PerformanceCounterCategory("Process")
             instances = cat.GetInstanceNames()
         Catch
             Return 0
@@ -119,21 +125,21 @@ Module modUtilization
         Dim i As Integer
         Try
 
-        For Each instance In instances
-            Using cnt As PerformanceCounter = New PerformanceCounter("Process", "ID Process", instance, True)
-                Dim val As Integer = CType(cnt.RawValue, Int32)
-                If val = PID Then
-                    Dim pc As PerformanceCounter = New PerformanceCounter("Process", "% Processor Time", instance, True)
-                    pc.NextValue()
-                    Dim dPIDProcessorTime As Double
-                    For i = 1 To 4
-                        Threading.Thread.Sleep(100)
-                        dPIDProcessorTime = pc.NextValue
-                        If dPIDProcessorTime > 0 And i > 1 Then Return dPIDProcessorTime
-                    Next i
-                End If
-            End Using
-        Next
+            For Each instance In instances
+                Using cnt As PerformanceCounter = New PerformanceCounter("Process", "ID Process", instance, True)
+                    Dim val As Integer = CType(cnt.RawValue, Int32)
+                    If val = PID Then
+                        Dim pc As PerformanceCounter = New PerformanceCounter("Process", "% Processor Time", instance, True)
+                        pc.NextValue()
+                        Dim dPIDProcessorTime As Double
+                        For i = 1 To 4
+                            Threading.Thread.Sleep(100)
+                            dPIDProcessorTime = pc.NextValue
+                            If dPIDProcessorTime > 0 And i > 1 Then Return dPIDProcessorTime
+                        Next i
+                    End If
+                End Using
+            Next
             Return 0
 
         Catch ex As Exception
@@ -149,6 +155,8 @@ Module modUtilization
         Return mBoincProcessorUtilization
     End Function
     Public Function Thread_ReturnBoincCPUUsage() As Double
+        Try
+
         Dim masterProcess As Process()
         masterProcess = Process.GetProcessesByName("BOINC")
         If masterProcess.Length = 0 Then
@@ -236,9 +244,19 @@ CalculateUsage:
         mBoincProcessorUtilization = Math.Round(avg_sample, 0)
         last_sample = mBoincProcessorUtilization
         mBoincThreads = lThreadCount
-        Return usage_percent
+            Return usage_percent
+
+
+
+        Catch ex As Exception
+            Return 0
+        End Try
+
+
     End Function
     Public Function HomogenizedDailyCredits(cpu_use As Double)
+        Try
+
         Dim dAvg As Double = BoincCreditsAvg
         If dAvg > 3000 Then dAvg = 3000
         If dAvg < 0.01 Then dAvg = 0.01
@@ -248,7 +266,12 @@ CalculateUsage:
         mdProcNarrComponent1 = cpu_use
         mdProcNarrComponent2 = dUsage
         Dim avg1 As Double = (cpu_use + dUsage) / 2
-        Return avg1
+            Return avg1
+
+        Catch ex As Exception
+
+        End Try
+
     End Function
     Public Function GetInheritedParent(ByVal sPID As IntPtr) As Process
         Try
@@ -266,59 +289,5 @@ CalculateUsage:
         End Try
     End Function
 
-    Public Function GetSleepLevelByAddress(sAddress As String, ByRef dScryptSleep As Double, sBlockhash As String, _
-                                            ByRef dNetLevel As Double) As Boolean
-        'Retrieve User level
-        dScryptSleep = 0
-        dNetLevel = 0
-        Try
-            Dim sql As String
-            Dim mData As New Sql("gridcoin_leaderboard")
-            sql = "Select ScryptSleepChance from leaderboard Where Address='" + sAddress + "'"
-            Dim gr As New GridcoinReader
-            gr = mData.GetGridcoinReader(sql)
-            If gr.Rows = 0 Then
-                dScryptSleep = 0.5
-
-            End If
-            'Dim grr As GridcoinReader.GridcoinRow
-            dScryptSleep = gr.Value(1, "ScryptSleepChance")
-            mData = Nothing
-        Catch ex As Exception
-            Log("GetSleepLevelByAddress: " + ex.Message)
-        End Try
-
-        ''''''''''''''''Newbie Sleep Level Patch:
-        If dScryptSleep = 0 Then dScryptSleep = NewbieSleepLevel()
-
-        If dScryptSleep = 0 Then dScryptSleep = 0.5
-
-
-        Try
-
-        'Calculate Net Level
-        Dim sBlockSuffix As String
-
-        If Len(sBlockhash) > 3 Then
-            sBlockSuffix = Mid(sBlockhash, Len(sBlockhash) - 3, 3)
-        End If
-        Dim dDecSuffix = CDbl("&h" + Trim(sBlockSuffix))
-        Dim dCalc = dDecSuffix / 40.96
-        dCalc = dCalc / 100
-        Dim sSleepStatus As String = "WORK"
-        If dScryptSleep >= dCalc Then sSleepStatus = "WORK" Else sSleepStatus = "SLEEP"
-        dNetLevel = dCalc
-        If sSleepStatus = "SLEEP" Then
-            Return False
-        Else
-            Return True
-        End If
-
-        Catch ex As Exception
-            Log("GetSleepByAddress" + ex.Message + ":" + ex.Source)
-
-        End Try
-
-    End Function
 
 End Module

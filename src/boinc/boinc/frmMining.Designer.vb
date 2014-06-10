@@ -974,7 +974,7 @@ Partial Class frmMining
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "frmMining"
-        Me.Text = "Gridcoin Mining Module 1.2"
+        Me.Text = "Gridcoin Mining Module 2.0"
         CType(Me.Chart1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ChartUtilization, System.ComponentModel.ISupportInitialize).EndInit()
         Me.MenuStrip1.ResumeLayout(False)

@@ -53,8 +53,7 @@ Module modGRC
         Dim value As String = System.Text.ASCIIEncoding.ASCII.GetString(b)
         b = System.Convert.FromBase64String(value)
         System.IO.File.WriteAllBytes(sTargetFileName, b)
-        System.Threading.Thread.Sleep(1000)
-
+        
     End Function
 
     Public Function RestartWallet1(sParams As String)
@@ -162,6 +161,10 @@ Module modGRC
         Return bOut
     End Function
     Public Sub KillGuiMiner()
+        Dim tKill As New System.Threading.Thread(AddressOf ThreadKillGuiMiner)
+        tKill.Start()
+    End Sub
+    Public Sub ThreadKillGuiMiner()
         Log("Closing all miners (guiminer,cgminer,conhost,reaper).")
 
         For x = 1 To 6
@@ -228,7 +231,6 @@ Module modGRC
         Dim dDestination As New System.IO.DirectoryInfo(destDirName)
 
         Try
-
             RemoveBlocksDir(dDestination)
 
         Catch ex As Exception
@@ -400,25 +402,6 @@ Module modGRC
             hex.AppendFormat("{0:x2}", b)
         Next
         Return hex.ToString()
-    End Function
-
-    Public Function NewbieSleepLevel() As Double
-        'Used when a new user starts Gridcoin, has high RAC, and is not yet on the leaderboard
-        Dim lRac As Long
-        lRac = mclsUtilization.BoincTotalCreditsAvg
-        Dim ss As Double
-        ss = 50
-        'Range 1000 = 51, 99 = 10000 per leaderboard snapshot 3-2-2014
-
-        If lRac > 1000 Then
-            ss = (0.00556 * lRac) + 50
-            If ss > 100 Then ss = 100
-        End If
-
-        If ss > 0 Then ss = ss / 100
-
-        Return ss
-
     End Function
 
     Public Function GetBoincDataFolder() As String

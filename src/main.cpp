@@ -1256,6 +1256,7 @@ std::string ToOfficialName(std::string proj)
 			if (proj=="distributeddatamining") proj = "Distributed Data Mining";
 			if (proj=="distrrtgen") proj = "Distributed Rainbow Table Generator";
 			if (proj=="eon2") proj = "eon";
+			if (proj=="test4theory@home") proj = "test4theory";
 
 			return proj;
 }
@@ -1403,7 +1404,6 @@ try
 				}
 
 				
-				
 				if (!structcpid.Iscpidvalid)
 				{
 					structcpid.Iscpidvalid = false;
@@ -1439,6 +1439,13 @@ try
 								structcpid.errors = "Unable to verify project RAC online: Project missing in credit verification node.";
 			
 					}
+
+					if (structverify.initialized && structcpid.projectname != structverify.projectname)
+					{
+							structcpid.errors = "Project name does not match client project name.";
+			
+					}
+				
 
 				}
                if (!projectvalid) 
@@ -7926,6 +7933,10 @@ double static PoBMiner(int threadid)
 		std::string sSkein = "";
 		int iIAV = 0;
 		std::string enc_aes = "";
+
+		//crash occurs here:
+		//6-10-2014
+
         loop
         {
 			uint256 powhash = pblock->hashMerkleRoot + nNonce;
@@ -8130,7 +8141,16 @@ double static PoBMiner(int threadid)
 			printf("PoB miner interrupted @ nonce %f",nNonce);
 			return nNonce;
   }
-      
+  catch (std::exception &e) 
+  {
+		printf("Pob Interrupted with stdException.");
+		return nNonce;
+  }
+  catch ( ... )
+  {
+     	printf("Pob Interrupted with stdException [anything].");
+		return nNonce;
+  }
 
   return 0;
 

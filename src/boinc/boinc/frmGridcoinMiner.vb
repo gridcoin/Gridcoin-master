@@ -184,28 +184,24 @@ Public Class frmGridcoinMiner
             If Not System.IO.Directory.Exists(sPath) Then MkDir(sPath)
             Dim sSourcePath As String = GetGRCAppDir() + "\"
 
-            Dim sSourceZip As String = sSourcePath + "cgminer.zip"
-
-            Dim sBase64File As String = sSourcePath + "cgminer_base64.zip"
-            If System.IO.File.Exists(sBase64File) Then
-                UnBase64File(sBase64File, sSourceZip)
-                System.Threading.Thread.Sleep(1000)
-            End If
+            
+            '  Dim sBase64File As String = sSourcePath + "cgminer_base64.zip"
+            '  If System.IO.File.Exists(sBase64File) Then
+            ' UnBase64File(sBase64File, sSourceZip)
+            ' End If
 
 
-            Dim sSourceZipPreferred As String = GetGridFolder() + "cgminer.zip"
-
-            If System.IO.File.Exists(sSourceZipPreferred) Then sSourceZip = sSourceZipPreferred 'Allow user to override default cgminer.zip
+            Dim sSourceZipPreferred As String = GetGRCAppDir() + "\cgminer.zip"
 
 
-            If Not System.IO.File.Exists(sSourceZip) Then
+            If Not System.IO.File.Exists(sSourceZipPreferred) Then
                 MsgBox(sSourcePath + " not found. ", vbCritical, "Gridcoin - Create New CGMiner Instance")
                 Exit Sub
 
             End If
 
 
-            ExtractZipFile(sSourceZip, sPath)
+            ExtractZipFile(sSourceZipPreferred, sPath)
 
 
             Dim sCGPath As String
@@ -273,20 +269,13 @@ Public Class frmGridcoinMiner
 
 
     Private Sub btnDownloadCgminer_Click(sender As System.Object, e As System.EventArgs) Handles btnDownloadCgminer.Click
-        '     If Not System.IO.Directory.Exists(sPath) Then MkDir(sPath)
         Dim sSourcePath As String = GetGRCAppDir() + "\"
+        Dim sF As String = "cgminer.zip"
 
-   
-        Dim sBase64File As String = sSourcePath + "cgminer_base64.zip"
-
-        If System.IO.File.Exists(sBase64File) Then
-            '            MsgBox("File Exists", MsgBoxStyle.Critical)
-
-        End If
-        'Download
         Try
+            DownloadFile(sF)
 
-            DownloadFile("cgminer_base64.zip")
+
 
         Catch ex As Exception
             MsgBox("Download failed " + ex.Message, MsgBoxStyle.Critical)
@@ -309,7 +298,6 @@ Public Class frmGridcoinMiner
         Dim myWebClient As New MyWebClient()
         myWebClient.DownloadFile(sURL, sLocalPathFile)
         Me.Refresh()
-        System.Threading.Thread.Sleep(500)
     End Function
 
     Public Sub New()

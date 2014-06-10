@@ -11,8 +11,6 @@
         Public URL As String
         Public Name As String
         Public Credits As Double
-
-
     End Structure
     Public bSqlHouseCleaningComplete As Boolean = False
 
@@ -20,7 +18,6 @@
     Public Function SQLInSync() As Boolean
         If mlSqlBestBlock < 800 Then Return False
         If nBestBlock < 800 Then Return False
-
         If mlSqlBestBlock > nBestBlock - 6 Then Return True
         Return False
     End Function
@@ -202,39 +199,24 @@
 
             dr = d.GetGridcoinReader(sql)
 
-
-            'MD5, Avg_Credits, UTILIZATION,  CRD_V, pool_mode, DefaultWalletAddress() ,RegVer,BoincDeltaOverTime,MinedHash, sSourceBlock;
-            'xa3, 1,           98,           CRD_V, SOLO_MIN, GBZkHyR7sKXfdh1Z7FMxbsLB,    23,2854:2963:2969 ,483CB1696,00fb888761f0e\1:3a94913164b731f5c712e4a7852575a3\50\2969\3\58842\roset:fight\1386004003\2\270722
-            '310838f9d793552\1:3a94913164b731f5c712e4\50    \2969 \3  \58842\roset:fight \1386004003\2  \270722
-            'BoincSolvedHash\Credits:OriginalSha1Hash\Utiliz\AvgCr\thr\totcr\ProjExpanded\UnixTime  \pCo\Nonce
             Dim sqlI As String = ""
             Dim sHash As String
             Dim vHash() As String
             Dim sbi As New System.Text.StringBuilder
             Dim grr As GridcoinReader.GridcoinRow
-
             For y = 1 To dr.Rows
                 grr = dr.GetRow(y)
-
                 sHash = dr.Value(y, "boinchash")
-
-
-
-
                 vHash = Split(sHash, ",")
                 Dim sSourceBlock As String
                 Dim vSourceBlock() As String
                 If UBound(vHash) >= 9 Then
-
-
                     sSourceBlock = vHash(9)
-
                     If UBound(vHash) > 17 Then
                         If InStr(1, vHash(17), "\") > 0 Then
                             sSourceBlock = vHash(17) 'Support for Pools
                         End If
                     End If
-
                     vSourceBlock = Split(sSourceBlock, "\")
                     Dim sExpandedProjects As String
                     Dim vExpandedProjects() As String
@@ -257,12 +239,9 @@
                                     Dim sHost As String
                                     sHost = vProjData(2)
                                     sProject = vProjData(0)
-
                                     dCredits = Val(vProjData(1))
                                     If dCredits > 0 Then lProjCount += 1
-
                                 End If
-
                             Next pr
                             For x As Integer = 0 To UBound(vExpandedProjects)
                                 sProjData = vExpandedProjects(x)
@@ -276,10 +255,6 @@
                                     dCredits = Val(vProjData(1))
                                     Dim sGRCAddress As String
                                     sGRCAddress = vHash(5)
-                                    '''' If InStr(1, sHash, "FupazJkUW4bP3JJgHPkh4JvM8kA33ztHRj") Then 
-
-
-
                                     If UBound(vHash) > 17 Then
                                         If InStr(1, vHash(17), "\") > 0 Then
                                             If Len(vHash(13)) > 0 Then
@@ -302,10 +277,6 @@
                                                               + GlobalizedDecimal(dCredits) + "','" + bp.Name _
                                                               + "','" + bp.URL + "'," + GlobalizedDecimal(lProjCount) + ",'0','0');"
                                             sbi.AppendLine(sSql)
-
-
-                                            'If InStr(1, sHash, "FupazJkUW4bP3JJgHPkh4JvM8kA33ztHRj") Then Log("Adding " + sSql)
-
 
                                         End If
 

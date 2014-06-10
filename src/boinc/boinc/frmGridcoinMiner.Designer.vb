@@ -30,6 +30,7 @@ Partial Class frmGridcoinMiner
         Me.Label4 = New System.Windows.Forms.Label()
         Me.btnSave = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.btnDownloadCgminer = New System.Windows.Forms.Button()
         Me.btnCreateCgminerInstance = New System.Windows.Forms.Button()
         Me.txt_enabled = New System.Windows.Forms.CheckBox()
         Me.Label7 = New System.Windows.Forms.Label()
@@ -39,7 +40,6 @@ Partial Class frmGridcoinMiner
         Me.cmbDeviceID = New System.Windows.Forms.ComboBox()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
-        Me.btnDownloadCgminer = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -164,11 +164,22 @@ Partial Class frmGridcoinMiner
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Miner Settings"
         '
+        'btnDownloadCgminer
+        '
+        Me.btnDownloadCgminer.BackColor = System.Drawing.Color.Black
+        Me.btnDownloadCgminer.ForeColor = System.Drawing.Color.Lime
+        Me.btnDownloadCgminer.Location = New System.Drawing.Point(382, 285)
+        Me.btnDownloadCgminer.Name = "btnDownloadCgminer"
+        Me.btnDownloadCgminer.Size = New System.Drawing.Size(196, 32)
+        Me.btnDownloadCgminer.TabIndex = 20
+        Me.btnDownloadCgminer.Text = "Download Kalroth-CGminer 3.7.2"
+        Me.btnDownloadCgminer.UseVisualStyleBackColor = False
+        '
         'btnCreateCgminerInstance
         '
         Me.btnCreateCgminerInstance.BackColor = System.Drawing.Color.Black
         Me.btnCreateCgminerInstance.ForeColor = System.Drawing.Color.Lime
-        Me.btnCreateCgminerInstance.Location = New System.Drawing.Point(544, 285)
+        Me.btnCreateCgminerInstance.Location = New System.Drawing.Point(601, 285)
         Me.btnCreateCgminerInstance.Name = "btnCreateCgminerInstance"
         Me.btnCreateCgminerInstance.Size = New System.Drawing.Size(140, 32)
         Me.btnCreateCgminerInstance.TabIndex = 19
@@ -260,17 +271,6 @@ Partial Class frmGridcoinMiner
         Me.Label5.TabIndex = 11
         Me.Label5.Text = "Device ID:"
         '
-        'btnDownloadCgminer
-        '
-        Me.btnDownloadCgminer.BackColor = System.Drawing.Color.Black
-        Me.btnDownloadCgminer.ForeColor = System.Drawing.Color.Lime
-        Me.btnDownloadCgminer.Location = New System.Drawing.Point(389, 285)
-        Me.btnDownloadCgminer.Name = "btnDownloadCgminer"
-        Me.btnDownloadCgminer.Size = New System.Drawing.Size(140, 32)
-        Me.btnDownloadCgminer.TabIndex = 20
-        Me.btnDownloadCgminer.Text = "Download CG Miner 3.4.0"
-        Me.btnDownloadCgminer.UseVisualStyleBackColor = False
-        '
         'frmGridcoinMiner
         '
         Me.BackColor = System.Drawing.Color.Black
@@ -278,7 +278,7 @@ Partial Class frmGridcoinMiner
         Me.Controls.Add(Me.GroupBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "frmGridcoinMiner"
-        Me.Text = "Gridcoin GPU Configuration Management"
+        Me.Text = "Gridcoin GPU Configuration Management 2.0"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
         Me.ResumeLayout(False)

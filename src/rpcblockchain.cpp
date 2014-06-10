@@ -55,7 +55,9 @@ std::string getfilecontents(std::string filename);
 
 MiningCPID DeserializeBoincBlock(std::string block);
 
-	
+void StopGridcoin3();
+
+
 
 std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string urlPage, bool bUseDNS);
 
@@ -818,7 +820,12 @@ Value execute(const Array& params, bool fHelp)
 	{
 			int r=-1;
 			#if defined(WIN32) && defined(QT_GUI)
+			//We must stop the node before we can do this
+            StopGridcoin3();
+
 				r = CreateRestorePoint();
+				RestartGridcoin3();
+
 			#endif 
 			entry.push_back(Pair("Restore Point",r));
 			results.push_back(entry);

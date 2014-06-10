@@ -12,6 +12,8 @@ Public Class frmMining
     Private MaxHR As Double = 1
     Private LastMHRate As String = ""
     Private lMHRateCounter As Long = 0
+    Private mIDelay As Long = 0
+
     Private clsUtilization As Utilization
     Private RefreshCount As Long
     Private RestartedMinerAt As DateTime
@@ -166,36 +168,6 @@ Public Class frmMining
         End Try
 
     End Function
-
-    Public Sub LogSleepStatus(sStatus As String)
-        Try
-
-
-            Dim sPath As String
-            sPath = GetGridFolder() + "status.txt"
-            Dim sData As String
-            If LCase(sStatus) = "sleep" Then
-                sData = "sleep"
-            Else
-                sData = "work"
-
-            End If
-
-            'ForceBoincToUseGPUs(sData)
-
-
-            Dim sw As New System.IO.StreamWriter(sPath, False)
-
-            sw.WriteLine(sData)
-            sw.Close()
-        Catch ex As Exception
-        End Try
-
-    End Sub
-    Private Sub DirectGPUSleepStatus()
-        Exit Sub
-
-    End Sub
     Public Sub Refresh2(ByVal bStatsOnly As Boolean)
         bCharting = False
         updateGh()
@@ -293,32 +265,38 @@ Public Class frmMining
                 pCreditsTotal.SetValueXY(d1, l3)
                 seriesTotalCredits.Points.Add(pCreditsTotal)
             Next
-            Chart1.Refresh()
+            'Chart1.Refresh()
         Catch ex As Exception
         End Try
         bCharting = False
     End Sub
     Public Sub ChartBoincUtilization()
         Try
-            ChartUtilization.Series.Clear()
-            ChartUtilization.Titles.Clear()
-            ChartUtilization.Visible = True
 
-            ChartUtilization.BackColor = Color.Transparent : ChartUtilization.ForeColor = Color.Blue
-            ChartUtilization.Titles.Add("Boinc Magnitude")
-            ChartUtilization.ChartAreas(0).BackColor = Color.Transparent
-            ChartUtilization.ChartAreas(0).BackSecondaryColor = Color.White
-            ChartUtilization.Legends(0).BackColor = Color.Transparent
-            ChartUtilization.Legends(0).ForeColor = Color.Honeydew
-            Dim sUtilization As New Series
-            sUtilization.Name = "Magnitude" : sUtilization.ChartType = SeriesChartType.Pie
+            If ChartUtilization.Titles.Count < 1 Then
 
-            sUtilization.LegendText = "Boinc Magnitude"
-            sUtilization.LabelBackColor = Color.Lime : sUtilization.IsValueShownAsLabel = False
-            sUtilization.LabelForeColor = Color.Honeydew
-            ChartUtilization.Series.Add(sUtilization)
+                ChartUtilization.Series.Clear()
+                ChartUtilization.Titles.Clear()
+                ChartUtilization.Visible = True
+
+                ChartUtilization.BackColor = Color.Transparent : ChartUtilization.ForeColor = Color.Blue
+                ChartUtilization.Titles.Add("Boinc Magnitude")
+                ChartUtilization.ChartAreas(0).BackColor = Color.Transparent
+                ChartUtilization.ChartAreas(0).BackSecondaryColor = Color.White
+                ChartUtilization.Legends(0).BackColor = Color.Transparent
+                ChartUtilization.Legends(0).ForeColor = Color.Honeydew
+                Dim sUtilization As New Series
+                sUtilization.Name = "Magnitude" : sUtilization.ChartType = SeriesChartType.Pie
+                sUtilization.LegendText = "Boinc Magnitude"
+                sUtilization.LabelBackColor = Color.Lime : sUtilization.IsValueShownAsLabel = False
+                sUtilization.LabelForeColor = Color.Honeydew
+                ChartUtilization.Series.Add(sUtilization)
+            End If
+
             Dim bu As Double
             bu = Math.Round(Val(clsUtilization._boincmagnitude), 1)
+            ChartUtilization.Series(0).Points.Clear()
+
             If Not bUICharted Then bUICharted = True : bu = 2
             ChartUtilization.Series(0).Points.AddY(bu)
             ChartUtilization.Series(0).LabelBackColor = Color.Transparent
@@ -420,65 +398,76 @@ Public Class frmMining
         Catch ex As Exception
         End Try
 
-        Dim p As Process
-        Dim hwnd As IntPtr
-        Dim sCap As String
-        sCap = "GUIMiner-scrypt alpha"
-        Dim iTimeOut As Long
-        Dim sProcName As String
-        Dim pi As ProcessStartInfo
-        Try
-            p = New Process()
-            pi = New ProcessStartInfo()
-            pi.WorkingDirectory = GetGridFolder() + "guiminer\"
-            pi.UseShellExecute = False
-            pi.FileName = pi.WorkingDirectory + "\guiminer.exe"
-            pi.WindowStyle = ProcessWindowStyle.Maximized
-            pi.CreateNoWindow = False
-            p.StartInfo = pi
-            If Not File.Exists(pi.FileName) Then
-                lblThanks.Text = "GUI Miner missing. "
-                If IsGPUEnabled(0) Then lblThanks.Text = ""
-                Exit Sub
-            End If
-            p.Start()
-            Application.DoEvents()
-            Threading.Thread.Sleep(100)
-            Application.DoEvents()
-            sProcName = p.ProcessName
 
-        Catch ex As Exception
-            lblThanks.Text = "Error loading GUIMiner."
-            Exit Sub
-        End Try
-
-        hwnd = GetHwndByProcessName(sProcName, sCap)
-        Dim c As Control
         Try
-            'TabControl1.TabIndex = 1 'guiminer
-            TabControl1.SelectedTab = TabControl1.TabPages(1)
-            c = Pb1
-            If Not hwnd.Equals(IntPtr.Zero) Then
-                Dim sThanks As String
-                sThanks = "Special Thanks go to Taco Time, Kiv MacLeod, m0mchil, and puddinpop for guiminer, cgminer and reap-er."
-                lblThanks.Text = sThanks
-                lblThanks.Font = New Font("Arial", 5)
+            Dim p As Process
+            Dim hwnd As IntPtr
+            Dim sCap As String
+            sCap = "GUIMiner-scrypt alpha"
+            Dim iTimeOut As Long
+            Dim sProcName As String
+            Dim pi As ProcessStartInfo
+            Try
+                p = New Process()
+                pi = New ProcessStartInfo()
+                pi.WorkingDirectory = GetGridFolder() + "guiminer\"
+                pi.UseShellExecute = False
+                pi.FileName = pi.WorkingDirectory + "\guiminer.exe"
                 pi.WindowStyle = ProcessWindowStyle.Maximized
-                SetParent(hwnd, c.Handle)
-                ShowWindow(hwnd, 5)
-                SetWindowText(hwnd, "Miner1")
-                RemoveTitleBar(hwnd)
-                MoveWindow(hwnd, 0, 0, c.Width, c.Height, True)
-                If c.Width < 910 Then
-                    MoveWindow(hwnd, 0, 0, 917, 386, True)
+                pi.CreateNoWindow = False
+                p.StartInfo = pi
+                If Not File.Exists(pi.FileName) Then
+                    lblThanks.Text = "GUI Miner missing. "
+                    If IsGPUEnabled(0) Then lblThanks.Text = ""
+                    Exit Sub
                 End If
-                c.Refresh()
+                p.Start()
                 Application.DoEvents()
-            End If
+                Threading.Thread.Sleep(100)
+                Application.DoEvents()
+                sProcName = p.ProcessName
+
+            Catch ex As Exception
+                lblThanks.Text = "Error loading GUIMiner."
+                Exit Sub
+            End Try
+
+            hwnd = GetHwndByProcessName(sProcName, sCap)
+            Dim c As Control
+            Try
+                'TabControl1.TabIndex = 1 'guiminer
+                TabControl1.SelectedTab = TabControl1.TabPages(1)
+                c = Pb1
+                If Not hwnd.Equals(IntPtr.Zero) Then
+                    Dim sThanks As String
+                    sThanks = "Special Thanks go to Taco Time, Kiv MacLeod, m0mchil, and puddinpop for guiminer, cgminer and reap-er."
+                    lblThanks.Text = sThanks
+                    lblThanks.Font = New Font("Arial", 5)
+                    pi.WindowStyle = ProcessWindowStyle.Maximized
+                    SetParent(hwnd, c.Handle)
+                    ShowWindow(hwnd, 5)
+                    SetWindowText(hwnd, "Miner1")
+                    RemoveTitleBar(hwnd)
+                    MoveWindow(hwnd, 0, 0, c.Width, c.Height, True)
+                    If c.Width < 910 Then
+                        MoveWindow(hwnd, 0, 0, 917, 386, True)
+                    End If
+                    c.Refresh()
+                    Application.DoEvents()
+                End If
+            Catch ex As Exception
+                lblThanks.Text = "Error initializing guiminer. " + ex.Message
+                Exit Sub
+            End Try
+
+
         Catch ex As Exception
-            lblThanks.Text = "Error initializing guiminer. " + ex.Message
-            Exit Sub
+            lblThanks.Text = "Unhandled Exception in Mining Console " + ex.Message
+
         End Try
+
+
+
     End Sub
 
     Private Function GetHwndByProcessName(sProcName As String, sCaption As String) As IntPtr
@@ -645,14 +634,6 @@ Public Class frmMining
             lblVersion.Text = Trim(clsUtilization.Version)
             lblAvgCredits.Text = Trim(clsUtilization.BoincTotalCreditsAvg)
             lblMD5.Text = Trim(clsUtilization.BoincMD5)
-            '   Dim sNarr As String
-            '    sNarr = "Components: " + Trim(Math.Round(clsGVM.mbunarr1, 0)) + "," + Trim(Math.Round(clsGVM.mbunarr2, 0))
-            '    lblProcNarr.Text = sNarr
-            '    If clsUtilization.BoincUtilization < 51 Then
-            'lblWarning.Text = "Boinc Utilization Low"
-            'Else
-            'lblWarning.Text = ""
-            'End If
         Catch ex As Exception
 
         End Try
@@ -662,13 +643,24 @@ Public Class frmMining
     Public Function IsGPUEnabled(lDevId As Long) As Boolean
         Dim sEnabled As String
 
+        Try
+
         sEnabled = KeyValue("dev" + Trim(lDevId) + "_enabled")
 
         If sEnabled = "" Then sEnabled = "0"
         Return CBool(sEnabled)
+        Catch ex As Exception
+
+        End Try
 
     End Function
-    Public Sub ReStartMiners()
+    Public Sub RestartMiners()
+        Dim tMiners As New System.Threading.Thread(AddressOf ThreadReStartMiners)
+        tMiners.Priority = ThreadPriority.Lowest
+        tMiners.Start()
+
+    End Sub
+    Public Sub ThreadReStartMiners()
 
         If KeyValue("suppressminingconsole") = "true" Then Exit Sub
 
@@ -680,7 +672,7 @@ Public Class frmMining
 
 
             Try
-               
+
             Catch ex As Exception
 
             End Try
@@ -703,7 +695,7 @@ Public Class frmMining
                 Next
             End If
             RefreshGPUList()
-
+            mIDelay = 6000
             UpdateIntensity()
 
         Catch ex As Exception
@@ -711,9 +703,6 @@ Public Class frmMining
     End Sub
     Private Sub InitializeFormMining()
         ReStartMiners()
-
-       
-
 
     End Sub
     Private Sub timerReaper_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles timerReaper.Tick
@@ -792,8 +781,9 @@ Public Class frmMining
     End Sub
     Private Sub frmMining_Load(sender As Object, e As System.EventArgs) Handles Me.Load
     
-      
+        Try
 
+      
         RestartedWalletAt = Now
         'Set the defaults for the checkboxes
         chkFullSpeed.Checked = cBOO(KeyValue("chkFullSpeed"))
@@ -810,16 +800,24 @@ Public Class frmMining
         BoincWebBrowser.ScriptErrorsSuppressed = True
 
         BoincWebBrowser.Navigate("http://boincstats.com/en/stats/-1/team/detail/118094994/overview")
+        Catch ex As Exception
+
+        End Try
 
 
     End Sub
     Private Sub PersistCheckboxes()
         If Not bSuccessfullyLoaded Then Exit Sub
 
+        Try
+
         'Set the defaults for the checkboxes
         UpdateKey("chkFullSpeed", chkFullSpeed.Checked.ToString)
         UpdateKey("chkMiningEnabled", chkMiningEnabled.Checked.ToString)
         UpdateKey("chkCGMonitor", chkCGMonitor.Checked.ToString)
+        Catch ex As Exception
+
+        End Try
 
     End Sub
     Private Sub ResizeScreen()
@@ -871,32 +869,44 @@ Public Class frmMining
     End Sub
     Private Sub chkFullSpeed_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkFullSpeed.CheckedChanged
 
-
+        mIDelay = 1
         UpdateIntensity()
         PersistCheckboxes()
 
     End Sub
 
     Private Sub chkMiningEnabled_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkMiningEnabled.CheckedChanged
-
+        mIDelay = 1
         UpdateIntensity()
         PersistCheckboxes()
 
     End Sub
-    Private Sub UpdateIntensity()
+    Public Sub UpdateIntensity()
+        Dim tIntense As New System.Threading.Thread(AddressOf ThreadUpdateIntensity)
+        tIntense.Start()
+    End Sub
+    Private Sub ThreadUpdateIntensity()
+        Try
+            System.Threading.Thread.Sleep(mIDelay)
 
-        For x = 0 To 5
-            If IsGPUEnabled(x) Then
-                Dim dI As Double
-                dI = Val(KeyValue("dev" + Trim(x) + "_intensity"))
-                If chkFullSpeed.Checked = False Then dI = dI * 0.65
-                If chkMiningEnabled.Checked = False Then dI = 0
-                Dim sResult As String
-                sResult = modCgMiner.UpdateIntensity(x, dI)
 
-            End If
+            For x = 0 To 5
+                If IsGPUEnabled(x) Then
+                    Dim dI As Double
+                    dI = Val(KeyValue("dev" + Trim(x) + "_intensity"))
+                    If chkFullSpeed.Checked = False Then dI = dI * 0.65
+                    If chkMiningEnabled.Checked = False Then dI = 0
+                    Dim sResult As String
+                    sResult = modCgMiner.UpdateIntensity(x, dI)
 
-        Next
+                End If
+
+            Next
+
+        Catch ex As Exception
+
+        End Try
+
     End Sub
 
     Private Sub RichTextBox1_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles RichTextBox1.KeyDown
@@ -940,56 +950,30 @@ Public Class frmMining
 
     End Sub
 
-    Public Sub RefreshLeaderboardPosition()
-        Try
-            Dim sql As String
-            Dim mData As New Sql("gridcoin_leaderboard")
-            sql = "Select avg(credits*projectcount) Credits, avg(credits*factor*projectcount) as [Adjusted Credits], avg(projectcount) as [Projects], ScryptSleepChance, Address from leaderboard group by Address order by avg(credits*factor*projectcount) desc "
-            Dim gr As New GridcoinReader
-            gr = mData.GetGridcoinReader(sql)
-            If Len(clsGVM.PublicWalletAddress) < 10 Then
-                mdScryptSleep = NewbieSleepLevel()
-
-                Exit Sub
-
-            End If
-            Dim grr As GridcoinReader.GridcoinRow
-            Dim sGRCAddress As String
-            For y = 1 To gr.Rows
-                sGRCAddress = gr.Value(y, "Address")
-                If Trim(sGRCAddress) = Trim(clsGVM.PublicWalletAddress) Then
-                    mlLeaderboardPosition = y
-                    mdScryptSleep = gr.Value(y, "ScryptSleepChance")
-                End If
-            Next
-            mData = Nothing
-        Catch ex As Exception
-            Log("RefreshLeaderboardPosition: " + ex.Message)
-        End Try
-
-        If mdScryptSleep = 0 Then
-            mdScryptSleep = NewbieSleepLevel()
-        End If
-        If mdScryptSleep = 0 Then mdScryptSleep = 0.5
-    End Sub
     Private Sub TimerCGMonitor_Tick(sender As System.Object, e As System.EventArgs) Handles TimerCGMonitor.Tick
         'RefreshLeaderboardPosition()
         'Scrypt Sleep : if we are sleeping, don't bother monitoring the GPUs:
       
         'For each enabled CGMiner, restart if down:
-        If chkCGMonitor.Checked = False Then Exit Sub
-        For x = 0 To 5
-            If IsGPUEnabled(x) Then
-                If Val(lblGPUMhs.Text) = 0 Then
-                    Log("CGMiner down.  Restarting miners.")
+        Try
+            If chkCGMonitor.Checked = False Then Exit Sub
+            For x = 0 To 5
+                If IsGPUEnabled(x) Then
+                    If Val(lblGPUMhs.Text) = 0 Then
+                        Log("CGMiner down.  Restarting miners.")
 
-                    ReStartMiners()
-                    Log("Miners restarted.")
+                        RestartMiners()
+                        Log("Miners restarted.")
 
-                    Exit Sub
+                        Exit Sub
+                    End If
                 End If
-            End If
-        Next
+            Next
+
+        Catch ex As Exception
+
+        End Try
+
     End Sub
 
     Private Sub MenuStrip1_ItemClicked(sender As System.Object, e As System.Windows.Forms.ToolStripItemClickedEventArgs) Handles MenuStrip1.ItemClicked
@@ -1004,9 +988,7 @@ Public Class frmMining
         ' Add any initialization after the InitializeComponent() call.
         Dim sMessage1 As String
         sMessage1 = KeyValue("CPUMessage2")
-
         sMessage1 = "notified"
-
         If sMessage1 = "" Then
             Dim sMsg As String = "Note: If you are CPUMining, we recently added a requirement to be a member of Team 'Gridcoin'.  " _
                                  & "Please click on Projects, and verify that you are a member of Team Gridcoin for each project you participating in.  " _
@@ -1023,8 +1005,12 @@ Public Class frmMining
 
     Private Sub chkCGMonitor_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkCGMonitor.CheckedChanged
 
+        Try
+            PersistCheckboxes()
 
-        PersistCheckboxes()
+        Catch ex As Exception
+
+        End Try
     End Sub
 
     Private Sub PoolsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles PoolsToolStripMenuItem.Click

@@ -166,51 +166,5 @@ Module modCgMiner
 
     End Function
 
-    Public Function GetSleepLevelByAddress(sAddress As String, ByRef dScryptSleep As Double, sBlockhash As String, _
-                                            ByRef dNetLevel As Double) As Boolean
-        'Retrieve User level
-        dScryptSleep = 0
-        dNetLevel = 0
-        Try
-            Dim sql As String
-            Dim mData As New Sql("gridcoin_leaderboard")
-            sql = "Select ScryptSleepChance from leaderboard Where Address='" + sAddress + "'"
-            Dim gr As New GridcoinReader
-            gr = mData.GetGridcoinReader(sql)
-            'Dim grr As GridcoinReader.GridcoinRow
-            dScryptSleep = gr.Value(1, "ScryptSleepChance")
-            mData = Nothing
-        Catch ex As Exception
-            Log("GetSleepLevelByAddress: " + ex.Message)
-        End Try
-
-
-        ''''''''''''''''Newbie Sleep Level Patch:
-        If dScryptSleep = 0 Then dScryptSleep = NewbieSleepLevel()
-
-
-
-        If dScryptSleep = 0 Then dScryptSleep = 0.5
-
-        'Calculate Net Level
-        Dim sBlockSuffix As String
-
-        If Len(sBlockhash) > 3 Then
-            sBlockSuffix = Mid(sBlockhash, Len(sBlockhash) - 3, 3)
-        End If
-        Dim dDecSuffix = CDbl("&h" + Trim(sBlockSuffix))
-        Dim dCalc = dDecSuffix / 40.96
-        dCalc = dCalc / 100
-        Dim sSleepStatus As String = "WORK"
-        If dScryptSleep >= dCalc Then sSleepStatus = "WORK" Else sSleepStatus = "SLEEP"
-        dNetLevel = dCalc
-        If sSleepStatus = "SLEEP" Then
-            Return False
-        Else
-            Return True
-        End If
-
-    End Function
-
 
 End Module

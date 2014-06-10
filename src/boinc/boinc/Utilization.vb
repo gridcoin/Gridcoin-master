@@ -92,18 +92,8 @@ Public Class Utilization
             Return Trim(clsGVM.CalcApiUrl(lProj, sUserId))
         End Get
     End Property
-    Public Function GetGRCSleepStatus(sAddress As String, sBlockhash As String) As Boolean
-        Dim bSL As Boolean = False
-        Dim dGRCSleepLevel As Double = 0
-        Dim dNetLevel As Double = 0
-        bSL = GetSleepLevelByAddress(sAddress, dGRCSleepLevel, sBlockhash, dNetLevel)
-        Log("Checking sleep level for " + Trim(sAddress) + " level = " + Trim(dGRCSleepLevel) + ", blockhash " + Trim(sBlockhash) _
-            + " net level " + Trim(dNetLevel))
-
-        Return bSL
-    End Function
     Public Function RefLeaderPos()
-        Call mfrmMining.RefreshLeaderboardPosition()
+        '  Call mfrmMining.RefreshLeaderboardPosition()
 
     End Function
     Public Sub RestartWallet()
@@ -137,15 +127,7 @@ Public Class Utilization
     Public Sub CreateRestorePointTestNet()
         Call RestartWallet1("createrestorepointtestnet")
     End Sub
-    Public Function xRetrieveGridCoinMiningValue(iDeviceID As Integer, sProperty As String) As String Implements IGridCoinMining.RetrieveGridCoinMiningValue
-        Dim sOut As String = modGRC.xReturnMiningValue(iDeviceID, sProperty, True)
-        Return sOut
-    End Function
-    Public Function xRetrieveGridCoinMiningValueWithoutPrefix(iDeviceID As Integer, _
-                                                             sProperty As String) As String Implements IGridCoinMining.RetrieveGridCoinMiningValueWithoutPrefix
-        Dim sOut As String = modGRC.xReturnMiningValue(iDeviceID, sProperty, False)
-        Return sOut
-    End Function
+   
     Public ReadOnly Property BoincMD5 As String
         Get
             Return clsGVM.BoincMD5()
@@ -195,9 +177,7 @@ Public Class Utilization
 
             p = sPoolUser + "<;>" + sPoolPass + "<;>" + sMinerName + "<;>projectname<;>1<;>bpk<;>cpid<;>0<;>0<;>0<;>2<;>AUTHENTICATE"
 
-            '//string http = GridcoinHttpPost(messagetype,boincauth,"GetPoolKey.aspx",true);
-            '	msPubKey = ExtractXML(http,key,keystop);
-
+   
 
             Dim sURL As String = sPoolURL
             If Mid(sURL, Len(sURL), 1) <> "/" Then sURL = sURL + "/"
@@ -244,6 +224,7 @@ Public Class Utilization
         If LCase(sPool) = "true" Then PoolMode = "POOL_MINING" Else PoolMode = "SOLO_MINING"
     End Function
     Public ReadOnly Property RetrieveSqlHighBlock As Double
+
         Get
             Dim lBlock As Long = 0
             If KeyValue("disablesql") = "true" Then Return 10
@@ -316,7 +297,6 @@ Public Class Utilization
             If mfrmMining Is Nothing Then
                 mfrmMining = New frmMining
                 mfrmMining.SetClsUtilization(Me)
-
             End If
 
             If lfrmMiningCounter = 1 Then
@@ -327,8 +307,6 @@ Public Class Utilization
 
             If KeyValue("suppressminingconsole") <> "true" Then
                 mfrmMining.Visible = True
-
-
             End If
 
 
@@ -365,12 +343,9 @@ Public Class Utilization
         Call UpdateKey(sKey, sValue)
     End Function
     Public Sub SetSqlBlock(ByVal data As String)
+        Exit Sub
 
         Try
-
-            'Log("Updating Leaderboard: " & Trim(KeyValue("UpdatingLeaderboard")) & ", Sql in sync " + Trim(SQLInSync) + " outdated " + Trim(Outdated(KeyValue("UpdatedLeaderboard"), 90)))
-
-
 
             If ("" & KeyValue("disablesql")) = "true" Then Exit Sub
 
@@ -404,6 +379,8 @@ Public Class Utilization
         End Try
     End Sub
     Public Sub UpdateLeaderBoard()
+        Exit Sub
+
         If KeyValue("disablesql") = "true" Then Exit Sub
         Try
             Dim thUpdateLeaderboard As New System.Threading.Thread(AddressOf modBoincLeaderboard.RefreshLeaderboard)
@@ -477,12 +454,7 @@ Public Class Utilization
         End Try
 
     End Function
-    Private Sub xSnapshotTimerElapsed()
-        '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        Exit Sub
-        ''''''NOTE: In order to turn this back on, we will need to remove the KillGuiMiner code from GRCRestarter!!!!!!!!!!
-        'Once every 20 minutes this timer fires
-    End Sub
+    
 
     Public Function CloseGUIMiner()
         If Trim(KeyValue("closemineronexit")) <> "false" Then
@@ -504,15 +476,9 @@ End Class
 
 Public Interface IGridCoinMining
 
-    Function RetrieveGridCoinMiningValueWithoutPrefix(iDeviceID As Integer, sProperty As String) As String
+    'Function RetrieveGridCoinMiningValueWithoutPrefix(iDeviceID As Integer, sProperty As String) As String
 
-    Function RetrieveGridCoinMiningValue(iDeviceID As Integer, sProperty As String) As String
-
-    'Function GetWork() As String
-
-    'Sub SetWork(sData As String)
-
-    'Function TestWork(sData As String) As String
+    'Function RetrieveGridCoinMiningValue(iDeviceID As Integer, sProperty As String) As String
 
     'Sub SetStats(iDevId As Integer, dValid As Double, dInvalid As Double, dSpeed As Double)
 

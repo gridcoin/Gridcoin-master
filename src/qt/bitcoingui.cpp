@@ -1501,13 +1501,10 @@ void BitcoinGUI::timerfire()
 			printf("Created restore point : %i",r);
 		}
 
-		if (Timer("start",3))
+		if (Timer("start",1))
 		{
 			#ifdef WIN32
 			if (globalcom==NULL) ReinstantiateGlobalcom();
-			
-			//nBoincUtilization =  globalcom->dynamicCall("BoincUtilization()").toInt();
-			//thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
 			nRegVersion = globalcom->dynamicCall("Version()").toInt();
 			sRegVer = boost::lexical_cast<std::string>(nRegVersion);
 			#endif
@@ -1517,7 +1514,7 @@ void BitcoinGUI::timerfire()
 
 		if (CreatingNewBlock)
 		{
-			MilliSleep(Races(2000)+1000);
+			MilliSleep(Races(500));
 			if (CreatingNewBlock)
 			{   //Reset in case something went wrong:
 				CreatingNewBlock=false;
@@ -1538,7 +1535,7 @@ void BitcoinGUI::timerfire()
 		{
 			    
 			    double POB = GetPoBDifficulty();
-				if (POB==99 && !OutOfSyncByAge()) 
+				if (!fTestNet && (POB==99 || POB < .76) && !OutOfSyncByAge()) 
 				{
 					//Do this when wallet *was* out of sync, is now in sync, and PoB calculation is out of whack:
 					TallyNetworkAverages();
@@ -1547,8 +1544,6 @@ void BitcoinGUI::timerfire()
 				//
 				QString bm = QString::fromUtf8(RoundToString(boincmagnitude,2).c_str());
 				nBoincUtilization = (int)boincmagnitude;
-				
-								
 				globalcom->dynamicCall("BoincMagnitude(Qstring)", bm);
 		}
    
@@ -1577,12 +1572,14 @@ void BitcoinGUI::timerfire()
 			}
 		}
 
-
+        if (false)
+		{
 		if (Timer("gather_cpids",10000))
 		{
 			printf("\r\nReharvesting cpids in background thread...\r\n");
 		    iCriticalThreadDelay=30;
 			LoadCPIDsInBackground();
+		}
 		}
 
 		if (false)
@@ -1620,18 +1617,18 @@ void BitcoinGUI::timerfire()
 
 
 
-QString BitcoinGUI::toqstring(int o) {
+QString BitcoinGUI::toqstring(int o) 
+{
 	std::string pre="";
 	pre=strprintf("%d",o);
 	QString str1 = QString::fromUtf8(pre.c_str());
 	return str1;
 }
 
-std::string tostdstring(QString q) {
-	
+std::string tostdstring(QString q) 
+{
 	std::string ss1 = q.toLocal8Bit().constData();
 	return ss1;
-
 }
 
 
@@ -1643,5 +1640,6 @@ void BitcoinGUI::detectShutdown()
      if (ShutdownRequested())
         QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
 }
+
 
 
