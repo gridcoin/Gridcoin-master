@@ -68,6 +68,8 @@ Module modUtilization
             BoincCreditsElapsed()
         End If
 
+
+
     End Sub
     Private Sub BoincUtilizationTimerElapsed()
         Try

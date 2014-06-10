@@ -21,6 +21,7 @@ using namespace std;
 //CCriticalSection cs_main;
 static boost::thread_group* postThreads = NULL;
 
+
 extern bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey);
 
 extern CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservekey);

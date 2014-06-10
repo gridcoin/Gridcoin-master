@@ -96,6 +96,8 @@ Partial Class frmMining
         Me.pbCgminer = New System.Windows.Forms.PictureBox()
         Me.TabGuiMiner = New System.Windows.Forms.TabPage()
         Me.Pb1 = New System.Windows.Forms.PictureBox()
+        Me.TabPage1 = New System.Windows.Forms.TabPage()
+        Me.BoincWebBrowser = New System.Windows.Forms.WebBrowser()
         Me.TimerCGMonitor = New System.Windows.Forms.Timer(Me.components)
         Me.lblWarning = New System.Windows.Forms.Label()
         Me.msBlockHeight = New System.Windows.Forms.Label()
@@ -112,6 +114,7 @@ Partial Class frmMining
         CType(Me.pbCgminer, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TabGuiMiner.SuspendLayout()
         CType(Me.Pb1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.TabPage1.SuspendLayout()
         Me.SuspendLayout()
         '
         'btnRefresh
@@ -592,6 +595,7 @@ Partial Class frmMining
         '
         Me.TabControl1.Controls.Add(Me.TabCGMINER)
         Me.TabControl1.Controls.Add(Me.TabGuiMiner)
+        Me.TabControl1.Controls.Add(Me.TabPage1)
         Me.TabControl1.Location = New System.Drawing.Point(14, 39)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
@@ -872,6 +876,28 @@ Partial Class frmMining
         Me.Pb1.TabIndex = 2
         Me.Pb1.TabStop = False
         '
+        'TabPage1
+        '
+        Me.TabPage1.Controls.Add(Me.BoincWebBrowser)
+        Me.TabPage1.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage1.Name = "TabPage1"
+        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage1.Size = New System.Drawing.Size(905, 357)
+        Me.TabPage1.TabIndex = 2
+        Me.TabPage1.Text = "Boinc Stats"
+        Me.TabPage1.UseVisualStyleBackColor = True
+        '
+        'BoincWebBrowser
+        '
+        Me.BoincWebBrowser.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BoincWebBrowser.Location = New System.Drawing.Point(3, 3)
+        Me.BoincWebBrowser.MinimumSize = New System.Drawing.Size(20, 20)
+        Me.BoincWebBrowser.Name = "BoincWebBrowser"
+        Me.BoincWebBrowser.ScriptErrorsSuppressed = True
+        Me.BoincWebBrowser.Size = New System.Drawing.Size(899, 351)
+        Me.BoincWebBrowser.TabIndex = 0
+        Me.BoincWebBrowser.Url = New System.Uri("http://boincstats.com/en/stats/-1/team/detail/118094994/overview", System.UriKind.Absolute)
+        '
         'TimerCGMonitor
         '
         Me.TimerCGMonitor.Enabled = True
@@ -948,7 +974,7 @@ Partial Class frmMining
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "frmMining"
-        Me.Text = "Gridcoin Mining Module"
+        Me.Text = "Gridcoin Mining Module 1.2"
         CType(Me.Chart1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ChartUtilization, System.ComponentModel.ISupportInitialize).EndInit()
         Me.MenuStrip1.ResumeLayout(False)
@@ -963,6 +989,7 @@ Partial Class frmMining
         CType(Me.pbCgminer, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TabGuiMiner.ResumeLayout(False)
         CType(Me.Pb1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.TabPage1.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -1035,4 +1062,6 @@ Partial Class frmMining
     Friend WithEvents msBlockHeight As System.Windows.Forms.Label
     Friend WithEvents Label18 As System.Windows.Forms.Label
     Friend WithEvents PoolsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents TabPage1 As System.Windows.Forms.TabPage
+    Friend WithEvents BoincWebBrowser As System.Windows.Forms.WebBrowser
 End Class

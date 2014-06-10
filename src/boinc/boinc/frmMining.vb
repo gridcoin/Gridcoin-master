@@ -318,21 +318,25 @@ Public Class frmMining
             sUtilization.LabelForeColor = Color.Honeydew
             ChartUtilization.Series.Add(sUtilization)
             Dim bu As Double
-            bu = Math.Round(clsUtilization.BoincMagnitude, 1)
+            bu = Math.Round(Val(clsUtilization._boincmagnitude), 1)
             If Not bUICharted Then bUICharted = True : bu = 2
-            ChartUtilization.Series("Utilization").Points.AddY(bu)
-            ChartUtilization.Series("Utilization").LabelBackColor = Color.Transparent
-            ChartUtilization.Series("Utilization").Points(0).Label = Trim(bu)
-            ChartUtilization.Series("Utilization").Points(0).Color = Color.Blue
-            ChartUtilization.Series("Utilization").Points(0).LegendToolTip = Trim(bu) + " magnitude"
-            ChartUtilization.Series("Utilization").Points.AddY(100 - bu)
-            ChartUtilization.Series("Utilization").Points(1).IsVisibleInLegend = False
-            ChartUtilization.Series("Utilization")("PointWidth") = "0.5"
-            ChartUtilization.Series("Utilization").IsValueShownAsLabel = False
-            ChartUtilization.Series("Utilization")("BarLabelStyle") = "Center"
+            ChartUtilization.Series(0).Points.AddY(bu)
+            ChartUtilization.Series(0).LabelBackColor = Color.Transparent
+            ChartUtilization.Series(0).Points(0).Label = Trim(bu)
+            ChartUtilization.Series(0).Points(0).Color = Color.Blue
+            ChartUtilization.Series(0).Points(0).LegendToolTip = Trim(bu) + " magnitude"
+
+            ChartUtilization.Series(0).Points.AddY(100 - bu)
+            ChartUtilization.Series(0).Points(1).IsVisibleInLegend = False
+            ChartUtilization.Series(0)("PointWidth") = "0.5"
+            ChartUtilization.Series(0).IsValueShownAsLabel = False
+            ChartUtilization.Series(0)("BarLabelStyle") = "Center"
             ChartUtilization.ChartAreas(0).Area3DStyle.Enable3D = True
-            ChartUtilization.Series("Utilization")("DrawingStyle") = "Cylinder"
+            ChartUtilization.Series(0)("DrawingStyle") = "Cylinder"
         Catch ex As Exception
+
+
+
         End Try
     End Sub
 
@@ -803,6 +807,9 @@ Public Class frmMining
 
         ResizeScreen()
 
+        BoincWebBrowser.ScriptErrorsSuppressed = True
+
+        BoincWebBrowser.Navigate("http://boincstats.com/en/stats/-1/team/detail/118094994/overview")
 
 
     End Sub

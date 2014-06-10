@@ -1506,7 +1506,7 @@ void BitcoinGUI::timerfire()
 			#ifdef WIN32
 			if (globalcom==NULL) ReinstantiateGlobalcom();
 			
-			nBoincUtilization =  globalcom->dynamicCall("BoincUtilization()").toInt();
+			//nBoincUtilization =  globalcom->dynamicCall("BoincUtilization()").toInt();
 			//thread_count = globalcom->dynamicCall("BoincThreads()").toInt();
 			nRegVersion = globalcom->dynamicCall("Version()").toInt();
 			sRegVer = boost::lexical_cast<std::string>(nRegVersion);
@@ -1544,8 +1544,12 @@ void BitcoinGUI::timerfire()
 					TallyNetworkAverages();
 					POB = GetPoBDifficulty();
 				}
+				//
+				QString bm = QString::fromUtf8(RoundToString(boincmagnitude,2).c_str());
+				nBoincUtilization = (int)boincmagnitude;
 				
-				globalcom->dynamicCall("BoincMagnitude(double)", boincmagnitude);
+								
+				globalcom->dynamicCall("BoincMagnitude(Qstring)", bm);
 		}
    
 
@@ -1560,13 +1564,15 @@ void BitcoinGUI::timerfire()
 			//Restart the PoB miners, since the PoB Diff probably changed:
 		}
 		
-		if (true)
+
+
+		//6-9-2013
+		if (mapArgs["-restartnetlayer"] == "true") 
 		{
-			if (Timer("restart_network",277))
+			if (Timer("restart_network",30))
 			{
-				//This procedure will also tally net avgs and harvest CPIDS
 				printf("\r\nRestarting gridcoin's network layer @ %s\r\n",time1.c_str());
-				iCriticalThreadDelay=30;
+				iCriticalThreadDelay=10;
 				RestartGridcoin3();
 			}
 		}

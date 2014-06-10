@@ -975,6 +975,7 @@ void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
 		if (!bNetAveragesLoaded)
 		{
 			TallyNetworkAverages();
+			bNetAveragesLoaded=true;
 		}
 
     }
@@ -1454,14 +1455,6 @@ void BitcoinGUI::timerfire()
 			TallyNetworkAverages();
 		}
 		
-
-		if (Timer("restart_network",500))
-		{
-			//This procedure will also tally net avgs and harvest CPIDS
-			//Critical Production Change back to 200:
-			printf("\r\nRestarting gridcoin's network layer @ %s\r\n",time1.c_str());
-			RestartGridcoin3();
-		}
 
 		if (Timer("gather_cpids",1000))
 		{

@@ -8,7 +8,7 @@ Public Class Utilization
     Private _nBestBlock As Long
     Private _lLeaderboard As Long
     Private _lLeaderUpdates As Long
-    Private _boincmagnitude As Double
+    Public _boincmagnitude As Double
 
     Public Structure CgSumm
         Public Mhs As Double
@@ -21,8 +21,7 @@ Public Class Utilization
 
     Public ReadOnly Property Version As Double
         Get
-            Return 158
-
+            Return 163
 
 
         End Get
@@ -34,16 +33,14 @@ Public Class Utilization
             Return Val(clsGVM.BoincUtilization)
         End Get
     End Property
+    '
+    Public Function BoincMagnitude(value As String) As String
+        _boincmagnitude = Val(value)
+        Log("bm " + Trim(value))
 
-    Public Property BoincMagnitude As Double
-        Get
-            Return _boincmagnitude
-        End Get
-        Set(value As Double)
-            _boincmagnitude = value
-        End Set
-    End Property
+    End Function
 
+   
 
     Public ReadOnly Property ClientNeedsUpgrade As Double
         Get
@@ -181,13 +178,13 @@ Public Class Utilization
             If Len(sPoolURL) < 6 Then Return False
             If Len(sPoolUser) = 0 Or Len(sPoolPass) = 0 Then Return False
 
-        bResult = ValidatePoolURL(sPoolURL)
-        bResult = True
+            bResult = ValidatePoolURL(sPoolURL)
+            bResult = True
 
-        If bResult = False Then
-            Log("Pool " + sPoolURL + " site certificate invalid.")
-            Return False
-        End If
+            If bResult = False Then
+                Log("Pool " + sPoolURL + " site certificate invalid.")
+                Return False
+            End If
             'Authenticate 5-30-2014
 
             Dim p As String
@@ -202,8 +199,8 @@ Public Class Utilization
             '	msPubKey = ExtractXML(http,key,keystop);
 
 
-        Dim sURL As String = sPoolURL
-        If Mid(sURL, Len(sURL), 1) <> "/" Then sURL = sURL + "/"
+            Dim sURL As String = sPoolURL
+            If Mid(sURL, Len(sURL), 1) <> "/" Then sURL = sURL + "/"
             sURL = sURL + "GetPoolKey.aspx"
             Using wc As New MyWebClient
 
@@ -232,8 +229,8 @@ Public Class Utilization
 
             Log("Authenticate to Pool: Fail - Username or Password invalid.")
 
-        Return False
-        Exit Function
+            Return False
+            Exit Function
 
         Catch ex As Exception
             Log("AuthenticateToPool Error: " + ex.Message)
@@ -321,7 +318,7 @@ Public Class Utilization
                 mfrmMining.SetClsUtilization(Me)
 
             End If
-           
+
             If lfrmMiningCounter = 1 Then
                 If KeyValue("suppressminingconsole") = "true" Then Exit Function
                 mfrmMining.Show()
@@ -334,7 +331,7 @@ Public Class Utilization
 
             End If
 
-          
+
         Catch ex As Exception
         End Try
     End Function
@@ -368,16 +365,16 @@ Public Class Utilization
         Call UpdateKey(sKey, sValue)
     End Function
     Public Sub SetSqlBlock(ByVal data As String)
-        
+
         Try
 
             'Log("Updating Leaderboard: " & Trim(KeyValue("UpdatingLeaderboard")) & ", Sql in sync " + Trim(SQLInSync) + " outdated " + Trim(Outdated(KeyValue("UpdatedLeaderboard"), 90)))
 
 
 
-        If ("" & KeyValue("disablesql")) = "true" Then Exit Sub
-       
-        If ("" & KeyValue("UpdatingLeaderboard")) = "true" Then Exit Sub
+            If ("" & KeyValue("disablesql")) = "true" Then Exit Sub
+
+            If ("" & KeyValue("UpdatingLeaderboard")) = "true" Then Exit Sub
 
         Catch ex As Exception
             Log("SetSqlBlockError:" + Err.Description + ":" + Err.Source)
@@ -427,9 +424,9 @@ Public Class Utilization
 
         Try
 
-        _nBestBlock = nBlock
-        nBestBlock = nBlock
-        clsGVM.BestBlock = nBlock
+            _nBestBlock = nBlock
+            nBestBlock = nBlock
+            clsGVM.BestBlock = nBlock
         Catch ex As Exception
             Log("Error setting Best block height " + Trim(nBlock) + " " + ex.Message)
 

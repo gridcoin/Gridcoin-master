@@ -37,7 +37,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     sBoincUtilization = strprintf("%d",nBoincUtilization);
 	QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
 	QString qsRegVersion  = QString::fromUtf8(sRegVer.c_str());
-	ui->copyrightLabel->setText("Boinc Utilization: " + qsUtilization + "              " + ", Registered Version: " + qsRegVersion + "             " + cr);
+	ui->copyrightLabel->setText("Boinc Magnitude: " + qsUtilization + "              " + ", Registered Version: " + qsRegVersion + "             " + cr);
 	
 
 }

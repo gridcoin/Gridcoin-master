@@ -57,6 +57,8 @@ extern void PobSleep(int milliseconds);
 extern bool CheckWorkCPU(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
 
 
+
+
 //static boost::mutex* mutexTally = NULL;
 
 extern void WriteAppCache(std::string key, std::string value);
@@ -299,13 +301,52 @@ int64 nMinimumInputValue = DUST_HARD_LIMIT;
 /////////////////////////////////////////////////////////////////////////////
 
 
+double GetNetworkHashPS2(int lookup, int height) {
+    CBlockIndex *pb = pindexBest;
+
+    if (height >= 0 && height < nBestHeight)
+        pb = FindBlockByHeight(height);
+
+    if (pb == NULL || !pb->nHeight)
+        return 0;
+
+    // If lookup is -1, then use blocks since last difficulty change.
+    if (lookup <= 0)
+        lookup = pb->nHeight % 2016 + 1;
+
+    // If lookup is larger than chain, then set it to chain length.
+    if (lookup > pb->nHeight)
+        lookup = pb->nHeight;
+
+    CBlockIndex *pb0 = pb;
+    int64 minTime = pb0->GetBlockTime();
+    int64 maxTime = minTime;
+    for (int i = 0; i < lookup; i++) {
+        pb0 = pb0->pprev;
+        int64 time = pb0->GetBlockTime();
+        minTime = std::min(time, minTime);
+        maxTime = std::max(time, maxTime);
+    }
+
+    // In case there's a situation where minTime == maxTime, we don't want a divide by zero exception.
+    if (minTime == maxTime)
+        return 0;
+
+    uint256 workDiff = pb->nChainWork - pb0->nChainWork;
+    int64 timeDiff = maxTime - minTime;
+
+    return (double)(workDiff.getdouble() / timeDiff);
+}
+
 
 std::string GetGlobalStatus()
 {
 	std::string status = "";
 	status = "Blocks: " + RoundToString((double)nBestHeight,0) + "; Difficulty: " + RoundToString(mdLastDifficulty,3) 
+		+ "; Net Hp/s: " + RoundToString(GetNetworkHashPS2(120, -1),2)  
 		+ "; PoB Difficulty: " + RoundToString(mdLastPoBDifficulty,3) 
-		+ "; CPU Project: " + msMiningProject + "; <br>CPU Status: " + msMiningErrors + "; Boinc Magnitude: " + RoundToString(boincmagnitude,3);
+		+ "; CPU Project: " + msMiningProject  + "; <br>"
+		+ "CPU Status: " + msMiningErrors + "; Boinc Magnitude: " + RoundToString(boincmagnitude,3);
 
 	msGlobalStatus = status;
 	return status;
@@ -2817,6 +2858,7 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	
 	//printf("PoB Checking prior block height %i, Block Type %u \r\n", out_height, prevBlockType);
 	
+	//6-7-2014
 
 	MiningCPID boincblock = DeserializeBoincBlock(pblock->hashBoinc);
 

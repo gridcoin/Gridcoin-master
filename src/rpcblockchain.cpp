@@ -78,7 +78,7 @@ double GetPoBDifficulty()
 
 	if (mvNetwork.size() < 1) 	
 	{
-			TallyNetworkAverages();
+		return 99;
 	}
 
 				StructCPID structcpid = mvNetwork["NETWORK"];

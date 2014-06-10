@@ -515,7 +515,24 @@ Module modGRC
         End Try
     End Function
 
+    Public Function ParseDate(sDate As String)
+        'parses microsofts IIS date to a date, globally
+        Dim vDate() As String
+        vDate = Split(sDate, " ")
+        If UBound(vDate) > 0 Then
+            Dim sEle1 As String = vDate(0)
+            Dim vEle() As String
+            vEle = Split(sEle1, "/")
+            If UBound(vEle) > 1 Then
+                Dim dt1 As Date
+                dt1 = DateSerial(vEle(2), vEle(0), vEle(1))
+                Return dt1
 
+            End If
+        End If
+        Return CDate("1-1-2031")
+
+    End Function
 
     Public Function NeedsUpgrade() As Boolean
         Try
@@ -541,10 +558,10 @@ Module modGRC
                         sDT = Trim(sDT)
 
                         Dim dDt As DateTime
-                        dDt = CDate(Trim(sDT))
+                        dDt = ParseDate(Trim(sDT))
                         dDt = TimeZoneInfo.ConvertTime(dDt, System.TimeZoneInfo.Utc)
                         'Hosting server is PST, so subtract Utc - 7 to achieve PST:
-                        dDt = DateAdd(DateInterval.Hour, -3, dDt)
+                        dDt = DateAdd(DateInterval.Hour, -12, dDt)
                         'local file time
                         Dim sLocalPath As String = GetGRCAppDir()
                         Dim sLocalFile As String = sFile
@@ -553,11 +570,18 @@ Module modGRC
                         Dim dtLocal As DateTime
                         Try
                             dtLocal = System.IO.File.GetLastWriteTime(sLocalPathFile)
+                            dtLocal = TimeZoneInfo.ConvertTime(dtLocal, System.TimeZoneInfo.Utc)
+                            Log("Gridcoin.us boinc.dll timestamp (UTC) : " + Trim(dDt) + ", VS : Local boinc.dll timestamp (UTC) : " + Trim(dtLocal))
+                            If dDt < dtLocal Then
+                                Log("Not upgrading.")
+                            End If
 
                         Catch ex As Exception
                             Return False
                         End Try
                         If dDt > dtLocal Then
+                            Log("Client needs upgrade.")
+
                             Return True
                         End If
 
