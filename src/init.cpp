@@ -155,7 +155,8 @@ void Shutdown()
     RenameThread("bitcoin-shutoff");
     nTransactionsUpdated++;
     StopRPCThreads();
-    bitdb.Flush(false);
+	ShutdownRPCMining();
+   if (pwalletMain)        bitdb.Flush(false);
     ShutdownGridcoinMiner();
 	    
     StopNode();
@@ -171,10 +172,11 @@ void Shutdown()
         delete pcoinsdbview; pcoinsdbview = NULL;
         delete pblocktree; pblocktree = NULL;
     }
-    bitdb.Flush(true);
-    boost::filesystem::remove(GetPidFile());
+    if (pwalletMain)        bitdb.Flush(true);
+	
+	boost::filesystem::remove(GetPidFile());
     UnregisterWallet(pwalletMain);
-    delete pwalletMain;
+    if (pwalletMain)        delete pwalletMain;
 }
 
 //
@@ -195,7 +197,7 @@ void DetectShutdownThread(boost::thread_group* threadGroup)
 
 void StopGridcoin3()
 {
-	       CreatingNewBlock=false;
+	    CreatingNewBlock=false;
 		threadGroup.interrupt_all();
         threadGroup.join_all();
 		printf("Stopping node\r\n");
@@ -207,7 +209,7 @@ void RestartGridcoin3()
 {
      	//Gridcoin - 12-26-2013 Stop all network threads; Stop the node; Restart the Node.
 		//Note: The threadGroup only contains Network Threads:
-	     StopGridcoin3();
+	    StopGridcoin3();
  		printf("Starting node...\r\n");
 		StartNodeNetworkOnly();
 }
@@ -923,7 +925,7 @@ bool AppInit2()
     printf("Gridcoin version %s (%s)\n", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
     printf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
     if (!fLogTimestamps)
-        printf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
+        printf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nNodeStartTime).c_str());
     printf("Default data directory %s\n", GetDefaultDataDir().string().c_str());
     printf("Using data directory %s\n", strDataDir.c_str());
     printf("Using at most %i connections (%i file descriptors available)\n", nMaxConnections, nFD);
@@ -1178,8 +1180,9 @@ bool AppInit2()
                 }
 
                 uiInterface.InitMessage(_("Verifying blocks..."));
-                if (!VerifyDB()) {
-                    strLoadError = _("Corrupted block database detected");
+                if (!VerifyDB(GetArg("-checklevel", 3),
+					GetArg( "-checkblocks", 188))) 
+				{     strLoadError = _("Corrupted block database detected");
                     break;
                 }
             } catch(std::exception &e) {
@@ -1440,13 +1443,14 @@ bool AppInit2()
     //// debug print
     printf("mapBlockIndex.size() = %"PRIszu"\n",   mapBlockIndex.size());
     printf("nBestHeight = %d\n",                   nBestHeight);
-    printf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain->setKeyPool.size());
-    printf("mapWallet.size() = %"PRIszu"\n",       pwalletMain->mapWallet.size());
-    printf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain->mapAddressBook.size());
-	//
+	printf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
+	printf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
+	printf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
+
     StartNode();
 	//Store a reference to the oup:
-
+	// InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
+	InitRPCMining();
     uiInterface.InitMessage(_("Loading Network Averages..."));
 	
 	if (false) 
@@ -1473,11 +1477,13 @@ bool AppInit2()
     // ********************************************************* Step 12: finished
     uiInterface.InitMessage(_("Done loading"));
 
-     // Add wallet transactions that aren't already in a block to mapTransactions
-    pwalletMain->ReacceptWalletTransactions();
-
-    // Run a thread to flush wallet periodically
-    threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+    if (pwalletMain) 
+	{
+         // Add wallet transactions that aren't already in a block to mapTransactions
+         pwalletMain->ReacceptWalletTransactions();
+         // Run a thread to flush wallet periodically
+         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+	}
 	//Create the GridCoin thread
 	bAllowBackToBack=false;
 	//Generate if cpumining=true

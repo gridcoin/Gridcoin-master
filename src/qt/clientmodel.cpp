@@ -117,7 +117,7 @@ bool ClientModel::isTestNet() const
 
 bool ClientModel::inInitialBlockDownload() const
 {
-    return IsInitialBlockDownload();
+     return Checkpoints::IsInitialBlockDownload();
 }
 
 enum BlockSource ClientModel::getBlockSource() const
@@ -170,6 +170,18 @@ QString ClientModel::clientName() const
 QString ClientModel::formatClientStartupTime() const
 {
     return QDateTime::fromTime_t(nClientStartupTime).toString();
+}
+
+QString ClientModel::formatBoostVersion()  const
+{
+	//6-10-2014: R Halford: Updating Boost version to 1.5.5 to prevent sync issues; print the boost version to verify:
+		std::ostringstream s;
+		s << "Using Boost "     
+          << BOOST_VERSION / 100000     << "."  // major version
+          << BOOST_VERSION / 100 % 1000 << "."  // minior version
+          << BOOST_VERSION % 100                // patch level
+          << "\r\n";
+		return QString::fromStdString(s.str());
 }
 
 // Handlers for core signals

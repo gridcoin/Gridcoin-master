@@ -111,7 +111,15 @@ double GetPoBDifficulty()
 				return dayblocks;
 }
 
+Value getbestblockhash(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "getbestblockhash\n"
+            "Returns the hash of the best (tip) block in the longest block chain.");
 
+    return hashBestChain.GetHex();
+}
 
 double GetNetworkAvgByProject(std::string projectname)
 {
@@ -422,7 +430,22 @@ bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& ou
 
 
 
-
+Value verifychain(const Array& params, bool fHelp)
+ {
+     if (fHelp || params.size() > 2)
+         throw runtime_error(
+             "verifychain [check level] [num blocks]\n"
+             "Verifies blockchain database.");
+ 
+     int nCheckLevel = GetArg("-checklevel", 3);
+     int nCheckDepth = GetArg("-checkblocks", 288);
+     if (params.size() > 0)
+         nCheckLevel = params[0].get_int();
+     if (params.size() > 1)
+         nCheckDepth = params[1].get_int();
+ 
+     return VerifyDB(nCheckLevel, nCheckDepth);
+ }
 
 
 
@@ -821,10 +844,8 @@ Value execute(const Array& params, bool fHelp)
 			int r=-1;
 			#if defined(WIN32) && defined(QT_GUI)
 			//We must stop the node before we can do this
-            StopGridcoin3();
-
-				r = CreateRestorePoint();
-				RestartGridcoin3();
+			r = CreateRestorePoint();
+			RestartGridcoin3();
 
 			#endif 
 			entry.push_back(Pair("Restore Point",r));

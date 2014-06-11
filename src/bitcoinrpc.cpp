@@ -42,9 +42,6 @@ using namespace boost;
 using namespace boost::asio;
 using namespace json_spirit;
 
-// Key used by getwork/getblocktemplate miners.
-// Allocated in StartRPCThreads, free'd in StopRPCThreads
-CReserveKey* pMiningKey = NULL;
 
 static std::string strRPCUserColonPass;
 
@@ -173,6 +170,8 @@ string CRPCTable::help(string strCommand) const
             continue;
         if (strCommand != "" && strMethod != strCommand)
             continue;
+		if (pcmd->reqWallet && !pwalletMain)
+             continue;
         try
         {
             Array params;
@@ -231,76 +230,78 @@ Value stop(const Array& params, bool fHelp)
 
 
 static const CRPCCommand vRPCCommands[] =
-{ //  name                      actor (function)         okSafeMode threadSafe
-  //  ------------------------  -----------------------  ---------- ----------
-    { "help",                   &help,                   true,      true },
-    { "stop",                   &stop,                   true,      true },
-    { "getblockcount",          &getblockcount,          true,      false },
-    { "getconnectioncount",     &getconnectioncount,     true,      false },
-    { "getpeerinfo",            &getpeerinfo,            true,      false },
-    { "addnode",                &addnode,                true,      true },
-    { "getaddednodeinfo",       &getaddednodeinfo,       true,      true },
-    { "getdifficulty",          &getdifficulty,          true,      false },
-    { "getnetworkhashps",       &getnetworkhashps,       true,      false },
-    { "getinfo",                &getinfo,                true,      false },
-    { "getmininginfo",          &getmininginfo,          true,      false },
-    { "getnewaddress",          &getnewaddress,          true,      false },
-    { "getaccountaddress",      &getaccountaddress,      true,      false },
-    { "setaccount",             &setaccount,             true,      false },
-    { "getaccount",             &getaccount,             false,     false },
-    { "getaddressesbyaccount",  &getaddressesbyaccount,  true,      false },
-    { "sendtoaddress",          &sendtoaddress,          false,     false },
-	{ "sendtoself",             &sendtoself,             false,     false },
-	{ "sendtoinvalidaddress",   &sendtoinvalidaddress,   false,     false },
-    { "getreceivedbyaddress",   &getreceivedbyaddress,   false,     false },
-    { "getreceivedbyaccount",   &getreceivedbyaccount,   false,     false },
-    { "listreceivedbyaddress",  &listreceivedbyaddress,  false,     false },
-    { "listreceivedbyaccount",  &listreceivedbyaccount,  false,     false },
-    { "backupwallet",           &backupwallet,           true,      false },
-    { "keypoolrefill",          &keypoolrefill,          true,      false },
-    { "walletpassphrase",       &walletpassphrase,       true,      false },
-    { "walletpassphrasechange", &walletpassphrasechange, false,     false },
-    { "walletlock",             &walletlock,             true,      false },
-    { "encryptwallet",          &encryptwallet,          false,     false },
-    { "validateaddress",        &validateaddress,        true,      false },
-    { "getbalance",             &getbalance,             false,     false },
-    { "move",                   &movecmd,                false,     false },
-    { "sendfrom",               &sendfrom,               false,     false },
-    { "sendmany",               &sendmany,               false,     false },
-    { "addmultisigaddress",     &addmultisigaddress,     false,     false },
-    { "createmultisig",         &createmultisig,         true,      true  },
-    { "getrawmempool",          &getrawmempool,          true,      false },
-    { "getblock",               &getblock,               false,     false },
-	{ "getblockbynumber",       &getblockbynumber,       false,     false },
-    { "getblockhash",           &getblockhash,           false,     false },
-    { "gettransaction",         &gettransaction,         false,     false },
-    { "listtransactions",       &listtransactions,       false,     false },
-    { "listaddressgroupings",   &listaddressgroupings,   false,     false },
-    { "signmessage",            &signmessage,            false,     false },
-    { "verifymessage",          &verifymessage,          false,     false },
-    { "getwork",                &getwork,                true,      false },
-    { "getworkex",              &getworkex,              true,      false },
-    { "listaccounts",           &listaccounts,           false,     false },
-    { "settxfee",               &settxfee,               false,     false },
-    { "getblocktemplate",       &getblocktemplate,       true,      false },
-    { "submitblock",            &submitblock,            false,     false },
-    { "setmininput",            &setmininput,            false,     false },
-    { "listsinceblock",         &listsinceblock,         false,     false },
-    { "dumpprivkey",            &dumpprivkey,            true,      false },
-    { "importprivkey",          &importprivkey,          false,     false },
-    { "listunspent",            &listunspent,            false,     false },
-	{ "upgrade",                &upgrade,                false,     false },
-	{ "listitem",               &listitem,               false,     false },
-	{ "execute",                &execute,                   false,     false },
-    { "getrawtransaction",      &getrawtransaction,      false,     false },
-    { "createrawtransaction",   &createrawtransaction,   false,     false },
-    { "decoderawtransaction",   &decoderawtransaction,   false,     false },
-    { "signrawtransaction",     &signrawtransaction,     false,     false },
-    { "sendrawtransaction",     &sendrawtransaction,     false,     false },
-    { "gettxoutsetinfo",        &gettxoutsetinfo,        true,      false },
-    { "gettxout",               &gettxout,               true,      false },
-    { "lockunspent",            &lockunspent,            false,     false },
-    { "listlockunspent",        &listlockunspent,        false,     false },
+{ //  name                      actor (function)         okSafeMode threadSafe   reqWallet
+  //  ------------------------  -----------------------  ---------- ----------   ---------
+    { "help",                   &help,                   true,      true, false },
+    { "stop",                   &stop,                   true,      true, false },
+	{ "getbestblockhash",       &getbestblockhash,       true,      false, false },
+    { "getblockcount",          &getblockcount,          true,      false, false },
+    { "getconnectioncount",     &getconnectioncount,     true,      false, false },
+    { "getpeerinfo",            &getpeerinfo,            true,      false, false },
+    { "addnode",                &addnode,                true,      true, false },
+    { "getaddednodeinfo",       &getaddednodeinfo,       true,      true, false },
+    { "getdifficulty",          &getdifficulty,          true,      false, false },
+    { "getnetworkhashps",       &getnetworkhashps,       true,      false, false },
+    { "getinfo",                &getinfo,                true,      false, false },
+    { "getmininginfo",          &getmininginfo,          true,      false, false },
+    { "getnewaddress",          &getnewaddress,          true,      false, true },
+    { "getaccountaddress",      &getaccountaddress,      true,      false, true },
+    { "setaccount",             &setaccount,             true,      false, true },
+    { "getaccount",             &getaccount,             false,     false, true },
+    { "getaddressesbyaccount",  &getaddressesbyaccount,  true,      false, true },
+    { "sendtoaddress",          &sendtoaddress,          false,     false, true },
+	{ "sendtoself",             &sendtoself,             false,     false, true },
+	{ "sendtoinvalidaddress",   &sendtoinvalidaddress,   false,     false, true },
+    { "getreceivedbyaddress",   &getreceivedbyaddress,   false,     false, true },
+    { "getreceivedbyaccount",   &getreceivedbyaccount,   false,     false, true },
+    { "listreceivedbyaddress",  &listreceivedbyaddress,  false,     false, true },
+    { "listreceivedbyaccount",  &listreceivedbyaccount,  false,     false, true },
+    { "backupwallet",           &backupwallet,           true,      false, true },
+    { "keypoolrefill",          &keypoolrefill,          true,      false, true },
+    { "walletpassphrase",       &walletpassphrase,       true,      false, true },
+    { "walletpassphrasechange", &walletpassphrasechange, false,     false, true },
+    { "walletlock",             &walletlock,             true,      false, true },
+    { "encryptwallet",          &encryptwallet,          false,     false, true },
+    { "validateaddress",        &validateaddress,        true,      false, false },
+    { "getbalance",             &getbalance,             false,     false, true },
+    { "move",                   &movecmd,                false,     false, true },
+    { "sendfrom",               &sendfrom,               false,     false, true },
+    { "sendmany",               &sendmany,               false,     false, true },
+    { "addmultisigaddress",     &addmultisigaddress,     false,     false, false },
+    { "createmultisig",         &createmultisig,         true,      true,  false  },
+    { "getrawmempool",          &getrawmempool,          true,      false, false },
+    { "getblock",               &getblock,               false,     false, false },
+	{ "getblockbynumber",       &getblockbynumber,       false,     false, false },
+    { "getblockhash",           &getblockhash,           false,     false, true },
+    { "gettransaction",         &gettransaction,         false,     false, true },
+    { "listtransactions",       &listtransactions,       false,     false, true },
+    { "listaddressgroupings",   &listaddressgroupings,   false,     false, true },
+    { "signmessage",            &signmessage,            false,     false, true },
+    { "verifymessage",          &verifymessage,          false,     false, true },
+    { "getwork",                &getwork,                true,      false, true },
+    { "getworkex",              &getworkex,              true,      false, true },
+    { "listaccounts",           &listaccounts,           false,     false, true },
+    { "settxfee",               &settxfee,               false,     false, true },
+    { "getblocktemplate",       &getblocktemplate,       true,      false, true },
+    { "submitblock",            &submitblock,            false,     false, false },
+    { "setmininput",            &setmininput,            false,     false, false },
+    { "listsinceblock",         &listsinceblock,         false,     false, true },
+    { "dumpprivkey",            &dumpprivkey,            true,      false, true },
+    { "importprivkey",          &importprivkey,          false,     false, true },
+    { "listunspent",            &listunspent,            false,     false, true },
+	{ "upgrade",                &upgrade,                false,     false, false },
+	{ "listitem",               &listitem,               false,     false, false },
+	{ "execute",                &execute,                   false,     false, false },
+    { "getrawtransaction",      &getrawtransaction,      false,     false, false },
+    { "createrawtransaction",   &createrawtransaction,   false,     false, false },
+    { "decoderawtransaction",   &decoderawtransaction,   false,     false, false },
+    { "signrawtransaction",     &signrawtransaction,     false,     false, false },
+    { "sendrawtransaction",     &sendrawtransaction,     false,     false, false },
+    { "gettxoutsetinfo",        &gettxoutsetinfo,        true,      false, false },
+    { "gettxout",               &gettxout,               true,      false, false },
+    { "lockunspent",            &lockunspent,            false,     false, true },
+    { "listlockunspent",        &listlockunspent,        false,     false, true },
+	{ "verifychain",            &verifychain,            true,      false, false},
 };
 
 CRPCTable::CRPCTable()
@@ -813,7 +814,6 @@ static void RPCAcceptHandler(boost::shared_ptr< basic_socket_acceptor<Protocol, 
 
 void StartRPCThreads()
 {
-    pMiningKey = new CReserveKey(pwalletMain);
 
     strRPCUserColonPass = mapArgs["-rpcuser"] + ":" + mapArgs["-rpcpassword"];
     if ((mapArgs["-rpcpassword"] == "") ||
@@ -944,12 +944,12 @@ void StartRPCThreads()
 
 void StopRPCThreads()
 {
-    delete pMiningKey; pMiningKey = NULL;
-
+ 
     if (rpc_io_service == NULL) return;
 	
     rpc_io_service->stop();
-    rpc_worker_group->join_all();
+    if (rpc_worker_group != NULL)       rpc_worker_group->join_all();
+
     delete rpc_worker_group; rpc_worker_group = NULL;
     delete rpc_ssl_context; rpc_ssl_context = NULL;
     delete rpc_io_service; rpc_io_service = NULL;
@@ -1162,7 +1162,10 @@ json_spirit::Value CRPCTable::execute(const std::string &strMethod, const json_s
         {
             if (pcmd->threadSafe)
                 result = pcmd->actor(params, false);
-            else {
+             else if (!pwalletMain) {
+                 LOCK(cs_main);
+                 result = pcmd->actor(params, false);
+             } else {
                 LOCK2(cs_main, pwalletMain->cs_wallet);
                 result = pcmd->actor(params, false);
             }
@@ -1314,11 +1317,13 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "signrawtransaction"     && n > 1) ConvertTo<Array>(params[1], true);
     if (strMethod == "signrawtransaction"     && n > 2) ConvertTo<Array>(params[2], true);
     if (strMethod == "gettxout"               && n > 1) ConvertTo<boost::int64_t>(params[1]);
+
     if (strMethod == "gettxout"               && n > 2) ConvertTo<bool>(params[2]);
     if (strMethod == "lockunspent"            && n > 0) ConvertTo<bool>(params[0]);
     if (strMethod == "lockunspent"            && n > 1) ConvertTo<Array>(params[1]);
     if (strMethod == "importprivkey"          && n > 2) ConvertTo<bool>(params[2]);
-
+	if (strMethod == "verifychain"            && n > 0) ConvertTo<boost::int64_t>(params[0]);
+    if (strMethod == "verifychain"            && n > 1) ConvertTo<boost::int64_t>(params[1]);
     return params;
 }
 

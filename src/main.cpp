@@ -1682,7 +1682,7 @@ bool OutOfSync()
 {
 	
 	if (  (GetNumBlocksOfPeers() > nBestHeight + 9)  ||  (nBestHeight > GetNumBlocksOfPeers()+9) ) return true;
-	if ( fReindex || fImporting || IsInitialBlockDownload() ) return true;
+	if ( fReindex || fImporting || Checkpoints::IsInitialBlockDownload() ) return true;
 	return false;
 
 }
@@ -1835,6 +1835,50 @@ bool CTransaction::CheckTransaction(CValidationState &state) const
 
     return true;
 }
+
+
+
+CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, int AlgoType, MiningCPID miningcpid)
+{
+	bool bPoolMiner = false;
+	if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
+
+    //6-11-2014
+
+    CPubKey pubkey;
+    if (!reservekey.GetReservedKey(pubkey))
+         return NULL;
+ 
+     CScript scriptPubKey = CScript() << pubkey << OP_CHECKSIG;
+
+	 try
+	 {
+							if (bPoolMiner && AppCache("PoolPubKey").length() > 1)
+							{
+								CScript sftp;
+								std::string PoolPubKey = AppCache("PoolPubKey");
+								printf("..PreppingPoolPubKey..");
+								CBitcoinAddress address(PoolPubKey);
+								sftp.SetDestination(address.Get());
+								//txNew.vout[0].scriptPubKey = sftp;
+								scriptPubKey = sftp;
+							}
+	
+			  }
+			  
+			catch (std::exception &e) 
+			{
+				printf("Error in CreateNew-Block()::Step10();");
+				CreatingNewBlock=false;
+				return NULL;
+			}
+
+
+
+     return CreateNewBlock(scriptPubKey,AlgoType,miningcpid);
+}
+
+
 
 int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
                               enum GetMinFee_mode mode) const
@@ -3123,7 +3167,7 @@ int GetNumBlocksOfPeers()
     return std::max(cPeerBlockCounts.median(), Checkpoints::GetTotalBlocksEstimate());
 }
 
-bool IsInitialBlockDownload()
+bool xIsInitialBlockDownload()
 {
     if (pindexBest == NULL || fImporting || fReindex || nBestHeight < Checkpoints::GetTotalBlocksEstimate())
         return true;
@@ -3521,6 +3565,7 @@ bool CBlock::DisconnectBlock(CValidationState &state, CBlockIndex *pindex, CCoin
             view.SetCoins(hash, CCoins());
         }
         CCoins &outs = view.GetCoins(hash);
+		//outs.ClearUnspendable();
 
         CCoins outsBlock = CCoins(tx, pindex->nHeight);
         // The CCoins serialization does not serialize negative numbers.
@@ -3948,7 +3993,7 @@ bool SetBestChain(CValidationState &state, CBlockIndex* pindexNew)
         printf("- Flush %i transactions: %.2fms (%.4fms/tx)\n", nModified, 0.001 * nTime, 0.001 * nTime / nModified);
 
     // Make sure it's successfully written to disk before changing memory structure
-    bool fIsInitialDownload = IsInitialBlockDownload();
+    bool fIsInitialDownload = Checkpoints::IsInitialBlockDownload();
     if (!fIsInitialDownload || pcoinsTip->GetCacheSize() > nCoinCacheSize) {
         // Typical CCoins structures on disk are around 100 bytes in size.
         // Pushing a new one to the database can cause it to be written
@@ -4861,14 +4906,14 @@ bool static LoadBlockIndexDB()
     return true;
 }
 
-bool VerifyDB() {
+bool VerifyDB(int nCheckLevel, int nCheckDepth)
+ {
     if (pindexBest == NULL || pindexBest->pprev == NULL)
         return true;
 
     // Verify blocks in the best chain
-    int nCheckLevel = GetArg("-checklevel", 3);
-    int nCheckDepth = GetArg("-checkblocks", 50);
-    if (nCheckDepth == 0)
+   
+    if (nCheckDepth <= 0)
         nCheckDepth = 1000000000; // suffices until the year 19000
     if (nCheckDepth > nBestHeight)
         nCheckDepth = nBestHeight;
@@ -5562,7 +5607,7 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
             vRecv >> pfrom->fRelayTxes; // set to true after we get the first filter* message
         else
             pfrom->fRelayTxes = true;
-
+		pfrom->addrMe = addrMe;
         if (pfrom->fInbound && addrMe.IsRoutable())
         {
             pfrom->addrLocal = addrMe;
@@ -5592,12 +5637,8 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
         if (!pfrom->fInbound)
         {
             // Advertise our address
-            if (!fNoListen && !IsInitialBlockDownload())
-            {
-                CAddress addr = GetLocalAddress(&pfrom->addr);
-                if (addr.IsRoutable())
-                    pfrom->PushAddress(addr);
-            }
+            if (!fNoListen && !Checkpoints::IsInitialBlockDownload())
+             AdvertizeLocalNode(pfrom, true);
 
             // Get recent addresses
             if (pfrom->fOneShot || pfrom->nVersion >= CADDR_TIME_VERSION || addrman.size() < 1000)
@@ -6270,14 +6311,14 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         // Resend wallet transactions that haven't gotten in a block yet
         // Except during reindex, importing and IBD, when old wallet
         // transactions become unconfirmed and spams other nodes.
-        if (!fReindex && !fImporting && !IsInitialBlockDownload())
+        if (!fReindex && !fImporting && !Checkpoints::IsInitialBlockDownload())
         {
             ResendWalletTransactions();
         }
 
         // Address refresh broadcast
         static int64 nLastRebroadcast;
-        if (!IsInitialBlockDownload() && (GetTime() - nLastRebroadcast > 24 * 60 * 60))
+        if (!Checkpoints::IsInitialBlockDownload() && (GetTime() - nLastRebroadcast > 24 * 60 * 60))
         {
             {
                 LOCK(cs_vNodes);
@@ -6289,10 +6330,8 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
                     // Rebroadcast our address
                     if (!fNoListen)
-                    {
-                        CAddress addr = GetLocalAddress(&pnode->addr);
-                        if (addr.IsRoutable())
-                            pnode->PushAddress(addr);
+					{
+                     AdvertizeLocalNode(pnode,true);
                     }
                 }
             }
@@ -6670,17 +6709,10 @@ unsigned int DiffBytes(double PoBDiff)
 
 
 
-CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int AlgoType, MiningCPID miningcpid, bool bPoolMiner)
+CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID miningcpid)
 {
 
-	/*
-	if (CreatingNewBlock)
-	{
-		PobSleep(1000);
-		printf("Unable to create new block:Mutex.");
-		return NULL;
-	}
-	*/
+	//6-11-2014
 
 
 	CreatingNewBlock=true;
@@ -6710,45 +6742,11 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int AlgoType, MiningCPID
 	txNew.vout[0].nValue=AmountFromValue(5);
 	printf("9..");
 	CPubKey pubkey;
-    
+    txNew.vout[0].scriptPubKey = scriptPubKeyIn;
+
     //Pool Mining Test Step 1: Verify Pool Mining CPID is sent during getwork 
 
 	
-			  try
-			  {
-							if (bPoolMiner && AppCache("PoolPubKey").length() > 1)
-							{
-								CScript sftp;
-								std::string PoolPubKey = AppCache("PoolPubKey");
-								printf("..PreppingPoolPubKey..");
-								CBitcoinAddress address(PoolPubKey);
-								sftp.SetDestination(address.Get());
-								txNew.vout[0].scriptPubKey = sftp;
-							}
-							else
-							{
-								printf("Pool mining not enabled\r\n");
-								printf("10...");
-								if (!reservekey.GetReservedKey(pubkey))     
-								{
-										printf("FAILED TO GET RESERVED KEY!!!\r\n");
-										return NULL;
-								}
-								printf("11a..");
-								txNew.vout[0].scriptPubKey << pubkey << OP_CHECKSIG;
-							}
-							
-	
-			  }
-			  
-			catch (std::exception &e) 
-			{
-				printf("Error in CreateNewBlock()::Step10();");
-				CreatingNewBlock=false;
-				return NULL;
-			}
-
-
 			////////////////////////////////////////////////// DEADLOCK PREVENTION ////////////////////////////////////////////////////////
 			//printf("PreventingDeadlock...");
 			double pobdiff = GetPoBDifficulty();
@@ -7016,7 +7014,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int AlgoType, MiningCPID
 		
         if (!pblock->ConnectBlock(state, &indexDummy, viewNew, true))
 		{
-            //throw std::runtime_error("CreateNewBlock() : ConnectBlock failure II");
+            //throw std::runtime_error("Create-NewBlock() : ConnectBlock failure II");
 			CreatingNewBlock=false;
 			printf("CreateNewBlock() Gridcoin : Connect Block Failed!");
 			return NULL;
@@ -7031,7 +7029,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int AlgoType, MiningCPID
 
 //	catch (std::exception &e) 
 	//{
-		//	printf("Error in CreateNewBlock();");
+		//	printf("Error in reateNewBlock();");
 			//CreatingNewBlock=false;
 		//	return NULL;
     //}
@@ -7194,7 +7192,7 @@ bool CheckWorkCPU(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 
     // Found a solution
     {
-			
+			LOCK(cs_main);
         if (pblock->hashPrevBlock != hashBestChain)
             return error("GridCoinMiner : generated block is stale");
         // Remove key from key pool
@@ -7241,8 +7239,8 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
     // Found a solution
     {
 		//Gridcoin - Rob H. - 4-30-2014 - Block all other threads activity until this critical section finishes:
-		
-        //LOCK(cs_main);
+		//6-11-2014 adding lock per Litecoin code changes:
+        LOCK(cs_main);
 			
         if (pblock->hashPrevBlock != hashBestChain)
             return error("GridCoinMiner : generated block is stale");
@@ -7400,9 +7398,9 @@ bool CheckTransactionSkein(const CTransaction& tx, CValidationState &state)
 void static MinerWaitOnline()
 {
        // Busy-wait for the network to come online so we don't waste time mining on an obsolete chain. 
-	   //while (vNodes.empty() || IsInitialBlockDownload() || fReindex || fImporting || !bCPIDsLoaded || OutOfSyncByAge() )
+	   //while (vNodes.empty() || nload() || fReindex || fImporting || !bCPIDsLoaded || OutOfSyncByAge() )
        
-        while (vNodes.empty() || IsInitialBlockDownload() || fReindex || fImporting || !bCPIDsLoaded || OutOfSyncByAge() )
+        while (vNodes.empty() || Checkpoints::IsInitialBlockDownload() || fReindex || fImporting || !bCPIDsLoaded || OutOfSyncByAge() )
         {
             MilliSleep(1000);
 	        boost::this_thread::interruption_point();
@@ -7435,7 +7433,7 @@ MiningCPID GetNextProject()
 
 	printf("{GNP}");
 
-	if (IsInitialBlockDownload() || !bCPIDsLoaded) return miningcpid;
+	if (Checkpoints::IsInitialBlockDownload() || !bCPIDsLoaded) return miningcpid;
 		
 
 	try 
@@ -7890,13 +7888,13 @@ double static PoBMiner(int threadid)
 		int mutex = 0;
 		try
 		{
-			MilliSleep(Races(3333)+500);
+			MilliSleep(Races(1000)+500);
 
 			while (CreatingNewBlock)
 			{
-				mutex = mutex + Races(5333)+33;
+				mutex = mutex + Races(1000);
 				PobSleep(mutex);
-				if (mutex > 11000) 
+				if (mutex > 1000) 
 				{
 					CreatingNewBlock=false;
 					break;
@@ -7934,9 +7932,6 @@ double static PoBMiner(int threadid)
 		int iIAV = 0;
 		std::string enc_aes = "";
 
-		//crash occurs here:
-		//6-10-2014
-
         loop
         {
 			uint256 powhash = pblock->hashMerkleRoot + nNonce;
@@ -7958,7 +7953,7 @@ double static PoBMiner(int threadid)
 							break;
 					}
 
-    				if (IsInitialBlockDownload())
+    				if (Checkpoints::IsInitialBlockDownload())
 					{
 						printf("Block found during download...Exiting\r\n");
 						PobSleep(2000);
@@ -8006,7 +8001,6 @@ double static PoBMiner(int threadid)
 							//SetThreadPriority(THREAD_PRIORITY_LOWEST);
 							//Double check PoB hash:
 							printf("PoB proof-of-work found  \n  hash: %s \r\n", pblock->GetPoWHash().GetHex().c_str());
-							//bool result =   CheckWork(pblock, *pwalletMain, reervekey);
 							//5-19-2014 At this point, the CPU Miner found a solution; lock all other threads while we submit it; verify the block hash is OK
 						    iCriticalThreadDelay=30;
 							bool result = false;
@@ -8050,7 +8044,8 @@ double static PoBMiner(int threadid)
             {
                 static CCriticalSection cs;
                 {
-                    //LOCK(cs);
+		    		MilliSleep(1);
+	                //LOCK(cs);
 					++pblock->nNonce;
 					// Update nTime every few seconds
 					//pblock->UpdateTime(pindexPrev);
@@ -8074,7 +8069,7 @@ double static PoBMiner(int threadid)
 							msMiningErrors = "";
 						}
         	
-						if (prevblocktype == 3 && bAllowBackToBack==false) 
+						if (prevblocktype == 3) 
 						{
 								if (LessVerbose(100)) printf("Last block is CPU block (Miner throttling back CPU usage).");
 								msMiningErrors = "Last block is a CPU block (sleeping)";
@@ -8127,8 +8122,7 @@ double static PoBMiner(int threadid)
 				printf("New block detected on network...");
 				msMiningErrors = "New block detected";
         		//Sleep to avoid races
-				PobSleep(Races(2500)+1000);
-
+				MilliSleep(1000);
 		        break;
 			}
 	
@@ -8275,7 +8269,8 @@ void GenerateGridcoins(bool fDoGenCoins, bool LoadCPIDs)
 			return;
 	}
 	printf("Ready to Generate Gridcoins on %d",nThreads);
-	msMiningErrors = "Starting CPU Miner";
+	msMiningErrors = "Starting Gridcoin CPU Miner";
+	assert(pwalletMain != NULL);
     minerThreads = new boost::thread_group();
 	
     for (int i = 0; i < nThreads; i++)

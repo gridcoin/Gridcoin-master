@@ -19,7 +19,7 @@
 #include <list>
 
 #include "global_objects_noui.hpp"
-
+#include "checkpoints.h"
 
 class CWallet;
 class CBlock;
@@ -257,7 +257,7 @@ bool LoadBlockIndex();
 /** Unload database information */
 void UnloadBlockIndex();
 /** Verify consistency of the block and coin databases */
-bool VerifyDB();
+bool VerifyDB(int nCheckLevel, int nCheckDepth);
 /** Print the loaded block tree */
 void PrintBlockTree();
 /** Find a block by height in the currently-connected chain */
@@ -269,7 +269,10 @@ bool SendMessages(CNode* pto, bool fSendTrickle);
 /** Run an instance of the script checking thread */
 void ThreadScriptCheck();
 /** Generate a new block, without valid proof-of-work */
-CBlockTemplate* CreateNewBlock(CReserveKey& reservekey, int algo, MiningCPID miningcpid, bool bPoolMiner);
+CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int algo, MiningCPID miningcpid);
+
+CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, int AlgoType, MiningCPID miningcpid);
+
 
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
@@ -289,8 +292,6 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int Algo);
 
 /** Get the number of active peers */
 extern int GetNumBlocksOfPeers();
-/** Check whether we are doing an initial block download (synchronizing from disk or network) */
-bool IsInitialBlockDownload();
 /** Format a string that describes several potential problems detected by the core */
 std::string GetWarnings(std::string strFor);
 /** Return the Default Gridcoin Address */
@@ -766,6 +767,11 @@ bool IsFinalTx(const CTransaction &tx, int nBlockHeight = 0, int64 nBlockTime = 
         return dPriority > COIN * 576 / 250;
     }
 
+
+// Apply the effects of this transaction on the UTXO set represented by view
+void UpdateCoins(const CTransaction& tx, CValidationState &state, CCoinsViewCache &inputs, CTxUndo &txundo, int nHeight, const uint256 &txhash);
+
+
     int64 GetMinFee(unsigned int nBlockSize=1, bool fAllowFree=true, enum GetMinFee_mode mode=GMF_BLOCK) const;
 
     friend bool operator==(const CTransaction& a, const CTransaction& b)
@@ -952,7 +958,7 @@ public:
 
         // Flush stdio buffers and commit to disk before returning
         fflush(fileout);
-        if (!IsInitialBlockDownload())
+        if (!Checkpoints::IsInitialBlockDownload())
             FileCommit(fileout);
 
         return true;
@@ -1066,6 +1072,23 @@ public:
         if (vout.empty())
             std::vector<CTxOut>().swap(vout);
     }
+
+
+
+
+/*
+	void ClearUnspendable() {
+         BOOST_FOREACH(CTxOut &txout, vout) {
+             if (txout.scriptPubKey.IsUnspendable())
+                 txout.SetNull();
+         }
+         Cleanup();
+     }
+	 */
+
+
+
+
 
     void swap(CCoins &to) {
         std::swap(to.fCoinBase, fCoinBase);
@@ -1667,7 +1690,7 @@ public:
 
         // Flush stdio buffers and commit to disk before returning
         fflush(fileout);
-        if (!IsInitialBlockDownload())
+        if (!Checkpoints::IsInitialBlockDownload())
             FileCommit(fileout);
 
         return true;

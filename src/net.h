@@ -33,8 +33,7 @@ static const std::string GetBlocksCommand = "GridcoinGetBlocks";
 class CNode;
 class CBlockIndex;
 extern int nBestHeight;
-
-
+extern int64 nNodeStartTime;
 extern std::string cached_getblocks_args;
 
 
@@ -44,6 +43,8 @@ inline unsigned int SendBufferSize() { return 1000*GetArg("-maxsendbuffer", 1*10
 void AddOneShot(std::string strDest);
 bool RecvLine(SOCKET hSocket, std::string& strLine);
 bool GetMyExternalIP(CNetAddr& ipRet);
+void AdvertizeLocalNode(CNode* pnode, bool fForce=false);
+
 void AddressCurrentlyConnected(const CService& addr);
 CNode* FindNode(const CNetAddr& ip);
 CNode* FindNode(const CService& ip);
@@ -189,6 +190,7 @@ public:
     uint64 nBlocksRequested;
     CAddress addr;
     std::string addrName;
+	CService addrMe;
     CService addrLocal;
     int nVersion;
     std::string strSubVer;

@@ -51,6 +51,9 @@ public:
 
     QString formatFullVersion() const;
     QString formatBuildDate() const;
+	
+    QString formatBoostVersion()  const;
+
     bool isReleaseVersion() const;
     QString clientName() const;
     QString formatClientStartupTime() const;

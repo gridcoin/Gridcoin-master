@@ -7,7 +7,7 @@
 #include "db.h"
 #include "init.h"
 #include "bitcoinrpc.h"
-
+#include "checkpoints.h"
 #include "global_objects_noui.hpp"
 using namespace json_spirit;
 using namespace std;
@@ -76,6 +76,24 @@ double GetPoBDifficulty();
 bool IsCPIDValid(std::string cpid, std::string ENCboincpubkey);
 
 void FindMultiAlgorithmSolution(CBlock* pblock, uint256 hash, uint256 hashTarget, double miningrac);
+
+
+
+static CReserveKey* pMiningKey = NULL;
+ void InitRPCMining()
+ {
+	 if (!pwalletMain)        return;
+     // getwork/getblocktemplate mining rewards paid here:
+     pMiningKey = new CReserveKey(pwalletMain);
+ }
+ 
+ void ShutdownRPCMining()
+ {
+	 if (!pMiningKey) return;
+     delete pMiningKey; pMiningKey = NULL;
+ }
+ 
+
 
 // Return average network hashes per second based on the last 'lookup' blocks,
 // or from the last difficulty change if 'lookup' is nonpositive.
@@ -220,7 +238,7 @@ Value getworkex(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Gridcoin is not connected!");
 
-    if (IsInitialBlockDownload())
+    if (Checkpoints::IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
@@ -251,7 +269,7 @@ Value getworkex(const Array& params, bool fHelp)
             // Clear pindexPrev so future getworks make a new block, despite any failures from here on
             pindexPrev = NULL;
 
-            // Store the pindexBest used before CreateNewBlock, to avoid races
+            // Store the pindexBest used before Cre-ateNewBlock, to avoid races
             nTransactionsUpdatedLast = nTransactionsUpdated;
             CBlockIndex* pindexPrevNew = pindexBest;
             nStart = GetTime();
@@ -261,13 +279,13 @@ Value getworkex(const Array& params, bool fHelp)
 			MiningCPID miningcpid = GetGPUMiningCPID();
 
 
-            pblocktemplate = CreateNewBlock(reservekey,2,miningcpid,false);
+            pblocktemplate = CreateNewBlockWithKey(reservekey,2,miningcpid);
 
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
             vNewBlockTemplate.push_back(pblocktemplate);
 
-            // Need to update only after we know CreateNewBlock succeeded
+            // Need to update only after we know Crea-teNewBlock succeeded
             pindexPrev = pindexPrevNew;
         }
         CBlock* pblock = &pblocktemplate->block; // pointer for convenience
@@ -398,7 +416,7 @@ Value getwork(const Array& params, bool fHelp)
 	double POB = GetPoBDifficulty();
 				
 	//R Halford: 6-7-2014 : Prevent GPU mining during initial sync:
-    if (IsInitialBlockDownload()  || !bCPIDsLoaded || POB==99)
+    if (Checkpoints::IsInitialBlockDownload()  || !bCPIDsLoaded || POB==99)
     {
 		throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
 	}
@@ -435,7 +453,7 @@ Value getwork(const Array& params, bool fHelp)
             // Clear pindexPrev so future getworks make a new block, despite any failures from here on
             pindexPrev = NULL;
 
-            // Store the pindexBest used before CreateNewBlock, to avoid races
+            // Store the pindexBest used before Create-NewBlock, to avoid races
             nTransactionsUpdatedLast = nTransactionsUpdated;
             CBlockIndex* pindexPrevNew = pindexBest;
             nStart = GetTime();
@@ -444,13 +462,13 @@ Value getwork(const Array& params, bool fHelp)
             // Create new block
 
 	
-            pblocktemplate = CreateNewBlock(*pMiningKey,2,miningcpid,bPoolMiner);
+            pblocktemplate = CreateNewBlockWithKey(*pMiningKey,2,miningcpid);
 
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
             vNewBlockTemplate.push_back(pblocktemplate);
 
-            // Need to update only after we know CreateNewBlock succeeded
+            // Need to update only after we know Create-NewBlock succeeded
             pindexPrev = pindexPrevNew;
         }
         CBlock* pblock = &pblocktemplate->block; // pointer for convenience
@@ -534,6 +552,8 @@ Value getwork(const Array& params, bool fHelp)
         pblock->nNonce = pdata->nNonce;
         pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
+
+		 assert(pwalletMain != NULL);
 
 		// Solve the PoB and add AES 2 byte puzzle:
 		
@@ -641,7 +661,7 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 	}
 
 
-    if (IsInitialBlockDownload() || !bCPIDsLoaded || miningcpid.projectname.length() < 3 || miningcpid.cpid.length() < 3 || miningcpid.encboincpublickey.length() < 3)
+    if (Checkpoints::IsInitialBlockDownload() || !bCPIDsLoaded || miningcpid.projectname.length() < 3 || miningcpid.cpid.length() < 3 || miningcpid.encboincpublickey.length() < 3)
 	{
 			printf("Getwork_CPU:Gridcoin is downloading blocks...");
 			succeeded=false;
@@ -678,20 +698,18 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
             // Clear pindexPrev so future getworks make a new block, despite any failures from here on
             pindexPrev = NULL;
 
-            // Store the pindexBest used before CreateNewBlock, to avoid races
+            // Store the pindexBest used before Cre-ateNewBlock, to avoid races
             nTransactionsUpdatedLast = nTransactionsUpdated;
             CBlockIndex* pindexPrevNew = pindexBest;
             nStart = GetTime();
 
-			bool bPoolMiner = false;
-			if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
-
+			
             // Create new block
 			printf("3..");
 			//DEADLOCK Found here:
 			printf("..ENT_DDLOCK..");
 
-            pblocktemplate = CreateNewBlock(reservekey,3,miningcpid,bPoolMiner);
+            pblocktemplate = CreateNewBlockWithKey(reservekey,3,miningcpid);
 			printf("..LOCK_RELEASED..");
 
 
@@ -710,7 +728,7 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
             vNewBlockTemplate2.push_back(pblocktemplate);
 
-            // Need to update only after we know CreateNewBlock succeeded
+            // Need to update only after we know Create-NewBlock succeeded
             pindexPrev = pindexPrevNew;
         }
 
@@ -885,7 +903,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
 	if (!bCPIDsLoaded) {
 		printf("Getblocktemplate called, but no cpids are loaded yet...\r\n");
 	}
-    if (IsInitialBlockDownload() || 	!bCPIDsLoaded   )
+    if (Checkpoints::IsInitialBlockDownload() || 	!bCPIDsLoaded   )
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
 
     // Update block
@@ -921,7 +939,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
         // Clear pindexPrev so future calls make a new block, despite any failures from here on
         pindexPrev = NULL;
 
-        // Store the pindexBest used before CreateNewBlock, to avoid races
+        // Store the pindexBest used before Create-NewBlock, to avoid races
         nTransactionsUpdatedLast = nTransactionsUpdated;
         CBlockIndex* pindexPrevNew = pindexBest;
         nStart = GetTime();
@@ -935,12 +953,12 @@ Value getblocktemplate(const Array& params, bool fHelp)
 
 		MiningCPID miningcpid = GetGPUMiningCPID();
 
-        pblocktemplate = CreateNewBlock(*pMiningKey,2,miningcpid,false);
+        pblocktemplate = CreateNewBlockWithKey(*pMiningKey,2,miningcpid);
 					
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 
-        // Need to update only after we know CreateNewBlock succeeded
+        // Need to update only after we know Create-NewBlock succeeded
         pindexPrev = pindexPrevNew;
     }
     CBlock* pblock = &pblocktemplate->block; // pointer for convenience
@@ -1014,84 +1032,6 @@ Value getblocktemplate(const Array& params, bool fHelp)
 
     return result;
 }
-
-
-
-/*
-CBlockTemplate* getblocktemplate_cpu(MiningCPID miningcpid)
-{
-	
-    if (IsInitialBlockDownload() || !bCPIDsLoaded   )    
-		{
-			printf("Unable to retrieve getblocktemplate: Gridcoin is downloading blocks...");
-			return NULL;
-		}
-
-    // Update block
-    static unsigned int nTransactionsUpdatedLast;
-    static CBlockIndex* pindexPrev;
-    static int64 nStart;
-    static CBlockTemplate* pblocktemplate;
-	printf("!!GETBlocktemplate_cpu_called\r\n");
-	
-	if (miningcpid.projectname=="") 
-		{
-			printf("Unable to CPU Mine: No project specified in getmininginfo.\r\n");
-			return NULL;
-		    //throw JSONRPCError(RPC_INVALID_PARAMETER, "Unable to GPU Mine:No project specified");
-		}
-		if (!IsCPIDValid(miningcpid.cpid,miningcpid.encboincpublickey))
-		{
-			printf("Unable to CPU Mine: Invalid cpid in getmininginfo %s. \r\n", msGPUMiningCPID.c_str());
-			return NULL;
-		    //throw JSONRPCError(RPC_INVALID_PARAMETER, "No valid CPID given");
-		}
-
-
-
-    if (pindexPrev != pindexBest ||
-        (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 5))
-    {
-        // Clear pindexPrev so future calls make a new block, despite any failures from here on
-        pindexPrev = NULL;
-
-        // Store the pindexBest used before CreateNewBlock, to avoid races
-        nTransactionsUpdatedLast = nTransactionsUpdated;
-        CBlockIndex* pindexPrevNew = pindexBest;
-        nStart = GetTime();
-
-        // Create new block
-        if(pblocktemplate)
-        {
-            delete pblocktemplate;
-            pblocktemplate = NULL;
-        }
-				
-        pblocktemplate = CreateNewBlock(*pMiningKey,2,miningcpid.projectname, miningcpid.rac,miningcpid.encboincpublickey,miningcpid.cpid,false);
-					
-        if (!pblocktemplate)
-		{
-          printf("Unable to create new block in getblocktemplate_cpu: Out of memory");
-		  return NULL;
-		}
-
-        // Need to update only after we know CreateNewBlock succeeded
-        pindexPrev = pindexPrevNew;
-    }
-
-    CBlock* pblock = &pblocktemplate->block; // pointer for convenience
-
-    // Update nTime
-    pblock->UpdateTime(pindexPrev);
-    pblock->nNonce = 0;
-    uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
-
-	return pblocktemplate.release();
-
-}
-
-*/
-
 
 
 

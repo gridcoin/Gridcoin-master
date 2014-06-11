@@ -88,6 +88,7 @@ double GetPoBDifficulty();
 extern int CreateRestorePoint();
 extern int DownloadBlocks();
 
+void StopGridcoin3();
 
 
 
@@ -239,6 +240,8 @@ BitcoinGUI::BitcoinGUI(QWidget *parent) :
     rpcConsole = new RPCConsole(this);
     connect(openRPCConsoleAction, SIGNAL(triggered()), rpcConsole, SLOT(show()));
 
+	// prevents an oben debug window from becoming stuck/unusable on client shutdown
+    connect(quitAction, SIGNAL(triggered()), rpcConsole, SLOT(hide()));
     // Install event filter to be able to catch status tip events (QEvent::StatusTip)
     this->installEventFilter(this);
 }
@@ -427,6 +430,9 @@ int CreateRestorePoint()
 			QString sArgument = "";
 			QString path = QCoreApplication::applicationDirPath() + "\\" + sFilename;
 			QProcess p;
+            StopGridcoin3();
+
+
 			if (!fTestNet)
 			{
 #ifdef WIN32
@@ -439,6 +445,8 @@ int CreateRestorePoint()
 				globalcom->dynamicCall("CreateRestorePointTestNet()");
 #endif
 			}
+			RestartGridcoin3();
+
 			return 1;
 }
 
@@ -1511,7 +1519,7 @@ void BitcoinGUI::timerfire()
 			
 		}
 
-
+		/*
 		if (CreatingNewBlock)
 		{
 			MilliSleep(Races(500));
@@ -1520,10 +1528,9 @@ void BitcoinGUI::timerfire()
 				CreatingNewBlock=false;
 			}
 		}
+		*/
 
-
-
-
+		
 		if (Timer("status_update",2))
 		{
 			GetDifficulty();
@@ -1561,7 +1568,6 @@ void BitcoinGUI::timerfire()
 		
 
 
-		//6-9-2013
 		if (mapArgs["-restartnetlayer"] == "true") 
 		{
 			if (Timer("restart_network",30))

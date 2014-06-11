@@ -1415,6 +1415,7 @@ void BitcoinGUI::timerfire()
 		}
 
 
+		/*
 		if (CreatingNewBlock)
 		{
 			MilliSleep(Races(2000)+1000);
@@ -1423,6 +1424,8 @@ void BitcoinGUI::timerfire()
 				CreatingNewBlock=false;
 			}
 		}
+		*/
+
 
 
 

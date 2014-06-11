@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'rpcconsole.ui'
 **
-** Created: Sun May 25 10:05:27 2014
+** Created: Wed Jun 11 09:33:26 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -37,6 +37,7 @@ public:
     QTabWidget *tabWidget;
     QWidget *tab_info;
     QGridLayout *gridLayout;
+    QLabel *label_15;
     QLabel *lastBlockTime;
     QSpacerItem *verticalSpacer_2;
     QLabel *label_2;
@@ -53,8 +54,6 @@ public:
     QLabel *openSSLVersion;
     QLabel *label_12;
     QLabel *buildDate;
-    QLabel *label_13;
-    QLabel *startupTime;
     QLabel *label_11;
     QLabel *numberOfConnections;
     QLabel *label_8;
@@ -66,6 +65,10 @@ public:
     QLabel *labelCLOptions;
     QPushButton *showCLOptionsButton;
     QSpacerItem *verticalSpacer;
+    QLabel *startupTime;
+    QLabel *label_13;
+    QSpacerItem *verticalSpacer_3;
+    QLabel *boostVersion;
     QWidget *tab_console;
     QVBoxLayout *verticalLayout_3;
     QTextEdit *messagesWidget;
@@ -245,6 +248,13 @@ public:
         gridLayout = new QGridLayout(tab_info);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setHorizontalSpacing(12);
+        label_15 = new QLabel(tab_info);
+        label_15->setObjectName(QString::fromUtf8("label_15"));
+        label_15->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
+""));
+
+        gridLayout->addWidget(label_15, 6, 0, 1, 1);
+
         lastBlockTime = new QLabel(tab_info);
         lastBlockTime->setObjectName(QString::fromUtf8("lastBlockTime"));
         lastBlockTime->setCursor(QCursor(Qt::IBeamCursor));
@@ -254,11 +264,11 @@ public:
         lastBlockTime->setTextFormat(Qt::PlainText);
         lastBlockTime->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(lastBlockTime, 12, 1, 1, 1);
+        gridLayout->addWidget(lastBlockTime, 16, 2, 1, 1);
 
         verticalSpacer_2 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        gridLayout->addItem(verticalSpacer_2, 13, 0, 1, 1);
+        gridLayout->addItem(verticalSpacer_2, 17, 0, 1, 1);
 
         label_2 = new QLabel(tab_info);
         label_2->setObjectName(QString::fromUtf8("label_2"));
@@ -266,7 +276,7 @@ public:
         label_2->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(label_2, 12, 0, 1, 1);
+        gridLayout->addWidget(label_2, 16, 0, 1, 1);
 
         totalBlocks = new QLabel(tab_info);
         totalBlocks->setObjectName(QString::fromUtf8("totalBlocks"));
@@ -277,7 +287,7 @@ public:
         totalBlocks->setTextFormat(Qt::PlainText);
         totalBlocks->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(totalBlocks, 11, 1, 1, 1);
+        gridLayout->addWidget(totalBlocks, 15, 2, 1, 1);
 
         isTestNet = new QCheckBox(tab_info);
         isTestNet->setObjectName(QString::fromUtf8("isTestNet"));
@@ -288,7 +298,7 @@ public:
 "color:lightgreen;\n"
 ""));
 
-        gridLayout->addWidget(isTestNet, 8, 1, 1, 1);
+        gridLayout->addWidget(isTestNet, 12, 2, 1, 1);
 
         label_7 = new QLabel(tab_info);
         label_7->setObjectName(QString::fromUtf8("label_7"));
@@ -296,7 +306,7 @@ public:
         label_7->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(label_7, 7, 0, 1, 1);
+        gridLayout->addWidget(label_7, 11, 0, 1, 1);
 
         label_10 = new QLabel(tab_info);
         label_10->setObjectName(QString::fromUtf8("label_10"));
@@ -311,14 +321,13 @@ public:
         label_10->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(label_10, 9, 0, 1, 1);
+        gridLayout->addWidget(label_10, 13, 0, 1, 1);
 
         label_9 = new QLabel(tab_info);
         label_9->setObjectName(QString::fromUtf8("label_9"));
         label_9->setFont(font1);
         label_9->setAutoFillBackground(false);
-        label_9->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
-""));
+        label_9->setStyleSheet(QString::fromUtf8("color:lightblue;"));
 
         gridLayout->addWidget(label_9, 0, 0, 1, 1);
 
@@ -339,7 +348,7 @@ public:
         clientName->setTextFormat(Qt::PlainText);
         clientName->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(clientName, 1, 1, 1, 1);
+        gridLayout->addWidget(clientName, 1, 2, 1, 1);
 
         label_6 = new QLabel(tab_info);
         label_6->setObjectName(QString::fromUtf8("label_6"));
@@ -358,7 +367,7 @@ public:
         clientVersion->setTextFormat(Qt::PlainText);
         clientVersion->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(clientVersion, 2, 1, 1, 1);
+        gridLayout->addWidget(clientVersion, 2, 2, 1, 1);
 
         label_14 = new QLabel(tab_info);
         label_14->setObjectName(QString::fromUtf8("label_14"));
@@ -378,7 +387,7 @@ public:
         openSSLVersion->setTextFormat(Qt::PlainText);
         openSSLVersion->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(openSSLVersion, 3, 1, 1, 1);
+        gridLayout->addWidget(openSSLVersion, 3, 2, 1, 1);
 
         label_12 = new QLabel(tab_info);
         label_12->setObjectName(QString::fromUtf8("label_12"));
@@ -397,35 +406,16 @@ public:
         buildDate->setTextFormat(Qt::PlainText);
         buildDate->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(buildDate, 4, 1, 1, 1);
-
-        label_13 = new QLabel(tab_info);
-        label_13->setObjectName(QString::fromUtf8("label_13"));
-        label_13->setAutoFillBackground(false);
-        label_13->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
-""));
-
-        gridLayout->addWidget(label_13, 5, 0, 1, 1);
-
-        startupTime = new QLabel(tab_info);
-        startupTime->setObjectName(QString::fromUtf8("startupTime"));
-        startupTime->setCursor(QCursor(Qt::IBeamCursor));
-        startupTime->setAutoFillBackground(false);
-        startupTime->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
-""));
-        startupTime->setTextFormat(Qt::PlainText);
-        startupTime->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-
-        gridLayout->addWidget(startupTime, 5, 1, 1, 1);
+        gridLayout->addWidget(buildDate, 4, 2, 1, 1);
 
         label_11 = new QLabel(tab_info);
         label_11->setObjectName(QString::fromUtf8("label_11"));
         label_11->setFont(font1);
         label_11->setAutoFillBackground(false);
-        label_11->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
+        label_11->setStyleSheet(QString::fromUtf8("color:lightblue;\n"
 ""));
 
-        gridLayout->addWidget(label_11, 6, 0, 1, 1);
+        gridLayout->addWidget(label_11, 9, 0, 1, 1);
 
         numberOfConnections = new QLabel(tab_info);
         numberOfConnections->setObjectName(QString::fromUtf8("numberOfConnections"));
@@ -436,7 +426,7 @@ public:
         numberOfConnections->setTextFormat(Qt::PlainText);
         numberOfConnections->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(numberOfConnections, 7, 1, 1, 1);
+        gridLayout->addWidget(numberOfConnections, 11, 2, 1, 1);
 
         label_8 = new QLabel(tab_info);
         label_8->setObjectName(QString::fromUtf8("label_8"));
@@ -444,7 +434,7 @@ public:
         label_8->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(label_8, 8, 0, 1, 1);
+        gridLayout->addWidget(label_8, 12, 0, 1, 1);
 
         label_3 = new QLabel(tab_info);
         label_3->setObjectName(QString::fromUtf8("label_3"));
@@ -452,7 +442,7 @@ public:
         label_3->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(label_3, 10, 0, 1, 1);
+        gridLayout->addWidget(label_3, 14, 0, 1, 1);
 
         numberOfBlocks = new QLabel(tab_info);
         numberOfBlocks->setObjectName(QString::fromUtf8("numberOfBlocks"));
@@ -463,7 +453,7 @@ public:
         numberOfBlocks->setTextFormat(Qt::PlainText);
         numberOfBlocks->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-        gridLayout->addWidget(numberOfBlocks, 10, 1, 1, 1);
+        gridLayout->addWidget(numberOfBlocks, 14, 2, 1, 1);
 
         label_4 = new QLabel(tab_info);
         label_4->setObjectName(QString::fromUtf8("label_4"));
@@ -471,7 +461,7 @@ public:
         label_4->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(label_4, 11, 0, 1, 1);
+        gridLayout->addWidget(label_4, 15, 0, 1, 1);
 
         labelDebugLogfile = new QLabel(tab_info);
         labelDebugLogfile->setObjectName(QString::fromUtf8("labelDebugLogfile"));
@@ -480,7 +470,7 @@ public:
         labelDebugLogfile->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(labelDebugLogfile, 14, 0, 1, 1);
+        gridLayout->addWidget(labelDebugLogfile, 18, 0, 1, 1);
 
         openDebugLogfileButton = new QPushButton(tab_info);
         openDebugLogfileButton->setObjectName(QString::fromUtf8("openDebugLogfileButton"));
@@ -492,7 +482,7 @@ public:
 ""));
         openDebugLogfileButton->setAutoDefault(false);
 
-        gridLayout->addWidget(openDebugLogfileButton, 15, 0, 1, 1);
+        gridLayout->addWidget(openDebugLogfileButton, 19, 0, 1, 1);
 
         labelCLOptions = new QLabel(tab_info);
         labelCLOptions->setObjectName(QString::fromUtf8("labelCLOptions"));
@@ -500,7 +490,7 @@ public:
         labelCLOptions->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
 ""));
 
-        gridLayout->addWidget(labelCLOptions, 16, 0, 1, 1);
+        gridLayout->addWidget(labelCLOptions, 20, 0, 1, 1);
 
         showCLOptionsButton = new QPushButton(tab_info);
         showCLOptionsButton->setObjectName(QString::fromUtf8("showCLOptionsButton"));
@@ -511,11 +501,41 @@ public:
 ""));
         showCLOptionsButton->setAutoDefault(false);
 
-        gridLayout->addWidget(showCLOptionsButton, 17, 0, 1, 1);
+        gridLayout->addWidget(showCLOptionsButton, 21, 0, 1, 1);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        gridLayout->addItem(verticalSpacer, 18, 0, 1, 1);
+        gridLayout->addItem(verticalSpacer, 22, 0, 1, 1);
+
+        startupTime = new QLabel(tab_info);
+        startupTime->setObjectName(QString::fromUtf8("startupTime"));
+        startupTime->setCursor(QCursor(Qt::IBeamCursor));
+        startupTime->setAutoFillBackground(false);
+        startupTime->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
+""));
+        startupTime->setTextFormat(Qt::PlainText);
+        startupTime->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+
+        gridLayout->addWidget(startupTime, 5, 2, 1, 1);
+
+        label_13 = new QLabel(tab_info);
+        label_13->setObjectName(QString::fromUtf8("label_13"));
+        label_13->setAutoFillBackground(false);
+        label_13->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
+""));
+
+        gridLayout->addWidget(label_13, 5, 0, 1, 1);
+
+        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        gridLayout->addItem(verticalSpacer_3, 7, 0, 1, 1);
+
+        boostVersion = new QLabel(tab_info);
+        boostVersion->setObjectName(QString::fromUtf8("boostVersion"));
+        boostVersion->setStyleSheet(QString::fromUtf8("color:#66ff00;\n"
+""));
+
+        gridLayout->addWidget(boostVersion, 6, 2, 1, 1);
 
         tabWidget->addTab(tab_info, QString());
         tab_console = new QWidget();
@@ -742,7 +762,7 @@ public:
 
         retranslateUi(RPCConsole);
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(RPCConsole);
@@ -751,13 +771,14 @@ public:
     void retranslateUi(QDialog *RPCConsole)
     {
         RPCConsole->setWindowTitle(QApplication::translate("RPCConsole", "Gridcoin - Debug Console", 0, QApplication::UnicodeUTF8));
+        label_15->setText(QApplication::translate("RPCConsole", "Boost version", 0, QApplication::UnicodeUTF8));
         lastBlockTime->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("RPCConsole", "Last block time", 0, QApplication::UnicodeUTF8));
         totalBlocks->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
         isTestNet->setText(QString());
         label_7->setText(QApplication::translate("RPCConsole", "Number of connections", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("RPCConsole", "Block chain", 0, QApplication::UnicodeUTF8));
-        label_9->setText(QApplication::translate("RPCConsole", "Gridcoin Core", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("RPCConsole", "Gridcoin Core:", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("RPCConsole", "Client name", 0, QApplication::UnicodeUTF8));
         clientName->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
         label_6->setText(QApplication::translate("RPCConsole", "Client version", 0, QApplication::UnicodeUTF8));
@@ -766,9 +787,7 @@ public:
         openSSLVersion->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
         label_12->setText(QApplication::translate("RPCConsole", "Build date", 0, QApplication::UnicodeUTF8));
         buildDate->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
-        label_13->setText(QApplication::translate("RPCConsole", "Startup time", 0, QApplication::UnicodeUTF8));
-        startupTime->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
-        label_11->setText(QApplication::translate("RPCConsole", "Network", 0, QApplication::UnicodeUTF8));
+        label_11->setText(QApplication::translate("RPCConsole", "Network:", 0, QApplication::UnicodeUTF8));
         numberOfConnections->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("RPCConsole", "On testnet", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("RPCConsole", "Current number of blocks", 0, QApplication::UnicodeUTF8));
@@ -784,6 +803,9 @@ public:
         showCLOptionsButton->setToolTip(QApplication::translate("RPCConsole", "Show the Gridcoin help message to get a list with possible Gridcoin command-line options.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         showCLOptionsButton->setText(QApplication::translate("RPCConsole", "&Show", 0, QApplication::UnicodeUTF8));
+        startupTime->setText(QApplication::translate("RPCConsole", "N/A", 0, QApplication::UnicodeUTF8));
+        label_13->setText(QApplication::translate("RPCConsole", "Startup time", 0, QApplication::UnicodeUTF8));
+        boostVersion->setText(QApplication::translate("RPCConsole", "<html><head/><body><p>N/A</p></body></html>", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_info), QApplication::translate("RPCConsole", "&Information", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         clearButton->setToolTip(QApplication::translate("RPCConsole", "Clear console", 0, QApplication::UnicodeUTF8));

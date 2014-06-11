@@ -23,7 +23,7 @@
 #include <upnperrors.h>
 #endif
 
-
+#include "checkpoints.h"
 
 
 // Dump addresses to peers.dat every 15 minutes (900s)
@@ -94,6 +94,7 @@ uint64 nLocalHostNonce = 0;
 static std::vector<SOCKET> vhListenSocket;
 CAddrMan addrman;
 int nMaxConnections = 125;
+int64 nNodeStartTime;
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
@@ -132,7 +133,35 @@ static CSemaphore *semOutbound = NULL;
 
 
 
+bool static HasSeenLocal(const CService& addr)
+{
+    LOCK(cs_mapLocalHost);
+    if (mapLocalHost.count(addr) == 0)
+      return false;
+    return mapLocalHost[addr].nScore > 1;
+}
 
+void AdvertizeLocalNode(CNode* pnode, bool fForce)
+{
+    // If our routably addressed peer claims a routable address for
+    // us on a network we support and we are open to discovery and
+    // are listening on the default port, and we either don't know
+    // our address or seems to not be working we'll tell just that
+    // peer the address it sees for us.
+    CAddress addrLocal = GetLocalAddress(&pnode->addr);
+    if (fDiscover && pnode->addr.IsRoutable() && pnode->addrMe.IsRoutable() && pnode->addrMe != addrLocal &&
+        GetListenPort() == GetDefaultPort() && !IsLimited(pnode->addrMe.GetNetwork()) &&
+        (!addrLocal.IsRoutable() || ((GetTime() - nNodeStartTime > 60 * 60) && GetRand(4) == 0 && !HasSeenLocal(addrLocal))))
+    {
+        addrLocal = CAddress(pnode->addrMe);
+        addrLocal.SetPort(GetListenPort());
+    }
+    if (addrLocal.IsRoutable() && (fForce || (CService)addrLocal != (CService)pnode->addrLocal))
+    {
+        pnode->PushAddress(addrLocal);
+        pnode->addrLocal = addrLocal;
+    }
+}
 
 
 
@@ -210,6 +239,9 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer)
 
 bool RecvLine2(SOCKET hSocket, string& strLine)
 {
+
+	try
+	{
     strLine = "";
 	clock_t begin = clock();
 
@@ -269,6 +301,17 @@ bool RecvLine2(SOCKET hSocket, string& strLine)
             }
         }
     }
+
+	}
+	catch (std::exception &e) 
+	{
+        return false;
+    }
+	catch (...)
+	{
+		return false;
+	}
+
 }
 
 
@@ -327,17 +370,17 @@ bool RecvLine(SOCKET hSocket, string& strLine)
 // pushes better local address to peers
 void static AdvertizeLocal()
 {
+
+    if (fNoListen)
+         return;
+    if (Checkpoints::IsInitialBlockDownload())
+         return;
     LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes)
     {
         if (pnode->fSuccessfullyConnected)
         {
-            CAddress addrLocal = GetLocalAddress(&pnode->addr);
-            if (addrLocal.IsRoutable() && (CService)addrLocal != (CService)pnode->addrLocal)
-            {
-                pnode->PushAddress(addrLocal);
-                pnode->addrLocal = addrLocal;
-            }
+            AdvertizeLocalNode(pnode);
         }
     }
 }
@@ -449,6 +492,8 @@ void StringToChar(std::string s, char* a)
 std::string GetHttpContent(const CService& addrConnect, std::string getdata)
 {
 
+	try 
+	{
 	char *pszGet = (char*)getdata.c_str();
 
     SOCKET hSocket;
@@ -487,6 +532,16 @@ std::string GetHttpContent(const CService& addrConnect, std::string getdata)
     closesocket(hSocket);
     
 	return strOut;
+	}
+    catch (std::exception &e) 
+	{
+        return "";
+
+    }
+	catch (...)
+	{
+		return "";
+	}
 
 }
 
@@ -536,6 +591,10 @@ std::string GetPoolKey(std::string sMiningProject,double dMiningRAC,std::string 
 
 std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string urlPage, bool bUseDNS)
 {
+	//6-11-2014
+
+	try 
+	{
 	// HTTP basic authentication
     std::string strAuth1 = mapArgs["-pooluser"];
 	std::string strAuth2 = mapArgs["-poolpassword"];
@@ -583,6 +642,17 @@ std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string
 	//printf("http:\r\n  %s\r\n",http.c_str());
 	return http;
 	
+	}
+    catch (std::exception &e) 
+	{
+        return "";
+
+    }
+	catch (...) 
+	{
+		return "";
+	}
+
 }
 
 
@@ -590,6 +660,10 @@ std::string GridcoinHttpPost(std::string msg, std::string boincauth, std::string
 
 std::string GetHttpPage(std::string cpid, bool UseDNS)
 {
+
+
+	try 
+	{
 	
 	   StructCPIDCache c = mvCPIDCache["cache"+cpid];
 	   if (c.initialized)
@@ -639,6 +713,17 @@ std::string GetHttpPage(std::string cpid, bool UseDNS)
 		mvCPIDCache.insert(map<string,StructCPIDCache>::value_type("cache"+cpid,c));
 	    mvCPIDCache["cache"+cpid]=c;
 		return resultset;
+	}
+    catch (std::exception &e) 
+	{
+        return "";
+    }
+	catch (...)
+	{
+
+		return "";
+	}
+
 }
 
 
