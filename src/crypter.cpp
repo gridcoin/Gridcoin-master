@@ -202,6 +202,11 @@ std::string AdvancedCrypt(std::string boinchash)
 		printf("Error while encrypting %s",boinchash.c_str());
 		return "";
 	}
+	catch(...)
+	{
+		printf("Error while encrypting 2.");
+		return "";
+	}
               
 }
 
@@ -217,6 +222,11 @@ std::string AdvancedDecrypt(std::string boinchash_encrypted)
 	} catch (std::exception &e) 
 	{
 		printf("Error while decrypting %s",boinchash_encrypted.c_str());
+		return "";
+	}
+	catch(...)
+	{
+		printf("Error while decrypting 2.");
 		return "";
 	}
 }

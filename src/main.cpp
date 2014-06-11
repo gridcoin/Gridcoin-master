@@ -968,29 +968,34 @@ bool IsCPIDValid(std::string cpid, std::string ENCboincpubkey)
 	try
 	{
 
-	if(cpid=="" || cpid.length() < 5) 
-	{
-		printf("CPID length empty.");
-		return false;
-	}
-	if (ENCboincpubkey == "" || ENCboincpubkey.length() < 5) 
-	{
-			printf("ENCBpk length empty.");
-			return false;
-	}
+			if(cpid=="" || cpid.length() < 5) 
+			{
+				printf("CPID length empty.");
+				return false;
+			}
+			if (ENCboincpubkey == "" || ENCboincpubkey.length() < 5) 
+			{
+					printf("ENCBpk length empty.");
+					return false;
+			}
 	
-	std::string bpk = AdvancedDecrypt(ENCboincpubkey);
-	std::string bpmd5 = RetrieveMd5(bpk);
-	if (bpmd5==cpid) return true;
-	printf("Md5<>cpid, md5 %s cpid %s      ",bpmd5.c_str(), cpid.c_str());
-	printf("     root bpk %s \r\n",bpk.c_str());
-	return false;
+			std::string bpk = AdvancedDecrypt(ENCboincpubkey);
+			std::string bpmd5 = RetrieveMd5(bpk);
+			if (bpmd5==cpid) return true;
+			printf("Md5<>cpid, md5 %s cpid %s      ",bpmd5.c_str(), cpid.c_str());
+			printf("     root bpk %s \r\n",bpk.c_str());
+			return false;
 	}
 	catch (std::exception &e) 
 	{
-		printf("error while resolving cpidvalid\r\n");
-		return false;
+				printf("error while resolving IsCpidValid\r\n");
+				return false;
 	}
+	catch(...)
+	{
+				printf("Error while Resolving IsCpidValid 2.\r\n");
+	}
+	
 
 }
 
@@ -1099,9 +1104,12 @@ bool TallyNetworkAverages()
 	}
 	catch (std::exception &e) 
 	{
-			 printf("error while tallying network averages.\r\n");
+	    printf("Error while tallying network averages.\r\n");
 	}
-     
+    catch(...)
+	{
+		printf("Error while tallying network averages.\r\n");
+	}
 	return false;
 
 }
@@ -1197,7 +1205,10 @@ void CreditCheck(std::string cpid)
 	{
 			 printf("error while accessing credit check online.\r\n");
 	}
-            
+    catch(...)
+	{
+			printf("Error While accessing credit check online (2).\r\n");
+	}
 
 	
 }
@@ -1468,10 +1479,13 @@ try
 	
 	catch (std::exception &e) 
 	{
-			 printf("error while harvesting CPIDs.\r\n");
+			 printf("Error while harvesting CPIDs.\r\n");
 	}
-     
-
+    catch(...)
+	{
+		     printf("Error while harvesting CPIDs 2.\r\n");
+	}
+	
 
 
 }
@@ -7549,7 +7563,10 @@ MiningCPID GetNextProject()
 		{
 			printf("Error obtaining next project\r\n");
 		}
-
+		catch(...)
+		{
+			printf("Error obtaining next project 2.\r\n");
+		}
 		return miningcpid;
 
 }
@@ -7654,7 +7671,11 @@ void GetNextGPUProject(bool force)
 			printf("Error Obtaining next GPU Project\r\n");
 		}
 
+		catch(...)
+		{
 
+			printf("Error obtaining next GPU Project (2)");
+		}
 
 		WriteAppCache("LastGPUProject",msGPUMiningProject);
 		
@@ -8194,8 +8215,6 @@ void static ThreadGridcoinMiner(int iThread)
 		
 	printf(".z1.");
 	miningthreadcount++;
-	MilliSleep(Races(2333)+100);
-	MilliSleep(Races(2333)+100);
 	MilliSleep(Races(2333)+100);
 
 	double nNonce = PoBMiner(iThread);
