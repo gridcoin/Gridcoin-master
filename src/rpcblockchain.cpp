@@ -193,6 +193,9 @@ double GetDifficulty(const CBlockIndex* blockindex)
 
 Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 {
+
+	//6-12-2014 Cleaning up for p2pool
+
     Object result;
     result.push_back(Pair("hash", block.GetHash().GetHex()));
     CMerkleTx txGen(block.vtx[0]);
@@ -211,42 +214,38 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
     result.push_back(Pair("bits", HexBits(block.nBits)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
 	
-	result.push_back(Pair("boinchash", block.hashBoinc));
+	//result.push_back(Pair("boinchash", block.hashBoinc));
 	//Extract hashboinc
 
 	
     MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
-
-
 	uint256 blockhash = block.GetPoWHash();
 	
 	std::string sblockhash = blockhash.GetHex();
-	result.push_back(Pair("Block Type", block.BlockType));
+	result.push_back(Pair("BlockType", block.BlockType));
 	result.push_back(Pair("CPID", bb.cpid));
 
-	result.push_back(Pair("Project Name", bb.projectname));
+	result.push_back(Pair("ProjectName", bb.projectname));
 
-	result.push_back(Pair("Block Diff Bytes", (double)bb.diffbytes));
-	result.push_back(Pair("Block RAC", bb.rac));
+	result.push_back(Pair("BlockDiffBytes", (double)bb.diffbytes));
+	result.push_back(Pair("RAC", bb.rac));
 	
-	result.push_back(Pair("PoB Difficulty", bb.pobdifficulty));
+	result.push_back(Pair("PoBDifficulty", bb.pobdifficulty));
 
-	result.push_back(Pair("AES512 Block Skein Hash", bb.aesskein));
+	result.push_back(Pair("AES512SkeinHash", bb.aesskein));
 	std::string skein2 = aes_complex_hash(blockhash);
-	result.push_back(Pair("AES Calc Hash",skein2));
+	result.push_back(Pair("AESCalcHash",skein2));
 	uint256 boincpowhash = block.hashMerkleRoot + bb.nonce;
 
 	int iav  = TestAESHash(bb.rac, (unsigned int)bb.diffbytes, boincpowhash, bb.aesskein);
-	result.push_back(Pair("AES512 Valid",iav));
+	result.push_back(Pair("AES512Valid",iav));
 	
-
 	std::string hbd = AdvancedDecrypt(bb.enccpid);
 	bool IsCpidValid = IsCPIDValid(bb.cpid, bb.enccpid);
 
-	result.push_back(Pair("IsCPIDValid?",IsCpidValid));
-
-	
-	result.push_back(Pair("BlockPoWHash ",blockhash.GetHex()));
+	result.push_back(Pair("CPIDValid",IsCpidValid));
+		
+	result.push_back(Pair("PoWHash",blockhash.GetHex()));
 
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));

@@ -424,10 +424,19 @@ public:
     {
         ENTER_CRITICAL_SECTION(cs_vSend);
         assert(ssSend.size() == 0);
-			
+		//6-12-2014
+		bool p2pool = false;
+		if (nRecvVersion == 111022) p2pool=true;
+
+	
 		//Gridcoin - See AdvancedCrypt for more information on salt for the pszCommand //
 		std::string premessage(pszCommand);
-		if (premessage == "getblocks" || premessage == "getheaders" || premessage == "block" || premessage == "tx") 
+		if (p2pool)
+		{
+				printf("Sending p2pool message %s",premessage.c_str());
+		}
+
+		if ((!p2pool) && (premessage == "getblocks" || premessage == "getheaders" || premessage == "block" || premessage == "tx"))
 		{
 			std::string premd5 = RetrieveMd5(premessage);
 			std::string postmd5 = premessage + ":" + premd5;

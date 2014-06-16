@@ -271,6 +271,7 @@ class CBitcoinAddress : public CBase58Data
 public:
     enum
     {
+		//Base58Gridcoin:
         PUBKEY_ADDRESS = 37, // Gridcoin addresses start with G  37
         SCRIPT_ADDRESS = 5,
         PUBKEY_ADDRESS_TEST = 111,

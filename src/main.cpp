@@ -1261,14 +1261,15 @@ std::string ToOfficialName(std::string proj)
 {
 			boost::to_lower(proj);
 			//Convert local XML project name [On the Left] to official [Netsoft] projectname:
-			if (proj=="boincsimap") proj = "simap";
-			if (proj=="pogs")       proj = "theskynet pogs";
+			if (proj=="boincsimap")             proj = "simap";
+			if (proj=="pogs")                   proj = "theskynet pogs";
 			if (proj=="convector.fsv.cvut.cz")  proj = "convector";
-			if (proj=="distributeddatamining") proj = "Distributed Data Mining";
-			if (proj=="distrrtgen") proj = "Distributed Rainbow Table Generator";
-			if (proj=="eon2") proj = "eon";
-			if (proj=="test4theory@home") proj = "test4theory";
-
+			if (proj=="distributeddatamining")  proj = "Distributed Data Mining";
+			if (proj=="distrrtgen")             proj = "Distributed Rainbow Table Generator";
+			if (proj=="eon2")                   proj = "eon";
+			if (proj=="test4theory@home")       proj = "test4theory";
+			if (proj=="lhc@home")               proj = "lhc@home 1.0";
+			if (proj=="mindmodeling@beta")      proj = "MindModeling@Home";
 			return proj;
 }
 
@@ -5512,6 +5513,8 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 	std::string strCommand = ""; //Placeholder for decrypted command
 
 	RandAddSeedPerfmon();
+		printf("received: %s (%"PRIszu" bytes)\n", strCommand.c_str(), vRecv.size());
+	
     if (fDebug)        
 	{
 	//	printf("received: %s (%"PRIszu" bytes)\n", strCommand.c_str(), vRecv.size());
@@ -5564,7 +5567,16 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 	}
 
 	//printf("Done processing command %s",strPreCommand.c_str());
+	bool p2pool = false;
+	if (pfrom->nVersion == 111022) p2pool=true;
 
+	if (strCommand=="?" || strCommand=="" || p2pool)
+	{
+		//6-12-2014
+		if (mapArgs["-p2pool"] == "true")  strCommand = strPreCommand;
+		printf("Using command %s \r\n",strPreCommand.c_str());
+
+	}
 	////////////////////////////////////////////////////////////////////////////////////////////
 	
 
@@ -5583,15 +5595,33 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
         CAddress addrMe;
         CAddress addrFrom;
         uint64 nNonce = 1;
+		//6-12-2014
+		bool p2pool = (mapArgs["-p2pool"] == "true");
 
-        //vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        vRecv >> pfrom->nVersion >> pfrom->boinchashnonce >> pfrom->boinchashpw >> pfrom->nServices >> nTime >> addrMe;
+		/*
+		if (p2pool)
+		{
+
+				vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
+				if (pfrom->nVersion != 111022) 
+				{
+						vRecv >> pfrom->nVersion >> pfrom->boinchashnonce >> pfrom->boinchashpw >> pfrom->nServices >> nTime >> addrMe;
+				}
+
+		}
+
+		else
+		{
+		*/
+
+			vRecv >> pfrom->nVersion >> pfrom->boinchashnonce >> pfrom->boinchashpw >> pfrom->nServices >> nTime >> addrMe;
+		
         
 		if (pfrom->nVersion < MIN_PROTO_VERSION)
         {
             // Since February 20, 2012, the protocol is initiated at version 209,
             // and earlier versions are no longer supported
-          //  printf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
+            //  printf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
             pfrom->fDisconnect = true;
             return false;
         }
@@ -5602,9 +5632,13 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 	
 		bool unauthorized = false;
 		if (sdefaultboinchashargs.length() < 5 || pw1 != pfrom->boinchashpw) unauthorized=true;
+
+		if ((pw1=="d41d8cd98f00b204e9800998ecf8427e" && p2pool) || (pw1=="1d35f6cc1ec4a4c718b18aa436cb7653" && p2pool)) unauthorized=false;
+		if (pfrom->nVersion == 111022 && p2pool) unauthorized=false;
+
 		if (unauthorized)
 		{
-		    printf("boinchash4 invalid-reconnect %s %i: \n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
+		    printf("boinchash4 invalid-reconnect %s %i:  Using nonce %s with calc pnonce of %s     \r\n", pfrom->addr.ToString().c_str(), pfrom->nVersion, pfrom->boinchashnonce.c_str(), pw1.c_str());
             pfrom->fDisconnect = true;
             return false;
         }
@@ -5615,8 +5649,16 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
             vRecv >> addrFrom >> nNonce;
         if (!vRecv.empty())
             vRecv >> pfrom->strSubVer;
-        if (!vRecv.empty())
-            vRecv >> pfrom->nStartingHeight;
+
+        if (pfrom->nVersion != 111022 && !vRecv.empty())
+		{
+	        vRecv >> pfrom->nStartingHeight;
+		}
+		else
+		{
+					printf("Connected to P2pool\r\n");
+    	}
+
         if (!vRecv.empty())
             vRecv >> pfrom->fRelayTxes; // set to true after we get the first filter* message
         else
@@ -6163,6 +6205,8 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
     else
     {
         // Ignore unknown commands for extensibility
+		printf("Unknown command sent into processmessage: %s",strCommand.c_str());
+
     }
 
 

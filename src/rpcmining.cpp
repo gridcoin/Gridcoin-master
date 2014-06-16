@@ -416,8 +416,9 @@ Value getwork(const Array& params, bool fHelp)
 	double POB = GetPoBDifficulty();
 				
 	//R Halford: 6-7-2014 : Prevent GPU mining during initial sync:
-    if (Checkpoints::IsInitialBlockDownload()  || !bCPIDsLoaded || POB==99)
+    if (Checkpoints::IsInitialBlockDownload()  || !bCPIDsLoaded || (POB==99 && !fTestNet))
     {
+		MilliSleep(1000);
 		throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Gridcoin is downloading blocks...");
 	}
 

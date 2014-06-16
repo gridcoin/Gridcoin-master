@@ -998,10 +998,33 @@ void CNode::PushVersion()
     printf("send version message: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", PROTOCOL_VERSION, nBestHeight, addrMe.ToString().c_str(), addrYou.ToString().c_str(), addr.ToString().c_str());
 	std::string sboinchashargs = DefaultBoincHashArgs();
 	uint256 boincHashRandNonce = GetRandHash();
+
 	std::string nonce = boincHashRandNonce.GetHex();
+
 	std::string pw1 = RetrieveMd5(nonce+","+sboinchashargs);
-    PushMessage("version", PROTOCOL_VERSION, nonce, pw1, nLocalServices, nTime, addrYou, addrMe,
+
+	//6-13-2014 - p2pool
+
+	std::string p2poolnonce = "1," + sboinchashargs;
+	std::string p2poolpw = RetrieveMd5(p2poolnonce);
+
+	printf("p2poolnonce %s, p2poolpw %s\r\n\r\n",p2poolnonce.c_str(),p2poolpw.c_str());
+
+	if (nRecvVersion == 111022) 
+	{
+
+
+    PushMessage("version", PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
                 nLocalHostNonce, FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>()), nBestHeight);
+	}
+
+	else
+	{
+		  PushMessage("version", PROTOCOL_VERSION, nonce, pw1, nLocalServices, nTime, addrYou, addrMe,
+                nLocalHostNonce, FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>()), nBestHeight);
+	
+
+	}
 	
 }
 
