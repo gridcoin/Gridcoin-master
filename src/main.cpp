@@ -1256,7 +1256,7 @@ bool ProjectIsValid(std::string project)
 	return structcpid.initialized;
 			
 }
-
+  
 std::string ToOfficialName(std::string proj)
 {
 			boost::to_lower(proj);
@@ -1270,7 +1270,7 @@ std::string ToOfficialName(std::string proj)
 			if (proj=="test4theory@home")       proj = "test4theory";
 			if (proj=="lhc@home")               proj = "lhc@home 1.0";
 			if (proj=="mindmodeling@beta")      proj = "MindModeling@Home";
-			return proj;
+			return proj; 
 }
 
 
