@@ -294,7 +294,7 @@ Public Class frmGridcoinMiner
             Kill(sLocalPathFile)
         Catch ex As Exception
         End Try
-        Dim sURL As String = "http://www.gridcoin.us/download/" + sFile
+        Dim sURL As String = "http://download.gridcoin.us/download/" + sFile
         Dim myWebClient As New MyWebClient()
         myWebClient.DownloadFile(sURL, sLocalPathFile)
         Me.Refresh()

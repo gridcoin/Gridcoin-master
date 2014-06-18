@@ -521,7 +521,7 @@ Module modGRC
         Try
 
             Dim sMsg As String
-            Dim sURL As String = "http://www.gridcoin.us/download/"
+            Dim sURL As String = "http://download.gridcoin.us/download/"
             Dim w As New MyWebClient
             Dim sFiles As String
             sFiles = w.DownloadString(sURL)

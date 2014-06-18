@@ -291,7 +291,7 @@ static const CRPCCommand vRPCCommands[] =
     { "listunspent",            &listunspent,            false,     false, true },
 	{ "upgrade",                &upgrade,                false,     false, false },
 	{ "listitem",               &listitem,               false,     false, false },
-	{ "execute",                &execute,                   false,     false, false },
+	{ "execute",                &execute,                false,     false, false },
     { "getrawtransaction",      &getrawtransaction,      false,     false, false },
     { "createrawtransaction",   &createrawtransaction,   false,     false, false },
     { "decoderawtransaction",   &decoderawtransaction,   false,     false, false },

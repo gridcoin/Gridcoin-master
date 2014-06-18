@@ -258,7 +258,7 @@ void InitializeBoincProjects()
         boinc_projects[24] = "http://lhcathome2.cern.ch/test4theory|Test4Theory@Home";
 
         boinc_projects[25] = "http://mindmodeling.org/            |MindModeling@Beta";
-        boinc_projects[26] = "http://escatter11.fullerton.edu/nfs/|NFS@Home";
+		boinc_projects[26] = "http://escatter11.fullerton.edu/nfs/|NFS@Home";
         boinc_projects[27] = "http://numberfields.asu.edu/NumberFields/|NumberFields@home";
         boinc_projects[28] = "http://oproject.info/               |OProject@Home";
         boinc_projects[29] = "http://boinc.fzk.de/poem/           |Poem@Home";
@@ -298,6 +298,7 @@ void InitializeBoincProjects()
 		boinc_projects[72]="http://finance.gridcoin.us/|Gridcoin Finance";
 		boinc_projects[73]="http://supernode.gridcoin.us/|Gridcoin Supernode";
 		boinc_projects[74] = "http://lhcathome2.cern.ch/test4theory|Test4Theory";
+		boinc_projects[75] = "http://mindmodeling.org/|MindModeling@Home";
 
 
 

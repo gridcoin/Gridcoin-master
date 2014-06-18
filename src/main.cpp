@@ -1122,81 +1122,83 @@ void CreditCheck(std::string cpid)
 {
 	try {
 
-	std::string cc = GetHttpPage(cpid,true);
+			std::string cc = GetHttpPage(cpid,true);
+			if (cc.length() < 50) return;
 
-	int iRow = 0;
-	std::vector<std::string> vCC = split(cc.c_str(),"<project>");
-	if (vCC.size() > 1)
-	{
-	    for (unsigned int i = 0; i < vCC.size(); i++)
-		{
-			std::string sProj  = ExtractXML(vCC[i],"<name>","</name>");
-			std::string utc    = ExtractXML(vCC[i],"<total_credit>","</total_credit>");
-			std::string rac    = ExtractXML(vCC[i],"<expavg_credit>","</expavg_credit>");
-			std::string team   = ExtractXML(vCC[i],"<team_name>","</team_name>");
-			std::string rectime= ExtractXML(vCC[i],"<expavg_time>","</expavg_time>");
 			
-			boost::to_lower(sProj);
-			sProj = ToOfficialName(sProj);
-
-			//Is project Valid
-			bool projectvalid = ProjectIsValid(sProj);
-			if (!projectvalid) sProj = "";
-
-
-			if (sProj.length() > 3) 
+			int iRow = 0;
+			std::vector<std::string> vCC = split(cc.c_str(),"<project>");
+			if (vCC.size() > 1)
 			{
-				StructCPID structcc;
-				structcc = mvCreditNode[sProj];
-				iRow++;
-				if (!structcc.initialized) 
+				for (unsigned int i = 0; i < vCC.size(); i++)
 				{
-					structcc.initialized = true;
-					mvCreditNode.insert(map<string,StructCPID>::value_type(sProj,structcc));
-				} 
-				structcc.cpid = cpid;
-				structcc.projectname = sProj;
+					std::string sProj  = ExtractXML(vCC[i],"<name>","</name>");
+					std::string utc    = ExtractXML(vCC[i],"<total_credit>","</total_credit>");
+					std::string rac    = ExtractXML(vCC[i],"<expavg_credit>","</expavg_credit>");
+					std::string team   = ExtractXML(vCC[i],"<team_name>","</team_name>");
+					std::string rectime= ExtractXML(vCC[i],"<expavg_time>","</expavg_time>");
+			
+					boost::to_lower(sProj);
+					sProj = ToOfficialName(sProj);
+
+					//Is project Valid
+					bool projectvalid = ProjectIsValid(sProj);
+					if (!projectvalid) sProj = "";
+
+
+					if (sProj.length() > 3) 
+					{
+						StructCPID structcc;
+						structcc = mvCreditNode[sProj];
+						iRow++;
+						if (!structcc.initialized) 
+						{
+							structcc.initialized = true;
+							mvCreditNode.insert(map<string,StructCPID>::value_type(sProj,structcc));
+						} 
+						structcc.cpid = cpid;
+						structcc.projectname = sProj;
 				
-				structcc.verifiedutc = cdbl(utc,0);
-				structcc.verifiedrac = cdbl(rac,0);
+						structcc.verifiedutc = cdbl(utc,0);
+						structcc.verifiedrac = cdbl(rac,0);
 
-				boost::to_lower(team);
+						boost::to_lower(team);
             
-				structcc.verifiedteam = team;
+						structcc.verifiedteam = team;
 
-				if (structcc.verifiedteam != "gridcoin") structcc.verifiedrac = -1;
+						if (structcc.verifiedteam != "gridcoin") structcc.verifiedrac = -1;
 
 
-				structcc.verifiedrectime = cdbl(rectime,0);
-				double currenttime = GetTime();
-				double nActualTimespan = currenttime - structcc.verifiedrectime;
-				structcc.verifiedage = nActualTimespan;
-				mvCreditNode[sProj] = structcc;						
-				//////////////////////////// Store this information by CPID+Project also:
+						structcc.verifiedrectime = cdbl(rectime,0);
+						double currenttime = GetTime();
+						double nActualTimespan = currenttime - structcc.verifiedrectime;
+						structcc.verifiedage = nActualTimespan;
+						mvCreditNode[sProj] = structcc;						
+						//////////////////////////// Store this information by CPID+Project also:
 
-				StructCPID structverify;
-				std::string sKey = cpid + ":" + sProj;
-				structverify = mvCreditNodeCPIDProject[sKey]; //Contains verified CPID+Projects;
-				if (!structverify.initialized)
-				{
-					structverify.initialized = true;
-					mvCreditNodeCPIDProject.insert(map<string,StructCPID>::value_type(sKey,structverify));
+						StructCPID structverify;
+						std::string sKey = cpid + ":" + sProj;
+						structverify = mvCreditNodeCPIDProject[sKey]; //Contains verified CPID+Projects;
+						if (!structverify.initialized)
+						{
+							structverify.initialized = true;
+							mvCreditNodeCPIDProject.insert(map<string,StructCPID>::value_type(sKey,structverify));
+						}
+						structverify.cpid = cpid;
+						structverify.projectname = sProj;
+						structverify.verifiedutc = cdbl(utc,0);
+						structverify.verifiedrac = cdbl(rac,0);
+						structverify.verifiedteam = team;
+						structverify.verifiedrectime = cdbl(rectime,0);
+						structverify.verifiedage = nActualTimespan;
+						mvCreditNodeCPIDProject[sKey]=structverify;
+
+
+						/////////////////////////////
+						//printf("Adding Credit Node Result %s",cpid.c_str());
+					}
 				}
-				structverify.cpid = cpid;
-				structverify.projectname = sProj;
-				structverify.verifiedutc = cdbl(utc,0);
-				structverify.verifiedrac = cdbl(rac,0);
-				structverify.verifiedteam = team;
-				structverify.verifiedrectime = cdbl(rectime,0);
-				structverify.verifiedage = nActualTimespan;
-				mvCreditNodeCPIDProject[sKey]=structverify;
-
-
-				/////////////////////////////
-				//printf("Adding Credit Node Result %s",cpid.c_str());
 			}
-		}
-	}
 
 
 
@@ -1269,7 +1271,7 @@ std::string ToOfficialName(std::string proj)
 			if (proj=="eon2")                   proj = "eon";
 			if (proj=="test4theory@home")       proj = "test4theory";
 			if (proj=="lhc@home")               proj = "lhc@home 1.0";
-			if (proj=="mindmodeling@beta")      proj = "MindModeling@Home";
+			if (proj=="mindmodeling@beta")      proj = "MindModeling@beta";
 			return proj; 
 }
 
@@ -1397,8 +1399,6 @@ try
 					structverify=mvCreditNodeCPIDProject[sKey];
 				}
 				
-
-				//4-9-2014
 
 				if (structverify.initialized) 
 				{
@@ -1681,13 +1681,23 @@ unsigned int CTransaction::GetLegacySigOpCount() const
 
 double PreviousBlockAge()
 {
-	//4-29-2014
+	try 
+	{
 	if (nBestHeight < 30) return 99999;
     double nTime = max(pindexBest->GetMedianTimePast()+1, GetAdjustedTime());
 	double nActualTimespan = nTime - pindexBest->pprev->GetBlockTime();
-	//std::string blocktime = DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexBest->pprev->GetBlockTime());
-	//	printf("Last block    age %f   blockdate %s   height %d",nActualTimespan,blocktime.c_str(), pindexPrev->nHeight);
 	return nActualTimespan;
+	}
+	catch (std::exception &e) 
+	{
+			 printf("Error while calculating previous block age (06182014).\r\n");
+			 return 99999;
+	}
+    catch(...)
+	{
+			printf("Error While calculating previous block age (16182014).\r\n");
+			return 99999;
+	}
 
 }
 
@@ -1858,8 +1868,6 @@ CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, int AlgoType, Min
 	bool bPoolMiner = false;
 	if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
 
-    //6-11-2014
-
     CPubKey pubkey;
     if (!reservekey.GetReservedKey(pubkey))
          return NULL;
@@ -1875,7 +1883,6 @@ CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, int AlgoType, Min
 								printf("..PreppingPoolPubKey..");
 								CBitcoinAddress address(PoolPubKey);
 								sftp.SetDestination(address.Get());
-								//txNew.vout[0].scriptPubKey = sftp;
 								scriptPubKey = sftp;
 							}
 	
@@ -1887,7 +1894,6 @@ CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, int AlgoType, Min
 				CreatingNewBlock=false;
 				return NULL;
 			}
-
 
 
      return CreateNewBlock(scriptPubKey,AlgoType,miningcpid);
@@ -2275,7 +2281,6 @@ double GetBlockValueByHash(uint256 hash)
     CBlock block;
 	int out_height = 0;
 	bool res = GetBlockNew(hash,out_height,block,true);
-	printf("..j..");
 	if (!res) return 0;
 
 	double sub = 0;
@@ -2789,30 +2794,22 @@ bool GetBlockNew(uint256 blockhash, int& out_height, CBlock& blk, bool bForceDis
 			cache = mvBlockCache[blockhash.GetHex()]; 
 			if (cache.initialized)
 			{
-				//blk.nHeight = cache.nHeight;
 				blk.hashBoinc = cache.hashBoinc;
 				blk.BlockType = cache.BlockType;
 				blk.nVersion  = cache.nVersion;
-				//blk.hash = cache.hash.GetHash();
-				//printf("Block Cache hit on hashBoinc %s",blk.hashBoinc.c_str());
 				if (!bForceDiskRead) return true;
 			}
 		
-			//CBlock block;
 			CBlockIndex* pblockindex = mapBlockIndex[blockhash];
 			bool result = blk.ReadFromDisk(pblockindex);
-			
 			if (!result) return false;
 			//Cache the block
-			//4-29-2014
 			cache.initialized = true;
-			//cache.nHeight = blk.nHeight;
 			cache.hashBoinc = blk.hashBoinc;
 			cache.hash = blockhash.GetHex();
 			cache.BlockType = blk.BlockType;
 			cache.nVersion = blk.nVersion;
 			mvBlockCache[blockhash.GetHex()] = cache;
-
 			out_height = pblockindex->nHeight;
 			return true;
 	}
@@ -2822,6 +2819,12 @@ bool GetBlockNew(uint256 blockhash, int& out_height, CBlock& blk, bool bForceDis
 		printf("Catastrophic error retrieving GetBlockNew\r\n");
 		return false;
 	}
+	catch(...)
+	{
+		printf("Catastrophic error retrieving block in GetBlockNew (06182014) \r\n");
+		return false;
+	}
+
 
 }
 
@@ -2857,7 +2860,7 @@ int GetBlockType2(uint256 prevblockhash, int& out_height)
 			int out_version = 0;
 			if (pPrevBlockIndex==NULL) 
 			{
-				//	printf("prev block index == null");
+					return 2;
 			}
 			out_version = pPrevBlockIndex->nVersion;
 			printf(".PBIV.%i;",out_version);
@@ -2868,7 +2871,12 @@ int GetBlockType2(uint256 prevblockhash, int& out_height)
 	
 	catch (std::exception &e) 
 	{
-		printf("Catastrophic error in GetBlockType\r\n");
+		printf("Catastrophic error in GetBlockType2 (16182014)\r\n");
+		return 2;
+	}
+	catch(...)
+	{
+		printf("Catastrophic error in GetBlockType2 (06182014)\r\n");
 		return 2;
 	}
 
@@ -2887,17 +2895,28 @@ bool CreditCheckOnline(std::string cpid, std::string projectname, uint256 prevbl
 	  // PROD Notes:
 	  /////////////////////////////////////////////////////////////////////////////////////////
 	  if (LessVerbose(250)) return true;
+	  double rac = 0;
+	  try
+	  {
+		   rac = CreditCheck(cpid,projectname);
+	  }
+	  catch (std::exception &e) 
+	  {
+			 printf("Error while accessing credit check node (06182014).\r\n");
+			 return true;
+	  }
+      catch(...)
+	  {
+			printf("Error While accessing credit check node (16182014).\r\n");
+			return true;
+	  }
 
-	  double rac = CreditCheck(cpid,projectname);
 	  if (purported_rac > (rac*.80) || rac >= purported_rac) 
 	  {
 		  return true;
 	  }
 
 	  printf("CreditCheckOnline: Failed - Purported Rac %f; Reported Rac %f",purported_rac, rac);
-	
-	  //std::string out_errors = "";
-	  //int out_position = 0;
 	  
 	  return false;
 
@@ -2921,11 +2940,10 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	prevBlockType = GetBlockType2(pblock->hashPrevBlock, out_height);
 	
 	if (out_height < grandfather) return true;
-	
-	//printf("PoB Checking prior block height %i, Block Type %u \r\n", out_height, prevBlockType);
-	
-	//6-7-2014
 
+	try 
+	{
+	
 	MiningCPID boincblock = DeserializeBoincBlock(pblock->hashBoinc);
 
 	bool WalletOutOfSync = OutOfSyncByAge();
@@ -3150,6 +3168,21 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 
 	}
 	return true;
+	}
+	catch (std::exception &e) 
+	{
+			 printf("Error while checking POB (06182014).\r\n");
+			 return true;
+	}
+    catch(...)
+	{
+			printf("Error While checking POB (16182014).\r\n");
+			return true;
+	}
+
+
+
+
 }
 
 
@@ -4375,23 +4408,37 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
 
 CBlockIndex* GetBlockIndex2(uint256 blockhash, int& out_height)
 {
-  if (blockhash==0) return false;
-  CBlockIndex* pindex = NULL;	
-  if (blockhash != hashGenesisBlock) 
+  try 
   {
-	    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(blockhash);
-		if (mi == mapBlockIndex.end()) 
-		{
-				return false;
-		}
-        pindex = (*mi).second;
-		if (!pindex) return false;
-		out_height = pindex->nHeight+0;
-		printf(".H=%i;OV=%i.",out_height, pindex->nVersion);
-		return pindex;
+		  if (blockhash==0) return false;
+		  CBlockIndex* pindex = NULL;	
+		  if (blockhash != hashGenesisBlock) 
+		  {
+				map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(blockhash);
+				if (mi == mapBlockIndex.end()) 
+				{
+						return false;
+				}
+				pindex = (*mi).second;
+				if (!pindex) return false;
+				out_height = pindex->nHeight+0;
+				printf(".H=%i;OV=%i.",out_height, pindex->nVersion);
+				return pindex;
+		  }
+
+		  return NULL;
+  }
+  catch (std::exception &e) 
+  {
+			 printf("Error while retrieving block in GetBlockIndex2 (06182014).\r\n");
+			 return NULL;
+  }
+  catch(...)
+  {
+			printf("Error While retrieving block in GetBlockIndex2 (16182014).\r\n");
+			return NULL;
   }
 
-  return NULL;
 }
 
 
@@ -5566,7 +5613,6 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 
 	}
 
-	//printf("Done processing command %s",strPreCommand.c_str());
 	bool p2pool = false;
 	if (pfrom->nVersion == 111022) p2pool=true;
 
@@ -5574,7 +5620,7 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 	{
 		//6-12-2014
 		if (mapArgs["-p2pool"] == "true")  strCommand = strPreCommand;
-		printf("Using command %s \r\n",strPreCommand.c_str());
+		//printf("Using command %s \r\n",strPreCommand.c_str());
 
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -5638,7 +5684,7 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 
 		if (unauthorized)
 		{
-		    printf("boinchash4 invalid-reconnect %s %i:  Using nonce %s with calc pnonce of %s     \r\n", pfrom->addr.ToString().c_str(), pfrom->nVersion, pfrom->boinchashnonce.c_str(), pw1.c_str());
+		    //printf("boinchash4 invalid-reconnect %s %i:  Using nonce %s with calc pnonce of %s     \r\n", pfrom->addr.ToString().c_str(), pfrom->nVersion, pfrom->boinchashnonce.c_str(), pw1.c_str());
             pfrom->fDisconnect = true;
             return false;
         }
@@ -6850,8 +6896,6 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
     int64 nFees = 0;
     
 
-		printf("Lock:x1.");
-
 		//        LOCK2(cs_main, mempool.cs);
 
         CBlockIndex* pindexPrev = pindexBest;
@@ -6865,8 +6909,7 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
         // This vector will be sorted into a priority queue:
         vector<TxPriority> vecPriority;
         vecPriority.reserve(mempool.mapTx.size());
-		printf("Lock:x2.");
-
+	
         for (map<uint256, CTransaction>::iterator mi = mempool.mapTx.begin(); mi != mempool.mapTx.end(); ++mi)
         {
             CTransaction& tx = (*mi).second;
@@ -6880,15 +6923,13 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
             BOOST_FOREACH(const CTxIn& txin, tx.vin)
             {
                 // Read prev transaction
-				printf("Lock:x3.");
-
+				
                 if (!view.HaveCoins(txin.prevout.hash))
                 {
                     // This should never happen; all transactions in the memory
                     // pool should connect to either transactions in the chain
                     // or other transactions in the memory pool.
-					printf("Lock:x4.");
-
+			
                     if (!mempool.mapTx.count(txin.prevout.hash))
                     {
                         printf("ERROR: mempool transaction missing input\n");
@@ -6921,8 +6962,7 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
                 dPriority += (double)nValueIn * nConf;
             }
             if (fMissingInputs) continue;
-			printf("Lock:x5.");
-
+		
             // Priority is sum(valuein * age) / txsize
             unsigned int nTxSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
             dPriority /= nTxSize;
@@ -6940,7 +6980,6 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
             else
                 vecPriority.push_back(TxPriority(dPriority, dFeePerKb, &(*mi).second));
         }
-		printf("Lock:x6.");
 
         // Collect transactions into block
         uint64 nBlockSize = 1000;
@@ -6950,7 +6989,6 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
 
         TxPriorityCompare comparer(fSortedByFee);
         std::make_heap(vecPriority.begin(), vecPriority.end(), comparer);
-		printf("Lock:x7.");
 
         while (!vecPriority.empty())
         {
@@ -7017,8 +7055,7 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
                 printf("priority %.1f feeperkb %.1f txid %s\n",
                        dPriority, dFeePerKb, tx.GetHash().ToString().c_str());
             }
-			printf("Lock:x8.");
-
+		
             // Add transactions that depend on this one to the priority queue
             if (mapDependers.count(hash))
             {
@@ -7036,7 +7073,6 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
                 }
             }
         }
-		printf("Lock:x9.");
 
         nLastBlockTx = nBlockTx;
         nLastBlockSize = nBlockSize;
@@ -7215,7 +7251,10 @@ MiningCPID DeserializeBoincBlock(std::string block)
 	{
 			printf("Deserialize ended with an error\r\n");
     }
-
+	catch (...)
+	{
+		    printf("Deserialize ended with an error (06182014) \r\n");
+	}
 	return surrogate;
 
 
@@ -7225,11 +7264,6 @@ MiningCPID DeserializeBoincBlock(std::string block)
 
 //
 // Call after CreateTransaction unless you want to abort
-//bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
-
-
-
-
 
 
 bool CheckWorkCPU(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
@@ -7469,6 +7503,20 @@ void static MinerWaitOnline()
 
 
 
+bool IsPOBDiffInvalid()
+{
+	double PoBDiff = GetPoBDifficulty();
+	bool bPOBDiffInvalid = false;
+	if (!fTestNet && PoBDiff < .75) bPOBDiffInvalid = true;
+	if (!fTestNet && PoBDiff==99) bPOBDiffInvalid = true;
+	if (bPOBDiffInvalid) 
+	{
+		printf("PoB Diff is invalid.\r\n");
+	}
+	return bPOBDiffInvalid;
+
+}
+
 
 
 MiningCPID GetNextProject()
@@ -7491,13 +7539,17 @@ MiningCPID GetNextProject()
 
 	printf("{GNP}");
 
-	if (Checkpoints::IsInitialBlockDownload() || !bCPIDsLoaded) return miningcpid;
+	if (Checkpoints::IsInitialBlockDownload() || !bCPIDsLoaded) 
+	{
+		    printf("CPUMiner: Gridcoin is downloading blocks Or CPIDs are not yet loaded...");
+			MilliSleep(2000);
+			return miningcpid;
+	}
 		
 
 	try 
 	{
 	
-		//printf ("Finding next unsubmitted project - project count %d\r\n",mvCPIDs.size());
 		if (mvCPIDs.size() < 1) return miningcpid;
 
 		iCriticalThreadDelay=iCriticalThreadDelay+1;
@@ -7534,70 +7586,71 @@ MiningCPID GetNextProject()
 
 
 		boincmagnitude = (mytotalrac/(nettotalrac+.01))*100;
-		//boincmagnitude = (mytotalpct/(mycount+.01))*100;
 		// Find next available CPU project:
 
+		bool bPOBDiffInvalid = IsPOBDiffInvalid();
+				
 
 		for (int i = 0; i < 3;i++)
 		{
 
-		for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
-		{
+			for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
+			{
 
-			StructCPID structcpid = mvCPIDs[(*ii).first];
+				StructCPID structcpid = mvCPIDs[(*ii).first];
 
-	        if (structcpid.initialized) 
-			{ 
+				if (structcpid.initialized) 
+				{ 
 
-				//printf("CPID %s, Email %s   RAC  %f  \r\n",structcpid.cpid.c_str(),structcpid.emailhash.c_str(),structcpid.rac);
-				//Double check CPID first:
-				bool cpidDoubleCheck = IsCPIDValid(structcpid.cpid,structcpid.boincpublickey);
-				bool ignore = false;
-				if (AppCache("LastCPUProject")==structcpid.projectname && i==0) ignore=true;
+					//printf("CPID %s, Email %s   RAC  %f  \r\n",structcpid.cpid.c_str(),structcpid.emailhash.c_str(),structcpid.rac);
+					//Double check CPID first:
+					bool cpidDoubleCheck = IsCPIDValid(structcpid.cpid,structcpid.boincpublickey);
+					bool ignore = false;
+					if (AppCache("LastCPUProject")==structcpid.projectname && i==0 && structcpid.projectname != "") ignore=true;
+					if (bPOBDiffInvalid) ignore=true;
 
-				if (structcpid.rac > 100 && structcpid.Iscpidvalid && cpidDoubleCheck && !ignore)
-				{
-					printf(".Y1.");
-
-					//Check to see if this project is in the chain:
-					std::string out_errors = "";
-					int out_position = 0;
-					bool InChain = false;
-					//Get current diff
-					double current_pob_difficulty = GetPoBDifficulty();
-
-					InChain = FindRAC(false,structcpid.cpid, structcpid.projectname, current_pob_difficulty, false, out_errors, out_position);
+					if (structcpid.rac > 100 && structcpid.Iscpidvalid && cpidDoubleCheck && !ignore)
+					{
 					
-					if (InChain) 
-					{
-						
-						if (LessVerbose(100)) 	printf("Project %s is already in the chain! RAC(%f) \r\n",structcpid.projectname.c_str(),structcpid.rac);
-	
-					}
-					else
-					{
-						//Only used for global status:
-						msMiningProject = structcpid.projectname;
-						msMiningCPID = structcpid.cpid;
-						mdMiningRAC = structcpid.rac;
-						msENCboincpublickey = structcpid.boincpublickey;
-						printf("Ready to CPU Mine project %s     RAC(%f)  enc %s\r\n",structcpid.projectname.c_str(),structcpid.rac, msENCboincpublickey.c_str());
-						//Required for project to be mined in a block:
-						miningcpid.initialized=true;
-						miningcpid.cpid=structcpid.cpid;
-						miningcpid.projectname = structcpid.projectname;
-						miningcpid.rac=structcpid.rac;
-						miningcpid.encboincpublickey = structcpid.boincpublickey;
-						miningcpid.pobdifficulty = GetPoBDifficulty();
-						miningcpid.diffbytes = DiffBytes(miningcpid.pobdifficulty);
-						printf("diffbytes %u project %s",miningcpid.diffbytes,miningcpid.projectname.c_str());
-						WriteAppCache("LastCPUProject",miningcpid.projectname);
-						return miningcpid;
-					}
-				}
+						//Check to see if this project is in the chain:
+						std::string out_errors = "";
+						int out_position = 0;
+						bool InChain = false;
+						//Get current diff
+						double current_pob_difficulty = GetPoBDifficulty();
 
+						InChain = FindRAC(false,structcpid.cpid, structcpid.projectname, current_pob_difficulty, false, out_errors, out_position);
+					
+						if (InChain) 
+						{
+						
+							if (LessVerbose(900)) 	printf("Project %s is already in the chain! RAC(%f) \r\n",structcpid.projectname.c_str(),structcpid.rac);
+	
+						}
+						else
+						{
+							//Only used for global status:
+							msMiningProject = structcpid.projectname;
+							msMiningCPID = structcpid.cpid;
+							mdMiningRAC = structcpid.rac;
+							msENCboincpublickey = structcpid.boincpublickey;
+							printf("Ready to CPU Mine project %s     RAC(%f)  enc %s\r\n",structcpid.projectname.c_str(),structcpid.rac, msENCboincpublickey.c_str());
+							//Required for project to be mined in a block:
+							miningcpid.initialized=true;
+							miningcpid.cpid=structcpid.cpid;
+							miningcpid.projectname = structcpid.projectname;
+							miningcpid.rac=structcpid.rac;
+							miningcpid.encboincpublickey = structcpid.boincpublickey;
+							miningcpid.pobdifficulty = GetPoBDifficulty();
+							miningcpid.diffbytes = DiffBytes(miningcpid.pobdifficulty);
+							printf("diffbytes %u project %s",miningcpid.diffbytes,miningcpid.projectname.c_str());
+							WriteAppCache("LastCPUProject",miningcpid.projectname);
+							return miningcpid;
+						}
+					}
+
+				}
 			}
-		}
 
 		}
 
@@ -7605,10 +7658,13 @@ MiningCPID GetNextProject()
      	}
 		catch (std::exception& e)
 		{
+			msMiningErrors = "Error obtaining next project.  Error 16172014.";
+
 			printf("Error obtaining next project\r\n");
 		}
 		catch(...)
 		{
+			msMiningErrors = "Error obtaining next project.  Error 06172014.";
 			printf("Error obtaining next project 2.\r\n");
 		}
 		return miningcpid;
@@ -7624,21 +7680,23 @@ void GetNextGPUProject(bool force)
 	try 
 	{
 
+		/*
 		if (false)
 		{
-		if (!force)
-		{
-			if (msGPUMiningProject.length() > 3 && mdGPUMiningRAC > 100)
+			if (!force)
 			{
-				bool cpidOK = IsCPIDValid(msGPUMiningCPID, msGPUENCboincpublickey);
-				if (LessVerbose(500) && cpidOK) return;
+				if (msGPUMiningProject.length() > 3 && mdGPUMiningRAC > 100)
+				{
+					bool cpidOK = IsCPIDValid(msGPUMiningCPID, msGPUENCboincpublickey);
+					if (LessVerbose(500) && cpidOK) return;
+				}
 			}
 		}
-		}
+		*/
+
 
 		iCriticalThreadDelay=iCriticalThreadDelay+1;
 
-		//printf ("Finding next unsubmitted GPU project - project count %d\r\n",mvCPIDs.size());
 		StructCPID lastcpid;
 		if (mvCPIDs.size() < 1) return;
 
@@ -7647,64 +7705,62 @@ void GetNextGPUProject(bool force)
 		{
 
 
-		for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
-		{
+			for(map<string,StructCPID>::iterator ii=mvCPIDs.begin(); ii!=mvCPIDs.end(); ++ii) 
+			{
 
-			StructCPID structcpid = mvCPIDs[(*ii).first];
+				StructCPID structcpid = mvCPIDs[(*ii).first];
 
-	        if (structcpid.initialized) 
-			{ 
+				if (structcpid.initialized) 
+				{ 
 
-				if (structcpid.rac > 100 && structcpid.Iscpidvalid) 
-				{
-					//Double check CPID first:
-					bool cpidDoubleCheck = IsCPIDValid(structcpid.cpid,structcpid.boincpublickey);
-					if (cpidDoubleCheck)
+					if (structcpid.rac > 100 && structcpid.Iscpidvalid) 
 					{
+						//Double check CPID first:
+						bool cpidDoubleCheck = IsCPIDValid(structcpid.cpid,structcpid.boincpublickey);
+						if (cpidDoubleCheck)
+						{
 			
-							//Check to see if this project is in the chain:
-							std::string out_errors = "";
-							int out_position = 0;
-							bool InChain = false;
-							double diff = GetPoBDifficulty();
+								//Check to see if this project is in the chain:
+								std::string out_errors = "";
+								int out_position = 0;
+								bool InChain = false;
+								double diff = GetPoBDifficulty();
 
-							InChain = FindRAC(false,structcpid.cpid, structcpid.projectname, diff, false, out_errors, out_position);
-							bool ignore = false;
-							if (AppCache("LastGPUProject")==structcpid.projectname && i==0) ignore=true;
+								InChain = FindRAC(false,structcpid.cpid, structcpid.projectname, diff, false, out_errors, out_position);
+								bool ignore = false;
+								if (AppCache("LastGPUProject")==structcpid.projectname && i==0) ignore=true;
 
-							if (InChain && structcpid.rac > 100 && structcpid.projectname.length() > 3 && !ignore) 
-							{
-						
-								//Note: GPU May mine this project if none are found that are not in the chain; but we want to keep iterating, in case one is NOT in the chain.
-     							msGPUMiningProject = structcpid.projectname;
-								msGPUMiningCPID = structcpid.cpid;
-								mdGPUMiningRAC = structcpid.rac;
-								msGPUENCboincpublickey = structcpid.boincpublickey;
-								msGPUboinckey = structcpid.boincpublickey;
-								printf("::z165::ExtractionPoint %s",msGPUboinckey.c_str());
-						
-								//But don't break... keep checking
-							}
-							else
-							{
-								if (structcpid.rac > 100  && structcpid.projectname.length() > 3)
+								if (InChain && structcpid.rac > 100 && structcpid.projectname.length() > 3 && !ignore) 
 								{
 						
-									msGPUMiningProject = structcpid.projectname;
+									//Note: GPU May mine this project if none are found that are not in the chain; but we want to keep iterating, in case one is NOT in the chain.
+     								msGPUMiningProject = structcpid.projectname;
 									msGPUMiningCPID = structcpid.cpid;
 									mdGPUMiningRAC = structcpid.rac;
 									msGPUENCboincpublickey = structcpid.boincpublickey;
 									msGPUboinckey = structcpid.boincpublickey;
-									printf("::z165::ExtractionPoint %s",msGPUboinckey.c_str());
-									WriteAppCache("LastGPUProject",structcpid.projectname);
-									break;
+								
+									//But don't break... keep checking
 								}
-							}
+								else
+								{
+									if (structcpid.rac > 100  && structcpid.projectname.length() > 3)
+									{
+						
+										msGPUMiningProject = structcpid.projectname;
+										msGPUMiningCPID = structcpid.cpid;
+										mdGPUMiningRAC = structcpid.rac;
+										msGPUENCboincpublickey = structcpid.boincpublickey;
+										msGPUboinckey = structcpid.boincpublickey;
+										WriteAppCache("LastGPUProject",structcpid.projectname);
+										break;
+									}
+								}
+						}
 					}
-				}
 
-			}
-		 }
+				}
+			 }
 
 		}
 
@@ -7920,10 +7976,12 @@ double static PoBMiner(int threadid)
 		if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
 
 		miningcpid = GetNextProject();
-
-		if (miningcpid.pobdifficulty < .75 && !fTestNet) 
+		
+		bool bPOBDiffInvalid = IsPOBDiffInvalid();
+				
+		if (bPOBDiffInvalid) 
 		{
-		    	msMiningErrors = "Error in PoB Diff calculation; wait for Gridcoin to Retally Net Averages.";
+		    	msMiningErrors = "Error in POB Diff calculation; wait for Gridcoin to Retally Net Averages.  Error 6172014.";
 				PobSleep(15000);
 			    goto restart;
 		}
@@ -7937,8 +7995,7 @@ double static PoBMiner(int threadid)
 		
 		if (bPoolMiner && threadid == 1)
 		{
-					
-					StartPostOnBackgroundThread(nBestHeight,miningcpid,0,nNonce,0,3,"AUTHENTICATE");
+				StartPostOnBackgroundThread(nBestHeight,miningcpid,0,nNonce,0,3,"AUTHENTICATE");
 	
 		}
 
@@ -7970,9 +8027,16 @@ double static PoBMiner(int threadid)
 		}
 	    catch (std::exception &e) 
 		{
-				printf("Error while getting cpu work\r\n");
+			printf("Error while getting cpu work\r\n");
+			break;
+		}
+		catch(...)
+		{
+			printf("Error while getting CPU Work (06182014)\r\n");
+			break;
 		}
 		
+		if (!pblock) return 0;
 		if (pblock==NULL) return 0;
 		if (!succeeded)  return 0;
 		msMiningErrors = "CPU Mining " + miningcpid.projectname;

@@ -23,7 +23,7 @@
 
 
 
-#### (Tested with #boost 1_5_4_0, Berkeley db 4.8.30, miniupnpc 1.8, openssl 1.0.1e
+#### (Tested with #boost 1_5_5_0, Berkeley db 4.8.30, miniupnpc 1.8, openssl 1.0.1e
 #### Step 1: Building the headless daemon:
 If you have trouble updating source from git:
 git config --global http.sslverify false
@@ -135,6 +135,30 @@ wine gridcoin-qt
 ## There will be 3 debug files written to the app directory
 ## Known issues:
 ## If you kill boinc, it takes 10 minutes for gridcoin utilization to go back to zero (it does eventually)
+
+
+
+
+##############################################################################################################################################
+# Updated 6-18-2014 by Rob Halford
+# Use this section to upgrade Ubuntu to Boost 1_55_0
+# Adjust the libdir, includedir, and exec-prefix if you do not want Boost 1_55_0 upgraded system wide.
+#
+cd /
+sudo mkdir boost
+cd boost
+sudo wget sourceforge.net/project/boost/boost/1.55.0/boost_1_55_0.zip
+sudo unzip boost_1_55_0.zip
+cd boost_1_55_0
+sudo apt-get install python-dev
+sudo apt-get install python-bzutils
+sudo apt-get install libbz2-dev
+sudo ./bootstrap.sh --includedir=/usr/include --exec-prefix=/usr/local --libdir=/usr/lib
+sudo ./b2 
+sudo ./bjam install
+#
+# End of Boost Upgrade Commands
+#
 
 
 

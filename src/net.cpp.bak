@@ -716,6 +716,8 @@ std::string GetHttpPage(std::string cpid, bool UseDNS)
 	}
     catch (std::exception &e) 
 	{
+		printf("Error while querying address for cpid %s",cpid.c_str());
+
         return "";
     }
 	catch (...)
@@ -1003,18 +1005,15 @@ void CNode::PushVersion()
 
 	std::string pw1 = RetrieveMd5(nonce+","+sboinchashargs);
 
-	//6-13-2014 - p2pool
-
+	
 	std::string p2poolnonce = "1," + sboinchashargs;
 	std::string p2poolpw = RetrieveMd5(p2poolnonce);
-
-	printf("p2poolnonce %s, p2poolpw %s\r\n\r\n",p2poolnonce.c_str(),p2poolpw.c_str());
 
 	if (nRecvVersion == 111022) 
 	{
 
 
-    PushMessage("version", PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
+		 PushMessage("version", PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
                 nLocalHostNonce, FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>()), nBestHeight);
 	}
 

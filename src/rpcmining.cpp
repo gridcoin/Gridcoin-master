@@ -621,7 +621,7 @@ void Mutex()
 	while(CreatingCPUBlock)
 	{
 		mutex=mutex+100;
-		if (mutex > 8000)
+		if (mutex > 5000)
 		{
 			printf("Giving Up...");
 			CreatingCPUBlock=false;
@@ -640,8 +640,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
 
 	static CBlock* pblock;
-	
-	
 	Mutex();
 
 	CreatingCPUBlock=true;
@@ -649,8 +647,7 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 	try 
 	{
 
-	printf("c1...");
-
+	
 
     if (vNodes.empty())
 	{
@@ -658,7 +655,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 		succeeded = false;
 		CreatingCPUBlock=false;
 		return pblock;
-	
 	}
 
 
@@ -671,9 +667,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 	}
 
 
-
-
-
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock2_t;
     static mapNewBlock2_t mapNewBlock2;    
     static vector<CBlockTemplate*> vNewBlockTemplate2;
@@ -683,7 +676,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
     static int64 nStart;
     static CBlockTemplate* pblocktemplate;
 
-	printf("2..");
 
     if (pindexPrev != pindexBest ||  (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60))
         {
@@ -706,15 +698,10 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
 			
             // Create new block
-			printf("3..");
-			//DEADLOCK Found here:
-			printf("..ENT_DDLOCK..");
-
+			printf(".r1.");
+		
             pblocktemplate = CreateNewBlockWithKey(reservekey,3,miningcpid);
-			printf("..LOCK_RELEASED..");
-
-
-			printf("4..");
+			printf(".r2.");
 
             if (!pblocktemplate)
 			{
@@ -726,13 +713,10 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
 			}
 			printf("5..");
-
             vNewBlockTemplate2.push_back(pblocktemplate);
-
             // Need to update only after we know Create-NewBlock succeeded
             pindexPrev = pindexPrevNew;
         }
-
 
 
   	   printf("6..");
@@ -758,7 +742,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
     	printf("created new CPU block in getwork_cpu");
 		succeeded=true;
-
 		CreatingCPUBlock=false;
         return pblock;
 
@@ -771,10 +754,15 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 		CreatingCPUBlock=false;
 		return pblock;
 	}
-	
+	catch(...)
+	{
+		printf("Error while creating cpu block in rpc (06182014)\r\n");
+		succeeded=false;
+		CreatingCPUBlock=false;
+		return pblock;
+	}
 	CreatingCPUBlock=false;
 	return pblock;
-
 }
 
 
