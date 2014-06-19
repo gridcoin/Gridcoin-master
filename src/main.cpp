@@ -4638,32 +4638,62 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
 
 
 	
+	//6-18-2014 (AcceptBlock 1) - Coinprader Error:
+	try
+	{
+
     // Store to disk
-    if (!pblock->AcceptBlock(state, dbp))
-        return error("ProcessBlock() : AcceptBlock FAILED");
-
-    // Recursively process any orphan blocks that depended on this one
-    vector<uint256> vWorkQueue;
-    vWorkQueue.push_back(hash);
-    for (unsigned int i = 0; i < vWorkQueue.size(); i++)
-    {
-        uint256 hashPrev = vWorkQueue[i];
-        for (multimap<uint256, CBlock*>::iterator mi = mapOrphanBlocksByPrev.lower_bound(hashPrev);
-             mi != mapOrphanBlocksByPrev.upper_bound(hashPrev);
-             ++mi)
-        {
-            CBlock* pblockOrphan = (*mi).second;
-            // Use a dummy CValidationState so someone can't setup nodes to counter-DoS based on orphan resolution (that is, feeding people an invalid block based on LegitBlockX in order to get anyone relaying LegitBlockX banned)
-            CValidationState stateDummy;
-            if (pblockOrphan->AcceptBlock(stateDummy))
-                vWorkQueue.push_back(pblockOrphan->GetHash());
-            mapOrphanBlocks.erase(pblockOrphan->GetHash());
-            delete pblockOrphan;
-        }
-        mapOrphanBlocksByPrev.erase(hashPrev);
+		if (!pblock->AcceptBlock(state, dbp))
+			return error("ProcessBlock() : AcceptBlock FAILED");
+	}
+    catch (std::exception &e) 
+	{
+                printf("Error during AcceptBlock (06182014)");
+				return false;
     }
+	catch(...)
+	{
+	            printf("Error during AcceptBlock (16182014)");
+				return false;
+    }
+      
+	try 
+	{
 
-    //printf("ProcessBlock: ACCEPTED\n");
+			// Recursively process any orphan blocks that depended on this one
+			vector<uint256> vWorkQueue;
+			vWorkQueue.push_back(hash);
+			for (unsigned int i = 0; i < vWorkQueue.size(); i++)
+			{
+				uint256 hashPrev = vWorkQueue[i];
+				for (multimap<uint256, CBlock*>::iterator mi = mapOrphanBlocksByPrev.lower_bound(hashPrev);
+					 mi != mapOrphanBlocksByPrev.upper_bound(hashPrev);
+					 ++mi)
+				{
+					CBlock* pblockOrphan = (*mi).second;
+					// Use a dummy CValidationState so someone can't setup nodes to counter-DoS based on orphan resolution (that is, feeding people an invalid block based on LegitBlockX in order to get anyone relaying LegitBlockX banned)
+					CValidationState stateDummy;
+					if (pblockOrphan->AcceptBlock(stateDummy))
+						vWorkQueue.push_back(pblockOrphan->GetHash());
+					mapOrphanBlocks.erase(pblockOrphan->GetHash());
+					delete pblockOrphan;
+				}
+				mapOrphanBlocksByPrev.erase(hashPrev);
+			}
+	}
+	catch (std::exception &e) 
+	{
+                printf("Error during AcceptBlock (26182014)");
+				return false;
+    }
+	catch(...)
+	{
+	            printf("Error during AcceptBlock (36182014)");
+				return false;
+    }
+   
+
+	printf("{ProcBlk:ACC}");
 	return true;
 }
 
@@ -6797,14 +6827,13 @@ unsigned int DiffBytes(double PoBDiff)
 	if (newpob <= .16)                  bytes = 7;
 	if (newpob > .16 && newpob <= .5)   bytes = 8;
 	if (newpob >  .5 && newpob < 1)     bytes = 8;
-	if (newpob >=  1 && newpob <= 1.5)  bytes = 9;
-	if (newpob > 1.5 && newpob <= 2)    bytes = 9;
-	if (newpob > 2   && newpob <= 5)    bytes = 10;
-	if (newpob > 5   && newpob <= 10)   bytes = 11;
-	if (newpob > 10  && newpob <= 11)   bytes = 12;
+	if (newpob >=  1 && newpob <= 1.5)  bytes = 8;
+	if (newpob > 1.5 && newpob <= 2)    bytes = 8;
+	if (newpob > 2   && newpob <= 5)    bytes = 9;
+	if (newpob > 5   && newpob <= 10)   bytes = 10;
+	if (newpob > 10  && newpob <= 11)   bytes = 11;
 	if (newpob > 11) bytes = newpob+1;
-	//	printf("Diff bytes %s also newpob %f unsigned pob bytes %d",pob.c_str(),newpob,bytes);
-
+	
 	return bytes;
 
 }

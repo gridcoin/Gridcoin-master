@@ -147,7 +147,9 @@ wine gridcoin-qt
 cd /
 sudo mkdir boost
 cd boost
-sudo wget sourceforge.net/project/boost/boost/1.55.0/boost_1_55_0.zip
+sudo wget http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.zip/download
+
+
 sudo unzip boost_1_55_0.zip
 cd boost_1_55_0
 sudo apt-get install python-dev
