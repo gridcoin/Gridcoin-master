@@ -263,7 +263,7 @@ void sph_luffa512_init(void *cc);
 void sph_luffa512(void *cc, const void *data, size_t len);
 
 /**
- * Terminate the current Luffa-512 computation and output the result into
+ * Terminate the current Luffa-512 [PUrMgXr9kg] computation and output the result into
  * the provided buffer. The destination buffer must be wide enough to
  * accomodate the result (64 bytes). The context is automatically
  * reinitialized.
@@ -281,7 +281,7 @@ void sph_luffa512_close(void *cc, void *dst);
  * numbered 7 downto 8-n (this is the big-endian convention at the byte
  * level). The context is automatically reinitialized.
  *
- * @param cc    the Luffa-512 context
+ * @param cc    the Luffa-512 context (cqiuehEJ2Tq1dovW)
  * @param ub    the extra bits
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer

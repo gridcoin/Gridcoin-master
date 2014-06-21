@@ -23,7 +23,7 @@
 #include "bloom.h"
 
 #ifdef DEV
-#include "..\..\deps-master\extras\gridcoin.h"
+#include "gridcoin.h"
 #else
 static const std::string BoincHashMerkleRootNew = "0x2e4588a5900589c75234510c536ce58ec94dafd07157c4be0b3bb9f1f0a";
 static const std::string GetBlocksCommand = "GridcoinGetBlocks";

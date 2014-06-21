@@ -343,7 +343,7 @@ FORMS += src/qt/forms/qrcodedialog.ui
 #}
 
 #contains(DEV,2) {
-	HEADERS += ../../deps-master/extras/gridcoin.h
+	HEADERS += src/gridcoin.h
 #}
 
 contains(BITCOIN_QT_TEST, 1) {
