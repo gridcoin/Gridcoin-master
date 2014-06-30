@@ -4,9 +4,19 @@
 @pause
 :continue
 
+
 @bash patch_files.sh
 
+
+
+
 @cd %ROOTPATH%
+
+
+copy src\gridcoin.h src\gridcoinh.bak
+copy A:\deps-master\extras\gridcoin.h src\gridcoin.h
+
+
 @echo building qt - qmake...
 
 @set COINNAME=Gridcoin
@@ -23,14 +33,18 @@
  QMAKE_CXXFLAGS="%ADDITIONALCCFLAGS%"^
  QMAKE_CFLAGS="%ADDITIONALCCFLAGS%"
 
-@set QTPATH=c:\qt\4.8.4\bin
 
 @%QTPATH%\qmake.exe %QMPS% USE_QRCODE=1 ZZZ=1
 @echo.
 @echo.
 @echo building qt - make...
+
+
+
 mingw32-make -f Makefile.Release
 @if errorlevel 1 goto continue
+@cd %ROOTPATH%
+copy src\gridcoinh.bak src\gridcoin.h
 @echo !!!!!!! %COINNAME%-qt DONE: Find %COINNAME%-qt.exe in ./release :)
 :continue
 @echo.

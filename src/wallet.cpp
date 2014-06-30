@@ -965,20 +965,38 @@ void CWallet::ReacceptWalletTransactions()
 
 void CWalletTx::RelayWalletTransaction()
 {
+	try
+	{
     BOOST_FOREACH(const CMerkleTx& tx, vtxPrev)
     {
+		printf(".z5.");
         if (!tx.IsCoinBase())
             if (tx.GetDepthInMainChain() == 0)
                 RelayTransaction((CTransaction)tx, tx.GetHash());
     }
     if (!IsCoinBase())
     {
+		printf(".z6.");
         if (GetDepthInMainChain() == 0) {
             uint256 hash = GetHash();
             printf("Relaying wtx %s\n", hash.ToString().c_str());
             RelayTransaction((CTransaction)*this, hash);
         }
     }
+	}
+	catch (std::exception &e) 
+	{
+		printf("Error while Relaying Wallet Transactions (06212014)");
+	}
+	catch (std::exception* e)
+	{
+			printf("Error While Relaying Wallet Transactions (26212014).\r\n");
+	}
+	catch(...)
+	{
+		printf("Error while Relaying Wallet Transactions (36212014)");
+	}
+
 }
 
 
@@ -1004,42 +1022,64 @@ void CWallet::ResendWalletTransactions()
 {
     // Do this infrequently and randomly to avoid giving away
     // that these are our transactions.
-    static int64 nNextTime;
-    if (GetTime() < nNextTime)
-        return;
-    bool fFirst = (nNextTime == 0);
-    nNextTime = GetTime() + GetRand(30 * 60);
-    if (fFirst)
-        return;
+	try
+	{
+				static int64 nNextTime;
+				if (GetTime() < nNextTime)
+					return;
+				bool fFirst = (nNextTime == 0);
+				nNextTime = GetTime() + GetRand(30 * 60);
+				if (fFirst)
+					return;
 
-    // Only do it if there's been a new block since last time
-    static int64 nLastTime;
-    if (nTimeBestReceived < nLastTime)
-        return;
-    nLastTime = GetTime();
+				// Only do it if there's been a new block since last time
+				static int64 nLastTime;
+				if (nTimeBestReceived < nLastTime)
+					return;
+				nLastTime = GetTime();
+				//Added try-catch - Gridcoin crashed in this area twice in the last 2 weeks (Intermittent).
 
-    // Rebroadcast any of our txes that aren't in a block yet
-    printf("ResendWalletTransactions()\n");
-    {
-
-		 LOCK(cs_wallet);
+				// Rebroadcast any of our txes that aren't in a block yet
+				printf("ResendWalletTransactions_Litecoin(06212014)\n");
+				{
+					//RH:Testing without Wallet Lock (since crash is occurring here:)
+					// LOCK(cs_wallet);
 		
-        // Sort them in chronological order
-        multimap<unsigned int, CWalletTx*> mapSorted;
-        BOOST_FOREACH(PAIRTYPE(const uint256, CWalletTx)& item, mapWallet)
-        {
-            CWalletTx& wtx = item.second;
-            // Don't rebroadcast until it's had plenty of time that
-            // it should have gotten in already by now.
-            if (nTimeBestReceived - (int64)wtx.nTimeReceived > 5 * 60)
-                mapSorted.insert(make_pair(wtx.nTimeReceived, &wtx));
-        }
-        BOOST_FOREACH(PAIRTYPE(const unsigned int, CWalletTx*)& item, mapSorted)
-        {
-            CWalletTx& wtx = *item.second;
-            wtx.RelayWalletTransaction();
-        }
-    }
+					// Sort them in chronological order
+					multimap<unsigned int, CWalletTx*> mapSorted;
+					BOOST_FOREACH(PAIRTYPE(const uint256, CWalletTx)& item, mapWallet)
+					{
+						CWalletTx& wtx = item.second;
+						// Don't rebroadcast until it's had plenty of time that
+						// it should have gotten in already by now.
+						printf(".ZZ1.");
+						if (nTimeBestReceived - (int64)wtx.nTimeReceived > 5 * 60)
+							mapSorted.insert(make_pair(wtx.nTimeReceived, &wtx));
+					}
+					BOOST_FOREACH(PAIRTYPE(const unsigned int, CWalletTx*)& item, mapSorted)
+					{
+						printf(".ZZ2.");
+						CWalletTx& wtx = *item.second;
+						wtx.RelayWalletTransaction();
+					}
+				}
+
+	}
+    catch (std::exception &e) 
+	{
+		printf("Error while Resending Wallet Transactions (06212014)");
+	}
+	//6-28-2014
+	catch (std::exception* e)
+	{
+			printf("Error While Resending Wallet Transactions (26212014).\r\n");
+	}
+	catch(...)
+	{
+		printf("Error while Resending Wallet Transactions (06212014)");
+	}
+
+
 }
 
 
@@ -1758,33 +1798,61 @@ bool CWallet::TopUpKeyPool()
 
 void CWallet::ReserveKeyFromKeyPool(int64& nIndex, CKeyPool& keypool)
 {
-    nIndex = -1;
-    keypool.vchPubKey = CPubKey();
-    {
-		printf("k1..");
+	try 
+	{
+		nIndex = -1;
+		keypool.vchPubKey = CPubKey();
+		{
+			printf("k1..");
 
-		LOCK(cs_wallet);
-		printf("k2..");
+			LOCK(cs_wallet);
+			printf("k2..");
 
 
-        if (!IsLocked())
-            TopUpKeyPool();
+			if (!IsLocked())
+				TopUpKeyPool();
+			printf("k3..");
 
-        // Get the oldest key
-        if(setKeyPool.empty())
-            return;
+			// Get the oldest key
+			if(setKeyPool.empty())
+				return;
 
-        CWalletDB walletdb(strWalletFile);
+			printf("k4..");
 
-        nIndex = *(setKeyPool.begin());
-        setKeyPool.erase(setKeyPool.begin());
-        if (!walletdb.ReadPool(nIndex, keypool))
-            throw runtime_error("ReserveKeyFromKeyPool() : read failed");
-        if (!HaveKey(keypool.vchPubKey.GetID()))
-            throw runtime_error("ReserveKeyFromKeyPool() : unknown key in key pool");
-        assert(keypool.vchPubKey.IsValid());
-        printf("keypool reserve %"PRI64d"\n", nIndex);
-    }
+			CWalletDB walletdb(strWalletFile);
+
+			nIndex = *(setKeyPool.begin());
+			setKeyPool.erase(setKeyPool.begin());
+			printf("k5..");
+			if (!walletdb.ReadPool(nIndex, keypool))
+				throw runtime_error("ReserveKeyFromKeyPool() : read failed");
+			if (!HaveKey(keypool.vchPubKey.GetID()))
+				throw runtime_error("ReserveKeyFromKeyPool() : unknown key in key pool");
+
+			if (!keypool.vchPubKey.IsValid())
+			{
+				throw runtime_error("ReserveKeyFromKeyPool() : invalid key in key pool");
+			}
+			printf("keypool reserve %"PRI64d"\n", nIndex);
+		}
+	}
+    catch (std::exception &e) 
+	{
+		printf("Error while Reserving Key from Key Pool (06212014)");
+	}
+	catch (std::exception* e)
+	{
+			printf("Error While Reserving Key from Key Pool (26212014).\r\n");
+		
+
+	}
+    catch(...)
+	{
+		printf("Error while Reserving Key from Key Pool (16212014)");
+	}
+
+
+
 }
 
 int64 CWallet::AddReserveKey(const CKeyPool& keypool)

@@ -273,6 +273,7 @@ static const CRPCCommand vRPCCommands[] =
     { "getblock",               &getblock,               false,     false, false },
 	{ "getblockbynumber",       &getblockbynumber,       false,     false, false },
     { "getblockhash",           &getblockhash,           false,     false, true },
+	{ "showblock",              &showblock,              false,     false, true },
     { "gettransaction",         &gettransaction,         false,     false, true },
     { "listtransactions",       &listtransactions,       false,     false, true },
     { "listaddressgroupings",   &listaddressgroupings,   false,     false, true },
@@ -1288,9 +1289,8 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "listreceivedbyaccount"  && n > 1) ConvertTo<bool>(params[1]);
     if (strMethod == "getbalance"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "getblockhash"           && n > 0) ConvertTo<boost::int64_t>(params[0]);
+	if (strMethod == "showblock"              && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "getblockbynumber"       && n > 0) ConvertTo<double>(params[0]);
-
-	
 	if (strMethod == "move"                   && n > 2) ConvertTo<double>(params[2]);
     if (strMethod == "move"                   && n > 3) ConvertTo<boost::int64_t>(params[3]);
     if (strMethod == "sendfrom"               && n > 2) ConvertTo<double>(params[2]);

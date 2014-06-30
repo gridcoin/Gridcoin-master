@@ -19,6 +19,9 @@ using namespace std;
 int CreateRestorePoint();
 int DownloadBlocks();
 
+double GetBlockValueByHash(uint256 hash);
+
+
 
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
 
@@ -220,18 +223,15 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 	
     MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
 	uint256 blockhash = block.GetPoWHash();
-	
 	std::string sblockhash = blockhash.GetHex();
 	result.push_back(Pair("BlockType", block.BlockType));
 	result.push_back(Pair("CPID", bb.cpid));
-
 	result.push_back(Pair("ProjectName", bb.projectname));
-
 	result.push_back(Pair("BlockDiffBytes", (double)bb.diffbytes));
 	result.push_back(Pair("RAC", bb.rac));
-	
-	result.push_back(Pair("PoBDifficulty", bb.pobdifficulty));
+	result.push_back(Pair("NetworkRAC", bb.NetworkRAC));
 
+	result.push_back(Pair("PoBDifficulty", bb.pobdifficulty));
 	result.push_back(Pair("AES512SkeinHash", bb.aesskein));
 	std::string skein2 = aes_complex_hash(blockhash);
 	result.push_back(Pair("AESCalcHash",skein2));
@@ -244,8 +244,10 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 	bool IsCpidValid = IsCPIDValid(bb.cpid, bb.enccpid);
 
 	result.push_back(Pair("CPIDValid",IsCpidValid));
-		
 	result.push_back(Pair("PoWHash",blockhash.GetHex()));
+	//Subsidy 6-29-2014
+
+	result.push_back(Pair("Subsidy", ValueFromAmount(GetBlockValueByHash(block.GetHash()))));
 
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
@@ -516,6 +518,37 @@ Value getblockhash(const Array& params, bool fHelp)
 
     CBlockIndex* pblockindex = FindBlockByHeight(nHeight);
     return pblockindex->phashBlock->GetHex();
+}
+
+
+Value showblock(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "showblock <index>\n"
+            "Returns all information about the block at <index>.");
+
+    int nHeight = params[0].get_int();
+    if (nHeight < 0 || nHeight > nBestHeight)
+        throw runtime_error("Block number out of range.");
+
+    CBlockIndex* pblockindex = FindBlockByHeight(nHeight);
+
+    //return pblockindex->phashBlock->GetHex();
+
+	//std::string strHash = pblockindex->phashBlock->GetHex().get_str();
+    //uint256 hash(strHash);
+
+    if (pblockindex==NULL)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
+
+    CBlock block;
+//    CBlockIndex* pblockindex = mapBlockIndex[hash];
+    block.ReadFromDisk(pblockindex);
+
+
+    return blockToJSON(block, pblockindex);
+
 }
 
 

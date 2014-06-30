@@ -1,4 +1,4 @@
-@set PATH=c:\mingw\msys\1.0\bin;c:\mingw\bin
+@set PATH=a:\mingw\msys\1.0\bin;a:\mingw\bin
 
 @set LANG=en_US.UTF8
 @set LC_ALL=en_US.UTF8
@@ -15,8 +15,16 @@
 
 @set EWBLIBS=libs
 
+
+set QTDIR=A:\Qt\4.8.4
+set QMAKESPEC=A:\Qt\4.8.4\mkspecs\win32-g++
+set PATH=%PATH%;a:\qt\4.8.4\qmake\bin
+@set QTPATH=a:\Qt\4.8.4\bin
+
 @set EWBPATH=contrib/easywinbuilder
-@set ROOTPATH=..\..
+set ROOTPATH=..\..
+set ROOTPATH=a:\gridcoin-master
+
 @set ROOTPATHSH=%ROOTPATH:\=/%
 
 @rem bootstrap coin name
@@ -24,11 +32,11 @@
 @set COINNAME=%COINNAME:-qt.pro=%
 @set COINNAME=gridcoin
 
-@set QTPATH=C:\Qt\4.8.5\bin
+
 @set QTDOWNLOADPATH=http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-win-opensource-4.8.5-mingw.exe
 @rem Qt5 will need changes in gather_dlls.bat
 
-@set MSYS=C:/MinGW/msys/1.0/bin
+@set MSYS=a:/MinGW/msys/1.0/bin
 @set PERL=%MSYS%/perl.exe
 
 @rem the following will be set as additional CXXFLAGS and CFLAGS for everything - no ' or ", space is ok

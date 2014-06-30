@@ -14,6 +14,9 @@ DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
 CONFIG += qaxcontainer
+CONFIG += exceptions
+
+
 #CONFIG += qaxserver dll
 
 # for boost 1.37, add -mt to the boost libraries

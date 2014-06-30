@@ -204,12 +204,14 @@ static const uint64 nMinDiskSpace = 52428800;
 extern std::string 	msMiningProject;
 extern std::string 	msMiningCPID;
 extern double    	mdMiningRAC;
+extern double       mdMiningNetworkRAC;
 extern std::string  msENCboincpublickey;
 extern std::string  msMiningErrors;
 // PoB GPU Miner Global Vars:
 extern std::string 	msGPUMiningProject;
 extern std::string 	msGPUMiningCPID;
 extern double    	mdGPUMiningRAC;
+extern double       mdGPUMiningNetworkRAC;
 extern std::string  msGPUENCboincpublickey;
 extern std::string  msGPUboinckey;
 extern double       boincmagnitude;

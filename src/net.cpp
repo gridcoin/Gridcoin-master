@@ -2385,6 +2385,9 @@ void RelayTransaction(const CTransaction& tx, const uint256& hash)
 
 void RelayTransaction(const CTransaction& tx, const uint256& hash, const CDataStream& ss)
 {
+
+	try 
+	{
     CInv inv(MSG_TX, hash);
     {
         LOCK(cs_mapRelay);
@@ -2412,6 +2415,21 @@ void RelayTransaction(const CTransaction& tx, const uint256& hash, const CDataSt
         } else
             pnode->PushInventory(inv);
     }
+	}
+	catch (std::exception &e) 
+	{
+		printf("Error while Relaying Transaction (56212014)");
+	}
+	catch (std::exception* e)
+	{
+			printf("Error While Relaying Wallet Transactions (66212014).\r\n");
+	}
+	catch(...)
+	{
+		printf("Error while Relaying Wallet Transactions (76212014)");
+	}
+
+
 }
 
 

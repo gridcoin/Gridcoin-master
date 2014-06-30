@@ -194,9 +194,13 @@ Value getmininginfo(const Array& params, bool fHelp)
 	obj.push_back(Pair("CPU Mining Project", 	msMiningProject));
 	obj.push_back(Pair("CPU Mining CPID",       msMiningCPID));
 	obj.push_back(Pair("CPU Mining RAC",        mdMiningRAC));
+	obj.push_back(Pair("CPU Mining Network RAC",        mdMiningNetworkRAC));
+
 	obj.push_back(Pair("GPU Mining Project", 	msGPUMiningProject));
 	obj.push_back(Pair("GPU Mining CPID",       msGPUMiningCPID));
 	obj.push_back(Pair("GPU Mining RAC",        mdGPUMiningRAC));
+	obj.push_back(Pair("GPU Mining Network RAC",        mdGPUMiningNetworkRAC));
+
 	obj.push_back(Pair("PoB Mining Errors",     msMiningErrors));
 
 
@@ -389,7 +393,6 @@ void StartPostOnBackgroundThread(int height, MiningCPID miningcpid, uint256 hash
 	  if (!bPoolMiningMode) return;
 	  postThreads = new boost::thread_group();
 	  postThreads->create_thread(boost::bind(&PostOnBackgroundThread,height,miningcpid,hashmerkleroot,nNonce,subsidy,nVersion,message));
-	  //        minerThreads->create_thread(boost::bind(&ThreadGridcoinMiner, i));
 	
 }
 
@@ -792,7 +795,7 @@ bool SubmitGridcoinCPUWork(CBlock* pblock,CReserveKey& reservekey, double nonce)
 		}
 			
 	
-		printf("created new gridcoin CPU block in getwork_cpu with update");
+		printf("created new CPU block in getwork_cpu with update");
 		std::string CBH = hashBestChain.ToString();
 		
 		bool status = CheckWorkCPU(pblock, *pwalletMain, reservekey);

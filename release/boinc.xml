@@ -6,55 +6,37 @@ boinc
 </name>
 </assembly>
 <members>
-<member name="P:boinc.My.Resources.Resources.ResourceManager">
+<member name="T:boinc.Gridcoin.TreeNodeBuilder">
 	<summary>
-  Returns the cached ResourceManager instance used by this class.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.Culture">
+ Builds up a <see cref="T:System.Windows.Forms.TreeNode"/> with the same hierarchy as
+ a <see cref="T:OpenPop.Mime.Message"/>.
+ 
+ The root <see cref="T:System.Windows.Forms.TreeNode"/> has the subject as text and has one one child.
+ The root has no Tag attribute set.
+ 
+ The children of the root has the MediaType of the <see cref="!:MessagePart"/> as text and the
+ MessagePart's children as <see cref="T:System.Windows.Forms.TreeNode"/> children.
+ Each <see cref="!:MessagePart"/>
+		<see cref="T:System.Windows.Forms.TreeNode"/> has a Tag property set to that <see cref="!:MessagePart"/>
+	</summary>
+</member><member name="M:boinc.Gridcoin.IAnswerMessageTraverser`1.VisitMessage(OpenPop.Mime.Message)">
 	<summary>
-  Overrides the current thread's CurrentUICulture property for all
-  resource lookups using this strongly typed resource class.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.gradient">
+ Call this when you want to apply this traverser on a <see cref="T:OpenPop.Mime.Message"/>.
+ </summary>
+	<param name="message">The <see cref="T:OpenPop.Mime.Message"/> which you want to traverse. Must not be <see langword="null"/>.</param>
+	<returns>An answer</returns>
+</member><member name="M:boinc.Gridcoin.IAnswerMessageTraverser`1.VisitMessagePart(OpenPop.Mime.MessagePart)">
 	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.gradient75">
+ Call this when you want to apply this traverser on a <see cref="!:MessagePart"/>.
+ </summary>
+	<param name="messagePart">The <see cref="!:MessagePart"/> which you want to traverse. Must not be <see langword="null"/>.</param>
+	<returns>An answer</returns>
+</member><member name="T:boinc.Gridcoin.IAnswerMessageTraverser`1">
 	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.gradient751">
-	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.gradient752">
-	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.gradient753">
-	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.gradientmiddle">
-	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.GradientU">
-	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.mining">
-	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="P:boinc.My.Resources.Resources.splash">
-	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member><member name="T:boinc.My.Resources.Resources">
-	<summary>
-  A strongly-typed resource class, for looking up localized strings, etc.
-</summary>
+ This interface describes a MessageTraverser which is able to traverse a Message hierarchy structure
+ and deliver some answer.
+ </summary>
+	<typeparam name="TAnswer">This is the type of the answer you want to have delivered.</typeparam>
 </member><member name="F:boinc.modWinAPI.WindowStylesEx.WS_EX_ACCEPTFILES">
 	<summary>
  Specifies that a window created with this style accepts drag-drop files.
@@ -221,37 +203,55 @@ boinc
 	<summary>The window is initially visible. This style can be turned on and off by using the ShowWindow or etWindowPos function.</summary>
 </member><member name="F:boinc.modWinAPI.WindowStyles.WS_VSCROLL">
 	<summary>The window has a vertical scroll bar.</summary>
-</member><member name="T:boinc.Gridcoin.TreeNodeBuilder">
+</member><member name="P:boinc.My.Resources.Resources.ResourceManager">
 	<summary>
- Builds up a <see cref="T:System.Windows.Forms.TreeNode"/> with the same hierarchy as
- a <see cref="T:OpenPop.Mime.Message"/>.
- 
- The root <see cref="T:System.Windows.Forms.TreeNode"/> has the subject as text and has one one child.
- The root has no Tag attribute set.
- 
- The children of the root has the MediaType of the <see cref="!:MessagePart"/> as text and the
- MessagePart's children as <see cref="T:System.Windows.Forms.TreeNode"/> children.
- Each <see cref="!:MessagePart"/>
-		<see cref="T:System.Windows.Forms.TreeNode"/> has a Tag property set to that <see cref="!:MessagePart"/>
-	</summary>
-</member><member name="M:boinc.Gridcoin.IAnswerMessageTraverser`1.VisitMessage(OpenPop.Mime.Message)">
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.Culture">
 	<summary>
- Call this when you want to apply this traverser on a <see cref="T:OpenPop.Mime.Message"/>.
- </summary>
-	<param name="message">The <see cref="T:OpenPop.Mime.Message"/> which you want to traverse. Must not be <see langword="null"/>.</param>
-	<returns>An answer</returns>
-</member><member name="M:boinc.Gridcoin.IAnswerMessageTraverser`1.VisitMessagePart(OpenPop.Mime.MessagePart)">
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient">
 	<summary>
- Call this when you want to apply this traverser on a <see cref="!:MessagePart"/>.
- </summary>
-	<param name="messagePart">The <see cref="!:MessagePart"/> which you want to traverse. Must not be <see langword="null"/>.</param>
-	<returns>An answer</returns>
-</member><member name="T:boinc.Gridcoin.IAnswerMessageTraverser`1">
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient75">
 	<summary>
- This interface describes a MessageTraverser which is able to traverse a Message hierarchy structure
- and deliver some answer.
- </summary>
-	<typeparam name="TAnswer">This is the type of the answer you want to have delivered.</typeparam>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient751">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient752">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradient753">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.gradientmiddle">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.GradientU">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.mining">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:boinc.My.Resources.Resources.splash">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="T:boinc.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
 </member>
 </members>
 </doc>

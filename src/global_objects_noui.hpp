@@ -98,6 +98,7 @@ struct MiningEntry {
 		bool Iscpidvalid;
 		std::string link;
 		std::string errors;
+		double NetworkRAC;
 	};
 
 
@@ -140,6 +141,7 @@ struct MiningEntry {
 		std::string aesskein;
 		std::string encaes;
 		double nonce;
+		double NetworkRAC;
 	};
 
 	

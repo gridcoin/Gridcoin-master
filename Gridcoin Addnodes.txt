@@ -1,0 +1,4 @@
+addnode=www.pgp.mx
+addnode=supernode.gridcoin.us
+addnode=23.97.147.78
+addnode=23.97.148.49
