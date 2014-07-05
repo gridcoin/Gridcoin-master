@@ -21,7 +21,8 @@ Public Class Utilization
 
     Public ReadOnly Property Version As Double
         Get
-            Return 167
+            Return 168
+
 
 
         End Get
@@ -33,14 +34,37 @@ Public Class Utilization
             Return Val(clsGVM.BoincUtilization)
         End Get
     End Property
-    '
+    Public Function FromBase64String(sData As String) As String
+       
+        Dim ba() As Byte = Convert.FromBase64String(sData)
+        Dim sOut As String = ByteToString(ba)
+        Return sOut
+
+    End Function
+    Public Function ByteToString(b() As Byte)
+        Dim sReq As String
+        sReq = System.Text.Encoding.UTF8.GetString(b)
+        Return sReq
+    End Function
+
+    Public Function StringToByteArray(sData As String) As Byte()
+
+        Return modGRC.StringToByte(sData)
+
+    End Function
     Public Function BoincMagnitude(value As String) As String
         _boincmagnitude = Val(value)
         Log("bm " + Trim(value))
 
     End Function
+    Public Function cAES512Encrypt(sData As String) As String
+        Return AES512EncryptData(sData)
 
-   
+    End Function
+    Public Function cAES512Decrypt(sData As String) As String
+        Return AES512DecryptData(sData)
+    End Function
+
 
     Public ReadOnly Property ClientNeedsUpgrade As Double
         Get
@@ -127,12 +151,16 @@ Public Class Utilization
     Public Sub CreateRestorePointTestNet()
         Call RestartWallet1("createrestorepointtestnet")
     End Sub
-   
+
     Public ReadOnly Property BoincMD5 As String
         Get
             Return clsGVM.BoincMD5()
         End Get
     End Property
+    Public Function cGetMd5(sData As String) As String
+        Return GetMd5String(sData)
+
+    End Function
     Public Function StrToMd5Hash(s As String) As String
         Return CalcMd5(s)
     End Function
@@ -177,7 +205,7 @@ Public Class Utilization
 
             p = sPoolUser + "<;>" + sPoolPass + "<;>" + sMinerName + "<;>projectname<;>1<;>bpk<;>cpid<;>0<;>0<;>0<;>2<;>AUTHENTICATE"
 
-   
+
 
             Dim sURL As String = sPoolURL
             If Mid(sURL, Len(sURL), 1) <> "/" Then sURL = sURL + "/"
@@ -454,7 +482,7 @@ Public Class Utilization
         End Try
 
     End Function
-    
+
 
     Public Function CloseGUIMiner()
         If Trim(KeyValue("closemineronexit")) <> "false" Then

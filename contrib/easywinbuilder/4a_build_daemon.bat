@@ -33,12 +33,17 @@
 @set PARAMS=%PARAMS% USE_DEVDIR=1
 
 @cd %ROOTPATH%\src
+
+copy gridcoin.h gridcoinh.bak
+copy A:\deps-master\extras\gridcoin.h gridcoin.h
+
 @mingw32-make -f makefile.mingw %PARAMS%
 @if errorlevel 1 goto error
 @echo.
 @echo.
 @strip %COINNAME%d.exe
 @if errorlevel 1 goto error
+copy gridcoinh.bak gridcoin.h
 @echo !!!!!!! %COINNAME% daemon DONE: Find %COINNAME%d.exe in ./src :)
 @echo.
 @echo.

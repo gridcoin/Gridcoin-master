@@ -199,6 +199,10 @@ CBlockIndex* pindexGenesisBlock = NULL;
  double         mdLastDifficulty = 0;
  std::string    msGlobalStatus = "";
  double         boincmagnitude = 0;
+ // CPU Miner threads global vars
+ 
+ volatile double nGlobalNonce = 0;
+ volatile double nGlobalHashCounter = 0;
 
 
 int nBestHeight = -1;
@@ -207,6 +211,12 @@ int nBestAccepted = -1;
 uint256 nBestChainWork = 0;
 uint256 nBestInvalidWork = 0;
 uint256 hashBestChain = 0;
+//Optimizing internal cpu miner:
+uint256 GlobalhashMerkleRoot = 0;
+uint256 GlobalSolutionPowHash = 0;
+MiningCPID GlobalCPUMiningCPID;
+
+
 CBlockIndex* pindexBest = NULL;
 set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexValid; // may contain all CBlockIndex*'s that have validness >=BLOCK_VALID_TRANSACTIONS, and must contain those who aren't failed
 int64 nTimeBestReceived = 0;
@@ -999,8 +1009,9 @@ bool IsCPIDValid(std::string cpid, std::string ENCboincpubkey)
 	catch(...)
 	{
 				printf("Error while Resolving IsCpidValid 2.\r\n");
+				return false;
 	}
-	
+	return false;
 
 }
 
@@ -1900,7 +1911,6 @@ CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, int AlgoType, Min
 			catch (std::exception &e) 
 			{
 				printf("Error in CreateNew-Block()::Step10();");
-				CreatingNewBlock=false;
 				return NULL;
 			}
 
@@ -6860,7 +6870,6 @@ unsigned int DiffBytes(double PoBDiff)
 CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID miningcpid)
 {
 
-	CreatingNewBlock=true;
 
 	auto_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
     
@@ -6872,7 +6881,6 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
 	if (miningcpid.projectname =="" || miningcpid.rac < 100 || !bCPIDsLoaded || miningcpid.encboincpublickey.length() < 5 || miningcpid.cpid.length() < 5) 
 	{
 		PobSleep(100);
-		CreatingNewBlock=false;
 		printf("Unable to Mine: No project specified in getmininginfo (for GPU).\r\n");
 		return NULL;
 	}
@@ -7151,7 +7159,6 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
         if (!pblock->ConnectBlock(state, &indexDummy, viewNew, true))
 		{
             //throw std::runtime_error("Create-NewBlock() : ConnectBlock failure II");
-			CreatingNewBlock=false;
 			printf("CreateNewBlock() Gridcoin : Connect Block Failed!");
 			return NULL;
 			//return pblocktemplate.release();
@@ -7160,13 +7167,11 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
 	}
 	////////////(end of lock2)//////////////////////////////////////// PblockTemplate.release() ///////////////////////////////////////////////////////////////////////
     
-	CreatingNewBlock=false;
 	return pblocktemplate.release();
 
 //	catch (std::exception &e) 
 	//{
 		//	printf("Error in reateNewBlock();");
-			//CreatingNewBlock=false;
 		//	return NULL;
     //}
 
@@ -7252,9 +7257,12 @@ std::string SerializeBoincBlock(std::string cpid, std::string projectname, std::
 
 	if (PoBDifficulty > 99) PoBDifficulty=99;
 	 
+	std::string version = FormatFullVersion();
+	//7-5-2014
+
 	std::string bb = cpid + delim + projectname + delim + AESSkein + delim + RoundToString(RAC,0)
 					+ delim + RoundToString(PoBDifficulty,5) + delim + RoundToString((double)diffbytes,0) + delim + enccpid 
-					+ delim + encaes + delim + RoundToString(nonce,0) + delim + RoundToString(NetworkRAC,0);
+					+ delim + encaes + delim + RoundToString(nonce,0) + delim + RoundToString(NetworkRAC,0) + delim + version;
 	return bb;
 }
 
@@ -7291,6 +7299,10 @@ MiningCPID DeserializeBoincBlock(std::string block)
 		{
 			surrogate.NetworkRAC = cdbl(s[9],0);
 		}
+		if (s.size() > 10)
+		{
+			surrogate.clientversion = s[10];
+		}
 	}
 	}
 	catch (std::exception &e) 
@@ -7314,7 +7326,7 @@ MiningCPID DeserializeBoincBlock(std::string block)
 
 bool CheckWorkCPU(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 {
-    uint256 hash = pblock->GetPoWHash();
+    //uint256 hash = pblock->GetPoWHash();
     uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
 
 	//PoB
@@ -7574,14 +7586,14 @@ MiningCPID GetNextProject()
 	msENCboincpublickey = "";
 	
 	StructCPID lastcpid;
-	MiningCPID miningcpid;
-	miningcpid.initialized=true;
-	miningcpid.cpid="";
-	miningcpid.projectname ="";
-	miningcpid.rac=0;
-	miningcpid.encboincpublickey = "";
-	miningcpid.pobdifficulty = 0;
-	miningcpid.diffbytes = 0;
+	//GlobalCPUMiningCPID = new MiningCPID();
+	GlobalCPUMiningCPID.initialized=true;
+	GlobalCPUMiningCPID.cpid="";
+	GlobalCPUMiningCPID.projectname ="";
+	GlobalCPUMiningCPID.rac=0;
+	GlobalCPUMiningCPID.encboincpublickey = "";
+	GlobalCPUMiningCPID.pobdifficulty = 0;
+	GlobalCPUMiningCPID.diffbytes = 0;
 
 	printf("{GNP}");
 
@@ -7589,14 +7601,14 @@ MiningCPID GetNextProject()
 	{
 		    printf("CPUMiner: Gridcoin is downloading blocks Or CPIDs are not yet loaded...");
 			MilliSleep(2000);
-			return miningcpid;
+			return GlobalCPUMiningCPID;
 	}
 		
 
 	try 
 	{
 	
-		if (mvCPIDs.size() < 1) return miningcpid;
+		if (mvCPIDs.size() < 1) return GlobalCPUMiningCPID;
 
 		iCriticalThreadDelay=iCriticalThreadDelay+1;
 		//Calculate boinc utilization first
@@ -7682,22 +7694,22 @@ MiningCPID GetNextProject()
 							msENCboincpublickey = structcpid.boincpublickey;
 							printf("Ready to CPU Mine project %s     RAC(%f)  enc %s\r\n",structcpid.projectname.c_str(),structcpid.rac, msENCboincpublickey.c_str());
 							//Required for project to be mined in a block:
-							miningcpid.initialized=true;
-							miningcpid.cpid=structcpid.cpid;
-							miningcpid.projectname = structcpid.projectname;
-							miningcpid.rac=structcpid.rac;
-							miningcpid.encboincpublickey = structcpid.boincpublickey;
-							miningcpid.pobdifficulty = GetPoBDifficulty();
-		    				double ProjectRAC = GetNetworkAvgByProject(miningcpid.projectname);
-		
-							miningcpid.NetworkRAC = ProjectRAC;
-							mdMiningNetworkRAC = miningcpid.NetworkRAC;
+							//RH: 7-5-2014: Add Global CPU Mining CPID
+							GlobalCPUMiningCPID.initialized = true;
+							GlobalCPUMiningCPID.cpid=structcpid.cpid;
+							GlobalCPUMiningCPID.projectname = structcpid.projectname;
+							GlobalCPUMiningCPID.rac=structcpid.rac;
+							GlobalCPUMiningCPID.encboincpublickey = structcpid.boincpublickey;
+							GlobalCPUMiningCPID.pobdifficulty = GetPoBDifficulty();
+		    				double ProjectRAC = GetNetworkAvgByProject(GlobalCPUMiningCPID.projectname);
+							GlobalCPUMiningCPID.NetworkRAC = ProjectRAC;
 
-		
-							miningcpid.diffbytes = DiffBytes(miningcpid.pobdifficulty);
-							printf("diffbytes %u project %s",miningcpid.diffbytes,miningcpid.projectname.c_str());
-							WriteAppCache("LastCPUProject",miningcpid.projectname);
-							return miningcpid;
+							mdMiningNetworkRAC = GlobalCPUMiningCPID.NetworkRAC;
+							GlobalCPUMiningCPID.diffbytes = DiffBytes(GlobalCPUMiningCPID.pobdifficulty);
+							printf("diffbytes %u project %s",GlobalCPUMiningCPID.diffbytes,GlobalCPUMiningCPID.projectname.c_str());
+							WriteAppCache("LastCPUProject",GlobalCPUMiningCPID.projectname);
+						
+							return GlobalCPUMiningCPID;
 						}
 					}
 
@@ -7719,7 +7731,7 @@ MiningCPID GetNextProject()
 			msMiningErrors = "Error obtaining next project.  Error 06172014.";
 			printf("Error obtaining next project 2.\r\n");
 		}
-		return miningcpid;
+		return GlobalCPUMiningCPID;
 
 }
 
@@ -7776,7 +7788,6 @@ void GetNextGPUProject(bool force)
      								msGPUMiningProject = structcpid.projectname;
 									msGPUMiningCPID = structcpid.cpid;
 									mdGPUMiningRAC = structcpid.rac;
-
 									msGPUENCboincpublickey = structcpid.boincpublickey;
 									msGPUboinckey = structcpid.boincpublickey;
 									double ProjectRAC = GetNetworkAvgByProject(structcpid.projectname);
@@ -7985,18 +7996,15 @@ void CriticalThreadDelay()
 	}
 }
 
+
 double static PoBMiner(int threadid)
 {
 
     //Each thread has its own counter
 	//When Miner terminates it returns last nonce
-
-    int prevblocktype = 0;
-
-	MiningCPID miningcpid;
-	CReserveKey* pPOBMiningKey = NULL;
-	double nNonce = 0;
-
+    CReserveKey* pPOBMiningKey = NULL;
+	nGlobalNonce = 0;
+	
 	try
 	{
 
@@ -8020,7 +8028,7 @@ double static PoBMiner(int threadid)
 		bool bPoolMiner = false;
 		if (mapArgs["-poolmining"] == "true")  bPoolMiner=true;
 
-		miningcpid = GetNextProject();
+		GetNextProject();
 		
 		bool bPOBDiffInvalid = IsPOBDiffInvalid();
 				
@@ -8030,7 +8038,7 @@ double static PoBMiner(int threadid)
 				PobSleep(15000);
 			    goto restart;
 		}
-		if (miningcpid.projectname == "" || miningcpid.rac==0 || miningcpid.diffbytes == 0)
+		if (GlobalCPUMiningCPID.projectname == "" || GlobalCPUMiningCPID.rac==0 || GlobalCPUMiningCPID.diffbytes == 0)
 		{
 				printf("All projects exhausted.  Sleeping...\r\n");
 				msMiningErrors = "CPU projects are exhausted.  Sleeping";
@@ -8038,12 +8046,10 @@ double static PoBMiner(int threadid)
 			    goto restart;
 		}
 		
-		if (bPoolMiner && threadid == 1)
+		if (bPoolMiner && threadid == 0)
 		{
-				StartPostOnBackgroundThread(nBestHeight,miningcpid,0,nNonce,0,3,"AUTHENTICATE");
-	
+				StartPostOnBackgroundThread(nBestHeight,GlobalCPUMiningCPID,0,nGlobalNonce,0,3,"AUTHENTICATE");
 		}
-
 
 
 		bool succeeded = false;
@@ -8053,53 +8059,26 @@ double static PoBMiner(int threadid)
 		pPOBMiningKey = new CReserveKey(pwalletMain);
 		CBlock* pblock = NULL;
 		int mutex = 0;
-		try
-		{
-			MilliSleep(Races(1000)+500);
-
-			while (CreatingNewBlock)
-			{
-				mutex = mutex + Races(1000);
-				PobSleep(mutex);
-				if (mutex > 1000) 
-				{
-					CreatingNewBlock=false;
-					break;
-				}
-			}
-    		if (threadid > 3) PobSleep(Races(3333));
-			pblock = getwork_cpu(miningcpid,succeeded,*pPOBMiningKey);
-		}
-	    catch (std::exception &e) 
-		{
-			printf("Error while getting cpu work\r\n");
-			break;
-		}
-		catch(...)
-		{
-			printf("Error while getting CPU Work (06182014)\r\n");
-			break;
-		}
-		
-		if (!pblock) return 0;
-		if (pblock==NULL) return 0;
-		if (!succeeded)  return 0;
-		msMiningErrors = "CPU Mining " + miningcpid.projectname;
-
-		
+		pblock = getwork_cpu(GlobalCPUMiningCPID,succeeded,*pPOBMiningKey);
+		if (!succeeded || !pblock || pblock==NULL) return 0;
+		msMiningErrors = "CPU Mining " + GlobalCPUMiningCPID.projectname;
 		printf("{PoBMiner_ST}");
-	    nNonce = Races(150000);
+	    nGlobalNonce = Races(150000);
 
+		//Store the merkle root on the global mining CPID
+		GlobalhashMerkleRoot = pblock->hashMerkleRoot;
+
+	
         //
         // Search
         //
 		int64 nStart = GetTime();
         
 		int out_height1= 0;
-		prevblocktype = GetBlockType2(pblock->hashPrevBlock,out_height1);
-		printf("{PoBMiner}%"PRIszu" TX/BLK_SIZE:(%u bytes) \n PoBDiff %f \r\n  ",
-			  pblock->vtx.size(), 
-			  ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION), 	  miningcpid.pobdifficulty);
+
+		
+		GlobalCPUMiningCPID.prevBlockType = GetBlockType2(pblock->hashPrevBlock,out_height1);
+		printf("{PoBMiner}%"PRIszu" TX/BLK_SIZE:(%u bytes) \n PoBDiff %f \r\n  ",  pblock->vtx.size(),   ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION), 	  GlobalCPUMiningCPID.pobdifficulty);
 
 		std::string sAES = "";
 		std::string sSkein = "";
@@ -8108,112 +8087,100 @@ double static PoBMiner(int threadid)
 
         loop
         {
-			uint256 powhash = pblock->hashMerkleRoot + nNonce;
+			uint256 powhash = pblock->hashMerkleRoot + nGlobalNonce;
+			if (GlobalSolutionPowHash > 0)
+			{
+				//Submitted from another thread:
+				powhash = GlobalSolutionPowHash;
+			}
 			sAES = aes_complex_hash(powhash);
-			iIAV = TestAESHash(miningcpid.rac, miningcpid.diffbytes, powhash, sAES);
+			iIAV = TestAESHash(GlobalCPUMiningCPID.rac, GlobalCPUMiningCPID.diffbytes, powhash, sAES);
+			if (iIAV != 0 && GlobalSolutionPowHash > 0) 
+			{
+					printf("Solution from foreign thread rejected.\r\n");
+					GlobalSolutionPowHash = 0;
+			}
 			if (iIAV == 0)
 			{
-      			printf("10001: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",
-					powhash.GetHex().c_str(),
-					miningcpid.rac, 
-					miningcpid.diffbytes, miningcpid.pobdifficulty,
-					pblock->hashMerkleRoot.GetHex().c_str(), pblock->nNonce);
-					bool cpidOK = IsCPIDValid(miningcpid.cpid,miningcpid.encboincpublickey);
-					if (!cpidOK) 
-					{
-							printf("CPID Not valid!  cpid %s  ebc %s \r\n",miningcpid.cpid.c_str(),
-							miningcpid.encboincpublickey.c_str());
-							PobSleep(2000);
+      			printf("10001: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",					powhash.GetHex().c_str(),					GlobalCPUMiningCPID.rac, 					GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty,					pblock->hashMerkleRoot.GetHex().c_str(), pblock->nNonce);
+				bool cpidOK = IsCPIDValid(GlobalCPUMiningCPID.cpid,GlobalCPUMiningCPID.encboincpublickey);
+				if (!cpidOK) 
+				{
+							printf("CPID Not valid!  cpid %s  ebc %s \r\n",GlobalCPUMiningCPID.cpid.c_str(),
+							GlobalCPUMiningCPID.encboincpublickey.c_str());
 							break;
-					}
-
-    				if (Checkpoints::IsInitialBlockDownload())
-					{
+				}
+    			if (Checkpoints::IsInitialBlockDownload())
+				{
 						printf("Block found during download...Exiting\r\n");
-						PobSleep(2000);
 						break;
-					}
-
-       			printf("10002: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",
-					powhash.GetHex().c_str(),
-					miningcpid.rac, 
-					miningcpid.diffbytes, miningcpid.pobdifficulty, pblock->hashMerkleRoot.GetHex().c_str(),
-					pblock->nNonce);
-
-				
+				}
+       			printf("10002: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",					powhash.GetHex().c_str(),					GlobalCPUMiningCPID.rac, 					GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty, pblock->hashMerkleRoot.GetHex().c_str(),		pblock->nNonce);
 				if (cpidOK)
 				{
-
-				    	std::string hashBoinc = SerializeBoincBlock(miningcpid.cpid, miningcpid.projectname, sAES,
-						miningcpid.rac,		miningcpid.pobdifficulty, 
-						miningcpid.diffbytes, 
-						miningcpid.encboincpublickey, enc_aes, nNonce, miningcpid.NetworkRAC);
-						//printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
-						pblock->hashBoinc = hashBoinc;
-						std::string skein2 = aes_complex_hash(powhash);
-						printf("calculated skein: %s",skein2.c_str());
-						pblock->print();
-						bool checkblockresult = CheckProofOfBoinc(pblock, false);
-
-						if (!checkblockresult) {
-							printf("PoB Miner failed to submit block: check proof of boinc failure.\r\n");
-							printf("10005: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  \r\n\r\n",
-							pblock->GetPoWHash().GetHex().c_str(),
-							miningcpid.rac, 
-							miningcpid.diffbytes, miningcpid.pobdifficulty, pblock->hashMerkleRoot.GetHex().c_str());
-							//Get a new project, in case this project was just submitted by another thread
-							printf("Getting next project...\r\n");
-							miningcpid.projectname == "";
-							
-							break;
-						}
-				
-						if (checkblockresult)
+						LOCK(cs_main);
 						{
-							printf("Solution Found! Found cpu block\r\n");
-					
-							//SetThreadPriority(THREAD_PRIORITY_LOWEST);
-							//Double check PoB hash:
-							printf("PoB proof-of-work found  \n  hash: %s \r\n", pblock->GetPoWHash().GetHex().c_str());
-							//5-19-2014 At this point, the CPU Miner found a solution; lock all other threads while we submit it; verify the block hash is OK
-						    iCriticalThreadDelay=30;
-							bool result = false;
-							result = SubmitGridcoinCPUWork(pblock, *pPOBMiningKey, nNonce);
-							if (result)
-							{
-   								//Critical Section: 4-19-2014
-								//CPU BLOCK FOUND:
-								//UpdatedTransaction(pblock->vtx[0].GetHash());
-								msMiningErrors = "Found CPU Block!";
+				    			std::string hashBoinc = SerializeBoincBlock(GlobalCPUMiningCPID.cpid, GlobalCPUMiningCPID.projectname, sAES,
+								GlobalCPUMiningCPID.rac,		GlobalCPUMiningCPID.pobdifficulty, 
+								GlobalCPUMiningCPID.diffbytes, 
+								GlobalCPUMiningCPID.encboincpublickey, enc_aes, nGlobalNonce, GlobalCPUMiningCPID.NetworkRAC);
+								//printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
+								pblock->hashBoinc = hashBoinc;
+								std::string skein2 = aes_complex_hash(powhash);
+								printf("calculated skein: %s",skein2.c_str());
 								pblock->print();
-								printf("Check work return Positive\r\n");
-					    		miningcpid.projectname == "";
-								break;
-						}
-						else
-						{
-							printf("check work returned negative\r\n");
-							miningcpid.projectname == "";
-						
-							break;
-						}
-						//SetThreadPriority(THREAD_PRIORITY_NORMAL);
-    					break;
-        
-					}
-		    	}
+								bool checkblockresult = CheckProofOfBoinc(pblock, false);
+								if (!checkblockresult) {
+										printf("PoB Miner failed to submit block: check proof of boinc failure.\r\n");
+										printf("10005: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  \r\n\r\n",
+										pblock->GetPoWHash().GetHex().c_str(),
+										GlobalCPUMiningCPID.rac, 
+										GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty, pblock->hashMerkleRoot.GetHex().c_str());
+										//Get a new project, in case this project was just submitted by another thread
+										printf("Getting next project...\r\n");
+   										GlobalCPUMiningCPID.projectname == "";
+										break;
+								}
+								if (checkblockresult)
+								{
+												printf("Solution Found! Found cpu block\r\n");
+												//Double check PoB hash:
+												printf("PoB proof-of-work found  \n  hash: %s \r\n", pblock->GetPoWHash().GetHex().c_str());
+												//5-19-2014 At this point, the CPU Miner found a solution; lock all other threads while we submit it; verify the block hash is OK
+												iCriticalThreadDelay=30;
+												bool result = false;
+												result = SubmitGridcoinCPUWork(pblock, *pPOBMiningKey, nGlobalNonce);
+												if (result)
+												{
+   													//Critical Section: 4-19-2014
+													//UpdatedTransaction(pblock->vtx[0].GetHash());
+													msMiningErrors = "Found CPU Block!";
+													pblock->print();
+													printf("Check work return Positive\r\n");
+					    							GlobalCPUMiningCPID.projectname == "";
+													break;
+												}
+												else
+												{
+													printf("check work returned negative\r\n");
+													GlobalCPUMiningCPID.projectname == "";
+													break;
+												}
+											break;
+										}
+								}
+		    		}
 			}
-            nNonce++;
+            nGlobalNonce++;
 
             // Meter hashes/sec
-            static int64 nHashCounter;
             if (nHPSTimerStart == 0)
             {
                 nHPSTimerStart = GetTimeMillis();
-                nHashCounter = 0;
+                nGlobalHashCounter = 0;
             }
             else
-                nHashCounter += 1;
+                nGlobalHashCounter += 1;
             if (GetTimeMillis() - nHPSTimerStart > 4000)
             {
                 static CCriticalSection cs;
@@ -8226,14 +8193,15 @@ double static PoBMiner(int threadid)
             
                     if (GetTimeMillis() - nHPSTimerStart > 4000)
                     {
-                        dHashesPerSec = 1000.0 * nHashCounter / (GetTimeMillis() - nHPSTimerStart);
+                        dHashesPerSec = 1000.0 * nGlobalHashCounter / (GetTimeMillis() - nHPSTimerStart);
                         nHPSTimerStart = GetTimeMillis();
-                        nHashCounter = 0;
+                        nGlobalHashCounter = 0;
                         static int64 nLogTime;
                         if (GetTime() - nLogTime > 30 * 3)
                         {
                             nLogTime = GetTime();
-                            printf("hashmeter %6.0f khash/s\n", dHashesPerSec/1000.0);
+							printf("Hashmeter %6.0f KH;Rac %f;Bytes %u;POBDIFF %f\r\n",
+								dHashesPerSec/1000.0,GlobalCPUMiningCPID.rac,GlobalCPUMiningCPID.diffbytes,GlobalCPUMiningCPID.pobdifficulty);
 							msMiningErrors = "CPU Mining";
                         }
 
@@ -8243,11 +8211,10 @@ double static PoBMiner(int threadid)
 							msMiningErrors = "";
 						}
         	
-						if (prevblocktype == 3) 
+						if (GlobalCPUMiningCPID.prevBlockType == 3) 
 						{
 								if (LessVerbose(100)) printf("Last block is CPU block (Miner throttling back CPU usage).");
 								msMiningErrors = "Last block is a CPU block (sleeping)";
-
 						}
 				    }
                 }
@@ -8257,35 +8224,25 @@ double static PoBMiner(int threadid)
             boost::this_thread::interruption_point();
 			CriticalThreadDelay();
 
-			if (bRestartGridcoinMiner) return nNonce;
-			if (threadid > 3)
-			{
-				MilliSleep(2);  //Prevent thread contention (apphangs) on large machines
-			}
-			else
-			{
-				//Reserved
-			}
-			//Thread Delay is triggered when GPU miner finds a block - for thread safety.
+			if (bRestartGridcoinMiner) return nGlobalNonce;
 			// If last block is a CPU block, slow the miner down:
-			if (prevblocktype==3) 
+			if (GlobalCPUMiningCPID.prevBlockType==3) 
 			{
 				PobSleep(1000);
 			}
 			// If all projects are exhausted throughout lookback, sleep:
-			if (miningcpid.projectname == "" && prevblocktype != 3) 
+			if (GlobalCPUMiningCPID.projectname == "" && GlobalCPUMiningCPID.prevBlockType != 3) 
 			{
 				printf("All projects exhausted.  Sleeping...\r\n");
 				msMiningErrors = "All projects exhausted.  Sleeping";
 				PobSleep(25000);
-				miningcpid = GetNextProject();
+				GlobalCPUMiningCPID = GetNextProject();
 				printf("Sleeping II\r\n");
 				break;
 			}
             if (vNodes.empty() && !fTestNet)
                 break;
-            if (nNonce >= 0xffff0000)
-                break;
+            //if (nGlobalNonce >= 0xffff0000)                break;
             if (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60)
 			{
 				PobSleep(2000);
@@ -8295,35 +8252,154 @@ double static PoBMiner(int threadid)
 			{
 				printf("New block detected on network...");
 				msMiningErrors = "New block detected";
-        		//Sleep to avoid races
-				MilliSleep(1000);
+				MilliSleep(100);
 		        break;
 			}
-	
 						
         }
-    } 
+     } 
   }
   catch (boost::thread_interrupted) 
   {
-			printf("PoB miner interrupted @ nonce %f",nNonce);
-			return nNonce;
+			printf("PoB miner interrupted @ nonce %f",nGlobalNonce);
+			return nGlobalNonce;
   }
   catch (std::exception &e) 
   {
 		printf("Pob Interrupted with stdException.");
-		return nNonce;
+		return nGlobalNonce;
   }
   catch ( ... )
   {
      	printf("Pob Interrupted with stdException [anything].");
-		return nNonce;
+		return nGlobalNonce;
   }
 
   return 0;
 
 
 }
+
+
+
+
+
+double static PoBMinerMultiThread(int threadid)
+{
+	
+
+	try
+	{
+
+    loop 
+    {
+	restart:
+
+        MinerWaitOnline();
+		
+    	printf("..PoB MultiThreadMiner {ST}..");
+		MilliSleep(1000);  //Useful if this thread is waiting for a solution to be submitted on thread 0
+
+
+		if (GlobalCPUMiningCPID.projectname == "" || GlobalCPUMiningCPID.rac==0 || GlobalCPUMiningCPID.diffbytes == 0)
+		{
+				msMiningErrors = "CPU projects are exhausted.  Sleeping";
+				PobSleep(15000);
+			    goto restart;
+		}
+		
+
+		bool succeeded = false;
+	
+		//Search
+
+		std::string sAES = "";
+		std::string sSkein = "";
+		int iIAV = 0;
+		std::string enc_aes = "";
+
+        loop
+        {
+
+		
+			uint256 powhash = GlobalhashMerkleRoot + nGlobalNonce;
+			sAES = aes_complex_hash(powhash);
+			iIAV = TestAESHash(GlobalCPUMiningCPID.rac, GlobalCPUMiningCPID.diffbytes, powhash, sAES);
+			if (iIAV == 0)
+			{
+    				if (GlobalCPUMiningCPID.rac==0) 
+					{
+						MilliSleep(1000);
+						break;
+					}
+         			printf("ThreadID=%u POBMinerMultiThread Found Potential Solution : Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %f  \r\n\r\n",
+						threadid,powhash.GetHex().c_str(),		GlobalCPUMiningCPID.rac,	GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty, 
+						GlobalhashMerkleRoot.GetHex().c_str(),		nGlobalNonce);
+					//Submit solution to thread 0:
+					GlobalSolutionPowHash = powhash;
+					MilliSleep(5000);
+					break;
+			}
+            nGlobalNonce++;
+            nGlobalHashCounter += 1;
+            // Check for stop or if block needs to be rebuilt
+            boost::this_thread::interruption_point();
+			if (bRestartGridcoinMiner) return nGlobalNonce;
+			if (threadid > 4)
+			{
+				MilliSleep(1);  //Prevent thread contention (apphangs) on large machines
+			}
+			if (GlobalCPUMiningCPID.prevBlockType==3 || GlobalCPUMiningCPID.rac==0) 
+			{
+				PobSleep(1000);
+			}
+			// If all projects are exhausted throughout lookback, sleep:
+			if (GlobalCPUMiningCPID.projectname == "" && GlobalCPUMiningCPID.prevBlockType != 3) 
+			{   //AllProjectsExhausted:
+				PobSleep(25000);
+				GlobalCPUMiningCPID = GetNextProject();
+				printf("Sleeping MultiThread\r\n");
+				break;
+			}
+            if (vNodes.empty() && !fTestNet)
+                break;
+        				
+        }
+    } 
+  }
+  catch (boost::thread_interrupted) 
+  {
+			printf("PoB miner interrupted @ nonce %f",nGlobalNonce);
+			return nGlobalNonce;
+  }
+  catch (std::exception &e) 
+  {
+		printf("Pob Interrupted with stdException.");
+		return nGlobalNonce;
+  }
+  catch ( ... )
+  {
+     	printf("Pob Interrupted with stdException [anything].");
+		return nGlobalNonce;
+  }
+
+  return 0;
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8352,10 +8428,7 @@ void ThreadCPIDs()
 
 void static ThreadGridcoinMiner(int iThread)
 {
-	
-    printf("Gridcoin miner started\r\n");
-    //Prevent shocking
-	printf("j1..");
+	//Prevent shocking
 	MilliSleep(Races(10000)+5000);
 	RenameThread("gridcoin-miner");
 	
@@ -8364,17 +8437,24 @@ void static ThreadGridcoinMiner(int iThread)
 		MilliSleep(1000);
 	}
 	printf("Starting Gridcoin PoB miner\n");
-	MiningCPID miningcpid = GetNextProject();
-		
+	GetNextProject();
 	printf(".z1.");
 	miningthreadcount++;
-	MilliSleep(Races(2333)+100);
-
-	double nNonce = PoBMiner(iThread);
+	MilliSleep(Races(1000)+100);
+	double nNonce = 0;
+	if (iThread==0)
+	{
+		nNonce = PoBMiner(iThread);
+	}
+	else
+	{
+		nNonce = PoBMinerMultiThread(iThread);
+		
+	}
 
 	//Post last nonce to Pool
 	
-	StartPostOnBackgroundThread(nBestHeight,miningcpid,0,nNonce,0,3,"AUTHENTICATE");
+	StartPostOnBackgroundThread(nBestHeight,GlobalCPUMiningCPID,0,nNonce,0,3,"AUTHENTICATE");
 	
 	printf("Gridcoin miner terminated at Nonce %f \n",nNonce);
 	
@@ -8404,7 +8484,6 @@ void RestartGridcoinMiner()
 
 	try {
 	ShutdownGridcoinMiner();
-	CreatingNewBlock=false;
 	GenerateGridcoins(fGenerate,false);
 	}
 	catch(std::runtime_error &e) 
@@ -8418,8 +8497,8 @@ void GenerateGridcoins(bool fDoGenCoins, bool LoadCPIDs)
     
     int nThreads = GetArg("-threadlimit", -1);
     if (nThreads < 0) {
-            nThreads = boost::thread::hardware_concurrency();
-			nThreads=1;
+            //nThreads = boost::thread::hardware_concurrency();
+			nThreads=1; //1 is default, use threadlimit=x to specify more threads.
     }
 
 
@@ -8445,7 +8524,6 @@ void GenerateGridcoins(bool fDoGenCoins, bool LoadCPIDs)
 	msMiningErrors = "Starting Gridcoin CPU Miner";
 	assert(pwalletMain != NULL);
     minerThreads = new boost::thread_group();
-	if (nThreads > 0) nThreads=1;
 
     for (int i = 0; i < nThreads; i++)
 	{

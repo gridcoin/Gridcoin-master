@@ -172,6 +172,12 @@ extern int nBestHeight;
 extern uint256 nBestChainWork;
 extern uint256 nBestInvalidWork;
 extern uint256 hashBestChain;
+
+//Optimizing internal cpu miner:
+extern uint256 GlobalhashMerkleRoot;
+extern uint256 GlobalSolutionPowHash;
+
+
 extern CBlockIndex* pindexBest;
 extern unsigned int nTransactionsUpdated;
 extern uint64 nLastBlockTx;

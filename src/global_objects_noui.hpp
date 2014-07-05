@@ -22,6 +22,10 @@ extern volatile bool bForceUpdate;
 extern volatile bool bAllowBackToBack;
 extern volatile bool CreatingCPUBlock;
 
+extern volatile double nGlobalNonce;
+extern volatile double nGlobalHashCounter;
+          
+
 extern int miningthreadcount;
 
 
@@ -142,6 +146,9 @@ struct MiningEntry {
 		std::string encaes;
 		double nonce;
 		double NetworkRAC;
+		int prevBlockType;
+		std::string clientversion;
+
 	};
 
 	
@@ -163,12 +170,16 @@ extern std::map<std::string, StructCPID> mvNetwork;
 extern std::map<std::string, StructCPID> mvNetworkCPIDs;
 
 
+
 extern std::map<std::string, StructCPID> mvCreditNodeCPIDProject; //Contains verified CPID+Projects;
 //Caches
 extern std::map<std::string, StructCPIDCache> mvCPIDCache; //Contains cached blocknumbers for CPID+Projects;
 
 extern std::map<std::string, StructBlockCache> mvBlockCache;  //Contains Cached Blocks
 extern std::map<std::string, StructCPIDCache> mvAppCache; //Contains cached blocknumbers for CPID+Projects;
+
+//Global CPU Mining CPID:
+extern MiningCPID GlobalCPUMiningCPID;
 
 
 //Boinc Valid Projects

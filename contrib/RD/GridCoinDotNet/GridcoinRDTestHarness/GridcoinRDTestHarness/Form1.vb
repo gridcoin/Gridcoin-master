@@ -99,30 +99,30 @@ Public Class Form1
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
 
+
         Dim x As New boinc.Utilization
+        'Test AES 512 in .NET:
+        Dim sNonEncHash As String = "12345"
+        Dim sEncHash As String = ""
+        sEncHash = x.cAES512Encrypt(sNonEncHash)
+        Dim sDecHash As String = ""
+        sDecHash = x.cAES512Decrypt(sEncHash)
+        Debug.Print(sDecHash)
+        'Decrypt Pool Key:
+        Dim sPool As String = "RnU0Q0FLc3VRYzFSZ3hneTVqalVyckhSdVNCVTFyWkZtdzs2ZjdjOTNiNTFjY2Y1NWU0ZTA1MjllN2U1ZjZmZGNmYXJhY2hhbHVwYUB5YWhvby5jb20="
+        Dim m As New MiningKey
+        m = ReceiveMiningKey(sPool)
+
+
+        'Test p2pool AES
+        Dim sENC1 As String = "HÊxâ>xï¹GWÿ©²8ó§^Ž%Àä|XÂ1IÙÓŸ®:ëUž*êÿO’¯_íÁóÔŽ¡æµ¢7Á´fÊ"
+
+
         x._boincmagnitude = 286
 
 
         x.ShowMiningConsole()
         Exit Sub
-
-
-        '        Dim sQTPath As String = "c:\gridcoin-master\src\qt\"
-        '       Dim sQTPathF As String = "c:\gridcoin-master\src\qt\forms\"
-        '      night = True
-        '
-        'RewriteSourceFile(sQTPath, "bitcoin.cpp")
-        'RewriteSourceFile(sQTPath, "bitcoingui.cpp")
-        'RewriteSourceFile(sQTPath, "optionsdialog.cpp")
-        'RewriteSourceFile(sQTPath, "overviewpage.cpp")
-
-        '        RewriteSourceFile(sQTPath, "rpcconsole.cpp")
-        '       RewriteSourceFile(sQTPath, "signverifymessagedialog.cpp")
-        '      RewriteSourceFile(sQTPath, "splashscreen.cpp")
-        '     RewriteSourceFile(sQTPath, "transactiontablemodel.cpp")
-        '    RewriteSourceFile(sQTPath, "transactionview.cpp")
-        '   RewriteSourceFile(sQTPath, "guiconstants.h")
-        '  RewriteSourceFile(sQTPathF, "aboutdialog.ui")
 
 
     End Sub
@@ -131,9 +131,6 @@ Public Class Form1
     Public Sub RewriteSourceFile(sPATHH As String, sSFileIn As String)
         Dim sFileIn As String
         sFileIn = sPATHH + sSFileIn
-
-
-
 
         Dim infile As New StreamReader(sFileIn)
         Dim sOutPath As String
@@ -153,11 +150,7 @@ Public Class Form1
         Dim sBackupPath As String = "c:\gridcoin-master\src\qcolorbackup\"
         Dim sFileName As String
         Dim fi As New FileInfo(sFileIn)
-
-
         FileCopy(sFileIn, sBackupPath + fi.Name)
-
-
         While (infile.EndOfStream = False)
             text = infile.ReadLine()
             If InStr(1, text, "<color alpha=") > 0 Then
@@ -198,10 +191,6 @@ Public Class Form1
 
         End While
         outfile.Close()
-
-        Stop
-
-
 
     End Sub
     Public Function ReplaceRGB(sData As String, night As Boolean)

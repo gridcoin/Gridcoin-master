@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Net
 Imports System.Text
+Imports System.Security.Cryptography
 
 Module modGRC
 
@@ -16,6 +17,9 @@ Module modGRC
     Public mfrmSql As frmSQL
     Public mfrmGridcoinMiner As frmGridcoinMiner
     Public mfrmLeaderboard As frmLeaderboard
+    Public MerkleRoot As String = "0xda43abf15a2fcd57ceae9ea0b4e0d872981e2c0b72244466650ce6010a14efb8"
+    Public merkleroot2 As String = "0xda43abf15abcdefghjihjklmnopq872981e2c0b72244466650ce6010a14efb8"
+
     Structure xGridcoinMiningStructure
         Public Shared device As String = "0"
         Public Shared gpu_thread_concurrency As String = "8192"
@@ -23,6 +27,52 @@ Module modGRC
         Public Shared intensity As String = "13"
         Public Shared lookup_gap As String = "2"
     End Structure
+
+    Private Function TruncateHash(ByVal key As String, ByVal length As Integer) As Byte()
+        Dim sha1 As New SHA1CryptoServiceProvider
+        ' Hash the key. 
+        Dim keyBytes() As Byte =
+            System.Text.Encoding.Unicode.GetBytes(key)
+        Dim hash() As Byte = sha1.ComputeHash(keyBytes)
+        ' Truncate or pad the hash. 
+        ReDim Preserve hash(length - 1)
+        Return hash
+    End Function
+
+    Private Function CreateAESEncryptor(ByVal sSalt As String) As ICryptoTransform
+
+        Try
+            Dim encryptor As ICryptoTransform = Aes.Create.CreateEncryptor(TruncateHash(MerkleRoot + Right(sSalt, 4), Aes.Create.KeySize \ 8), TruncateHash("", Aes.Create.BlockSize \ 8))
+
+            'Aes.Create.Key = TruncateHash(MerkleRoot + Right(sSalt, 4), Aes.Create.KeySize \ 8)
+            'Aes.Create.IV = TruncateHash("", Aes.Create.BlockSize \ 8)
+            Return encryptor
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Private Function CreateAESDecryptor(ByVal sSalt As String) As ICryptoTransform
+
+        Try
+            Dim decryptor As ICryptoTransform = Aes.Create.CreateDecryptor(TruncateHash(MerkleRoot + Right(sSalt, 4), Aes.Create.KeySize \ 8), TruncateHash("", Aes.Create.BlockSize \ 8))
+
+            'Aes.Create.Key = TruncateHash(MerkleRoot + Right(sSalt, 4), Aes.Create.KeySize \ 8)
+            'Aes.Create.IV = TruncateHash("", Aes.Create.BlockSize \ 8)
+            Return decryptor
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+
+    End Function
+
+    Public Function StringToByte(sData As String)
+        Dim keyBytes() As Byte = System.Text.Encoding.Unicode.GetBytes(sData)
+        Return keyBytes
+    End Function
     Public Function xReturnMiningValue(iDeviceId As Integer, sKey As String, bUsePrefix As Boolean) As String
         Dim g As New xGridcoinMiningStructure
         Dim sOut As String = ""
@@ -53,7 +103,48 @@ Module modGRC
         Dim value As String = System.Text.ASCIIEncoding.ASCII.GetString(b)
         b = System.Convert.FromBase64String(value)
         System.IO.File.WriteAllBytes(sTargetFileName, b)
-        
+
+    End Function
+
+    Public Function GetMd5String(ByVal sData As String) As String
+        Try
+            Dim objMD5 As New System.Security.Cryptography.MD5CryptoServiceProvider
+            Dim arrData() As Byte
+            Dim arrHash() As Byte
+
+            ' first convert the string to bytes (using UTF8 encoding for unicode characters)
+            arrData = System.Text.Encoding.UTF8.GetBytes(sData)
+
+            ' hash contents of this byte array
+            arrHash = objMD5.ComputeHash(arrData)
+
+            ' thanks objects
+            objMD5 = Nothing
+            Dim sOut As String = ByteArrayToWierdHexString(arrHash)
+
+            ' return formatted hash
+            Return sOut
+
+        Catch ex As Exception
+            Return "MD5Error"
+        End Try
+    End Function
+
+    ' utility function to convert a byte array into a hex string
+    Private Function ByteArrayToWierdHexString(ByVal arrInput() As Byte) As String
+        Dim strOutput As New System.Text.StringBuilder(arrInput.Length)
+        For i As Integer = 0 To arrInput.Length - 1
+            strOutput.Append(arrInput(i).ToString("X2"))
+        Next
+        Return strOutput.ToString().ToLower
+    End Function
+
+
+
+    Public Function ByteToString(b() As Byte)
+        Dim sReq As String
+        sReq = System.Text.Encoding.UTF8.GetString(b)
+        Return sReq
     End Function
 
     Public Function RestartWallet1(sParams As String)
@@ -450,10 +541,7 @@ Module modGRC
             md5 = System.Security.Cryptography.MD5.Create()
             Dim b() As Byte
             b = StringToByte(sMd5)
-
             md5 = md5.ComputeHash(b)
-
-
             Dim sOut As String
             sOut = ByteArrayToHexString(md5)
             Return sOut
@@ -575,6 +663,56 @@ Module modGRC
             Return False
 
         End Try
+    End Function
+
+
+    Public Function AES512EncryptData(ByVal plaintext As String) As String
+
+        Try
+
+            ' Convert the plaintext string to a byte array. 
+            Dim encryptor As ICryptoTransform = CreateAESEncryptor("salt")
+            
+            'Call MerkleAES(MerkleRoot)
+            Dim plaintextBytes() As Byte = System.Text.Encoding.Unicode.GetBytes(plaintext)
+            ' Create the stream. 
+            Dim ms As New System.IO.MemoryStream
+            ' Create the encoder to write to the stream. 
+            Dim encStream As New CryptoStream(ms, encryptor, System.Security.Cryptography.CryptoStreamMode.Write)
+            ' Use the crypto stream to write the byte array to the stream.
+            encStream.Write(plaintextBytes, 0, plaintextBytes.Length)
+            encStream.FlushFinalBlock()
+            Try
+                Return Convert.ToBase64String(ms.ToArray)
+
+            Catch ex As Exception
+
+            End Try
+
+
+        Catch ex As Exception
+
+        End Try
+    End Function
+
+    Public Function AES512DecryptData(ByVal encryptedtext As String) As String
+        Try
+
+            ' Convert the encrypted text string to a byte array. 
+            '            MerkleAES(MerkleRoot)
+            Dim decryptor As ICryptoTransform = CreateAESDecryptor("salt")
+            Dim encryptedBytes() As Byte = Convert.FromBase64String(encryptedtext)
+            Dim ms As New System.IO.MemoryStream
+            Dim decStream As New CryptoStream(ms, decryptor, System.Security.Cryptography.CryptoStreamMode.Write)
+            ' Use the crypto stream to write the byte array to the stream.
+            decStream.Write(encryptedBytes, 0, encryptedBytes.Length)
+            decStream.FlushFinalBlock()
+            ' Convert the plaintext stream to a string. 
+            Return System.Text.Encoding.Unicode.GetString(ms.ToArray)
+        Catch ex As Exception
+            Return ex.Message
+        End Try
+
     End Function
 
 

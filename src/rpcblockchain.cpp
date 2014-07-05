@@ -23,6 +23,9 @@ double GetBlockValueByHash(uint256 hash);
 
 
 
+void GetNextGPUProject(bool force);
+
+
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
 
 CBigNum ReturnProofOfWorkLimit(int algo);
@@ -197,7 +200,6 @@ double GetDifficulty(const CBlockIndex* blockindex)
 Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 {
 
-	//6-12-2014 Cleaning up for p2pool
 
     Object result;
     result.push_back(Pair("hash", block.GetHash().GetHex()));
@@ -218,9 +220,7 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
 	
 	//result.push_back(Pair("boinchash", block.hashBoinc));
-	//Extract hashboinc
 
-	
     MiningCPID bb = DeserializeBoincBlock(block.hashBoinc);
 	uint256 blockhash = block.GetPoWHash();
 	std::string sblockhash = blockhash.GetHex();
@@ -239,7 +239,7 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 
 	int iav  = TestAESHash(bb.rac, (unsigned int)bb.diffbytes, boincpowhash, bb.aesskein);
 	result.push_back(Pair("AES512Valid",iav));
-	
+	result.push_back(Pair("ClientVersion",bb.clientversion));	
 	std::string hbd = AdvancedDecrypt(bb.enccpid);
 	bool IsCpidValid = IsCPIDValid(bb.cpid, bb.enccpid);
 
@@ -957,13 +957,34 @@ Value execute(const Array& params, bool fHelp)
 			entry.push_back(Pair("Errors",out_errors));
 		   	results.push_back(entry);
 	}
+	else if (sItem=="genminingkey")
+	{
+		 //7-3-2014
+		 std::string grc = DefaultWalletAddress();
+		 GetNextGPUProject(true);
+		 bool IsCpidValid = IsCPIDValid(msGPUMiningCPID, msGPUENCboincpublickey);
+		 if (!IsCpidValid)
+		 {
+			entry.push_back(Pair("Errors","Failed to retrieve boinc CPID"));
+
+		 }
+		 std::string bpk = AdvancedDecrypt(msGPUENCboincpublickey);
+		 std::string bpmd5 = RetrieveMd5(bpk);
+		 std::string concatminingkey = grc + ";" + bpk;
+    	 entry.push_back(Pair("BPK",bpk));
+		 entry.push_back(Pair("md5",bpmd5));
+		 entry.push_back(Pair("concat",concatminingkey));
+	 	 std::string miningkey = EncodeBase64(concatminingkey);
+		 entry.push_back(Pair("miningkey",miningkey));
+
+         results.push_back(entry);
+	
+	}
 	else
 	{
 			entry.push_back(Pair("Command " + sItem + " not found.",-1));
 			results.push_back(entry);
 	}
-
-
 	return results;    
 		
 }

@@ -135,9 +135,19 @@ Public Module modCryptography
 
     Private Sub Merkle(ByVal sSalt As String)
         Try
-
             TripleDes.Key = TruncateHash(MerkleRoot + Right(sSalt, 4), TripleDes.KeySize \ 8)
             TripleDes.IV = TruncateHash("", TripleDes.BlockSize \ 8)
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    Private Sub MerkleAES(ByVal sSalt As String, ByRef Encryptor As Aes)
+        Try
+            Aes.Create.Key = TruncateHash(MerkleRoot + Right(sSalt, 4), TripleDes.KeySize \ 8)
+            Aes.Create.IV = TruncateHash("", TripleDes.BlockSize \ 8)
+
         Catch ex As Exception
 
         End Try
@@ -175,10 +185,8 @@ Public Module modCryptography
         Catch ex As Exception
 
         End Try
-
-
-
     End Function
+
     Public Function Des3DecryptData(ByVal encryptedtext As String) As String
         Try
 
@@ -203,6 +211,10 @@ Public Module modCryptography
         End Try
 
     End Function
+
+
+
+
 
     Public Function KeyValue(ByVal sKey As String) As String
         Try
