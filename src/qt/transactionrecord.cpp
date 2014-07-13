@@ -65,12 +65,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 				double myCredit = DoubleFromAmount(sub.credit);
 
 				std::string sSub = RoundToString(myCredit, 4);
+				std::string sSub2 = RoundToString(myCredit,6);
+				std::string sSub3 = RoundToString(myCredit,4) + "00";
+
 				std::string cpu_flag = sSub.substr(sSub.length()-1,1);
 				//printf("Credit amount %s",sSub.c_str());
 
 				sub.IsCPU=false;
 				
-				if (cpu_flag == "1") 
+				if (cpu_flag == "1" && sSub2==sSub3) 
 				{
 						sub.IsCPU=true;
 				}

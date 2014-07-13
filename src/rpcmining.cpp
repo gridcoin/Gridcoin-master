@@ -593,9 +593,6 @@ Value getwork(const Array& params, bool fHelp)
 		
 
 
-
-
-		//7-12-2014
 		if (boinc_data.length() > 50) 
 		{
 			pblock->hashBoinc=boinc_data;
