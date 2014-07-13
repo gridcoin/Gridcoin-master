@@ -397,8 +397,7 @@ void StartPostOnBackgroundThread(int height, MiningCPID miningcpid, uint256 hash
 }
 
 
-//Standard Getwork - Gridcoin - 4-4-2014
-
+//Standard Getwork - Gridcoin - 7-12-2014
 
 
 Value getwork(const Array& params, bool fHelp)
@@ -464,7 +463,6 @@ Value getwork(const Array& params, bool fHelp)
 
 			
             // Create new block
-
 	
             pblocktemplate = CreateNewBlockWithKey(*pMiningKey,2,miningcpid);
 
@@ -593,6 +591,18 @@ Value getwork(const Array& params, bool fHelp)
 
 		}
 		
+
+
+
+
+		//7-12-2014
+		if (boinc_data.length() > 50) 
+		{
+			pblock->hashBoinc=boinc_data;
+		}
+
+
+
 		bool status = CheckWork(pblock, *pwalletMain, *pMiningKey);
 		if (status)
 		{

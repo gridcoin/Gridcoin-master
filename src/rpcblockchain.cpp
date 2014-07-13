@@ -230,7 +230,10 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex)
 	result.push_back(Pair("BlockDiffBytes", (double)bb.diffbytes));
 	result.push_back(Pair("RAC", bb.rac));
 	result.push_back(Pair("NetworkRAC", bb.NetworkRAC));
-
+	//if (block.hashBoinc.length() > 10) 
+	//{
+		//result.push_back(Pair("BoincHash",block.hashBoinc.substr(0,100)));
+	//}
 	result.push_back(Pair("PoBDifficulty", bb.pobdifficulty));
 	result.push_back(Pair("AES512SkeinHash", bb.aesskein));
 	std::string skein2 = aes_complex_hash(blockhash);
@@ -971,12 +974,11 @@ Value execute(const Array& params, bool fHelp)
 		 std::string bpk = AdvancedDecrypt(msGPUENCboincpublickey);
 		 std::string bpmd5 = RetrieveMd5(bpk);
 		 std::string concatminingkey = grc + ";" + bpk;
-    	 entry.push_back(Pair("BPK",bpk));
-		 entry.push_back(Pair("md5",bpmd5));
-		 entry.push_back(Pair("concat",concatminingkey));
+    	 //entry.push_back(Pair("BPK",bpk));
+		 //entry.push_back(Pair("md5",bpmd5));
+		 //entry.push_back(Pair("concat",concatminingkey));
 	 	 std::string miningkey = EncodeBase64(concatminingkey);
 		 entry.push_back(Pair("miningkey",miningkey));
-
          results.push_back(entry);
 	
 	}

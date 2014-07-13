@@ -203,6 +203,7 @@ CBlockIndex* pindexGenesisBlock = NULL;
  
  volatile double nGlobalNonce = 0;
  volatile double nGlobalHashCounter = 0;
+ volatile double nGlobalSolutionNonce = 0;
 
 
 int nBestHeight = -1;
@@ -214,6 +215,10 @@ uint256 hashBestChain = 0;
 //Optimizing internal cpu miner:
 uint256 GlobalhashMerkleRoot = 0;
 uint256 GlobalSolutionPowHash = 0;
+
+
+
+
 MiningCPID GlobalCPUMiningCPID;
 
 
@@ -925,6 +930,35 @@ std::ifstream::pos_type filesize2(const char* filename)
     return in.tellg(); 
 }
 
+
+
+std::string deletefile(std::string filename)
+{
+	std::string buffer;
+	std::string line;
+	ifstream myfile;   
+    printf("loading file to string %s",filename.c_str());
+
+	filesystem::path path = filename;
+
+	if (!filesystem::exists(path)) {
+		printf("the file does not exist %s",path.string().c_str());	
+		return "-1";
+	}
+
+	
+//	 FILE *file = fopen(filename.c_str(), "rb");
+  //   CAutoFile filein = CAutoFile(file, SER_DISK, CLIENT_VERSION);
+	// int fileSize = GetFilesize(filein);
+     //filein.fclose();
+
+	 int deleted = remove(filename.c_str());
+	 if (deleted != 0) return "Error deleting.";
+	 return "";
+	
+}
+
+
 std::string getfilecontents(std::string filename)
 {
 	std::string buffer;
@@ -1292,6 +1326,9 @@ std::string ToOfficialName(std::string proj)
 			if (proj=="test4theory@home")       proj = "test4theory";
 			if (proj=="lhc@home")               proj = "lhc@home 1.0";
 			if (proj=="mindmodeling@beta")      proj = "mindmodeling@beta";
+			if (proj=="volpex@uh")              proj = "volpex";
+			if (proj=="oproject")               proj = "oproject@home";
+
 			return proj; 
 }
 
@@ -1393,7 +1430,7 @@ try
 				structcpid.team = team;
 
 				if (structcpid.team != "gridcoin") 
-					{
+				{
 						structcpid.Iscpidvalid = false;
 						structcpid.errors = "Team invalid";
 				}
@@ -4608,6 +4645,7 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
         return state.Invalid(error("ProcessBlock() : already have block (orphan) %s", hash.ToString().c_str()));
 
     // Preliminary checks 
+	if (pblock->hashBoinc.length() < 5) return error("ProcessBlock(): BoincHash empty");
 
 
     if (!pblock->CheckBlock(state))
@@ -5603,8 +5641,71 @@ void static ProcessGetData(CNode* pfrom)
 
 
 
+std::string PullFromP2Pool(std::string hash, bool bRemoveReference)
+{
+	std::string pool_path = mapArgs["-poolpath"];
+	std::string sourcefile = pool_path + "p2pool_block.xml";
+	std::string sout = "";
+	if (pool_path == "") 
+	{
+		printf ("failed to find p2pool path.\r\n");
+		return "";
+	}
+	if (bRemoveReference)
+	{
+		std::string resultcode=deletefile(sourcefile);
+		return resultcode;
+	}
+    sout = getfilecontents(sourcefile);
+	if (sout == "-1") 
+	{
+		printf("P2pool Block File not found.\r\n");
+		return "";
+	}
 
+	std::vector<std::string> vBLOCK = split(sout.c_str(),"<BLOCK>");
+	if (vBLOCK.size() > 0)
+	{
+	
+		for (unsigned int i = 0; i < vBLOCK.size(); i++)
+		{
+			std::string blockhash = ExtractXML(vBLOCK[i],"<blockhash>","</blockhash>");
+			std::string boinchash = ExtractXML(vBLOCK[i],"<boinchash>","</boinchash>");
+			printf("looping...found blockhash %s and boinchash %s   Looking for   %s    \r\n",blockhash.c_str(),boinchash.c_str(),hash.c_str());
 
+			if (blockhash == hash)
+			{
+
+					MiningCPID bb = DeserializeBoincBlock(boinchash);
+					//std::string cpid_non = cpid_hash+email;
+					std::string cpid_non = bb.encboincpublickey;
+					to_lower(cpid_non);
+					std::string cpid = RetrieveMd5(cpid_non.c_str());
+					std::string ENCbpk = AdvancedCrypt(cpid_non);
+					bb.encboincpublickey = ENCbpk;
+					//bb.boincpublickey = ENCbpk;
+					//				structcpid.Iscpidvalid = IsCPIDValid(cpid,ENCbpk);
+					std::string sAES = "";
+					//void PoBGPUMiner(CBlock* pblock, MiningCPID& miningcpid)
+
+					printf("Found boinchash %s",boinchash.c_str());
+					std::string hashBoinc = SerializeBoincBlock(bb.cpid, bb.projectname, sAES,
+						bb.rac,		bb.pobdifficulty, 
+						bb.diffbytes, 
+						bb.encboincpublickey, bb.encboincpublickey, bb.nonce, bb.NetworkRAC);
+					//printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
+					return hashBoinc;
+					//				pblock->hashBoinc = hashBoinc;
+		
+			}
+
+		}
+	}
+
+	return "";
+
+}
+	        
 
 
 
@@ -5673,10 +5774,8 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 
 	if (strCommand=="?" || strCommand=="" || p2pool)
 	{
-		//6-12-2014
 		if (mapArgs["-p2pool"] == "true")  strCommand = strPreCommand;
-		//printf("Using command %s \r\n",strPreCommand.c_str());
-
+	
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -5696,7 +5795,6 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
         CAddress addrMe;
         CAddress addrFrom;
         uint64 nNonce = 1;
-		//6-12-2014
 		bool p2pool = (mapArgs["-p2pool"] == "true");
 
 		/*
@@ -6130,13 +6228,53 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 	    CBlock block;
         vRecv >> block;
         printf("RB:%s:H_%d;", block.GetHash().ToString().c_str(), nBestAccepted);
-        CInv inv(MSG_BLOCK, block.GetHash());
-        pfrom->AddInventoryKnown(inv);
-        CValidationState state;
-        if (ProcessBlock(state, pfrom, &block))
-            mapAlreadyAskedFor.erase(inv);
-        int nDoS;
-		if (state.IsInvalid(nDoS))         pfrom->Misbehaving(nDoS);
+		//If blockhash matches p2pool block hash and boinchash is empty, and p2pool=true, load boinchash with cpid:  7-12-2014:
+		bool bAlreadyProcessed = false;
+		bool bP2PoolReferenced = false;
+		if (block.hashBoinc.length() < 5)
+		{
+			bool p2pool = false;
+			if (mapArgs["-p2pool"] == "true")  p2pool=true;
+			printf("Received block from network with empty boinchash \r\n");
+	        if (p2pool)
+			{
+				block.hashBoinc = PullFromP2Pool(block.GetHash().ToString(),false);
+				if (block.hashBoinc.length() > 10) 
+				{
+					    block.BlockType = 2;
+						bP2PoolReferenced=true;
+				}
+			}
+			if (block.hashBoinc.length() < 5)
+			{
+				bAlreadyProcessed=true;
+				printf("Received block %s from network:  BoincHash invalid. Rejected.\r\n",block.GetHash().ToString().c_str());
+			}
+		
+
+		}
+
+		if (!bAlreadyProcessed)
+		{
+			CInv inv(MSG_BLOCK, block.GetHash());
+			pfrom->AddInventoryKnown(inv);
+			CValidationState state;
+			if (ProcessBlock(state, pfrom, &block))
+				mapAlreadyAskedFor.erase(inv);
+			int nDoS;
+			if (state.IsInvalid(nDoS)) 
+			{
+					pfrom->Misbehaving(nDoS);
+			}
+			else
+			{
+				//Remove p2pool reference
+				if (bP2PoolReferenced)
+				{
+					PullFromP2Pool(block.GetHash().ToString(),true);
+				}
+			}
+		}	
     }
 
 
@@ -6906,7 +7044,14 @@ CBlockTemplate* CreateNewBlock(CScript& scriptPubKeyIn, int AlgoType, MiningCPID
 			unsigned int diffbytes = DiffBytes(pobdiff);
 			//Populate the boincHash:
 			miningcpid.pobdifficulty = pobdiff;
-				
+			//If user is originating from p2pool, set the initial block network rac and rac - when block is found, the actual users rac will overwrite this:
+			bool p2pool = (mapArgs["-p2pool"] == "true");
+			if (p2pool)
+			{
+				miningcpid.rac=1000;
+				miningcpid.NetworkRAC=1000;
+			}
+
 			std::string hashBoinc = SerializeBoincBlock(miningcpid.cpid, miningcpid.projectname,
 					"skeinhash", miningcpid.rac, 
 					miningcpid.pobdifficulty, miningcpid.diffbytes, miningcpid.encboincpublickey,
@@ -7254,12 +7399,8 @@ std::string SerializeBoincBlock(std::string cpid, std::string projectname, std::
 	double PoBDifficulty, unsigned int diffbytes, std::string enccpid, std::string encaes, double nonce, double NetworkRAC)
 {
 	std::string delim = "<|>";
-
 	if (PoBDifficulty > 99) PoBDifficulty=99;
-	 
 	std::string version = FormatFullVersion();
-	//7-5-2014
-
 	std::string bb = cpid + delim + projectname + delim + AESSkein + delim + RoundToString(RAC,0)
 					+ delim + RoundToString(PoBDifficulty,5) + delim + RoundToString((double)diffbytes,0) + delim + enccpid 
 					+ delim + encaes + delim + RoundToString(nonce,0) + delim + RoundToString(NetworkRAC,0) + delim + version;
@@ -8004,7 +8145,8 @@ double static PoBMiner(int threadid)
 	//When Miner terminates it returns last nonce
     CReserveKey* pPOBMiningKey = NULL;
 	nGlobalNonce = 0;
-	
+	double localnonce = 0;
+
 	try
 	{
 
@@ -8064,7 +8206,7 @@ double static PoBMiner(int threadid)
 		msMiningErrors = "CPU Mining " + GlobalCPUMiningCPID.projectname;
 		printf("{PoBMiner_ST}");
 	    nGlobalNonce = Races(150000);
-
+		localnonce = 0;
 		//Store the merkle root on the global mining CPID
 		GlobalhashMerkleRoot = pblock->hashMerkleRoot;
 
@@ -8078,7 +8220,8 @@ double static PoBMiner(int threadid)
 
 		
 		GlobalCPUMiningCPID.prevBlockType = GetBlockType2(pblock->hashPrevBlock,out_height1);
-		printf("{PoBMiner}%"PRIszu" TX/BLK_SIZE:(%u bytes) \n PoBDiff %f \r\n  ",  pblock->vtx.size(),   ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION), 	  GlobalCPUMiningCPID.pobdifficulty);
+		printf("{PoBMiner}%"PRIszu" TX/BLK_SIZE:(%u bytes) \n PoBDiff %f \r\n  ",  
+			pblock->vtx.size(),   ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION), 	  GlobalCPUMiningCPID.pobdifficulty);
 
 		std::string sAES = "";
 		std::string sSkein = "";
@@ -8087,11 +8230,20 @@ double static PoBMiner(int threadid)
 
         loop
         {
-			uint256 powhash = pblock->hashMerkleRoot + nGlobalNonce;
+			localnonce = nGlobalNonce;
+			uint256 powhash = pblock->hashMerkleRoot + localnonce;
 			if (GlobalSolutionPowHash > 0)
 			{
 				//Submitted from another thread:
 				powhash = GlobalSolutionPowHash;
+				sAES = aes_complex_hash(powhash);
+				iIAV = TestAESHash(GlobalCPUMiningCPID.rac, GlobalCPUMiningCPID.diffbytes, powhash, sAES);
+				if (iIAV==0)
+				{
+					//Solution is good:
+					localnonce = nGlobalSolutionNonce;
+				}
+		
 			}
 			sAES = aes_complex_hash(powhash);
 			iIAV = TestAESHash(GlobalCPUMiningCPID.rac, GlobalCPUMiningCPID.diffbytes, powhash, sAES);
@@ -8102,7 +8254,8 @@ double static PoBMiner(int threadid)
 			}
 			if (iIAV == 0)
 			{
-      			printf("10001: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",					powhash.GetHex().c_str(),					GlobalCPUMiningCPID.rac, 					GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty,					pblock->hashMerkleRoot.GetHex().c_str(), pblock->nNonce);
+      			printf("10001: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",					powhash.GetHex().c_str(),					GlobalCPUMiningCPID.rac, 					GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty,					pblock->hashMerkleRoot.GetHex().c_str(), 
+					pblock->nNonce);
 				bool cpidOK = IsCPIDValid(GlobalCPUMiningCPID.cpid,GlobalCPUMiningCPID.encboincpublickey);
 				if (!cpidOK) 
 				{
@@ -8115,7 +8268,8 @@ double static PoBMiner(int threadid)
 						printf("Block found during download...Exiting\r\n");
 						break;
 				}
-       			printf("10002: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",					powhash.GetHex().c_str(),					GlobalCPUMiningCPID.rac, 					GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty, pblock->hashMerkleRoot.GetHex().c_str(),		pblock->nNonce);
+       			printf("10002: Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %u  \r\n\r\n",					powhash.GetHex().c_str(),					GlobalCPUMiningCPID.rac, 					GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty, pblock->hashMerkleRoot.GetHex().c_str(),
+					pblock->nNonce);
 				if (cpidOK)
 				{
 						LOCK(cs_main);
@@ -8123,7 +8277,7 @@ double static PoBMiner(int threadid)
 				    			std::string hashBoinc = SerializeBoincBlock(GlobalCPUMiningCPID.cpid, GlobalCPUMiningCPID.projectname, sAES,
 								GlobalCPUMiningCPID.rac,		GlobalCPUMiningCPID.pobdifficulty, 
 								GlobalCPUMiningCPID.diffbytes, 
-								GlobalCPUMiningCPID.encboincpublickey, enc_aes, nGlobalNonce, GlobalCPUMiningCPID.NetworkRAC);
+								GlobalCPUMiningCPID.encboincpublickey, enc_aes, localnonce, GlobalCPUMiningCPID.NetworkRAC);
 								//printf("hashboinc serialized %s\r\n", hashBoinc.c_str());
 								pblock->hashBoinc = hashBoinc;
 								std::string skein2 = aes_complex_hash(powhash);
@@ -8149,7 +8303,7 @@ double static PoBMiner(int threadid)
 												//5-19-2014 At this point, the CPU Miner found a solution; lock all other threads while we submit it; verify the block hash is OK
 												iCriticalThreadDelay=30;
 												bool result = false;
-												result = SubmitGridcoinCPUWork(pblock, *pPOBMiningKey, nGlobalNonce);
+												result = SubmitGridcoinCPUWork(pblock, *pPOBMiningKey, localnonce);
 												if (result)
 												{
    													//Critical Section: 4-19-2014
@@ -8321,8 +8475,8 @@ double static PoBMinerMultiThread(int threadid)
         loop
         {
 
-		
-			uint256 powhash = GlobalhashMerkleRoot + nGlobalNonce;
+		    double localnonce = nGlobalNonce;
+			uint256 powhash = GlobalhashMerkleRoot + localnonce;
 			sAES = aes_complex_hash(powhash);
 			iIAV = TestAESHash(GlobalCPUMiningCPID.rac, GlobalCPUMiningCPID.diffbytes, powhash, sAES);
 			if (iIAV == 0)
@@ -8333,10 +8487,12 @@ double static PoBMinerMultiThread(int threadid)
 						break;
 					}
          			printf("ThreadID=%u POBMinerMultiThread Found Potential Solution : Source info POWhash %s, rac %f, bytes %u POBDIFF %f   MerkleRoot %s  nonce  %f  \r\n\r\n",
-						threadid,powhash.GetHex().c_str(),		GlobalCPUMiningCPID.rac,	GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty, 
-						GlobalhashMerkleRoot.GetHex().c_str(),		nGlobalNonce);
+						threadid,powhash.GetHex().c_str(),		GlobalCPUMiningCPID.rac,	
+						GlobalCPUMiningCPID.diffbytes, GlobalCPUMiningCPID.pobdifficulty, 
+						GlobalhashMerkleRoot.GetHex().c_str(),		localnonce);
 					//Submit solution to thread 0:
 					GlobalSolutionPowHash = powhash;
+					nGlobalSolutionNonce = localnonce;
 					MilliSleep(5000);
 					break;
 			}

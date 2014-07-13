@@ -24,7 +24,8 @@ extern volatile bool CreatingCPUBlock;
 
 extern volatile double nGlobalNonce;
 extern volatile double nGlobalHashCounter;
-          
+extern volatile double nGlobalSolutionNonce;
+
 
 extern int miningthreadcount;
 
