@@ -44,6 +44,7 @@ void OptionsModel::Init()
     // These are Qt-only settings:
     nDisplayUnit = settings.value("nDisplayUnit", BitcoinUnits::BTC).toInt();
     bDisplayAddresses = settings.value("bDisplayAddresses", false).toBool();
+    bTogglePalette = settings.value("bTogglePalette", false).toBool();
     fMinimizeToTray = settings.value("fMinimizeToTray", false).toBool();
     fMinimizeOnClose = settings.value("fMinimizeOnClose", false).toBool();
     nTransactionFee = settings.value("nTransactionFee").toLongLong();
@@ -103,7 +104,7 @@ bool OptionsModel::Upgrade()
         }
     }
     QList<QString> boolOptions;
-    boolOptions << "bDisplayAddresses" << "fMinimizeToTray" << "fMinimizeOnClose" << "fUseProxy" << "fUseUPnP";
+    boolOptions << "bDisplayAddresses" << "bTogglePalette" << "fMinimizeToTray" << "fMinimizeOnClose" << "fUseProxy" << "fUseUPnP";
     foreach(QString key, boolOptions)
     {
         bool value = false;
@@ -194,6 +195,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return QVariant(nDisplayUnit);
         case DisplayAddresses:
             return QVariant(bDisplayAddresses);
+        case TogglePalette:
+            return QVariant(bTogglePalette);
         case Language:
             return settings.value("language", "");
         default:
@@ -274,6 +277,9 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             bDisplayAddresses = value.toBool();
             settings.setValue("bDisplayAddresses", bDisplayAddresses);
             break;
+        case TogglePalette:
+            bTogglePalette = value.toBool();
+            settings.setValue("bTogglePalette", bTogglePalette);
         case Language:
             settings.setValue("language", value);
             break;

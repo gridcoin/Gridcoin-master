@@ -1551,7 +1551,9 @@ void BitcoinGUI::timerfire()
 				//
 				QString bm = QString::fromUtf8(RoundToString(boincmagnitude,2).c_str());
 				nBoincUtilization = (int)boincmagnitude;
+				#ifdef WIN32
 				globalcom->dynamicCall("BoincMagnitude(Qstring)", bm);
+				#endif
 		}
    
 
