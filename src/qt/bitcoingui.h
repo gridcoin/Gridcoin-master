@@ -157,9 +157,8 @@ private:
     /** Restore window size and position */
     void restoreWindowGeometry();
 
-	
-	
-
+signals:
+    void pagesView();
 
 
 public slots:
@@ -198,6 +197,9 @@ public slots:
 
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, qint64 amount, const QString& type, const QString& address);
+
+    /** R. Hambrock 17.07.2014: Update theme for all possible concurrently visible QWidgets */
+    void updateTheme();
 
 private slots:
     /** Switch to overview (home) page */

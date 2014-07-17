@@ -1,5 +1,6 @@
 #include "addressbookpage.h"
 #include "ui_addressbookpage.h"
+#include "themecontrol.h"
 
 #include "addresstablemodel.h"
 #include "optionsmodel.h"
@@ -26,6 +27,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     tab(tab)
 {
     ui->setupUi(this);
+    setTheme(this, THEME_ADDRESSBOOKPAGE);
 
 #ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
     ui->newAddress->setIcon(QIcon());
