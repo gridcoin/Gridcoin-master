@@ -48,6 +48,7 @@ private slots:
 
 signals:
     void proxyIpValid(QValidatedLineEdit *object, bool fValid);
+    void optionsApplied();
 
 private:
     Ui::OptionsDialog *ui;

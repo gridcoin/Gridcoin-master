@@ -5,6 +5,7 @@
 #include "monitoreddatamapper.h"
 #include "netbase.h"
 #include "optionsmodel.h"
+#include "themecontrol.h"
 
 #include <QDir>
 #include <QIntValidator>
@@ -21,6 +22,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     fProxyIpValid(true)
 {
     ui->setupUi(this);
+    setTheme(this, THEME_OPTIONSDIALOG);
 
     /* Network elements init */
 #ifndef USE_UPNP
@@ -146,6 +148,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->displayAddresses, OptionsModel::DisplayAddresses);
+    mapper->addMapping(ui->togglePalette, OptionsModel::TogglePalette);
 }
 
 void OptionsDialog::enableApplyButton()
@@ -205,7 +208,12 @@ void OptionsDialog::on_resetButton_clicked()
 
 void OptionsDialog::on_okButton_clicked()
 {
+    if (ui->applyButton->isEnabled())
+    {
     mapper->submit();
+    emit optionsApplied();
+    setTheme(this, THEME_OPTIONSDIALOG);
+    }
     accept();
 }
 
@@ -217,6 +225,8 @@ void OptionsDialog::on_cancelButton_clicked()
 void OptionsDialog::on_applyButton_clicked()
 {
     mapper->submit();
+    emit optionsApplied();
+    setTheme(this, THEME_OPTIONSDIALOG);
     disableApplyButton();
 }
 

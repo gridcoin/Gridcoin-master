@@ -28,6 +28,7 @@ public:
         Fee,               // qint64
         DisplayUnit,       // BitcoinUnits::Unit
         DisplayAddresses,  // bool
+        TogglePalette,     // bool
         Language,          // QString
         OptionIDRowCount,
     };
@@ -48,11 +49,13 @@ public:
     bool getMinimizeOnClose() { return fMinimizeOnClose; }
     int getDisplayUnit() { return nDisplayUnit; }
     bool getDisplayAddresses() { return bDisplayAddresses; }
+    bool getTogglePalette() { return bTogglePalette; }
     QString getLanguage() { return language; }
 
 private:
     int nDisplayUnit;
     bool bDisplayAddresses;
+    bool bTogglePalette;
     bool fMinimizeToTray;
     bool fMinimizeOnClose;
     QString language;

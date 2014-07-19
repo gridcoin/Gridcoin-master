@@ -17,6 +17,7 @@
 #include "overviewpage.h"
 #include "askpassphrasedialog.h"
 #include "ui_interface.h"
+#include "themecontrol.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -66,6 +67,8 @@ WalletView::WalletView(QWidget *parent, BitcoinGUI *_gui):
     addWidget(addressBookPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
+
+    connect(gui,SIGNAL(pagesView()),this,SLOT(themePages()));
 
     // Clicking on a transaction on the overview page simply sends you to transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), this, SLOT(gotoHistoryPage()));
@@ -271,4 +274,13 @@ void WalletView::unlockWallet()
         dlg.setModel(walletModel);
         dlg.exec();
     }
+}
+
+void WalletView::themePages()
+{
+    setTheme(overviewPage, THEME_OVERVIEWPAGE);
+    setTheme(transactionsPage, THEME_OVERVIEWPAGE);
+    setTheme(addressBookPage, THEME_ADDRESSBOOKPAGE);
+    setTheme(receiveCoinsPage, THEME_OVERVIEWPAGE);
+    setTheme(sendCoinsPage, THEME_OVERVIEWPAGE);
 }

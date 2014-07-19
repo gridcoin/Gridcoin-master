@@ -39,6 +39,7 @@
 #include "ui_interface.h"
 #include "wallet.h"
 #include "init.h"
+#include "themecontrol.h"
 
 
 #include <boost/lexical_cast.hpp>
@@ -896,6 +897,7 @@ void BitcoinGUI::optionsClicked()
     if(!clientModel || !clientModel->getOptionsModel())
         return;
     OptionsDialog dlg;
+    connect(&dlg, SIGNAL(optionsApplied()), this, SLOT(updateTheme()));
     dlg.setModel(clientModel->getOptionsModel());
     dlg.exec();
 }
@@ -1551,7 +1553,9 @@ void BitcoinGUI::timerfire()
 				//
 				QString bm = QString::fromUtf8(RoundToString(boincmagnitude,2).c_str());
 				nBoincUtilization = (int)boincmagnitude;
+				#ifdef WIN32
 				globalcom->dynamicCall("BoincMagnitude(Qstring)", bm);
+				#endif
 		}
    
 
@@ -1645,6 +1649,14 @@ void BitcoinGUI::detectShutdown()
 	 // Tell the main threads to shutdown.
      if (ShutdownRequested())
         QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
+}
+
+void BitcoinGUI::updateTheme()
+{
+	setTheme(this, THEME_BITCOINGUI);
+	setTheme(walletFrame, THEME_WALLETFRAME);
+	setTheme(rpcConsole, THEME_RPCCONSOLE);
+	emit(pagesView());
 }
 
 

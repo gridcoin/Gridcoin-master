@@ -18,6 +18,7 @@
 #include "ui_interface.h"
 #include "paymentserver.h"
 #include "splashscreen.h"
+#include "themecontrol.h"
 
 #include <QMessageBox>
 #if QT_VERSION < 0x050000
@@ -303,7 +304,7 @@ int main(int argc, char *argv[])
 	//	uiInterface.ThreadSafeWin32Call.connect(ThreadSafeWin32Call);
 
 
-	
+    
     uiInterface.InitMessage.connect(InitMessage);
     uiInterface.Translate.connect(Translate);
 
@@ -351,11 +352,11 @@ int main(int argc, char *argv[])
 #endif
 
         //boost::thread_group threadGroup;
-		
 
+        setOptionsModel(&optionsModel);		
         BitcoinGUI window;
         guiref = &window;
-	
+    
         QTimer* pollShutdownTimer = new QTimer(guiref);
         QObject::connect(pollShutdownTimer, SIGNAL(timeout()), guiref, SLOT(detectShutdown()));
         pollShutdownTimer->start(300);
@@ -374,7 +375,7 @@ int main(int argc, char *argv[])
                 // calling Shutdown().
 
                 optionsModel.Upgrade(); // Must be done after AppInit2
-
+                                
                 if (splashref)
                     splash.finish(&window);
 
@@ -384,6 +385,7 @@ int main(int argc, char *argv[])
                 window.setClientModel(&clientModel);
                 window.addWallet("~Default", &walletModel);
                 window.setCurrentWallet("~Default");
+                window.updateTheme();
 
                 // If -min option passed, start window minimized.
                 if(GetBoolArg("-min"))
