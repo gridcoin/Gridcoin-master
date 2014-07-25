@@ -3,6 +3,7 @@
 
 #include "guiconstants.h"
 #include "walletmodel.h"
+#include "themecontrol.h"
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -59,6 +60,13 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
     connect(ui->passEdit1, SIGNAL(textChanged(QString)), this, SLOT(textChanged()));
     connect(ui->passEdit2, SIGNAL(textChanged(QString)), this, SLOT(textChanged()));
     connect(ui->passEdit3, SIGNAL(textChanged(QString)), this, SLOT(textChanged()));
+
+    applyTheme(this, THEME_ASKPASSPHRASEDIALOG);
+    QList<QLineEdit *> lineedits = this->findChildren<QLineEdit *>();
+    foreach(QLineEdit *line, lineedits) 
+    {
+        applyTheme(line, THEME_ASKPASSPHRASEDIALOG_BUTTON);
+    }
 }
 
 AskPassphraseDialog::~AskPassphraseDialog()

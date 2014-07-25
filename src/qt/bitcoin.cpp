@@ -385,6 +385,7 @@ int main(int argc, char *argv[])
                 window.setClientModel(&clientModel);
                 window.addWallet("~Default", &walletModel);
                 window.setCurrentWallet("~Default");
+                initStyle();
                 window.updateTheme();
 
                 // If -min option passed, start window minimized.

@@ -21,6 +21,7 @@ public:
 
     void setModel(OptionsModel *model);
     void setMapper();
+    void triggerTheme();
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);

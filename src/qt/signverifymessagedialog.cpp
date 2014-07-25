@@ -9,6 +9,7 @@
 #include "optionsmodel.h"
 #include "walletmodel.h"
 #include "wallet.h"
+#include "themecontrol.h"
 
 #include <QClipboard>
 
@@ -43,6 +44,7 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget *parent) :
 
     ui->signatureOut_SM->setFont(GUIUtil::bitcoinAddressFont());
     ui->signatureIn_VM->setFont(GUIUtil::bitcoinAddressFont());
+
 }
 
 SignVerifyMessageDialog::~SignVerifyMessageDialog()
@@ -73,6 +75,7 @@ void SignVerifyMessageDialog::showTab_SM(bool fShow)
 
     if (fShow)
         this->show();
+    triggerTheme();
 }
 
 void SignVerifyMessageDialog::showTab_VM(bool fShow)
@@ -80,6 +83,7 @@ void SignVerifyMessageDialog::showTab_VM(bool fShow)
     ui->tabWidget->setCurrentIndex(1);
     if (fShow)
         this->show();
+    triggerTheme();
 }
 
 void SignVerifyMessageDialog::on_addressBookButton_SM_clicked()
@@ -271,4 +275,23 @@ bool SignVerifyMessageDialog::eventFilter(QObject *object, QEvent *event)
         }
     }
     return QDialog::eventFilter(object, event);
+}
+
+void SignVerifyMessageDialog::triggerTheme()
+{
+    applyTheme(this, THEME_SIGNVERIFYDIALOG);
+    applyTheme(ui->tabWidget, THEME_SIGNVERIFYDIALOG_TAB);
+
+    QList<QPushButton *> pushbuttons = this->findChildren<QPushButton *>();
+    foreach(QPushButton *button, pushbuttons) 
+    {   applyTheme(button, THEME_SIGNVERIFYDIALOG_BUTTON);   }
+
+    QList<QWidget *> children = ui->tabWidget->findChildren<QWidget *>();
+    foreach(QWidget *child, children) 
+    {
+        if (child->property("alt_text")=="1")
+        {
+            applyTheme(child, THEME_ALT_TEXT);
+        }
+    }
 }

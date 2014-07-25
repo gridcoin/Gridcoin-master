@@ -34,6 +34,8 @@ public:
 
     void setFocus();
 
+    void triggerTheme();
+
 public slots:
     void setRemoveEnabled(bool enabled);
     void clear();

@@ -18,6 +18,7 @@ public:
     ~RPCConsole();
 
     void setClientModel(ClientModel *model);
+    void triggerTheme();
 
     enum MessageClass {
         MC_ERROR,

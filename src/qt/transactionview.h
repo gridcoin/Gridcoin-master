@@ -40,6 +40,8 @@ public:
         Range
     };
 
+    void triggerTheme();
+
 private:
     WalletModel *model;
     TransactionFilterProxy *transactionProxyModel;

@@ -22,7 +22,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     fProxyIpValid(true)
 {
     ui->setupUi(this);
-    setTheme(this, THEME_OPTIONSDIALOG);
+    triggerTheme();
 
     /* Network elements init */
 #ifndef USE_UPNP
@@ -200,6 +200,9 @@ void OptionsDialog::on_resetButton_clicked()
         model->Reset();
         mapper->toFirst();
         mapper->submit();
+        setTheme();
+        triggerTheme();
+        emit optionsApplied();
 
         /* re-enable restart warning messages display */
         fRestartWarningDisplayed_Lang = fRestartWarningDisplayed_Proxy = false;
@@ -211,8 +214,8 @@ void OptionsDialog::on_okButton_clicked()
     if (ui->applyButton->isEnabled())
     {
     mapper->submit();
+    setTheme();
     emit optionsApplied();
-    setTheme(this, THEME_OPTIONSDIALOG);
     }
     accept();
 }
@@ -225,8 +228,9 @@ void OptionsDialog::on_cancelButton_clicked()
 void OptionsDialog::on_applyButton_clicked()
 {
     mapper->submit();
+    setTheme();
+    triggerTheme();
     emit optionsApplied();
-    setTheme(this, THEME_OPTIONSDIALOG);
     disableApplyButton();
 }
 
@@ -288,4 +292,23 @@ bool OptionsDialog::eventFilter(QObject *object, QEvent *event)
         }
     }
     return QDialog::eventFilter(object, event);
+}
+
+void OptionsDialog::triggerTheme()
+{
+    applyTheme(this, THEME_OPTIONSDIALOG);
+    applyTheme(ui->tabWidget, THEME_OPTIONSDIALOG_TAB);
+    
+    QList<QPushButton *> pushbuttons = this->findChildren<QPushButton *>();
+    foreach(QPushButton *button, pushbuttons) 
+    {   applyTheme(button, THEME_OPTIONSDIALOG_BUTTON);   }
+    
+    QList<QWidget *> children = ui->tabWidget->findChildren<QWidget *>();
+    foreach(QWidget *child, children) 
+    {
+        if (child->property("alt_text")=="1")
+        {
+            applyTheme(child, THEME_ALT_TEXT);
+        }
+    }
 }

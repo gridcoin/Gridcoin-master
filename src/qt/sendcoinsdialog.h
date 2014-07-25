@@ -33,6 +33,8 @@ public:
     void pasteEntry(const SendCoinsRecipient &rv);
     bool handleURI(const QString &uri);
 
+    void triggerTheme();
+
 public slots:
     void clear();
     void reject();

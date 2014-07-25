@@ -278,9 +278,10 @@ void WalletView::unlockWallet()
 
 void WalletView::themePages()
 {
-    setTheme(overviewPage, THEME_OVERVIEWPAGE);
-    setTheme(transactionsPage, THEME_OVERVIEWPAGE);
-    setTheme(addressBookPage, THEME_ADDRESSBOOKPAGE);
-    setTheme(receiveCoinsPage, THEME_OVERVIEWPAGE);
-    setTheme(sendCoinsPage, THEME_OVERVIEWPAGE);
+    applyTheme(overviewPage, THEME_OVERVIEWPAGE);
+    transactionView->triggerTheme();
+    sendCoinsPage->triggerTheme();
+    addressBookPage->triggerTheme(THEME_ADDRESSBOOKPAGE, THEME_ADDRESSBOOKPAGE_TABLE, THEME_ADDRESSBOOKPAGE_BUTTON_A, THEME_ADDRESSBOOKPAGE_BUTTON_B);
+    receiveCoinsPage->triggerTheme(THEME_RECEIVECOINSPAGE, THEME_RECEIVECOINSPAGE_TABLE, THEME_RECEIVECOINSPAGE_BUTTON_A, THEME_RECEIVECOINSPAGE_BUTTON_B);
+    signVerifyMessageDialog->triggerTheme();
 }

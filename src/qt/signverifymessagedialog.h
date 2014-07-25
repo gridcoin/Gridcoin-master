@@ -23,6 +23,8 @@ public:
     void showTab_SM(bool fShow);
     void showTab_VM(bool fShow);
 
+    void triggerTheme();
+
 protected:
     bool eventFilter(QObject *object, QEvent *event);
 

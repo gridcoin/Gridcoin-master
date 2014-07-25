@@ -11,6 +11,7 @@
 #include "editaddressdialog.h"
 #include "optionsmodel.h"
 #include "guiutil.h"
+#include "themecontrol.h"
 
 #include <QScrollBar>
 #include <QComboBox>
@@ -176,14 +177,7 @@ void TransactionView::setModel(WalletModel *model)
 
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Status, 23);
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Date, 120);
-        transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Type, 120);
-        transactionView->horizontalHeader()->setStyleSheet("background-color: #121212;color:green");
-
-		//Add stylesheet to transaction view list:
-		transactionView->setStyleSheet("background-color: #161616;alternate-background-color: #363636;color:green;");
-
-
-   
+        transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Type, 120);  
 
 
 
@@ -443,4 +437,10 @@ void TransactionView::focusTransaction(const QModelIndex &idx)
     transactionView->scrollTo(targetIdx);
     transactionView->setCurrentIndex(targetIdx);
     transactionView->setFocus();
+}
+
+void TransactionView::triggerTheme()
+{
+    applyTheme(this, THEME_TRANSACTIONVIEW);
+    applyTheme(transactionView->horizontalHeader(), THEME_TRANSACTIONVIEW_HEADER);
 }
