@@ -4655,7 +4655,7 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
         return state.Invalid(error("ProcessBlock() : already have block (orphan) %s", hash.ToString().c_str()));
 
     // Preliminary checks 
-	if (pblock->hashBoinc.length() < 5) return error("ProcessBlock(): BoincHash empty");
+	//if (pblock->hashBoinc.length() < 5) return error("ProcessBlock(): BoincHash empty");
 
 
     if (!pblock->CheckBlock(state))
