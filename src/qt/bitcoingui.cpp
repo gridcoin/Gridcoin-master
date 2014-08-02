@@ -119,7 +119,6 @@ bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAdd
 
 extern void SendGridcoinProjectBeacons();
 std::string NodesToString();
-void CriticalThreadDelay();
 
 
 json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
@@ -1420,8 +1419,7 @@ void BitcoinGUI::timerfire()
 		}
 
 
-		CriticalThreadDelay();
-
+		
 	
 		//Backup the wallet once per day:
 		if (Timer("backupwallet", 6*60*20))

@@ -36,7 +36,6 @@ extern MiningCPID GetGPUMiningCPID();
 extern void StartPostOnBackgroundThread(int height, MiningCPID miningcpid, uint256 hashmerkleroot, double nNonce, double subsidy, unsigned int nVersion, std::string message);
 
 
-void CriticalThreadDelay();
 
 
 volatile bool bCPIDsLoaded;
@@ -413,7 +412,6 @@ Value getwork(const Array& params, bool fHelp)
 
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Gridcoin is not connected!");
-	CriticalThreadDelay();
 	double POB = GetPoBDifficulty();
 				
 	//R Halford: 6-7-2014 : Prevent GPU mining during initial sync:
@@ -640,7 +638,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 	{
 		printf("Getwork_CPU:Gridcoin is not connected!");
 		succeeded = false;
-		CreatingCPUBlock=false;
 		return pblock;
 	}
 
@@ -649,7 +646,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 	{
 			printf("Getwork_CPU:Gridcoin is downloading blocks...");
 			succeeded=false;
-			CreatingCPUBlock=false;
 			return pblock;
 	}
 
@@ -695,7 +691,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
 				printf("GetCPUBlock::Out of memory");
 				succeeded=false;
-				CreatingCPUBlock=false;
 				return pblock;
 
 			}
@@ -729,7 +724,6 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 
     	printf("created new CPU block in getwork_cpu");
 		succeeded=true;
-		CreatingCPUBlock=false;
         return pblock;
 
 	}
@@ -738,17 +732,14 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
 		printf("Error while creating cpu block in rpc\r\n");
 		succeeded=false;
 		
-		CreatingCPUBlock=false;
 		return pblock;
 	}
 	catch(...)
 	{
 		printf("Error while creating cpu block in rpc (06182014)\r\n");
 		succeeded=false;
-		CreatingCPUBlock=false;
 		return pblock;
 	}
-	CreatingCPUBlock=false;
 	return pblock;
 }
 

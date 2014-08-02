@@ -95,7 +95,6 @@ std::string cached_getblocks_args = "";
 extern bool AESSkeinHash(unsigned int diffbytes, double rac, uint256 scrypthash, std::string& out_skein, std::string& out_aes512);
 std::string DefaultGetblocksCommand();
 extern int TestAESHash(double rac, unsigned int diffbytes, uint256 scrypt_hash, std::string aeshash);
-extern void CriticalThreadDelay();
 CClientUIInterface uiDog;
 std::string DefaultBoincHashArgs();
 
@@ -8375,8 +8374,7 @@ double static PoBMiner(int threadid)
 
             // Check for stop or if block needs to be rebuilt
             boost::this_thread::interruption_point();
-			CriticalThreadDelay();
-
+		
 			if (bRestartGridcoinMiner) return nGlobalNonce;
 			// If last block is a CPU block, slow the miner down:
 			if (GlobalCPUMiningCPID.prevBlockType==3) 

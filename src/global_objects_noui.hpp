@@ -15,12 +15,10 @@ extern bool bPoolMiningMode;
 extern bool bCPUMiningMode;
 extern volatile bool bRestartGridcoinMiner;
 extern volatile bool bCPIDsLoaded;
-extern volatile int  iCriticalThreadDelay;
-extern volatile bool CreatingNewBlock;
+
 extern volatile bool bNetAveragesLoaded;
 extern volatile bool bForceUpdate;
 extern volatile bool bAllowBackToBack;
-extern volatile bool CreatingCPUBlock;
 
 extern volatile double nGlobalNonce;
 extern volatile double nGlobalHashCounter;
