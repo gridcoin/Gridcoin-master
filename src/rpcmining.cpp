@@ -40,7 +40,6 @@ void CriticalThreadDelay();
 
 
 volatile bool bCPIDsLoaded;
-volatile int  iCriticalThreadDelay;
 
 bool OutOfSyncByAge();
 
@@ -625,34 +624,12 @@ Value getwork(const Array& params, bool fHelp)
 
 
 
-void Mutex()
-{
-	int mutex=0;
-	while(CreatingCPUBlock)
-	{
-		mutex=mutex+100;
-		if (mutex > 5000)
-		{
-			printf("Giving Up...");
-			CreatingCPUBlock=false;
-			break;
-		}
-		MilliSleep(100);
-
-	}
-
-}
-
-
 
 CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservekey)
 {
 
 
 	static CBlock* pblock;
-	Mutex();
-
-	CreatingCPUBlock=true;
 
 	try 
 	{

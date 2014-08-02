@@ -19,13 +19,12 @@
 #include "paymentserver.h"
 #include "splashscreen.h"
 #include "themecontrol.h"
-
+#include <QTimer>
 #include <QMessageBox>
 #if QT_VERSION < 0x050000
 #include <QTextCodec>
 #endif
 #include <QLocale>
-#include <QTimer>
 #include <QTranslator>
 #include <QLibraryInfo>
 
@@ -351,8 +350,7 @@ int main(int argc, char *argv[])
             GUIUtil::SetStartOnSystemStartup(true);
 #endif
 
-        //boost::thread_group threadGroup;
-
+        boost::thread_group threadGroup;
         setOptionsModel(&optionsModel);		
         BitcoinGUI window;
         guiref = &window;

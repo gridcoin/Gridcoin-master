@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'optionsmodel.h'
 **
-** Created: Wed Jun 11 09:18:34 2014
+** Created: Sat Jul 19 14:53:59 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!

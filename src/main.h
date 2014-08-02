@@ -75,6 +75,13 @@ inline int GetAlgo(int nVersion)
     return ALGO_SHA256D;
 }
 
+
+
+
+
+
+
+
 inline std::string GetAlgoName(int Algo)
 {
     switch (Algo)
@@ -1544,10 +1551,6 @@ public:
 	/////////////////////////////////////////
 	std::string hashBoinc;
 	int BlockType;
-		
-	//
-	//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
-
 
 
     CBlock()
@@ -1586,8 +1589,6 @@ public:
 
 		
 
-		//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
-	
 			
 
     )
@@ -1734,9 +1735,6 @@ public:
     void print() const
     {
 			
-		//
-		//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
-
         printf("CBlock(hash=%s, input=%s, PoW=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
             GetHash().ToString().c_str(),
             HexStr(BEGIN(nVersion),BEGIN(nVersion)+80,false).c_str(),
@@ -1913,9 +1911,6 @@ public:
     unsigned int nNonce;
 	////////////////////////////////////////////
 
-	//
-	//Removing ProjectName, hashPoB, RAC, CPID, nNoncePoB, hashBoincCPID, nPoBDifficulty
-	
 	
 
     CBlockIndex()
@@ -2193,12 +2188,6 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-//		try {
-//		READWRITE(hashBoinc);
-//		} catch(std::exception &e)
-//		{
-//		//	printf("Unable to Store HashBoinc in DiskBlockIndex");
-//		}
 
 	
 

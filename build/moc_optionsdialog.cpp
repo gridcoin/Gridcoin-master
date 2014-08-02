@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'optionsdialog.h'
 **
-** Created: Wed Jun 11 09:18:25 2014
+** Created: Sat Jul 19 14:53:58 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,30 +23,31 @@ static const uint qt_meta_data_OptionsDialog[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      14,   14, // methods
+      15,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
+       2,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       29,   15,   14,   14, 0x05,
+      68,   14,   14,   14, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      68,   14,   14,   14, 0x08,
-      88,   14,   14,   14, 0x08,
-     109,   14,   14,   14, 0x08,
-     129,   14,   14,   14, 0x08,
-     157,  150,   14,   14, 0x08,
-     182,   14,   14,   14, 0x08,
-     207,   14,   14,   14, 0x08,
-     229,   14,   14,   14, 0x08,
-     255,   14,   14,   14, 0x08,
-     280,   14,   14,   14, 0x08,
-     307,   14,   14,   14, 0x08,
-     333,   14,   14,   14, 0x08,
-     367,  353,   14,   14, 0x08,
+      85,   14,   14,   14, 0x08,
+     105,   14,   14,   14, 0x08,
+     126,   14,   14,   14, 0x08,
+     146,   14,   14,   14, 0x08,
+     174,  167,   14,   14, 0x08,
+     199,   14,   14,   14, 0x08,
+     224,   14,   14,   14, 0x08,
+     246,   14,   14,   14, 0x08,
+     272,   14,   14,   14, 0x08,
+     297,   14,   14,   14, 0x08,
+     324,   14,   14,   14, 0x08,
+     350,   14,   14,   14, 0x08,
+     384,  370,   14,   14, 0x08,
 
        0        // eod
 };
@@ -54,9 +55,10 @@ static const uint qt_meta_data_OptionsDialog[] = {
 static const char qt_meta_stringdata_OptionsDialog[] = {
     "OptionsDialog\0\0object,fValid\0"
     "proxyIpValid(QValidatedLineEdit*,bool)\0"
-    "enableApplyButton()\0disableApplyButton()\0"
-    "enableSaveButtons()\0disableSaveButtons()\0"
-    "fState\0setSaveButtonState(bool)\0"
+    "optionsApplied()\0enableApplyButton()\0"
+    "disableApplyButton()\0enableSaveButtons()\0"
+    "disableSaveButtons()\0fState\0"
+    "setSaveButtonState(bool)\0"
     "on_resetButton_clicked()\0on_okButton_clicked()\0"
     "on_cancelButton_clicked()\0"
     "on_applyButton_clicked()\0"
@@ -73,19 +75,20 @@ void OptionsDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         OptionsDialog *_t = static_cast<OptionsDialog *>(_o);
         switch (_id) {
         case 0: _t->proxyIpValid((*reinterpret_cast< QValidatedLineEdit*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
-        case 1: _t->enableApplyButton(); break;
-        case 2: _t->disableApplyButton(); break;
-        case 3: _t->enableSaveButtons(); break;
-        case 4: _t->disableSaveButtons(); break;
-        case 5: _t->setSaveButtonState((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 6: _t->on_resetButton_clicked(); break;
-        case 7: _t->on_okButton_clicked(); break;
-        case 8: _t->on_cancelButton_clicked(); break;
-        case 9: _t->on_applyButton_clicked(); break;
-        case 10: _t->showRestartWarning_Proxy(); break;
-        case 11: _t->showRestartWarning_Lang(); break;
-        case 12: _t->updateDisplayUnit(); break;
-        case 13: _t->handleProxyIpValid((*reinterpret_cast< QValidatedLineEdit*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
+        case 1: _t->optionsApplied(); break;
+        case 2: _t->enableApplyButton(); break;
+        case 3: _t->disableApplyButton(); break;
+        case 4: _t->enableSaveButtons(); break;
+        case 5: _t->disableSaveButtons(); break;
+        case 6: _t->setSaveButtonState((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 7: _t->on_resetButton_clicked(); break;
+        case 8: _t->on_okButton_clicked(); break;
+        case 9: _t->on_cancelButton_clicked(); break;
+        case 10: _t->on_applyButton_clicked(); break;
+        case 11: _t->showRestartWarning_Proxy(); break;
+        case 12: _t->showRestartWarning_Lang(); break;
+        case 13: _t->updateDisplayUnit(); break;
+        case 14: _t->handleProxyIpValid((*reinterpret_cast< QValidatedLineEdit*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -123,9 +126,9 @@ int OptionsDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 14)
+        if (_id < 15)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 14;
+        _id -= 15;
     }
     return _id;
 }
@@ -135,5 +138,11 @@ void OptionsDialog::proxyIpValid(QValidatedLineEdit * _t1, bool _t2)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
+}
+
+// SIGNAL 1
+void OptionsDialog::optionsApplied()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, 0);
 }
 QT_END_MOC_NAMESPACE

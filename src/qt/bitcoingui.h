@@ -10,7 +10,6 @@
 
 
 #if defined(WIN32) && defined(QT_GUI)
-//#include <QAxFactory>
 #include <QAxObject>
 #include <ActiveQt/qaxbase.h>
 #include <ActiveQt/qaxobject.h>
@@ -115,6 +114,7 @@ private:
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
+
 	QAction *miningAction;
 	QAction *emailAction;
 	QAction *rebuildAction;

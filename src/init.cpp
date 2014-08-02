@@ -184,6 +184,7 @@ void Shutdown()
 
 //void DetectShutdownThread(hread_group* thrgroup)
 //
+
 void DetectShutdownThread(boost::thread_group* threadGroup)
 {
     // Tell the main threads to shutdown.
@@ -197,8 +198,7 @@ void DetectShutdownThread(boost::thread_group* threadGroup)
 
 void StopGridcoin3()
 {
-	    CreatingNewBlock=false;
-		threadGroup.interrupt_all();
+	   threadGroup.interrupt_all();
         threadGroup.join_all();
 		printf("Stopping node\r\n");
 		StopNode();

@@ -7,10 +7,10 @@
 #include "bitcoinrpc.h"
 #include <fstream>
 
+
+#include "optionsmodel.h"
 #include "init.h" // for pwalletMain
-
 #include <boost/lexical_cast.hpp>
-
 #include <boost/algorithm/string/case_conv.hpp> // for to_lower()
 
 using namespace json_spirit;
@@ -21,9 +21,12 @@ int DownloadBlocks();
 
 double GetBlockValueByHash(uint256 hash);
 
+double cdbl(std::string s, int place);
 
 
 void GetNextGPUProject(bool force);
+
+void SetExternalValue(std::string key, bool bValue);
 
 
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out);
@@ -37,6 +40,9 @@ void ResendWalletTransactions2();
 bool AESSkeinHash(unsigned int diffbytes, double rac, uint256 scrypthash, std::string& out_skein, std::string& out_aes512);
 std::string aes_complex_hash(uint256 scrypt_hash);
 std::vector<std::string> split(std::string s, std::string delim);
+
+
+double Lederstrumpf(double RAC, double NetworkRAC);
 
 int TestAESHash(double rac, unsigned int diffbytes, uint256 scrypt_hash, std::string aeshash);
 
@@ -997,13 +1003,18 @@ Value execute(const Array& params, bool fHelp)
 
 Value listitem(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || (params.size() != 1  && params.size() != 2))
         throw runtime_error(
 		"listitem <string::itemname>\n"
         "Returns details of a given item by name.");
 
     std::string sitem = params[0].get_str();
-
+	
+	std::string args = "";
+	if (params.size()==2)
+	{
+		args=params[1].get_str();
+	}
 	
 	if (sitem=="") throw runtime_error("Item invalid.");
 
@@ -1038,7 +1049,21 @@ Value listitem(const Array& params, bool fHelp)
 
 	}
 
+	if (sitem == "leder")
+	{
+		
+		double subsidy = Lederstrumpf(1000,1000);
+		Object entry;
+		entry.push_back(Pair("Subsidy",subsidy));
+		if (args.length() > 1)
+		{
+			double myrac=cdbl(args,0);
+			subsidy = Lederstrumpf(myrac,1000);
+			entry.push_back(Pair("Subsidy",subsidy));//7-19-2014
+		}
+		results.push_back(entry);
 
+	}
 
 
 

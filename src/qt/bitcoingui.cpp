@@ -6,6 +6,7 @@
  */
 
 #include <QApplication>
+#include <QProcess>
 
 #ifdef WIN32
 #include <QAxObject>
@@ -15,13 +16,8 @@
 
 
 
-#include <QProcess>
 
 #include "bitcoingui.h"
-//#include "..\global_objects.hpp"
-//#include "..\global_objects_noui.hpp"
-
-
 #include "transactiontablemodel.h"
 #include "optionsdialog.h"
 #include "aboutdialog.h"
@@ -70,6 +66,8 @@
 #include <QSettings>
 #include <QDesktopWidget>
 #include <QListWidget>
+#include <boost/lexical_cast.hpp>
+
 #include "bitcoinrpc.h"
 
 #include <iostream>
@@ -77,6 +75,7 @@
 using namespace std;
 
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
+
 int nTick = 0;
 int nTickRestart = 0;
 int nBlockCount = 0;
@@ -84,72 +83,48 @@ int nTick2 = 0;
 int nRegVersion;
 int nNeedsUpgrade = 0;
 double GetPoBDifficulty();
-
-
 extern int CreateRestorePoint();
 extern int DownloadBlocks();
-
 void StopGridcoin3();
-
-
-
 bool OutOfSyncByAge();
-
 bool bCheckedForUpgrade = false;
 void ThreadCPIDs();
 int Races(int iMax1000);
-
-extern void SendGridcoinProjectBeacons();
-std::string NodesToString();
-
-std::string GetHttpPage(std::string cpid);
-
-bool OutOfSync();
-void CriticalThreadDelay();
 std::string GetGlobalStatus();
-
+std::string GetHttpPage(std::string cpid);
 bool TallyNetworkAverages();
-
 void LoadCPIDsInBackground();
-
 std::string BackupGridcoinWallet();
 void InitializeCPIDs();
 void RestartGridcoinMiner();
-
 extern int UpgradeClient();
 extern int CloseGuiMiner();
-
-void RestartGridcoin3();
-
-
 std::string RetrieveMd5(std::string s1);
+void WriteAppCache(std::string key, std::string value);
+
+void HarvestCPIDs(bool cleardata);
+extern int RestartClient();
+extern int ReindexWallet();
+#ifdef WIN32
+QAxObject *globalcom = NULL;
+#endif
+int ThreadSafeVersion();
+void FlushGridcoinBlockFile(bool fFinalize);
+extern int ReindexBlocks();
+bool OutOfSync();
+void RestartGridcoin3();
+bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
+
+
+
+extern void SendGridcoinProjectBeacons();
+std::string NodesToString();
+void CriticalThreadDelay();
+
 
 json_spirit::Value getwork(const json_spirit::Array& params, bool fHelp);
 bool TestGridcoinWork(std::string sWork);
 
-
-
-void WriteAppCache(std::string key, std::string value);
-
-
-
-
-void HarvestCPIDs(bool cleardata);
-
-
-int ThreadSafeVersion();
-
-extern int RestartClient();
-extern int ReindexWallet();
-
-void FlushGridcoinBlockFile(bool fFinalize);
-
-extern int ReindexBlocks();
-bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64 nTime, bool fKnown);
-
-#ifdef WIN32
-QAxObject *globalcom = NULL;
-#endif
 
 int cputick = 0;
 
@@ -336,12 +311,12 @@ std::string RetrieveBlockAsString(int lSqlBlock)
 		std::string s = "";
 		std::string d = "|";
 
-	s = block.GetHash().GetHex() + d + "C" + d 	+ Trim(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)) + d 	+ Trim(blockindex->nHeight) + d;
-	s = s + Trim(block.nVersion) + d + block.hashMerkleRoot.GetHex() + d + "TX" + d + Trim(block.GetBlockTime()) + d + Trim(block.nNonce) + d + Trim(block.nBits) + d;
-	s = s + TrimD(GetDifficulty(blockindex)) + d
-		+		Clean(block.hashBoinc) + d 
-		+ blockindex->pprev->GetBlockHash().GetHex() + d;
-	s = s + blockindex->pnext->GetBlockHash().GetHex();
+		s = block.GetHash().GetHex() + d + "C" + d 	+ Trim(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)) + d 	+ Trim(blockindex->nHeight) + d;
+		s = s + Trim(block.nVersion) + d + block.hashMerkleRoot.GetHex() + d + "TX" + d + Trim(block.GetBlockTime()) + d + Trim(block.nNonce) + d + Trim(block.nBits) + d;
+		s = s + TrimD(GetDifficulty(blockindex)) + d
+				+		Clean(block.hashBoinc) + d 
+				+ blockindex->pprev->GetBlockHash().GetHex() + d;
+		s = s + blockindex->pnext->GetBlockHash().GetHex();
 		return s;
 	}
 	catch(...)
@@ -631,9 +606,9 @@ void BitcoinGUI::createActions()
 	leaderboardAction->setStatusTip(tr("Leaderboard"));
 	leaderboardAction->setMenuRole(QAction::TextHeuristicRole);
 
-    aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
-    aboutQtAction->setStatusTip(tr("Show information about Qt"));
-    aboutQtAction->setMenuRole(QAction::AboutQtRole);
+    //aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
+    //aboutQtAction->setStatusTip(tr("Show information about Qt"));
+    //aboutQtAction->setMenuRole(QAction::AboutQtRole);
 
     optionsAction = new QAction(QIcon(":/icons/options"), tr("&Options..."), this);
     optionsAction->setStatusTip(tr("Modify configuration options for Gridcoin"));
@@ -667,6 +642,7 @@ void BitcoinGUI::createActions()
     connect(changePassphraseAction, SIGNAL(triggered()), walletFrame, SLOT(changePassphrase()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
+
 	connect(miningAction, SIGNAL(triggered()), this, SLOT(miningClicked()));
 	connect(emailAction, SIGNAL(triggered()), this, SLOT(emailClicked()));
 	connect(rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildClicked()));
@@ -1384,55 +1360,6 @@ int ReindexBlocks()
 
 
 
-int ReindexBlocks_Old()
-{
-
-	int nMaxDepth = nBestHeight;
-    CBlock block;
-	if (nMaxDepth < 500) return -3;
-	CBlockIndex* pLastBlock = FindBlockByHeight(nMaxDepth-100);
-    CValidationState stateDummy;
-	CCoinsViewCache view(*pcoinsTip, true);
-	block.ReadFromDisk(pLastBlock);
-	int64 LastBlockTime = pLastBlock->GetBlockTime();
-	//Iterate through the chain in reverse
-	for (int ii = nMaxDepth; ii > nMaxDepth-100; ii--)
-    {
-     	CBlockIndex* pblockindex = FindBlockByHeight(ii);
-		block.ReadFromDisk(pblockindex);
-		//12-15-2013
-		block.hashPrevBlock = 0;
-        block.hashMerkleRoot = 0;
-        block.nVersion = 0;
-        block.nTime    = 0;
-        block.nBits    = 0;
-        block.nNonce   = 0;
-	    unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
-        CDiskBlockPos blockPos;
-        CValidationState state;
-        if (!FindBlockPos(state, blockPos, nBlockSize+8, ii, block.nTime, false))                return -1;
-		if (!block.WriteToDisk(blockPos)) return -2;
-		if (!block.DisconnectBlock(stateDummy, pblockindex, view)) return -9;
-		printf("Reindexing %d",ii);
-
-    }
-	 // Flush changes to global coin state
-    //int64 nStart = GetTimeMicros();
-    //int nModified = view.GetCacheSize();
-    assert(view.Flush());
-    
-	//int64 nTime = GetTimeMicros() - nStart;
-    
-    // Make sure it's successfully written to disk before changing memory structure
-   	FlushGridcoinBlockFile(true);
-    if (!pcoinsTip->Flush()) return -16;
-	pwalletMain->SetBestChain(CBlockLocator(pLastBlock));
-    return 1;
-		
-}
-
-
-
 bool Timer(std::string timer_name, int max_ms)
 {
 	mvTimers[timer_name] = mvTimers[timer_name] + 1;
@@ -1469,7 +1396,7 @@ void ReinstantiateGlobalcom()
 			}
 		
 			globalcom->dynamicCall("ShowMiningConsole()");
-			printf("Showing Mining Console");
+			//printf("Showing Mining Console");
 			if (bCheckedForUpgrade == false && !fTestNet)
 			{
 							int nNeedsUpgrade = 0;
@@ -1480,6 +1407,7 @@ void ReinstantiateGlobalcom()
 			}
 #endif
 }
+
 
 void BitcoinGUI::timerfire()
 {
@@ -1494,11 +1422,6 @@ void BitcoinGUI::timerfire()
 
 		CriticalThreadDelay();
 
-		//If miner found a block in cpu or gpu, restart cpu threads to prevent race:
-		if (bRestartGridcoinMiner)
-		{
-			RestartGridcoinMiner();
-		}
 	
 		//Backup the wallet once per day:
 		if (Timer("backupwallet", 6*60*20))
@@ -1521,21 +1444,10 @@ void BitcoinGUI::timerfire()
 			
 		}
 
-		/*
-		if (CreatingNewBlock)
-		{
-			MilliSleep(Races(500));
-			if (CreatingNewBlock)
-			{   //Reset in case something went wrong:
-				CreatingNewBlock=false;
-			}
-		}
-		*/
-
+		
 		
 		if (Timer("status_update",2))
 		{
-			GetDifficulty();
 			std::string status = GetGlobalStatus();
     		bForceUpdate=true;
 		}
@@ -1565,8 +1477,7 @@ void BitcoinGUI::timerfire()
 		{
 			printf("\r\nReharvesting Gridcoin Net Averages\r\n");
 			//Freeze mining threads
-		    iCriticalThreadDelay=30;
-			TallyNetworkAverages();
+		   TallyNetworkAverages();
 			//Restart the PoB miners, since the PoB Diff probably changed:
 		}
 		
@@ -1577,7 +1488,6 @@ void BitcoinGUI::timerfire()
 			if (Timer("restart_network",30))
 			{
 				printf("\r\nRestarting gridcoin's network layer @ %s\r\n",time1.c_str());
-				iCriticalThreadDelay=10;
 				RestartGridcoin3();
 			}
 		}
@@ -1587,8 +1497,7 @@ void BitcoinGUI::timerfire()
 		if (Timer("gather_cpids",10000))
 		{
 			printf("\r\nReharvesting cpids in background thread...\r\n");
-		    iCriticalThreadDelay=30;
-			LoadCPIDsInBackground();
+		   LoadCPIDsInBackground();
 		}
 		}
 

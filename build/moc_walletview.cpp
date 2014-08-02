@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'walletview.h'
 **
-** Created: Wed Jun 11 09:18:42 2014
+** Created: Sat Jul 19 14:54:00 2014
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.4)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_WalletView[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      16,   14, // methods
+      17,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -37,16 +37,17 @@ static const uint qt_meta_data_WalletView[] = {
       71,   11,   11,   11, 0x0a,
       99,   94,   11,   11, 0x0a,
      126,   11,   11,   11, 0x2a,
-     146,   94,   11,   11, 0x0a,
-     174,   11,   11,   11, 0x2a,
-     195,   94,   11,   11, 0x0a,
-     225,   11,   11,   11, 0x2a,
-     262,  248,   11,   11, 0x0a,
-     310,  303,   11,   11, 0x0a,
-     330,   11,   11,   11, 0x0a,
-     345,   11,   11,   11, 0x0a,
-     364,   11,   11,   11, 0x0a,
-     379,   11,   11,   11, 0x0a,
+     146,   11,   11,   11, 0x0a,
+     159,   94,   11,   11, 0x0a,
+     187,   11,   11,   11, 0x2a,
+     208,   94,   11,   11, 0x0a,
+     238,   11,   11,   11, 0x2a,
+     275,  261,   11,   11, 0x0a,
+     323,  316,   11,   11, 0x0a,
+     343,   11,   11,   11, 0x0a,
+     358,   11,   11,   11, 0x0a,
+     377,   11,   11,   11, 0x0a,
+     392,   11,   11,   11, 0x0a,
 
        0        // eod
 };
@@ -56,7 +57,8 @@ static const char qt_meta_stringdata_WalletView[] = {
     "gotoHistoryPage()\0gotoAddressBookPage()\0"
     "gotoReceiveCoinsPage()\0addr\0"
     "gotoSendCoinsPage(QString)\0"
-    "gotoSendCoinsPage()\0gotoSignMessageTab(QString)\0"
+    "gotoSendCoinsPage()\0themePages()\0"
+    "gotoSignMessageTab(QString)\0"
     "gotoSignMessageTab()\0gotoVerifyMessageTab(QString)\0"
     "gotoVerifyMessageTab()\0parent,start,\0"
     "incomingTransaction(QModelIndex,int,int)\0"
@@ -77,16 +79,17 @@ void WalletView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 3: _t->gotoReceiveCoinsPage(); break;
         case 4: _t->gotoSendCoinsPage((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 5: _t->gotoSendCoinsPage(); break;
-        case 6: _t->gotoSignMessageTab((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 7: _t->gotoSignMessageTab(); break;
-        case 8: _t->gotoVerifyMessageTab((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 9: _t->gotoVerifyMessageTab(); break;
-        case 10: _t->incomingTransaction((*reinterpret_cast< const QModelIndex(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
-        case 11: _t->encryptWallet((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 12: _t->backupWallet(); break;
-        case 13: _t->changePassphrase(); break;
-        case 14: _t->unlockWallet(); break;
-        case 15: _t->setEncryptionStatus(); break;
+        case 6: _t->themePages(); break;
+        case 7: _t->gotoSignMessageTab((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 8: _t->gotoSignMessageTab(); break;
+        case 9: _t->gotoVerifyMessageTab((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 10: _t->gotoVerifyMessageTab(); break;
+        case 11: _t->incomingTransaction((*reinterpret_cast< const QModelIndex(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
+        case 12: _t->encryptWallet((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 13: _t->backupWallet(); break;
+        case 14: _t->changePassphrase(); break;
+        case 15: _t->unlockWallet(); break;
+        case 16: _t->setEncryptionStatus(); break;
         default: ;
         }
     }
@@ -124,9 +127,9 @@ int WalletView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 16)
+        if (_id < 17)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 16;
+        _id -= 17;
     }
     return _id;
 }

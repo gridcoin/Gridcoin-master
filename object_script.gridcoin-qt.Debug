@@ -64,6 +64,7 @@ INPUT(
 ./build/notificator.o
 ./build/paymentserver.o
 ./build/rpcconsole.o
+./build/themecontrol.o
 ./build/scrypt.o
 ./build/noui.o
 ./build/leveldb.o

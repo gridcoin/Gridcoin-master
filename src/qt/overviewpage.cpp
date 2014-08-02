@@ -176,17 +176,6 @@ void OverviewPage::setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 
 
 void OverviewPage::UpdateBoincUtilization()
 {
-	/*
-    ui->txtDisplay->setText("");
-
-    if (nBoincUtilization > 0) 
-	{
-     std::string sBoincUtilization="";
-     sBoincUtilization = strprintf("%d",nBoincUtilization);
-	 QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
-	 ui->txtDisplay->setText("Boinc Utilization: " + qsUtilization);
-	}
-	*/
 
 	 QString qsStatus = QString::fromUtf8(msGlobalStatus.c_str());
 	 ui->txtDisplay->setText(qsStatus);
@@ -227,6 +216,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model, SIGNAL(balanceChanged(qint64, qint64, qint64)), this, SLOT(setBalance(qint64, qint64, qint64)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+    	OverviewPage::UpdateBoincUtilization();
+
     }
 
     // update the display unit, to not use the default ("BTC")

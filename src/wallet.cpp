@@ -1041,7 +1041,6 @@ void CWallet::ResendWalletTransactions()
 
 				// Rebroadcast any of our txes that aren't in a block yet
 				printf("ResendWalletTransactions_Litecoin(06212014)\n");
-				iCriticalThreadDelay=5;
 				{
 					//RH:Testing without Wallet Lock (since crash is occurring here:)
 					LOCK(cs_wallet);

@@ -7,6 +7,12 @@
 
 #include <QSettings>
 
+
+
+extern void SetExternalValue(std::string key, bool bValue);
+
+
+
 OptionsModel::OptionsModel(QObject *parent) :
     QAbstractListModel(parent)
 {
@@ -79,6 +85,22 @@ void OptionsModel::Reset()
     // Ensure Upgrade() is not running again by setting the bImportFinished flag
     settings.setValue("bImportFinished", true);
 }
+
+
+QString toqstring(std::string s) 
+{
+	
+	QString str1 = QString::fromUtf8(s.c_str());
+	return str1;
+}
+
+void SetExternalValue(std::string key, bool bValue)
+{
+	 QSettings settings;
+
+	 settings.setValue(toqstring(key),bValue);
+	 
+}  
 
 bool OptionsModel::Upgrade()
 {

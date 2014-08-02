@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'optionsdialog.ui'
 **
-** Created: Wed Jun 11 09:12:12 2014
+** Created: Sat Jul 19 14:52:39 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -75,6 +75,7 @@ public:
     QLabel *unitLabel;
     QValueComboBox *unit;
     QCheckBox *displayAddresses;
+    QCheckBox *togglePalette;
     QSpacerItem *verticalSpacer_Display;
     QHBoxLayout *horizontalLayout_Buttons;
     QSpacerItem *horizontalSpacer_1;
@@ -410,6 +411,11 @@ public:
 
         verticalLayout_Display->addWidget(displayAddresses);
 
+        togglePalette = new QCheckBox(tabDisplay);
+        togglePalette->setObjectName(QString::fromUtf8("togglePalette"));
+
+        verticalLayout_Display->addWidget(togglePalette);
+
         verticalSpacer_Display = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_Display->addItem(verticalSpacer_Display);
@@ -482,7 +488,7 @@ public:
 
         retranslateUi(OptionsDialog);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(3);
 
 
         QMetaObject::connectSlotsByName(OptionsDialog);
@@ -544,6 +550,7 @@ public:
         displayAddresses->setToolTip(QApplication::translate("OptionsDialog", "Whether to show Gridcoin addresses in the transaction list or not.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         displayAddresses->setText(QApplication::translate("OptionsDialog", "&Display addresses in transaction list", 0, QApplication::UnicodeUTF8));
+        togglePalette->setText(QApplication::translate("OptionsDialog", "Alternative Theme", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tabDisplay), QApplication::translate("OptionsDialog", "&Display", 0, QApplication::UnicodeUTF8));
         statusLabel->setText(QString());
         okButton->setText(QApplication::translate("OptionsDialog", "&OK", 0, QApplication::UnicodeUTF8));

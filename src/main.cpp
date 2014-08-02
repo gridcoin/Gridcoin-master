@@ -9,6 +9,8 @@
 #include "db.h"
 #include "txdb.h"
 #include "net.h"
+#include <math.h>       /* pow */
+
 #include "init.h"
 #include "ui_interface.h"
 #include "checkqueue.h"
@@ -17,6 +19,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <ctime>
 #include <openssl/md5.h>
+
 #include <boost/lexical_cast.hpp>
 #include "global_objects_noui.hpp"
 #include "bitcoinrpc.h"
@@ -35,16 +38,12 @@
 #include <leveldb/filter_policy.h>
 
 
-
 using namespace std;
 using namespace boost;
 
 //
 // Global state
 //
-
-volatile bool CreatingNewBlock;
-volatile bool CreatingCPUBlock;
 volatile bool bNetAveragesLoaded;
 volatile bool bAllowBackToBack;
 volatile bool bRestartGridcoinMiner;
@@ -56,12 +55,14 @@ extern void PobSleep(int milliseconds);
 
 extern bool CheckWorkCPU(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
 
+extern double Lederstrumpf(double RAC, double NetworkRAC);
+
+extern double cdbl(std::string s, int place);
+
 
 extern double GetBlockValueByHash(uint256 hash);
 
 
-
-//static boost::mutex* mutexTally = NULL;
 
 extern void WriteAppCache(std::string key, std::string value);
 
@@ -97,6 +98,7 @@ extern int TestAESHash(double rac, unsigned int diffbytes, uint256 scrypt_hash, 
 extern void CriticalThreadDelay();
 CClientUIInterface uiDog;
 std::string DefaultBoincHashArgs();
+
 CCriticalSection cs_setpwalletRegistered;
 set<CWallet*> setpwalletRegistered;
 CCriticalSection cs_main;
@@ -148,11 +150,17 @@ extern void ShutdownGridcoinMiner();
 extern bool OutOfSync();
 extern MiningCPID GetNextProject();
 extern void GetNextGPUProject(bool force);
+
 extern void HarvestCPIDs(bool cleardata);
+
 extern  bool TallyNetworkAverages();
+
 bool FindRAC(bool CheckingWork,std::string TargetCPID, std::string TargetProjectName, double pobdiff,
 	bool bCreditNodeVerification, std::string& out_errors, int& out_position);
+
+
 bool FindTransactionSlow(uint256 txhashin, CTransaction& txout,  std::string& out_errors);
+
 std::string msCurrentRAC = "";
 
 std::string md4(std::string hi);
@@ -947,11 +955,6 @@ std::string deletefile(std::string filename)
 	}
 
 	
-//	 FILE *file = fopen(filename.c_str(), "rb");
-  //   CAutoFile filein = CAutoFile(file, SER_DISK, CLIENT_VERSION);
-	// int fileSize = GetFilesize(filein);
-     //filein.fclose();
-
 	 int deleted = remove(filename.c_str());
 	 if (deleted != 0) return "Error deleting.";
 	 return "";
@@ -1058,23 +1061,15 @@ bool TallyNetworkAverages()
 
 	try 
 	{
-
-				    iCriticalThreadDelay=iCriticalThreadDelay+6;
-
+		
 					int nMaxDepth = nBestHeight;
 					int nLookback = 576*14; //Daily block count * Lookback in days
-
 					int nMinDepth = nMaxDepth - nLookback;
 					if (nMinDepth < 2) nMinDepth = 2;
-
 					if (mvNetwork.size() > 1) mvNetwork.clear();
 					if (mvNetworkCPIDs.size() > 1) 					mvNetworkCPIDs.clear();
-
-
 					CBlock block;
-			
 					printf("Gathering network avgs\r\n");
-
 
 					int iRow = 0;
 					double NetworkRAC = 0;
@@ -1084,18 +1079,14 @@ bool TallyNetworkAverages()
 					{
      					CBlockIndex* pblockindex = FindBlockByHeight(ii);
 						block.ReadFromDisk(pblockindex);
-				
 						MiningCPID bb =  DeserializeBoincBlock(block.hashBoinc);
 						//Verify validity of project
 						bool piv = ProjectIsValid(bb.projectname);
-
 						if (piv && bb.rac > 100 && bb.projectname.length() > 3 && bb.cpid.length() > 9 && bb.projectname.length() < 50 && bb.rac < 25000) 
-
 						{
 
 							std::string proj= bb.projectname;
 							std::string projcpid = bb.cpid + ":" + bb.projectname;
-			
 							StructCPID structcpid;
 							structcpid = mvNetwork[proj];
 							iRow++;
@@ -1340,7 +1331,6 @@ try
 {
 
 	printf("loading cpids...");
-	iCriticalThreadDelay=iCriticalThreadDelay+10;
 
 	std::string sourcefile = GetBoincDataDir() + "client_state.xml";
     std::string sout = "";
@@ -2577,6 +2567,27 @@ bool Contains(std::string data, std::string instring)
 	found = data.find(instring);
 	if (found != std::string::npos) return true;
 	return false;
+}
+
+
+
+double Lederstrumpf(double RAC, double NetworkRAC)
+{
+    //Given Rac, Network Rac, calculate Gridcoin Block subsidy based on Lederstrumpf's formula:
+	// Establish constants
+    double e = 2.718;
+	double v = 5;
+	double r = 0.915;
+	double x = 0;
+	x = RAC / (NetworkRAC+.01);
+	double subsidy = 0;
+
+    subsidy = 150 / (1 + pow((double)e, (double)(-v * (x - r))));
+
+    //Debug.Print "With RAC of " + Trim(Rac) + ", NetRac of " + Trim(NetworkRac) + ", Subsidy = " + Trim(Subsidy)
+	if (subsidy < .05) subsidy=.05;
+	if (subsidy > 150) subsidy=150;
+	return subsidy;
 }
 
 int64 static GetBlockValuePoB(int nHeight, int64 nFees, double RAC, double NetworkRAC, int algo_type)
@@ -6231,27 +6242,29 @@ bool ProcessMessage(CNode* pfrom, string strPreCommand, CDataStream& vRecv)
 		//If blockhash matches p2pool block hash and boinchash is empty, and p2pool=true, load boinchash with cpid:  7-12-2014:
 		bool bAlreadyProcessed = false;
 		bool bP2PoolReferenced = false;
-		if (block.hashBoinc.length() < 5)
+		if (false)
 		{
-			bool p2pool = false;
-			if (mapArgs["-p2pool"] == "true")  p2pool=true;
-			printf("Received block from network with empty boinchash \r\n");
-	        if (p2pool)
-			{
-				block.hashBoinc = PullFromP2Pool(block.GetHash().ToString(),false);
-				if (block.hashBoinc.length() > 10) 
-				{
-					    block.BlockType = 2;
-						bP2PoolReferenced=true;
-				}
-			}
 			if (block.hashBoinc.length() < 5)
 			{
-				bAlreadyProcessed=true;
-				printf("Received block %s from network:  BoincHash invalid. Rejected.\r\n",block.GetHash().ToString().c_str());
-			}
+				bool p2pool = false;
+				if (mapArgs["-p2pool"] == "true")  p2pool=true;
+				printf("Received block from network with empty boinchash \r\n");
+				if (p2pool)
+				{
+					block.hashBoinc = PullFromP2Pool(block.GetHash().ToString(),false);
+					if (block.hashBoinc.length() > 10) 
+					{
+							block.BlockType = 2;
+							bP2PoolReferenced=true;
+					}
+				}
+				if (block.hashBoinc.length() < 5)
+				{
+					bAlreadyProcessed=true;
+					printf("Received block %s from network:  BoincHash invalid. Rejected.\r\n",block.GetHash().ToString().c_str());
+				}
 		
-
+			}
 		}
 
 		if (!bAlreadyProcessed)
@@ -7487,8 +7500,7 @@ bool CheckWorkCPU(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
         if (pblock->hashPrevBlock != hashBestChain)
             return error("GridCoinMiner : generated block is stale");
         // Remove key from key pool
-        iCriticalThreadDelay=iCriticalThreadDelay+10;
-
+       
         reservekey.KeepKey();
 
         // Process this block the same as if we had received it from another node
@@ -7536,7 +7548,6 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
         if (pblock->hashPrevBlock != hashBestChain)
             return error("GridCoinMiner : generated block is stale");
         // Remove key from key pool
-        iCriticalThreadDelay=iCriticalThreadDelay+10;
         reservekey.KeepKey();
 
         // Track how many getdata requests this block gets
@@ -7751,7 +7762,6 @@ MiningCPID GetNextProject()
 	
 		if (mvCPIDs.size() < 1) return GlobalCPUMiningCPID;
 
-		iCriticalThreadDelay=iCriticalThreadDelay+1;
 		//Calculate boinc utilization first
 		double mytotalrac = 0;
 		double nettotalrac  = 0;
@@ -7887,7 +7897,6 @@ void GetNextGPUProject(bool force)
 
 
 
-		iCriticalThreadDelay=iCriticalThreadDelay+1;
 
 		StructCPID lastcpid;
 		if (mvCPIDs.size() < 1) return;
@@ -8128,15 +8137,6 @@ void PoBGPUMiner(CBlock* pblock, MiningCPID& miningcpid)
 
 }
 
-void CriticalThreadDelay()
-{
-	if (iCriticalThreadDelay > 0)
-	{
-		iCriticalThreadDelay--;
-		MilliSleep(1000);
-	}
-}
-
 
 double static PoBMiner(int threadid)
 {
@@ -8301,7 +8301,6 @@ double static PoBMiner(int threadid)
 												//Double check PoB hash:
 												printf("PoB proof-of-work found  \n  hash: %s \r\n", pblock->GetPoWHash().GetHex().c_str());
 												//5-19-2014 At this point, the CPU Miner found a solution; lock all other threads while we submit it; verify the block hash is OK
-												iCriticalThreadDelay=30;
 												bool result = false;
 												result = SubmitGridcoinCPUWork(pblock, *pPOBMiningKey, localnonce);
 												if (result)
@@ -8566,18 +8565,12 @@ void ThreadCPIDs()
 	//SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("gridcoin-cpids");
     bCPIDsLoaded = false;
-	printf("Waiting for sync");
-	//MinerWaitForSync();
-	printf("Made it through sync...");
-	
-		if (mvCPIDCache.size() > 1) mvCPIDCache.clear();
-		printf("grabbing cpids");
-		HarvestCPIDs(true);
-		bCPIDsLoaded = true;
-		//Load the next project if we are GPUMining:
-		GetNextGPUProject(true);
+	if (mvCPIDCache.size() > 1) mvCPIDCache.clear();
+	HarvestCPIDs(true);
+	bCPIDsLoaded = true;
+	//Load the next project if we are GPUMining:
+	GetNextGPUProject(true);
 
-		
 }
 
 

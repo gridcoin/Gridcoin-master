@@ -57,10 +57,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 sub.credit = txout.nValue;
 				//Note if it is CPU or not
 
-				//int out_blocknumber=0;
-				//int out_blocktype = 0;
-				//double out_rac = 0;
-				
 				//If value has a 4 digit scale, and ends in 1, this is a cpu coinbase block
 				double myCredit = DoubleFromAmount(sub.credit);
 
