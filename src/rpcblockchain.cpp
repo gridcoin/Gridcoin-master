@@ -8,7 +8,8 @@
 #include <fstream>
 
 
-#include "optionsmodel.h"
+
+
 #include "init.h" // for pwalletMain
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/case_conv.hpp> // for to_lower()
