@@ -139,6 +139,7 @@
     <Compile Include="frmSQL.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="GRCRunTimeInterpreter.vb" />
     <Compile Include="modBoincLeaderboard.vb" />
     <Compile Include="modCgMiner.vb" />
     <Compile Include="modGRC.vb">

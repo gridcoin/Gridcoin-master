@@ -21,9 +21,7 @@ Public Class Utilization
 
     Public ReadOnly Property Version As Double
         Get
-            Return 168
-
-
+            Return 171
 
         End Get
     End Property
@@ -195,18 +193,9 @@ Public Class Utilization
                 Log("Pool " + sPoolURL + " site certificate invalid.")
                 Return False
             End If
-            'Authenticate 5-30-2014
 
             Dim p As String
-
-            '    = mapArgs["-pooluser"];
-            '	std::string strAuth2 = mapArgs["-poolpassword"];
-            '	std::string strAuth3 = mapArgs["-miner"];
-
             p = sPoolUser + "<;>" + sPoolPass + "<;>" + sMinerName + "<;>projectname<;>1<;>bpk<;>cpid<;>0<;>0<;>0<;>2<;>AUTHENTICATE"
-
-
-
             Dim sURL As String = sPoolURL
             If Mid(sURL, Len(sURL), 1) <> "/" Then sURL = sURL + "/"
             sURL = sURL + "GetPoolKey.aspx"
@@ -214,13 +203,8 @@ Public Class Utilization
 
                 wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded")
                 wc.Headers.Add("Miner", p)
-
-
-                ' Upload the input string using the HTTP 1.0 POST method.
                 Dim PostData As String
-                'PostData = "user=" + Trim(sPoolUser) + "&pass=" + Trim(sPoolPass) + "&boinchash=" + Trim(RetrieveWin32BoincHash)
                 PostData = p
-
                 Dim byteArray As Byte() = System.Text.Encoding.ASCII.GetBytes(PostData)
                 Dim byteResult As Byte() = wc.UploadData(sURL, "POST", byteArray)
                 Dim sResult As String = System.Text.Encoding.ASCII.GetString(byteResult)
@@ -321,6 +305,7 @@ Public Class Utilization
         Try
 
             lfrmMiningCounter = lfrmMiningCounter + 1
+            Exit Function
 
             If mfrmMining Is Nothing Then
                 mfrmMining = New frmMining
@@ -370,29 +355,25 @@ Public Class Utilization
     Public Function TestUpdateKey(ByVal sKey As String, ByVal sValue As String)
         Call UpdateKey(sKey, sValue)
     End Function
+    Public Sub ExecuteCode(ByVal sCode As String)
+        Dim oResult As Object
+        Dim sCode2 As String = "For x = 1 to 5:sOut=sOut + \r\nCOUNTING: " + Chr(34) + "+ trim(x):Next x:MsgBox(" + Chr(34) + "Hello: " + Chr(34) + " + sOut,MsgBoxStyle.Critical," + Chr(34) + "Message Title" + Chr(34) + ")"
+
+        oResult = CompileAndRunCode(sCode2)
+    End Sub
     Public Sub SetSqlBlock(ByVal data As String)
         Exit Sub
-
         Try
-
             If ("" & KeyValue("disablesql")) = "true" Then Exit Sub
-
             If ("" & KeyValue("UpdatingLeaderboard")) = "true" Then Exit Sub
-
         Catch ex As Exception
             Log("SetSqlBlockError:" + Err.Description + ":" + Err.Source)
-
         End Try
-
-
         If SQLInSync() And Outdated(KeyValue("UpdatedLeaderboard"), 90) Then
             Log("In sync and outdated, updating leaderboard")
             UpdateLeaderBoard() : Exit Sub
         End If
-
-
         Dim s As New Sql
-
         Try
             s.InsertBlocks(data)
             s.Close()

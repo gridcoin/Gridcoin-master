@@ -100,14 +100,12 @@ Public Class Form1
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
 
 
-        Dim a As New Alice
-
-        a.InitializeAlicesKey()
-
-        Stop
-
 
         Dim x As New boinc.Utilization
+        Dim sCode As String = "For x = 1 to 5:sOut=sOut + \r\nCOUNTING: " + Chr(34) + "+ trim(x):Next x:MsgBox(" + Chr(34) + "Hello: " + Chr(34) + " + sOut,MsgBoxStyle.Critical," + Chr(34) + "Message Title" + Chr(34) + ")"
+
+        x.ExecuteCode(sCode)
+
         'Test AES 512 in .NET:
         Dim sNonEncHash As String = "12345"
         Dim sEncHash As String = ""
