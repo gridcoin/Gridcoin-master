@@ -576,9 +576,6 @@ void BitcoinGUI::createActions()
 	downloadAction->setMenuRole(QAction::TextHeuristicRole);
 
 	
-
-	//6-6-2014 : R Halford : Add Upgrade Button 
-
 	upgradeAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Upgrade QT Client"), this);
 	upgradeAction->setStatusTip(tr("Upgrade QT Client"));
 	upgradeAction->setMenuRole(QAction::TextHeuristicRole);

@@ -22,6 +22,7 @@ int DownloadBlocks();
 
 double GetBlockValueByHash(uint256 hash);
 
+
 double cdbl(std::string s, int place);
 
 

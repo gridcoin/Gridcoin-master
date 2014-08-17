@@ -18,3 +18,6 @@ A:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\
 A:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Release\GridcoinVirtualMachine.vbproj.GenerateResource.Cache
 A:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Release\GVM.dll
 A:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Release\GVM.pdb
+A:\Gridcoin-master\src\GridcoinInstallerWindows\Gridcoin\GridcoinVirtualMachine\obj\Release\GridcoinVirtualMachine.vbprojResolveAssemblyReference.cache
+A:\Gridcoin-stake\release\GVM.dll
+A:\Gridcoin-stake\release\GVM.pdb
