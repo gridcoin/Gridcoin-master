@@ -1,5 +1,6 @@
 #include "sendcoinsdialog.h"
 #include "ui_sendcoinsdialog.h"
+#include "themecontrol.h"
 
 #include "walletmodel.h"
 #include "bitcoinunits.h"
@@ -177,6 +178,9 @@ void SendCoinsDialog::clear()
         delete ui->entries->takeAt(0)->widget();
     }
     addEntry();
+    SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
+    entry->triggerTheme();
+
 
     updateRemoveEnabled();
 
@@ -198,6 +202,7 @@ SendCoinsEntry *SendCoinsDialog::addEntry()
     SendCoinsEntry *entry = new SendCoinsEntry(this);
     entry->setModel(model);
     ui->entries->addWidget(entry);
+    
     connect(entry, SIGNAL(removeEntry(SendCoinsEntry*)), this, SLOT(removeEntry(SendCoinsEntry*)));
 
     updateRemoveEnabled();
@@ -210,6 +215,10 @@ SendCoinsEntry *SendCoinsDialog::addEntry()
     QScrollBar* bar = ui->scrollArea->verticalScrollBar();
     if(bar)
         bar->setSliderPosition(bar->maximum());
+    if (ui->entries->count()>1)
+    {
+        entry->triggerTheme();
+    }
     return entry;
 }
 
@@ -325,5 +334,21 @@ void SendCoinsDialog::updateDisplayUnit()
     {
         // Update labelBalance with the current balance and the current unit
         ui->labelBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), model->getBalance()));
+    }
+}
+
+void SendCoinsDialog::triggerTheme()
+{
+    applyTheme(this, THEME_SENDCOINSENTRY);
+    QList<QPushButton *> pushbuttons = this->findChildren<QPushButton *>();
+    foreach(QPushButton *button, pushbuttons)
+    {   applyTheme(button, THEME_SENDCOINSENTRY_BUTTON);   }
+    for(int i = 0; i < ui->entries->count(); ++i)
+    {
+        SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+        if(entry)
+        {
+            entry->triggerTheme();
+        }
     }
 }

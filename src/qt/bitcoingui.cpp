@@ -127,7 +127,7 @@ bool TestGridcoinWork(std::string sWork);
 
 int cputick = 0;
 
-	
+ 	
 BitcoinGUI::BitcoinGUI(QWidget *parent) :
     QMainWindow(parent),
     clientModel(0),
@@ -1557,9 +1557,9 @@ void BitcoinGUI::detectShutdown()
 
 void BitcoinGUI::updateTheme()
 {
-	setTheme(this, THEME_BITCOINGUI);
-	setTheme(walletFrame, THEME_WALLETFRAME);
-	setTheme(rpcConsole, THEME_RPCCONSOLE);
+	applyTheme(this, THEME_BITCOINGUI);
+	applyTheme(walletFrame, THEME_WALLETFRAME);
+	rpcConsole->triggerTheme();
 	emit(pagesView());
 }
 

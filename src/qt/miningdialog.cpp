@@ -19,6 +19,7 @@
 #include "clientversion.h"
 #include "uint256.h"
 #include "base58.h"
+#include "themecontrol.h"
 
 
 // Copyright 10-3-2013
@@ -31,6 +32,7 @@ MiningDialog::MiningDialog(QWidget *parent) :
     ui(new Ui::MiningDialog)
 {
     ui->setupUi(this);
+    applyTheme(this, THEME_MININGDIALOG);
 
     // Set current copyright year
     // ui->copyrightLabel->setText(tr("Copyright") + QString(" &copy; 2009-%1 ").arg(COPYRIGHT_YEAR) + tr("The Bitcoin developers") + QString("<br>") + tr("Copyright") + QString(" &copy; "));

@@ -532,7 +532,7 @@ color:green;
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabMain">
       <attribute name="title">
@@ -552,6 +552,9 @@ color:green;
           <enum>Qt::PlainText</enum>
          </property>
          <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="alt_text" stdset="0">
           <bool>true</bool>
          </property>
         </widget>
@@ -600,6 +603,9 @@ color:green;
          </property>
          <property name="text">
           <string>&amp;Start Gridcoin on system login</string>
+         </property>
+         <property name="alt_text" stdset="0">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -667,6 +673,9 @@ color:green;
         <widget class="QCheckBox" name="connectSocks">
          <property name="toolTip">
           <string>Connect to the Gridcoin network through a SOCKS proxy (e.g. when connecting through Tor).</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">alternate-background-color: rgb(0, 85, 255);</string>
          </property>
          <property name="text">
           <string>&amp;Connect through SOCKS proxy:</string>
@@ -788,13 +797,13 @@ color:green;
           <string>Show only a tray icon after minimizing the window.</string>
          </property>
          <property name="styleSheet">
-          <string notr="true">
-background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
-color:lightgreen;
-</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>&amp;Minimize to the tray instead of the taskbar</string>
+         </property>
+         <property name="alt_text" stdset="0">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -804,13 +813,13 @@ color:lightgreen;
           <string>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Quit in the menu.</string>
          </property>
          <property name="styleSheet">
-          <string notr="true">
-background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(127, 127, 127, 255));
-color:lightgreen;
-</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>M&amp;inimize on close</string>
+         </property>
+         <property name="alt_text" stdset="0">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -1022,6 +1031,7 @@ color:lightgreen;
    <class>BitcoinAmountField</class>
    <extends>QSpinBox</extends>
    <header>bitcoinamountfield.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>QValueComboBox</class>

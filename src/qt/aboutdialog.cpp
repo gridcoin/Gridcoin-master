@@ -39,8 +39,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 	QString qsUtilization = QString::fromUtf8(sBoincUtilization.c_str());
 	QString qsRegVersion  = QString::fromUtf8(sRegVer.c_str());
 	ui->copyrightLabel->setText("Boinc Magnitude: " + qsUtilization + "              " + ", Registered Version: " + qsRegVersion + "             " + cr);
-    setTheme(this, THEME_ABOUTDIALOG);
-
+    applyTheme(this, THEME_ABOUTDIALOG);
 }
 
     

@@ -39,6 +39,7 @@ public:
 
     void setModel(AddressTableModel *model);
     void setOptionsModel(OptionsModel *optionsModel);
+    void triggerTheme(int main, int table, int button_a, int button_b);
     const QString &getReturnValue() const { return returnValue; }
 
 public slots:

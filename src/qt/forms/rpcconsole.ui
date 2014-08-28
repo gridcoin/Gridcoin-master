@@ -1180,6 +1180,9 @@ color:lightgreen;
          <property name="text">
           <string>Gridcoin Core:</string>
          </property>
+         <property name="subtitle" stdset="0">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="1" column="0">
@@ -1353,6 +1356,9 @@ color:lightgreen;
          </property>
          <property name="text">
           <string>Network:</string>
+         </property>
+         <property name="subtitle" stdset="0">
+          <bool>true</bool>
          </property>
         </widget>
        </item>

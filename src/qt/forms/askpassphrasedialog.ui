@@ -50,7 +50,7 @@ color:lightgreen;
      <item row="0" column="0">
       <widget class="QLabel" name="passLabel1">
        <property name="styleSheet">
-        <string notr="true">background-color:black;
+        <string notr="true">
 </string>
        </property>
        <property name="text">
@@ -74,8 +74,7 @@ color:lightgreen;
      <item row="1" column="0">
       <widget class="QLabel" name="passLabel2">
        <property name="styleSheet">
-        <string notr="true">background-color:black;
-</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>New passphrase</string>
@@ -98,8 +97,7 @@ color:lightgreen;
      <item row="2" column="0">
       <widget class="QLabel" name="passLabel3">
        <property name="styleSheet">
-        <string notr="true">background-color:black;
-</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Repeat new passphrase</string>

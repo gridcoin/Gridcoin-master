@@ -7,6 +7,7 @@
 #include "walletmodel.h"
 #include "optionsmodel.h"
 #include "addresstablemodel.h"
+#include "themecontrol.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -176,4 +177,19 @@ void SendCoinsEntry::updateDisplayUnit()
         // Update payAmount with the current unit
         ui->payAmount->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
     }
+}
+
+void SendCoinsEntry::triggerTheme()
+{
+    applyTheme(this, THEME_SENDCOINSENTRY);
+
+    QList<QToolButton *> toolbuttons = this->findChildren<QToolButton *>();
+    foreach(QToolButton *button, toolbuttons) 
+    {   applyTheme(button, THEME_SENDCOINSENTRY_BUTTON);   }
+
+    applyTheme(ui->payAmount, THEME_SENDCOINSENTRY_BUTTON);
+
+    QList<QValidatedLineEdit *> lineedits = this->findChildren<QValidatedLineEdit *>();
+    foreach(QValidatedLineEdit *line, lineedits) 
+    {   applyTheme(line, THEME_SENDCOINSENTRY_LINE);   }
 }

@@ -1,5 +1,6 @@
 #include "transactiondescdialog.h"
 #include "ui_transactiondescdialog.h"
+#include "themecontrol.h"
 
 #include "transactiontablemodel.h"
 
@@ -12,6 +13,7 @@ TransactionDescDialog::TransactionDescDialog(const QModelIndex &idx, QWidget *pa
     ui->setupUi(this);
     QString desc = idx.data(TransactionTableModel::LongDescriptionRole).toString();
     ui->detailText->setHtml(desc);
+    applyTheme(this, THEME_TRANSACTIONDESCDIALOG);
 }
 
 TransactionDescDialog::~TransactionDescDialog()

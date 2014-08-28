@@ -4,6 +4,7 @@
 #include "clientmodel.h"
 #include "bitcoinrpc.h"
 #include "guiutil.h"
+#include "themecontrol.h"
 
 #include <QTime>
 #include <QThread>
@@ -427,4 +428,27 @@ void RPCConsole::on_showCLOptionsButton_clicked()
 {
     GUIUtil::HelpMessageBox help;
     help.exec();
+}
+
+void RPCConsole::triggerTheme()
+{
+    applyTheme(this, THEME_RPCCONSOLE);
+    applyTheme(ui->tabWidget, THEME_RPCCONSOLE_TAB);
+    applyTheme(ui->messagesWidget, THEME_RPCCONSOLE_CONSOLE);
+
+    QList<QPushButton *> pushbuttons = this->findChildren<QPushButton *>();
+    foreach(QPushButton *button, pushbuttons) 
+    {   applyTheme(button, THEME_RPCCONSOLE_BUTTON);   }
+    
+    QList<QLabel *> children = ui->tabWidget->findChildren<QLabel *>();
+    foreach(QWidget *child, children) 
+    {
+        if (child->property("subtitle")=="1")
+        {
+            applyTheme(child, THEME_RPCCONSOLE_SUBTITLE);
+        }
+        else {applyTheme(child, THEME_RPCCONSOLE_LABEL);}
+    }
+
+    applyTheme(ui->lineEdit, THEME_RPCCONSOLE_BUTTON);
 }

@@ -27,7 +27,6 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     tab(tab)
 {
     ui->setupUi(this);
-    setTheme(this, THEME_ADDRESSBOOKPAGE);
 
 #ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
     ui->newAddress->setIcon(QIcon());
@@ -398,4 +397,21 @@ void AddressBookPage::selectNewAddress(const QModelIndex &parent, int begin, int
         ui->tableView->selectRow(idx.row());
         newAddressToSelect.clear();
     }
+}
+
+void AddressBookPage::triggerTheme(int main, int table, int button_a, int button_b)
+{
+    applyTheme(this, main);
+    applyTheme(ui->tableView, table);
+    applyTheme(ui->tableView->horizontalHeader(), main);
+    //PushButtons:
+    QList<QPushButton *> pushbuttons = this->findChildren<QPushButton *>();
+    // if (pushbuttons.indexOf("newAddress") != -1)
+    // {
+    //     pushbuttons.removeAll("newAddress");
+    //     applyTheme(ui->newAddress, THEME_RECEIVECOINSPAGE_BUTTON_B);
+    // }
+    foreach(QPushButton *button, pushbuttons) 
+    {   applyTheme(button, button_a);    }
+    applyTheme(ui->newAddress, button_b);
 }
