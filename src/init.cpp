@@ -1183,11 +1183,14 @@ bool AppInit2()
                 }
 
                 uiInterface.InitMessage(_("Verifying blocks..."));
-                if (!VerifyDB(GetArg("-checklevel", 3),
-					GetArg( "-checkblocks", 188))) 
+                if (false)
+				{
+					if (!VerifyDB(GetArg("-checklevel", 3),
+					GetArg( "-checkblocks", 18))) 
 				{     strLoadError = _("Corrupted block database detected");
                     break;
                 }
+				}
             } catch(std::exception &e) {
                 strLoadError = _("Error opening block database");
                 break;

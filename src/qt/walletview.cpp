@@ -278,6 +278,8 @@ void WalletView::unlockWallet()
 
 void WalletView::themePages()
 {
+	return;
+
     setTheme(overviewPage, THEME_OVERVIEWPAGE);
     setTheme(transactionsPage, THEME_OVERVIEWPAGE);
     setTheme(addressBookPage, THEME_ADDRESSBOOKPAGE);

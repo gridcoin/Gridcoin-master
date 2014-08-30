@@ -123,6 +123,7 @@ private:
 
 	QAction *sqlAction;
 	QAction *leaderboardAction;
+	QAction *coinexchangeAction;
 
     QAction *receiveCoinsAction;
     QAction *optionsAction;
@@ -204,6 +205,7 @@ public slots:
 private slots:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
+	void gotoCoinExchange();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to address book page */
@@ -218,6 +220,8 @@ private slots:
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
 
+	
+
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */
@@ -227,6 +231,7 @@ private slots:
 	void miningClicked();
 	/** Show the E-Mail Center */
 	void emailClicked();
+	void coinexchangeClicked();
 
 	void sqlClicked();
 

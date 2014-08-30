@@ -34,7 +34,8 @@ public:
     void showOutOfSyncWarning(bool fShow);
 	void updateglobalstatus();
 	void UpdateBoincUtilization();
-
+	void on_btnCoinExchange_pressed();
+	
 public slots:
     void setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 immatureBalance);
 

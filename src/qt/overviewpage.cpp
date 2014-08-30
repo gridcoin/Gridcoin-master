@@ -14,6 +14,12 @@
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
+
+#include <QDesktopServices>  //Added for openURL()
+#include <QUrl>
+
+
+
 #ifdef WIN32
 #include <QAxObject>
 #include "../global_objects.hpp"
@@ -258,4 +264,11 @@ void OverviewPage::updateglobalstatus()
 {
 
 	OverviewPage::UpdateBoincUtilization();
+}
+
+
+void OverviewPage::on_btnCoinExchange_pressed()
+{
+    QDesktopServices::openUrl(QUrl("http://pool.gridcoin.us/CoinExchange.aspx"));
+
 }

@@ -368,6 +368,10 @@ double GetNetworkHashPS2(int lookup, int height) {
 std::string GetGlobalStatus()
 {
 	std::string status = "";
+	
+	mdLastDifficulty = GetDifficulty();
+
+
 	status = "Blocks: " + RoundToString((double)nBestHeight,0) + "; Difficulty: " + RoundToString(mdLastDifficulty,3) 
 		+ "; Net Hp/s: " + RoundToString(GetNetworkHashPS2(120, -1),2)  
 		+ "; PoB Difficulty: " + RoundToString(mdLastPoBDifficulty,3) 

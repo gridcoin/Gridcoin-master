@@ -15,6 +15,8 @@
 #endif
 
 
+#include <QDesktopServices>  //Added for openURL()
+#include <QUrl>
 
 
 #include "bitcoingui.h"
@@ -602,9 +604,10 @@ void BitcoinGUI::createActions()
 	leaderboardAction->setStatusTip(tr("Leaderboard"));
 	leaderboardAction->setMenuRole(QAction::TextHeuristicRole);
 
-    //aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
-    //aboutQtAction->setStatusTip(tr("Show information about Qt"));
-    //aboutQtAction->setMenuRole(QAction::AboutQtRole);
+
+	coinexchangeAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Coin Exchange"), this);
+	coinexchangeAction->setStatusTip(tr("Coin Exchange"));
+	coinexchangeAction->setMenuRole(QAction::TextHeuristicRole);
 
     optionsAction = new QAction(QIcon(":/icons/options"), tr("&Options..."), this);
     optionsAction->setStatusTip(tr("Modify configuration options for Gridcoin"));
@@ -647,6 +650,10 @@ void BitcoinGUI::createActions()
 
 	connect(sqlAction, SIGNAL(triggered()), this, SLOT(sqlClicked()));
 	connect(leaderboardAction, SIGNAL(triggered()), this, SLOT(leaderboardClicked()));
+
+	connect(coinexchangeAction, SIGNAL(triggered()), this, SLOT(coinexchangeClicked()));
+
+
 	
 }
 
@@ -707,6 +714,12 @@ void BitcoinGUI::createMenuBar()
 	QMenu *leaderboard = appMenuBar->addMenu(tr("&Leaderboard"));
 	leaderboard->addSeparator();
 	leaderboard->addAction(leaderboardAction);
+
+		
+	QMenu *qmenucoinexchange = appMenuBar->addMenu(tr("&Coin Exchange"));
+    qmenucoinexchange->addSeparator();
+    qmenucoinexchange->addAction(coinexchangeAction);
+	
 
 }
 
@@ -864,6 +877,16 @@ void BitcoinGUI::restoreWindowGeometry()
     move(pos);
 }
 
+
+
+
+void BitcoinGUI::coinexchangeClicked()
+{
+	    QDesktopServices::openUrl(QUrl("http://pool.gridcoin.us/CoinExchange.aspx"));
+	//walletFrame->on_btnCoinExchange_pressed();
+}
+
+
 void BitcoinGUI::optionsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
@@ -956,6 +979,13 @@ void BitcoinGUI::miningClicked()
 void BitcoinGUI::gotoOverviewPage()
 {
     if (walletFrame) walletFrame->gotoOverviewPage();
+}
+
+
+
+void BitcoinGUI::gotoCoinExchange()
+{
+    QDesktopServices::openUrl(QUrl("http://pool.gridcoin.us/CoinExchange.aspx"));
 }
 
 void BitcoinGUI::gotoHistoryPage()
