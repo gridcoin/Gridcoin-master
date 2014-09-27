@@ -49,7 +49,7 @@ Partial Class frmGridCoin
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Label1 = New System.Windows.Forms.Label()
         Me.lblCPU = New System.Windows.Forms.Label()
-        Me.Button3 = New System.Windows.Forms.Button()
+        Me.btnBurn = New System.Windows.Forms.Button()
         Me.contextMenuMessages = New System.Windows.Forms.ContextMenu()
         Me.saveFile = New System.Windows.Forms.SaveFileDialog()
         Me.TabControl1.SuspendLayout()
@@ -310,14 +310,14 @@ Partial Class frmGridCoin
         Me.lblCPU.TabIndex = 5
         Me.lblCPU.Text = "100%"
         '
-        'Button3
+        'btnBurn
         '
-        Me.Button3.Location = New System.Drawing.Point(505, 420)
-        Me.Button3.Name = "Button3"
-        Me.Button3.Size = New System.Drawing.Size(105, 19)
-        Me.Button3.TabIndex = 7
-        Me.Button3.Text = "Email"
-        Me.Button3.UseVisualStyleBackColor = True
+        Me.btnBurn.Location = New System.Drawing.Point(505, 420)
+        Me.btnBurn.Name = "btnBurn"
+        Me.btnBurn.Size = New System.Drawing.Size(105, 19)
+        Me.btnBurn.TabIndex = 7
+        Me.btnBurn.Text = "Burn Address"
+        Me.btnBurn.UseVisualStyleBackColor = True
         '
         'saveFile
         '
@@ -328,7 +328,7 @@ Partial Class frmGridCoin
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(940, 709)
-        Me.Controls.Add(Me.Button3)
+        Me.Controls.Add(Me.btnBurn)
         Me.Controls.Add(Me.lblCPU)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.TabControl1)
@@ -377,7 +377,7 @@ Partial Class frmGridCoin
     Friend WithEvents Timer1 As System.Windows.Forms.Timer
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents lblCPU As System.Windows.Forms.Label
-    Friend WithEvents Button3 As System.Windows.Forms.Button
+    Friend WithEvents btnBurn As System.Windows.Forms.Button
     Private WithEvents contextMenuMessages As System.Windows.Forms.ContextMenu
     Private WithEvents saveFile As System.Windows.Forms.SaveFileDialog
 

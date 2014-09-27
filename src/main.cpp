@@ -2511,18 +2511,33 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
 int64 static MaxBlockValue(int nHeight, int64 nFees)
 {
 	//Rob Halford - 1/6/2014 - Adding the ability to pay CPU Miners up to Half of a block for CPU+Boinc mining:
-
 	//GridCoin - return the maximum value a miner can be paid based on full boinc utilization
     // int64 nSubsidy = 150 * COIN;  Decommissioning as of 1-6-2014
 	int64 nSubsidy = 0;
-	//77000 here
+	//RH: Implementing future schedule to transition to Gridcoin Research - we are on block 177715 @ 9-12-2014
+	//@Block: 199000, subsidy moves to  10 grc (10-20-2014)
+	//@Block: 285400, subsidy moves to .10 grc (03-20-2015) - permanently (please transition to Gridcoin Research)
+
 
 	if (nHeight <= 77000) 
 	{
 		nSubsidy = (150 + CPU_MAXIMUM_BLOCK_PAYMENT_AMOUNT) * COIN;
-	} else 
-	{
+	} 
+	else if (nHeight > 77000 && nHeight < 199000)
+    {
 		nSubsidy = (154) * COIN;
+	}
+	else if (nHeight >= 199000 && nHeight < 285400)
+	{
+		nSubsidy = (10) * COIN;
+	}
+	else if (nHeight >= 285400)
+	{
+		nSubsidy = (.1) * COIN;
+	}
+	else
+	{
+		nSubsidy = (.1) * COIN;
 	}
 
     // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
@@ -2543,17 +2558,20 @@ int64 static GetBoincUtilization()
 	if (!bBoincSubsidyEligible) nCalculatedReading = 5;
 	if (!bBoincSubsidyEligible && nBoincUtilization > 0) (printf("Not eligible for boinc subsidy, must connect through loopback address."));
 	//No need to do this anymore now that we have added the direct mining payment system:
-	
 	return nCalculatedReading;
 }
-
-
 
 
     
 
 int64 static GetBlockValue(int nHeight, int64 nFees)
 {
+	//After block 199,000 we transition to 10grc while we transition to Proof Of Research:
+	if (nHeight >= 199000)
+	{
+		return MaxBlockValue(nHeight,nFees);
+	}
+
 	//GridCoin - variable reward based on BoincProcess Utilization (minimum 5, Max 150)
     int64 nSubsidy = GetBoincUtilization() * COIN;
     // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
@@ -2584,9 +2602,7 @@ double Lederstrumpf(double RAC, double NetworkRAC)
 	double x = 0;
 	x = RAC / (NetworkRAC+.01);
 	double subsidy = 0;
-
     subsidy = 150 / (1 + pow((double)e, (double)(-v * (x - r))));
-
     //Debug.Print "With RAC of " + Trim(Rac) + ", NetRac of " + Trim(NetworkRac) + ", Subsidy = " + Trim(Subsidy)
 	if (subsidy < .05) subsidy=.05;
 	if (subsidy > 150) subsidy=150;
@@ -2595,6 +2611,12 @@ double Lederstrumpf(double RAC, double NetworkRAC)
 
 int64 static GetBlockValuePoB(int nHeight, int64 nFees, double RAC, double NetworkRAC, int algo_type)
 {
+	//After block 199,000 we transition to 10grc while we transition to Proof Of Research:
+	if (nHeight >= 199000)
+	{
+		return MaxBlockValue(nHeight,nFees);
+	}
+
 	//GridCoin - variable reward based on BoincProcess Utilization (minimum 5, Max 150)
 	if (RAC < 100) RAC = 0;
 	if (NetworkRAC < 1) NetworkRAC = 1;

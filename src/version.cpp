@@ -8,10 +8,10 @@
 // Name of client reported in the 'version' message. Report the same name
 // for both bitcoind and bitcoin-qt, to make it harder for attackers to
 // target servers or GUI users specifically.
-const std::string CLIENT_NAME("Nakamoto");
+const std::string CLIENT_NAME("Nakamoto-Classic");
 
 // Client version number
-#define CLIENT_VERSION_SUFFIX   "-prod"
+#define CLIENT_VERSION_SUFFIX   "-retirement"
 
 
 // The following part of the code determines the CLIENT_BUILD variable.
@@ -36,8 +36,8 @@ const std::string CLIENT_NAME("Nakamoto");
 // git will put "#define GIT_ARCHIVE 1" on the next line inside archives. 
 #define GIT_ARCHIVE 1
 #ifdef GIT_ARCHIVE
-#    define GIT_COMMIT_ID "71"
-#    define GIT_COMMIT_DATE "Wed, 10 Oct 2013 11:13:07 +0800"
+#    define GIT_COMMIT_ID "77"
+#    define GIT_COMMIT_DATE "Wed, 10 Oct 2014 11:13:07 +0800"
 #endif
 
 #define BUILD_DESC_FROM_COMMIT(maj,min,rev,build,commit) \

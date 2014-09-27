@@ -55,3 +55,17 @@ C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbp
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmGridCoin.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.Resources.resources
 C:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbproj.GenerateResource.Cache
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.exe
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.xml
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.pdb
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\SQLite.NET.dll
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\SQLite3.dll
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\GridCoinDotNet.exe
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\GridCoinDotNet.pdb
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\GridCoinDotNet.xml
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\bin\Debug\BouncyCastle.Crypto.dll
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbprojResolveAssemblyReference.cache
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmGridCoin.resources
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.frmSQL.resources
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoinDotNet.Resources.resources
+A:\Gridcoin-master\contrib\RD\GridCoinDotNet\GridCoin\obj\x86\Debug\GridCoin.vbproj.GenerateResource.Cache

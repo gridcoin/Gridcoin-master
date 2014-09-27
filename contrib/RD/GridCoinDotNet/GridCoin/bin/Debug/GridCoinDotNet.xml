@@ -6,105 +6,7 @@ GridCoinDotNet
 </name>
 </assembly>
 <members>
-<member name="P:GridCoinDotNet.My.Resources.Resources.ResourceManager">
-	<summary>
-  Returns the cached ResourceManager instance used by this class.
-</summary>
-</member><member name="P:GridCoinDotNet.My.Resources.Resources.Culture">
-	<summary>
-  Overrides the current thread's CurrentUICulture property for all
-  resource lookups using this strongly typed resource class.
-</summary>
-</member><member name="T:GridCoinDotNet.My.Resources.Resources">
-	<summary>
-  A strongly-typed resource class, for looking up localized strings, etc.
-</summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Base58.ToByteArray(System.String)">
-	<summary>
- Converts a base-58 string to a byte array, returning null if it wasn't valid.
- </summary>
-</member><member name="T:GridCoinDotNet.Gridcoin.TreeNodeBuilder">
-	<summary>
- Builds up a <see cref="T:System.Windows.Forms.TreeNode"/> with the same hierarchy as
- a <see cref="T:OpenPop.Mime.Message"/>.
- 
- The root <see cref="T:System.Windows.Forms.TreeNode"/> has the subject as text and has one one child.
- The root has no Tag attribute set.
- 
- The children of the root has the MediaType of the <see cref="!:MessagePart"/> as text and the
- MessagePart's children as <see cref="T:System.Windows.Forms.TreeNode"/> children.
- Each <see cref="!:MessagePart"/>
-		<see cref="T:System.Windows.Forms.TreeNode"/> has a Tag property set to that <see cref="!:MessagePart"/>
-	</summary>
-</member><member name="M:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1.VisitMessage(OpenPop.Mime.Message)">
-	<summary>
- Call this when you want to apply this traverser on a <see cref="T:OpenPop.Mime.Message"/>.
- </summary>
-	<param name="message">The <see cref="T:OpenPop.Mime.Message"/> which you want to traverse. Must not be <see langword="null"/>.</param>
-	<returns>An answer</returns>
-</member><member name="M:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1.VisitMessagePart(OpenPop.Mime.MessagePart)">
-	<summary>
- Call this when you want to apply this traverser on a <see cref="!:MessagePart"/>.
- </summary>
-	<param name="messagePart">The <see cref="!:MessagePart"/> which you want to traverse. Must not be <see langword="null"/>.</param>
-	<returns>An answer</returns>
-</member><member name="T:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1">
-	<summary>
- This interface describes a MessageTraverser which is able to traverse a Message hierarchy structure
- and deliver some answer.
- </summary>
-	<typeparam name="TAnswer">This is the type of the answer you want to have delivered.</typeparam>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.#ctor(System.Byte[])">
-	<summary>
- Constructor that takes a byte array of 33 or 65 bytes representing a public key.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.validatePoint">
-	<summary>
- Returns true if the point coordinates satisfy the elliptic curve equation.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.ComputePublicKey">
-	<summary>
- Virtual method to compute public key on demand when doing so is expensive.
- Not used if we are handed a public key through the constructor, but this is used
- if a descendant class (e.g. KeyPair) has a private key and the only way to know
- the public key is to compute it.
- </summary>
-</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.PublicKey.PublicKeyBytes">
-	<summary>
- Returns the public key bytes.  This will return 65 bytes for an uncompressed public key
- or 33 bytes for a compressed public key.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.ComputeHash160">
-	<summary>
- Computes the Hash160 of the public key upon demand.
- </summary>
-</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.PublicKey.PublicKeyHex">
-	<summary>
- Hexadecimal representation of public key.  Each byte is 2 hex digits, uppercase,
- delimited with spaces.
- </summary>
-</member><member name="T:GridCoinDotNet.Casascius.Bitcoin.PublicKey">
-	<summary>
- Bitcoin address extended to include knowledge of public key.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.CreateRandom(System.String)">
-	<summary>
- Create a new random MiniKey.
- Entropy is taken from .NET's SecureRandom, the system clock,
- and any optionally provided salt.
- </summary>
-</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.PrivateKey">
-	<summary>
- Returns the private key in the most preferred display format for the type.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.IsValidMiniKey(System.String)">
-	<summary>
- Returns 1 if candidate is a valid Mini Private Key per rules described in
- Bitcoin Wiki article "Mini private key format".
- Zero or negative indicates not a valid Mini Private Key.
- -1 means well formed but fails typo check.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(System.Byte[])">
+<member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(System.Byte[])">
 	<summary>
  Constructs a Bitcoin address from a 20 byte array representing a Hash160.
  If 21 bytes are provided, the extra byte denotes address type.
@@ -118,7 +20,7 @@ GridCoinDotNet
 	<summary>
  Allows calculation of address with a different AddressType
  </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(System.String)">
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.AddressBase.#ctor(System.String@,System.Boolean)">
 	<summary>
  Constructs an Address from an address string
  </summary>
@@ -142,32 +44,6 @@ GridCoinDotNet
 </member><member name="T:GridCoinDotNet.Casascius.Bitcoin.AddressBase">
 	<summary>
  Represents a single Bitcoin address, assumes knowledge only of a Hash160.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.Base58Trim(System.String)">
-	<summary>
- Trims whitespace from within and outside string.
- Whitespace is anything non-alphanumeric that may have been inserted into a string.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.Base58CheckToByteArray(System.String)">
-	<summary>
- Converts a base-58 string to a byte array, checking the checksum, and
- returning null if it wasn't valid.  Appending "?" to the end of the string skips
- the checksum calculation, but still strips the four checksum bytes from the
- result.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.HexStringToBytes(System.String,System.Boolean)">
-	<summary>
- Converts a hex string to bytes.  Hex chars can optionally be space-delimited, otherwise,
- any two contiguous hex chars are considered to be a byte.  If testingForValidHex==true,
- then if any invalid characters are found, the function returns null instead of bytes.
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.CloneByteArray(System.Byte[])">
-	<summary>
- Extension for cloning a byte array
- </summary>
-</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.CloneByteArray(System.Byte[],System.Int32,System.Int32)">
-	<summary>
- Extension for cloning a portion of a byte array
  </summary>
 </member><member name="M:GridCoinDotNet.Casascius.Bitcoin.KeyPair.CreateFromString(System.String)">
 	<summary>
@@ -230,6 +106,130 @@ GridCoinDotNet
 	<summary>
  A KeyPair represents a Bitcoin address and its known private key.
  </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Base58.ToByteArray(System.String)">
+	<summary>
+ Converts a base-58 string to a byte array, returning null if it wasn't valid.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.Base58Trim(System.String)">
+	<summary>
+ Trims whitespace from within and outside string.
+ Whitespace is anything non-alphanumeric that may have been inserted into a string.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.Base58CheckToByteArray(System.String@,System.Boolean)">
+	<summary>
+ Converts a base-58 string to a byte array, checking the checksum, and
+ returning null if it wasn't valid.  Appending "?" to the end of the string skips
+ the checksum calculation, but still strips the four checksum bytes from the
+ result.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.HexStringToBytes(System.String,System.Boolean)">
+	<summary>
+ Converts a hex string to bytes.  Hex chars can optionally be space-delimited, otherwise,
+ any two contiguous hex chars are considered to be a byte.  If testingForValidHex==true,
+ then if any invalid characters are found, the function returns null instead of bytes.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.CloneByteArray(System.Byte[])">
+	<summary>
+ Extension for cloning a byte array
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.Util.CloneByteArray(System.Byte[],System.Int32,System.Int32)">
+	<summary>
+ Extension for cloning a portion of a byte array
+ </summary>
+</member><member name="T:GridCoinDotNet.Gridcoin.TreeNodeBuilder">
+	<summary>
+ Builds up a <see cref="T:System.Windows.Forms.TreeNode"/> with the same hierarchy as
+ a <see cref="T:OpenPop.Mime.Message"/>.
+ 
+ The root <see cref="T:System.Windows.Forms.TreeNode"/> has the subject as text and has one one child.
+ The root has no Tag attribute set.
+ 
+ The children of the root has the MediaType of the <see cref="!:MessagePart"/> as text and the
+ MessagePart's children as <see cref="T:System.Windows.Forms.TreeNode"/> children.
+ Each <see cref="!:MessagePart"/>
+		<see cref="T:System.Windows.Forms.TreeNode"/> has a Tag property set to that <see cref="!:MessagePart"/>
+	</summary>
+</member><member name="M:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1.VisitMessage(OpenPop.Mime.Message)">
+	<summary>
+ Call this when you want to apply this traverser on a <see cref="T:OpenPop.Mime.Message"/>.
+ </summary>
+	<param name="message">The <see cref="T:OpenPop.Mime.Message"/> which you want to traverse. Must not be <see langword="null"/>.</param>
+	<returns>An answer</returns>
+</member><member name="M:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1.VisitMessagePart(OpenPop.Mime.MessagePart)">
+	<summary>
+ Call this when you want to apply this traverser on a <see cref="!:MessagePart"/>.
+ </summary>
+	<param name="messagePart">The <see cref="!:MessagePart"/> which you want to traverse. Must not be <see langword="null"/>.</param>
+	<returns>An answer</returns>
+</member><member name="T:GridCoinDotNet.Gridcoin.IAnswerMessageTraverser`1">
+	<summary>
+ This interface describes a MessageTraverser which is able to traverse a Message hierarchy structure
+ and deliver some answer.
+ </summary>
+	<typeparam name="TAnswer">This is the type of the answer you want to have delivered.</typeparam>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.CreateRandom(System.String)">
+	<summary>
+ Create a new random MiniKey.
+ Entropy is taken from .NET's SecureRandom, the system clock,
+ and any optionally provided salt.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.PrivateKey">
+	<summary>
+ Returns the private key in the most preferred display format for the type.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.MiniKeyPair.IsValidMiniKey(System.String)">
+	<summary>
+ Returns 1 if candidate is a valid Mini Private Key per rules described in
+ Bitcoin Wiki article "Mini private key format".
+ Zero or negative indicates not a valid Mini Private Key.
+ -1 means well formed but fails typo check.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.#ctor(System.Byte[])">
+	<summary>
+ Constructor that takes a byte array of 33 or 65 bytes representing a public key.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.validatePoint">
+	<summary>
+ Returns true if the point coordinates satisfy the elliptic curve equation.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.ComputePublicKey">
+	<summary>
+ Virtual method to compute public key on demand when doing so is expensive.
+ Not used if we are handed a public key through the constructor, but this is used
+ if a descendant class (e.g. KeyPair) has a private key and the only way to know
+ the public key is to compute it.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.PublicKey.PublicKeyBytes">
+	<summary>
+ Returns the public key bytes.  This will return 65 bytes for an uncompressed public key
+ or 33 bytes for a compressed public key.
+ </summary>
+</member><member name="M:GridCoinDotNet.Casascius.Bitcoin.PublicKey.ComputeHash160">
+	<summary>
+ Computes the Hash160 of the public key upon demand.
+ </summary>
+</member><member name="P:GridCoinDotNet.Casascius.Bitcoin.PublicKey.PublicKeyHex">
+	<summary>
+ Hexadecimal representation of public key.  Each byte is 2 hex digits, uppercase,
+ delimited with spaces.
+ </summary>
+</member><member name="T:GridCoinDotNet.Casascius.Bitcoin.PublicKey">
+	<summary>
+ Bitcoin address extended to include knowledge of public key.
+ </summary>
+</member><member name="P:GridCoinDotNet.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:GridCoinDotNet.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:GridCoinDotNet.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
 </member>
 </members>
 </doc>

@@ -125,7 +125,8 @@ Namespace Casascius.Bitcoin
         ''' Constructs the object with string key, returning any intended exception as a string.
         ''' </summary>
         Private Function constructWithKey(ByVal key As String, ByVal compressed As Boolean) As String
-            Dim hex As Byte() = Util.Base58CheckToByteArray(key)
+            Dim hex As Byte() = Util.Base58CheckToByteArray(key, False)
+
             If hex Is Nothing Then
                 hex = Util.HexStringToBytes(key, True)
                 If hex Is Nothing Then
@@ -284,7 +285,8 @@ Namespace Casascius.Bitcoin
             End Get
             Protected Set(ByVal value As String)
 
-                Dim hex As Byte() = Util.Base58CheckToByteArray(value)
+                Dim hex As Byte() = Util.Base58CheckToByteArray(value, False)
+
 
                 If hex Is Nothing Then
                     Throw New ApplicationException("WIF private key is not valid.")

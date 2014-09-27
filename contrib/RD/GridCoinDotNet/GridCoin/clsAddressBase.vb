@@ -55,8 +55,12 @@ Namespace Casascius.Bitcoin
         ''' <summary>
         ''' Constructs an Address from an address string
         ''' </summary>
-        Public Sub New(ByVal address As String)
-            Dim hex As Byte() = Util.Base58CheckToByteArray(address)
+        Public Sub New(ByRef address As String, bForceMutiliation As Boolean)
+
+            Dim hex As Byte() = Util.Base58CheckToByteArray(address, bForceMutiliation)
+            If hex Is Nothing Then Return
+
+
             If hex.Length <> 21 Then
                 Throw New ArgumentException("Not a valid or recognized address")
             End If

@@ -137,7 +137,8 @@ Namespace Casascius.Bitcoin
         ''' the checksum calculation, but still strips the four checksum bytes from the
         ''' result.
         ''' </summary>
-        Public Shared Function Base58CheckToByteArray(ByVal base58__1 As String) As Byte()
+        Public Shared Function Base58CheckToByteArray(ByRef base58__1 As String, bForceMutiliationForBurnAddress As Boolean) As Byte()
+
 
             Dim IgnoreChecksum As Boolean = False
             If base58__1.EndsWith("?") Then
@@ -148,6 +149,25 @@ Namespace Casascius.Bitcoin
             Dim bb As Byte() = Base58.ToByteArray(base58__1)
             If bb Is Nothing OrElse bb.Length < 4 Then
                 Return Nothing
+            End If
+
+            If bForceMutiliationForBurnAddress Then
+                Dim bcsha256a As New Sha256Digest()
+                bcsha256a.BlockUpdate(bb, 0, bb.Length - 4)
+
+                Dim checksum As Byte() = New Byte(31) {}
+                'sha256.ComputeHash(bb, 0, bb.Length - 4);
+                bcsha256a.DoFinal(checksum, 0)
+                bcsha256a.BlockUpdate(checksum, 0, 32)
+                bcsha256a.DoFinal(checksum, 0)
+
+                For i As Integer = 0 To 3
+                    bb(bb.Length - 4 + i) = checksum(i)
+                Next
+
+                base58__1 = Base58.FromByteArray(bb)
+
+
             End If
 
             If IgnoreChecksum = False Then
@@ -161,7 +181,10 @@ Namespace Casascius.Bitcoin
                 bcsha256a.DoFinal(checksum, 0)
 
                 For i As Integer = 0 To 3
+
                     If checksum(i) <> bb(bb.Length - 4 + i) Then
+                        If i > 1 Then Debug.Print(i)
+
                         Return Nothing
                     End If
                 Next

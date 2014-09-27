@@ -38,9 +38,11 @@ Module modGridCoinShaFunctions
 
         'Create a bitcoin wallet
         Dim kp As Casascius.Bitcoin.KeyPair
-        ' kp = Casascius.Bitcoin.KeyPair.Create("", False, 37)
+        kp = Casascius.Bitcoin.KeyPair.Create(1, "none", False, 37)
+
         Dim s As String
         Dim sOut As String
+        
 
         For zz = 1 To 10
             s = CreateGRCKeyWithProjectAndAccount(Trim(zz))

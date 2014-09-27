@@ -72,27 +72,28 @@ Public Class frmGridCoin
 
     End Sub
 
-    Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button3.Click
-        CreateBitcoinWallet()
-
-        Stop
-
-
-        '  frmMail.Show()
-        '  frmMail.RetrievePop3Emails()
-
-
+    Private Sub btnBurn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnBurn.Click
+        'Reference: Casascius c# Bitcoin Utilities Lib
+        Randomize()
+        Dim r As Single
+        For x = 1 To 500000000
+            Application.DoEvents()
+            r = CSng(Val(Rnd(1) * (999999999.0#)))
+            Dim sR As String = Math.Round(r, 0).ToString()
+            Dim s As String = "zz000000000"
+            Mid(s, Len(s) - Len(sR) + 1, Len(sR)) = sR
+            Dim sVanity As String = "G1ridcoinexchangesystem" + Trim(s)
+            Dim ab As New Casascius.Bitcoin.AddressBase(sVanity, True)
+            If ab.AddressType.ToString() <> "0" Then Debug.Print(ab.AddressType.ToString())
+            If ab.AddressType.ToString() = "37" Then Stop
+            Application.DoEvents()
+        Next
+        End
+        ''''''''''''''Proposed Burn Address'''''''''''''''''
+        'G1ridcoinexchangesystemzz8124RGuws
+        ''''''''''''''''''''''''''''''''''''''''''''''''''''
     End Sub
 
-
-    'Boinc
-    'Elevated command prompt
-    'Cd to gridcoin directory
-    'RegAsm.exe boinc.dll
-    'regtlibv12.exe boinc.tlb.
-    '//Note, on Windows, if the performance counters are corrupted, rebuild them by going to an elevated command prompt and 
-    'issue the command:
-    'lodctr /r 
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
 
