@@ -1038,8 +1038,11 @@ bool IsCPIDValid(std::string cpid, std::string ENCboincpubkey)
 			std::string bpmd5 = RetrieveMd5(bpk);
 			if (bpmd5==cpid) return true;
 			printf("Md5<>cpid, md5 %s cpid %s      ",bpmd5.c_str(), cpid.c_str());
-			printf("     root bpk %s \r\n",bpk.c_str());
-			return false;
+
+			//For blocks > 180,000 during the retirement phase, return true (since security during retirement is scrypt only):
+			return true;
+			//printf("     root bpk %s \r\n",bpk.c_str());
+			//return false;
 	}
 	catch (std::exception &e) 
 	{
@@ -3024,7 +3027,8 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 
 	if (fTestNet) grandfather = 9593;
 	//6-5-2014: Updating PoB Algo to prevent PoB diff from being below tolerance level after block 125300:
-	if (!fTestNet) grandfather = 125300;
+	//if (!fTestNet) grandfather = 125300;
+	if (!fTestNet) grandfather = 180000;
 
 	if (ConnectingBlock) return true;
 	int out_height = 0;
