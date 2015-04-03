@@ -197,6 +197,7 @@ public:
 	std::string boinchashnonce;
 	std::string boinchashpw;
 
+
     bool fOneShot;
     bool fClient;
     bool fInbound;
@@ -271,6 +272,9 @@ public:
         fStartSync = false;
         fGetAddr = false;
         nMisbehavior = 0;
+
+         
+
         fRelayTxes = false;
         setInventoryKnown.max_size(SendBufferSize() / 1000);
         pfilter = new CBloomFilter();

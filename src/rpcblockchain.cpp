@@ -89,6 +89,31 @@ bool GridEncrypt(std::vector<unsigned char> vchPlaintext, std::vector<unsigned c
 
 
 
+
+double SumOfSubsidiesForRTM()
+{
+	//Iterate throught the entire chain...
+	if (nBestHeight < 10) 0;
+	int nMaxDepth = nBestHeight;
+	int nMinDepth = 1;
+	double total = 0;
+	CBlock block;
+	for (int ii = nMaxDepth; ii > nMinDepth; ii--)
+	{
+    		CBlockIndex* pblockindex = FindBlockByHeight(ii);
+			block.ReadFromDisk(pblockindex);
+			double subsidy = GetBlockValueByHash(block.GetHash());
+			total += subsidy;
+	}
+	return total/COIN;
+}
+
+
+
+
+
+
+
 double GetPoBDifficulty()
 {
 
@@ -1027,7 +1052,18 @@ Value listitem(const Array& params, bool fHelp)
 
 
 
+	if (sitem == "sumofsubsidies")
+	{
 
+			Object entry;
+			double total = SumOfSubsidiesForRTM();
+
+			entry.push_back(Pair("Subsidies",total));
+			results.push_back(entry);
+
+			return results;
+
+	}
 
 
 	if (sitem == "projects") 

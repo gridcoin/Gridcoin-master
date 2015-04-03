@@ -56,7 +56,7 @@ CLevelDB::CLevelDB(const boost::filesystem::path &path, size_t nCacheSize, bool 
     leveldb::Status status = leveldb::DB::Open(options, path.string(), &pdb);
     if (!status.ok())
         throw std::runtime_error(strprintf("CLevelDB(): error opening database environment %s", status.ToString().c_str()));
-    printf("Opened LevelDB successfully\n");
+    //if (fDebug) printf("Opened LevelDB successfully\n");
 }
 
 CLevelDB::~CLevelDB() {

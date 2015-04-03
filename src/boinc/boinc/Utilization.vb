@@ -21,7 +21,7 @@ Public Class Utilization
 
     Public ReadOnly Property Version As Double
         Get
-            Return 172
+            Return 174
 
         End Get
     End Property
@@ -305,7 +305,7 @@ Public Class Utilization
         Try
 
             lfrmMiningCounter = lfrmMiningCounter + 1
-            Exit Function
+            ' Exit Function
 
             If mfrmMining Is Nothing Then
                 mfrmMining = New frmMining

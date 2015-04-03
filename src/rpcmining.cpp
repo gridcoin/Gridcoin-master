@@ -439,7 +439,7 @@ Value getwork(const Array& params, bool fHelp)
         static int64 nStart;
         static CBlockTemplate* pblocktemplate;
         if (pindexPrev != pindexBest ||
-            (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60))
+            (nTransactionsUpdated != nTransactionsUpdatedLast && GetAdjustedTime() - nStart > 60))
         {
             if (pindexPrev != pindexBest)
             {
@@ -456,7 +456,7 @@ Value getwork(const Array& params, bool fHelp)
             // Store the pindexBest used before Create-NewBlock, to avoid races
             nTransactionsUpdatedLast = nTransactionsUpdated;
             CBlockIndex* pindexPrevNew = pindexBest;
-            nStart = GetTime();
+            nStart = GetAdjustedTime();
 
 			
             // Create new block
@@ -660,7 +660,7 @@ CBlock* getwork_cpu(MiningCPID miningcpid, bool& succeeded,CReserveKey& reservek
     static CBlockTemplate* pblocktemplate;
 
 
-    if (pindexPrev != pindexBest ||  (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 60))
+    if (pindexPrev != pindexBest ||  (nTransactionsUpdated != nTransactionsUpdatedLast && GetAdjustedTime() - nStart > 60))
         {
             if (pindexPrev != pindexBest)
             {
@@ -1041,7 +1041,7 @@ Value submitblock(const Array& params, bool fHelp)
     CValidationState state;
     bool fAccepted = ProcessBlock(state, NULL, &pblock);
     if (!fAccepted)
-        return "rejected"; // TODO: report validation state
+        return "rejected"; //  report validation state
 
     return Value::null;
 }

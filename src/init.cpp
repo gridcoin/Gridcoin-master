@@ -156,7 +156,7 @@ void Shutdown()
     nTransactionsUpdated++;
     StopRPCThreads();
 	ShutdownRPCMining();
-   if (pwalletMain)        bitdb.Flush(false);
+    if (pwalletMain)        bitdb.Flush(false);
     ShutdownGridcoinMiner();
 	    
     StopNode();

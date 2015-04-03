@@ -123,7 +123,7 @@ std::string PubKeyToGRCAddress(const CScript& scriptPubKey)
         return "";
     }
 
-    Array a;
+   // Array a;
 	std::string grcaddress = "";
     BOOST_FOREACH(const CTxDestination& addr, addresses)
 	{
@@ -628,7 +628,6 @@ std::string Compensate(string grc_address, double dAmount, string commentfrom, s
 
 std::string RoundToString(double d, int place)
 {
-	//boost::lexical_cast<string>(iBU)
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(place) << d ;
     return ss.str() ;
@@ -919,7 +918,7 @@ Value signrawtransaction(const Array& params, bool fHelp)
                         scriptPubKey.ToString();
                     throw JSONRPCError(RPC_DESERIALIZATION_ERROR, err);
                 }
-                // what todo if txid is known, but the actual output isn't?
+                // what to-do if txid is known, but the actual output isn't?
             }
             if ((unsigned int)nOut >= coins.vout.size())
                 coins.vout.resize(nOut+1);
@@ -1030,7 +1029,7 @@ Value sendrawtransaction(const Array& params, bool fHelp)
             // push to local node
             CValidationState state;
             if (!tx.AcceptToMemoryPool(state, true, false))
-                throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX rejected"); // TODO: report validation state
+                throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX rejected"); //  report validation state
         }
     }
     if (fHave) {

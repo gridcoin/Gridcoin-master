@@ -1561,6 +1561,7 @@ void BitcoinGUI::timerfire()
 
 
 
+
 QString BitcoinGUI::toqstring(int o) 
 {
 	std::string pre="";

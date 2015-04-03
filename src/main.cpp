@@ -3183,7 +3183,7 @@ bool CheckProofOfBoinc(CBlock* pblock, bool bOKToBeInChain, bool ConnectingBlock
 	{
 		
 		//6-5-2014 Verify PoB Limits:
-		if (boincblock.pobdifficulty < .75 && !fTestNet)
+		if (boincblock.pobdifficulty < .05 && !fTestNet)
 		{
 			return error("CheckProofOfBoinc():PoB diff lower than minimum work level.");
 		}
@@ -7746,7 +7746,7 @@ bool IsPOBDiffInvalid()
 {
 	double PoBDiff = GetPoBDifficulty();
 	bool bPOBDiffInvalid = false;
-	if (!fTestNet && PoBDiff < .75) bPOBDiffInvalid = true;
+	if (!fTestNet && PoBDiff < .05) bPOBDiffInvalid = true;
 	if (!fTestNet && PoBDiff==99) bPOBDiffInvalid = true;
 	if (bPOBDiffInvalid) 
 	{

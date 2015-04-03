@@ -185,6 +185,9 @@ unsigned short GetListenPort()
     return (unsigned short)(GetArg("-port", GetDefaultPort()));
 }
 
+
+
+
 void CNode::PushGetBlocks(CBlockIndex* pindexBegin, uint256 hashEnd)
 {
     // Filter out duplicate requests
@@ -1011,7 +1014,6 @@ void CNode::PushVersion()
 
 	if (nRecvVersion == 111022) 
 	{
-
 
 		 PushMessage("version", PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
                 nLocalHostNonce, FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>()), nBestHeight);
